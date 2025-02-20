@@ -30,7 +30,7 @@
         <main class="main-content">
             <header>
                 <h1>Gestión de Productos</h1>
-                <button class="add-btn" onclick="openModal()">➕ Agregar Producto</button>
+                <button class="add-btn" onclick="abrirEAModal()">➕ Agregar Producto</button>
             </header>
 
             <section class="product-list">
@@ -51,8 +51,8 @@
                             <td>$4.98</td>
                             <td><img src="ruta/a/tu/imagen.jpg" alt="Cappuccino" class="product-image"></td>
                             <td>
-                                <button class="view-btn" onclick="viewProduct(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">👁️</button>
-                                <button class="edit-btn" onclick="openModal(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">✏️</button>
+                                <button class="view-btn" onclick="abrirVerProducto(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">👁️</button>
+                                <button class="edit-btn" onclick="abrirEAModal(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">✏️</button>
                                 <button class="delete-btn">🗑️</button>
                             </td>
                         </tr>
@@ -64,7 +64,7 @@
         <!-- Modal para agregar/editar productos -->
         <div class="modal" id="productModal">
             <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="cerrarEAModal()">&times;</span>
                 <h2 id="modalTitle">Agregar Producto</h2>
                 <form id="productForm" enctype="multipart/form-data">
                     <input type="hidden" id="productId">
@@ -85,7 +85,7 @@
         <!-- Modal para ver producto -->
         <div class="modal" id="viewProductModal">
             <div class="modal-content">
-                <span class="close" onclick="closeViewModal()">&times;</span>
+                <span class="close" onclick="cerrarVerProducto()">&times;</span>
                 <h2 id="viewModalTitle">Ver Producto</h2>
                 <div id="viewProductDetails">
                     <p><strong>Nombre:</strong> <span id="viewProductName"></span></p>
