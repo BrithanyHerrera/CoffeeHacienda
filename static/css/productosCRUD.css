@@ -33,7 +33,7 @@ header {
     border-bottom: 1px solid #ddd;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn, .delete-btn, .view-btn {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
@@ -49,7 +49,11 @@ header {
     color: white;
 }
 
-/* Modal */
+.view-btn {
+    background: #3498DB;
+    color: white;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -82,4 +86,15 @@ input {
     margin: 10px 0;
     border: 1px solid #ddd;
     border-radius: 5px;
+}
+
+.product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+#viewProductDetails img {
+    width: 100%;
+    height: auto;
 }
