@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Menu</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+            <h2>Purr<span>'</span>Coffee</h2>
+            <nav>
+                <ul>
+                    <li>🏠 Home page</li>
+                    <li>📋 Menu</li>
+                    <li>🛒 My orders <span class="badge">3</span></li>
+                    <li>📜 History</li>
+                    <li>🤝 Partners</li>
+                    <li>⚙️ Settings</li>
+                    <li>❤️ Donate to shelter</li>
+                    <li>🚪 Log out</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <header>
+                <input type="text" placeholder="Search...">
+                <button class="filter-btn">⚙️ Filter</button>
+                <div class="user">
+                    <span>Albert Flores</span>
+                    <p>purrcoff@gmail.com</p>
+                </div>
+            </header>
+
+            <section class="menu">
+                <div class="categories">
+                    <button class="active">Coffee</button>
+                    <button>Non Coffee</button>
+                    <button>Food</button>
+                    <button>Snack</button>
+                    <button>Dessert</button>
+                </div>
+
+                <div class="products">
+                    <div class="product">
+                        <img src="static/images/cappuccino.png" alt="Cappuccino">
+                        <h3>Cappuccino <span>$4.98</span></h3>
+                        <p>The combination of coffee, milk, and foam in a single drink.</p>
+                        <div class="sizes">
+                            <button>Small</button>
+                            <button>Large</button>
+                        </div>
+                        <button class="add-to-cart">Add to cart</button>
+                    </div>
+
+                    <div class="product">
+                        <img src="static/images/latte.png" alt="Coffee Latte">
+                        <h3>Coffee Latte <span>$5.98</span></h3>
+                        <p>A coffee latte with rich milk foam.</p>
+                        <div class="sizes">
+                            <button>Small</button>
+                            <button>Large</button>
+                        </div>
+                        <button class="add-to-cart">Add to cart</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Carrito -->
+        <aside class="cart">
+            <h2>Cart</h2>
+            <div class="cart-items">
+                <div class="cart-item">
+                    <img src="static/images/cappuccino.png" alt="Cappuccino">
+                    <div>
+                        <h4>Cappuccino</h4>
+                        <p>Small - 200g</p>
+                        <p>$4.98</p>
+                    </div>
+                    <input type="number" value="1">
+                </div>
+            </div>
+            <button class="checkout">Place an order</button>
+        </aside>
+    </div>
+</body>
+</html>
