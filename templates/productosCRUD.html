@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD de Productos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/crud.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/productosCRUD.css') }}">
 </head>
 <body>
     <div class="container">
         <!-- Barra lateral -->
         <aside class="sidebar">
-            <h2>Purr<span>'</span>Coffee</h2>
+            <h2>La<span> </span>Hacienda</h2>
             <nav>
                 <ul>
                     <li>🏠 Home page</li>
@@ -51,7 +51,7 @@
                             <td>$4.98</td>
                             <td><img src="ruta/a/tu/imagen.jpg" alt="Cappuccino" class="product-image"></td>
                             <td>
-                                <button class="view-btn" onclick="viewProduct(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">👁️ Ver</button>
+                                <button class="view-btn" onclick="viewProduct(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">👁️</button>
                                 <button class="edit-btn" onclick="openModal(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">✏️</button>
                                 <button class="delete-btn">🗑️</button>
                             </td>

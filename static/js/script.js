@@ -22,7 +22,7 @@ function viewProduct(id, name, price, image) {
     document.getElementById('viewProductImage').src = image;
     
     // Mostrar el modal de ver producto
-    document.getElementById('viewProductModal').style.display = 'block';
+    document.getElementById('viewProductModal').style.display = 'flex';
 }
 
 function closeViewModal() {
