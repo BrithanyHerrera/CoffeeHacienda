@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD de Productos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/crud.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+            <h2>Purr<span>'</span>Coffee</h2>
+            <nav>
+                <ul>
+                    <li>🏠 Home page</li>
+                    <li>📋 Menu</li>
+                    <li>🛒 My orders</li>
+                    <li>📜 History</li>
+                    <li>🤝 Partners</li>
+                    <li>⚙️ Settings</li>
+                    <li>❤️ Donate to shelter</li>
+                    <li>🚪 Log out</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <header>
+                <h1>Gestión de Productos</h1>
+                <button class="add-btn" onclick="openModal()">➕ Agregar Producto</button>
+            </header>
+
+            <section class="product-list">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Imagen</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Cappuccino</td>
+                            <td>$4.98</td>
+                            <td><img src="ruta/a/tu/imagen.jpg" alt="Cappuccino" class="product-image"></td>
+                            <td>
+                                <button class="view-btn" onclick="viewProduct(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">👁️ Ver</button>
+                                <button class="edit-btn" onclick="openModal(1, 'Cappuccino', 4.98, 'ruta/a/tu/imagen.jpg')">✏️</button>
+                                <button class="delete-btn">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <!-- Modal para agregar/editar productos -->
+        <div class="modal" id="productModal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="modalTitle">Agregar Producto</h2>
+                <form id="productForm" enctype="multipart/form-data">
+                    <input type="hidden" id="productId">
+                    <label for="productName">Nombre:</label>
+                    <input type="text" id="productName" required>
+
+                    <label for="productPrice">Precio:</label>
+                    <input type="number" id="productPrice" required>
+
+                    <label for="productImage">Imagen:</label>
+                    <input type="file" id="productImage" accept="image/*">
+
+                    <button type="submit">Guardar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal para ver producto -->
+        <div class="modal" id="viewProductModal">
+            <div class="modal-content">
+                <span class="close" onclick="closeViewModal()">&times;</span>
+                <h2 id="viewModalTitle">Ver Producto</h2>
+                <div id="viewProductDetails">
+                    <p><strong>Nombre:</strong> <span id="viewProductName"></span></p>
+                    <p><strong>Precio:</strong> $<span id="viewProductPrice"></span></p>
+                    <p><strong>Imagen:</strong></p>
+                    <img id="viewProductImage" class="product-image" alt="Imagen del Producto">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
