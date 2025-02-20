@@ -8,7 +8,7 @@ def login():
 
 @app.route('/')
 def principal():
-    return render_template('principal.html')
+    return render_template('menu.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
