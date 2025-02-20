@@ -10,17 +10,16 @@
     <div class="container">
         <!-- Barra lateral -->
         <aside class="sidebar">
-            <h2>La<span> </span>Hacienda</h2>
+            <h2>Cafetería La Hacienda</h2>
             <nav>
                 <ul>
-                    <li>🏠 Home page</li>
-                    <li>📋 Menu</li>
-                    <li>🛒 My orders <span class="badge">3</span></li>
-                    <li>📜 History</li>
-                    <li>🤝 Partners</li>
-                    <li>⚙️ Settings</li>
-                    <li>❤️ Donate to shelter</li>
-                    <li>🚪 Log out</li>
+                    <li>🏠 Página Principal</li>
+                    <li>📋 Menú</li>
+                    <li>🛒 Ordenes <span class="badge">3</span></li>
+                    <li>📜 Historial</li>
+                    <li>🤝 Usuarios</li>
+                    <li>❤ Propinas</li>
+                    <li>🚪 Salir</li>
                 </ul>
             </nav>
         </aside>
@@ -29,43 +28,61 @@
         <main class="main-content">
             <header>
                 <input type="text" placeholder="Search...">
-                <button class="filter-btn">⚙️ Filter</button>
-                <div class="user">
-                    <span>Albert Flores</span>
-                    <p>la_hacienda@gmail.com</p>
-                </div>
+                <button class="filter-btn">Filter</button>
             </header>
+            
+            <div class="user-container">
+                <img src="static/img/user.jpg" alt="User">
+                <span>Administrador</span>
+            </div>
+            
+            
+            
 
             <section class="menu">
                 <div class="categories">
-                    <button class="active">Coffee</button>
-                    <button>Non Coffee</button>
-                    <button>Food</button>
-                    <button>Snack</button>
-                    <button>Dessert</button>
+                    <button>Bebidas Calientes</button>
+                    <button>Bebidas Frías</button>
+                    <button>Snacks</button>
+                    <button>Postres</button>
+                    <button>Otras Bebidas</button>
                 </div>
 
                 <div class="products">
                     <div class="product">
-                        <img src="static/images/cappuccino.png" alt="Cappuccino">
-                        <h3>Cappuccino <span>$4.98</span></h3>
-                        <p>The combination of coffee, milk, and foam in a single drink.</p>
+                        <img src="static/images/capuccino.png" alt="Cappuccino">
+                        <h3>Cappuccino <span></span></h3>
+                        <p>La combinación perfecta de café, leche y espuma. </p>
                         <div class="sizes">
-                            <button>Small</button>
-                            <button>Large</button>
+                            <button>Chico</button>
+                            <button>Mediano</button>
+                            <button>Grande</button>
                         </div>
-                        <button class="add-to-cart">Add to cart</button>
+                        <button class="add-to-cart">Añadir a la orden</button>
                     </div>
 
                     <div class="product">
                         <img src="static/images/latte.png" alt="Coffee Latte">
-                        <h3>Coffee Latte <span>$5.98</span></h3>
-                        <p>A coffee latte with rich milk foam.</p>
+                        <h3>Café Latte <span></span></h3>
+                        <p>Delicioso café con leche. </p>
                         <div class="sizes">
-                            <button>Small</button>
-                            <button>Large</button>
+                            <button>Chico</button>
+                            <button>Mediano</button>
+                            <button>Grande</button>
                         </div>
-                        <button class="add-to-cart">Add to cart</button>
+                        <button class="add-to-cart">Añadir a la orden</button>
+                    </div>
+
+                    <div class="product">
+                        <img src="static/images/flatw.png" alt="Flat White">
+                        <h3>Flat White <span></span></h3>
+                        <p>Un café para despertar. Intenso café con leche. </p>
+                        <div class="sizes">
+                            <button>Chico</button>
+                            <button>Mediano</button>
+                            <button>Grande</button>
+                        </div>
+                        <button class="add-to-cart">Añadir a la orden</button>
                     </div>
                 </div>
             </section>
@@ -73,19 +90,18 @@
 
         <!-- Carrito -->
         <aside class="cart">
-            <h2>Cart</h2>
+            <h2>Orden</h2>
             <div class="cart-items">
                 <div class="cart-item">
-                    <img src="static/images/cappuccino.png" alt="Cappuccino">
+                    <img src="static/images/capuccino.png" alt="Cappuccino">
                     <div>
                         <h4>Cappuccino</h4>
-                        <p>Small - 200g</p>
-                        <p>$4.98</p>
+                        <p>Chico - $50</p>
                     </div>
                     <input type="number" value="1">
                 </div>
             </div>
-            <button class="checkout">Place an order</button>
+            <button class="checkout">Realizar la orden</button>
         </aside>
     </div>
 </body>

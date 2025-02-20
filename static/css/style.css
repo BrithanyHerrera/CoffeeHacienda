@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #F9E6D3;
+    background-color: #F9E6D3 ;
     margin: 0;
     padding: 0;
     display: flex;
@@ -10,6 +10,111 @@ body {
     display: flex;
     width: 100%;
 }
+
+/* Estilos para el encabezado */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFE5D1; /* Color melocotón claro */
+    padding: 15px 48px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el logo */
+header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FF914D; /* Naranja oscuro */
+}
+
+header h2 span {
+    color: #000; /* Negro */
+}
+
+/* Estilos para la barra de búsqueda */
+header input[type="text"] {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 30px;
+    background: #fff;
+    margin: 0 20px;
+    font-size: 16px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botón de filtro */
+.filter-btn {
+    background: #FF914D; /* Naranja */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.3s;
+}
+
+.filter-btn:hover {
+    background: #FF6A00; /* Naranja más oscuro */
+}
+
+.user-container {
+    position: absolute;
+    top: 19px;
+    right: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 0.5px 48px; /* Más espacio interno */
+    border-radius: 10px; /* Bordes más redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    font-size: 18px; /* Texto más grande */
+}
+
+.user-container img {
+    width: 60px; /* Imagen más grande */
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #FF914D;
+}
+
+.user-container span {
+    font-size: 18px; /* Texto más grande */
+    font-weight: bold;
+    color: #333;
+}
+
+
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    border-radius: 30px;
+    background: #fff;
+    margin: 0 20px;
+    padding: 8px 15px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+
+.user span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
 
 .sidebar {
     width: 250px;
@@ -94,11 +199,18 @@ header .user {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    flex-direction: column; /* Apilar contenido verticalmente */
+    justify-content: space-between; /* Distribuir el espacio */
+    width: 250px;
+    height: 350px;
 }
 
 .product img {
-    width: 100px;
+    width: 150px; /* Ancho fijo */
+    height: 150px; /* Alto fijo */
+    object-fit: cover; /* Ajusta la imagen para cubrir el área sin distorsionarla */
 }
+
 
 .product .sizes button {
     padding: 5px 10px;
@@ -119,10 +231,13 @@ header .user {
 }
 
 .cart {
-    width: 250px;
+    width: 260px;
+    height: 500px;
     background: white;
     padding: 20px;
     box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 90px;
+    border-radius: 10px;
 }
 
 .cart-item {
