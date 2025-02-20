@@ -1,123 +1,25 @@
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
-    background-color: #F9E6D3 ;
+    background-color: #F9E6D3;
     margin: 0;
     padding: 0;
     display: flex;
 }
 
+/* Contenedor principal */
 .container {
     display: flex;
     width: 100%;
 }
 
-/* Estilos para el encabezado */
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #FFE5D1; /* Color melocotón claro */
-    padding: 15px 48px;
-    border-radius: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Estilos para el logo */
-header h2 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #FF914D; /* Naranja oscuro */
-}
-
-header h2 span {
-    color: #000; /* Negro */
-}
-
-/* Estilos para la barra de búsqueda */
-header input[type="text"] {
-    flex-grow: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 30px;
-    background: #fff;
-    margin: 0 20px;
-    font-size: 16px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Botón de filtro */
-.filter-btn {
-    background: #FF914D; /* Naranja */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: background 0.3s;
-}
-
-.filter-btn:hover {
-    background: #FF6A00; /* Naranja más oscuro */
-}
-
-.user-container {
-    position: absolute;
-    top: 19px;
-    right: 5px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: white;
-    padding: 0.5px 48px; /* Más espacio interno */
-    border-radius: 10px; /* Bordes más redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    font-size: 18px; /* Texto más grande */
-}
-
-.user-container img {
-    width: 60px; /* Imagen más grande */
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #FF914D;
-}
-
-.user-container span {
-    font-size: 18px; /* Texto más grande */
-    font-weight: bold;
-    color: #333;
-}
-
-
-
-.user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: none;
-    border-radius: 30px;
-    background: #fff;
-    margin: 0 20px;
-    padding: 8px 15px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-
-.user span {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-
+/* Sidebar */
 .sidebar {
     width: 250px;
+    height: 100vh; /* Ocupar toda la altura de la pantalla */
+    position: fixed;
+    left: 0;
+    top: 0;
     background: white;
     padding: 20px;
     box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
@@ -144,35 +46,100 @@ header input[type="text"] {
     border-radius: 50%;
 }
 
+/* Contenido principal */
 .main-content {
     flex-grow: 1;
+    margin-left: 300px; /* Deja espacio para la sidebar */
     padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
 }
 
+/* Estilos del encabezado */
 header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: white;
+    justify-content: space-between;
+    background: #ffffff;
+    padding: 15px 48px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FF914D;
+}
+
+header h2 span {
+    color: #000;
+}
+
+header input[type="text"] {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 30px;
+    background-color: #F9E6D3;
+    margin: 0 20px;
+    font-size: 16px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botón de filtro */
+.filter-btn {
+    background: #FF914D;
+    border: none;
     padding: 10px 20px;
+    border-radius: 25px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.3s;
+}
+
+.filter-btn:hover {
+    background: #FF6A00;
+}
+
+/* Usuario en el header */
+.user-container {
+    position: absolute;
+    top: 19px;
+    right: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 0.5px 48px;
     border-radius: 10px;
-    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    font-size: 18px;
 }
 
-header input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.user-container img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #FF914D;
 }
 
-header .user {
-    text-align: right;
+.user-container span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
 }
 
+/* Categorías */
 .categories {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    margin-top: 10px;
 }
 
 .categories button {
@@ -188,8 +155,10 @@ header .user {
     color: white;
 }
 
+/* Sección de productos */
 .products {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
 }
 
@@ -199,19 +168,19 @@ header .user {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    flex-direction: column; /* Apilar contenido verticalmente */
-    justify-content: space-between; /* Distribuir el espacio */
     width: 250px;
     height: 350px;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .product img {
-    width: 150px; /* Ancho fijo */
-    height: 150px; /* Alto fijo */
-    object-fit: cover; /* Ajusta la imagen para cubrir el área sin distorsionarla */
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
 }
 
-
+/* Tamaños de café */
 .product .sizes button {
     padding: 5px 10px;
     margin: 5px;
@@ -221,6 +190,7 @@ header .user {
     cursor: pointer;
 }
 
+/* Botón agregar al carrito */
 .product .add-to-cart {
     background: #FF7F50;
     color: white;
@@ -230,6 +200,7 @@ header .user {
     cursor: pointer;
 }
 
+/* Carrito */
 .cart {
     width: 260px;
     height: 500px;
@@ -256,6 +227,7 @@ header .user {
     padding: 5px;
 }
 
+/* Botón de pago */
 .checkout {
     background: #FF7F50;
     color: white;
