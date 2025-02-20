@@ -1,4 +1,4 @@
-.main-content {
+.contenidoPrincipal {
     padding: 20px;
     flex-grow: 1;
 }
@@ -10,7 +10,7 @@ header {
     margin-bottom: 20px;
 }
 
-.add-btn {
+.btnAgregar {
     background: #FF7F50;
     color: white;
     padding: 10px 15px;
@@ -19,7 +19,7 @@ header {
     cursor: pointer;
 }
 
-.product-list table {
+.listaProductos table {
     width: 100%;
     border-collapse: collapse;
     background: white;
@@ -27,29 +27,29 @@ header {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.product-list th, .product-list td {
+.listaProductos th, .listaProductos td {
     padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-.edit-btn, .delete-btn, .view-btn {
+.btnEditar, .btnEliminar, .btnVer {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
 }
 
-.edit-btn {
+.btnEditar {
     background: #FFBF00;
     color: white;
 }
 
-.delete-btn {
+.btnEliminar {
     background: #E74C3C;
     color: white;
 }
 
-.view-btn {
+.btnVer {
     background: #3498DB;
     color: white;
 }
@@ -66,7 +66,7 @@ header {
     align-items: center;
 }
 
-.modal-content {
+.contenedorModal {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -74,7 +74,7 @@ header {
     text-align: center;
 }
 
-.close {
+.cerrar {
     float: right;
     font-size: 20px;
     cursor: pointer;
@@ -88,7 +88,7 @@ input {
     border-radius: 5px;
 }
 
-.product-image {
+.imagenProducto {
     width: 100px;
     height: 100px;
     object-fit: cover;
