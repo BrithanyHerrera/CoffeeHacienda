@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión / Registrarse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+  <body>
+
+    <!-- Créditos al autor @leonam-silva-de-souza -->
+      <div class="container">
+          <div class="form-box login">
+              <form action="#">
+                  <h1>Iniciar Sesión</h1>
+                  <div class="input-box">
+                      <input type="text" placeholder="Usuario" required>
+                      <i class='bx bxs-user'></i>
+                  </div>
+                  <div class="input-box">
+                      <input type="password" placeholder="Contraseña" required>
+                      <i class='bx bxs-lock-alt'></i>
+                  </div>
+                  <div class="forgot-link">
+                      <a href="#">¿Olvidaste tu contraseña?</a>
+                  </div>
+                  <button type="submit" class="btn">Iniciar Sesión</button>
+              </form>
+          </div>
+
+          <div class="form-box register">
+              <form action="#">
+                  <h1>Registro</h1>
+                  <div class="input-box">
+                      <input type="text" placeholder="Usuario" required>
+                      <i class='bx bxs-user'></i>
+                  </div>
+                  <div class="input-box">
+                      <input type="email" placeholder="Correo Electrónico" required>
+                      <i class='bx bxs-envelope'></i>
+                  </div>
+                  <div class="input-box">
+                      <input type="password" placeholder="Contraseña" required>
+                      <i class='bx bxs-lock-alt'></i>
+                  </div>
+                  <button type="submit" class="btn">Registrarse</button>
+                  <p>O regístrate con redes sociales</p>
+                  <div class="social-icons">
+                      <a href="#"><i class='bx bxl-google'></i></a>
+                      <a href="#"><i class='bx bxl-facebook'></i></a>
+                      <a href="#"><i class='bx bxl-github'></i></a>
+                      <a href="#"><i class='bx bxl-linkedin'></i></a>
+                  </div>
+              </form>
+          </div>
+
+          <div class="toggle-box">
+              <div class="toggle-panel toggle-left">
+                  <h1>¡Hola, bienvenido!</h1>
+                  <p>¿Aún no tienes una cuenta?</p>
+                  <button class="btn register-btn">Registrarse</button>
+              </div>
+
+              <div class="toggle-panel toggle-right">
+                  <h1>¡Bienvenido de nuevo!</h1>
+                  <p>¿Ya tienes una cuenta?</p>
+                  <button class="btn login-btn">Iniciar Sesión</button>
+              </div>
+          </div>
+      </div>
+
+      <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+  </body>
+</html>
