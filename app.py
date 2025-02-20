@@ -10,6 +10,10 @@ def login():
 def principal():
     return render_template('menu.html')
 
+@app.route('/finalizarOrden')
+def finalizar_orden():
+    return render_template('finalizarOrden.html')
+
 # Datos de ejemplo
 productos = [
     {'id': 1, 'nombre': 'Cappuccino', 'precio': 4.98}
