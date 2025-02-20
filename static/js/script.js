@@ -1,32 +1,34 @@
-function openModal(id = null, name = '', price = '') {
-    document.getElementById('productId').value = id;
-    document.getElementById('productName').value = name;
-    document.getElementById('productPrice').value = price;
-    document.getElementById('modalTitle').innerText = id ? 'Editar Producto' : 'Agregar Producto';
-    document.getElementById('productModal').style.display = 'flex';
+//Funcion para abrir el modal de Edición y Agregar producto.
+function abrirEAModal(id = null, nombre = '', precio = '') {
+    document.getElementById('productoId').value = id;
+    document.getElementById('productoNombre').value = nombre;
+    document.getElementById('productoPrecio').value = precio;
+    document.getElementById('modalTitulo').innerText = id ? 'Editar Producto' : 'Agregar Producto';
+    document.getElementById('productoModal').style.display = 'flex';
 }
 
-function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
+function cerrarEAModal() {
+    document.getElementById('productoModal').style.display = 'none';
 }
 
-document.getElementById('productForm').addEventListener('submit', function(event) {
+document.getElementById('productoForm').addEventListener('submit', function(event) {
     event.preventDefault();
     closeModal();
 });
 
-function viewProduct(id, name, price, image) {
+function abrirVerProducto(id, nombre, precio, imagen) {
     // Establecer el contenido en el modal de ver producto
-    document.getElementById('viewProductName').textContent = name;
-    document.getElementById('viewProductPrice').textContent = price;
-    document.getElementById('viewProductImage').src = image;
+    document.getElementById('verProductoID').textContent = id;
+    document.getElementById('verProductoNombre').textContent = nombre;
+    document.getElementById('verProductoPrecio').textContent = precio;
+    document.getElementById('verProductoImagen').src = imagen;
     
     // Mostrar el modal de ver producto
-    document.getElementById('viewProductModal').style.display = 'flex';
+    document.getElementById('verProductoModal').style.display = 'flex';
 }
 
-function closeViewModal() {
+function cerrarVerProducto() {
     // Cerrar el modal de ver producto
-    document.getElementById('viewProductModal').style.display = 'none';
+    document.getElementById('verProductoModal').style.display = 'none';
 }
 
