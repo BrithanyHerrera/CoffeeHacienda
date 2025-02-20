@@ -1,34 +1,45 @@
-//Funcion para abrir el modal de Edición y Agregar producto.
+// Función para abrir el modal de Edición y Agregar producto.
 function abrirEAModal(id = null, nombre = '', precio = '') {
-    document.getElementById('productoId').value = id;
-    document.getElementById('productoNombre').value = nombre;
-    document.getElementById('productoPrecio').value = precio;
-    document.getElementById('modalTitulo').innerText = id ? 'Editar Producto' : 'Agregar Producto';
+    // Verifica que los valores sean correctos
+    console.log('Abrir modal con los siguientes datos:', id, nombre, precio);
+
+    // Rellenar los campos del modal con los valores recibidos
+    document.getElementById('idProducto').value = id;
+    document.getElementById('nombreProducto').value = nombre;
+    document.getElementById('precioProducto').value = precio;
+
+
+    // Establecer el título del modal dependiendo si es agregar o editar
+    document.getElementById('tituloModal').innerText = id ? 'Editar Producto' : 'Agregar Producto';
+    
+    // Mostrar el modal de agregar/editar producto
     document.getElementById('productoModal').style.display = 'flex';
 }
 
+// Cerrar el modal de edición/agregar
 function cerrarEAModal() {
     document.getElementById('productoModal').style.display = 'none';
 }
 
-document.getElementById('productoForm').addEventListener('submit', function(event) {
+// Evitar el comportamiento por defecto del formulario y cerrar el modal.
+document.getElementById('formProducto').addEventListener('submit', function(event) {
     event.preventDefault();
-    closeModal();
+    cerrarEAModal(); // Cambié 'closeModal()' a 'cerrarEAModal()'
 });
 
+// Función para abrir el modal de ver producto.
 function abrirVerProducto(id, nombre, precio, imagen) {
     // Establecer el contenido en el modal de ver producto
-    document.getElementById('verProductoID').textContent = id;
-    document.getElementById('verProductoNombre').textContent = nombre;
-    document.getElementById('verProductoPrecio').textContent = precio;
-    document.getElementById('verProductoImagen').src = imagen;
+    document.getElementById('verIDProducto').textContent = id;
+    document.getElementById('verNombreProducto').textContent = nombre;
+    document.getElementById('verPrecioProducto').textContent = precio;
+    document.getElementById('verImagenProducto').src = imagen;
     
     // Mostrar el modal de ver producto
-    document.getElementById('verProductoModal').style.display = 'flex';
+    document.getElementById('verModalProducto').style.display = 'flex';
 }
 
+// Cerrar el modal de ver producto
 function cerrarVerProducto() {
-    // Cerrar el modal de ver producto
-    document.getElementById('verProductoModal').style.display = 'none';
+    document.getElementById('verModalProducto').style.display = 'none';
 }
-
