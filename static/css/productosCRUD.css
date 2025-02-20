@@ -1,14 +1,9 @@
 .contenidoPrincipal {
     padding: 20px;
     flex-grow: 1;
+    margin-left: 300px;
 }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
 
 .btnAgregar {
     background: #FF7F50;
@@ -20,6 +15,7 @@ header {
 }
 
 .listaProductos table {
+    margin-top: 10px;
     width: 100%;
     border-collapse: collapse;
     background: white;
