@@ -109,8 +109,15 @@ body {
     color: #000000; /* Texto general (Negro) */
 }
 
-.add-btn {
-    background-color: #FF7F50; /* Botones principales (Naranja claro) */
+.menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.add-btn, .remove-btn, .decrease-btn, .increase-btn {
+    background-color: #FF7F50; /* Naranja claro */
     color: #FFFFFF; /* Texto blanco */
     border: none;
     padding: 10px;
@@ -120,23 +127,21 @@ body {
     font-size: 16px;
 }
 
-.add-btn:hover {
+.add-btn:hover, .remove-btn:hover, .decrease-btn:hover, .increase-btn:hover {
     background-color: #FF5722; /* Naranja más oscuro */
 }
 
-.category-btn {
-    background-color: #FFE0C0; /* Botones de categoría (Beige suave) */
-    color: #000000; /* Texto general (Negro) */
-    border: none;
-    padding: 10px;
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
+.item-quantity {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
 }
 
-.category-btn:hover {
-    background-color: #FF7F50; /* Naranja claro */
+.item-quantity .quantity {
+    font-size: 18px;
+    color: #000000; /* Texto general (Negro) */
+    font-weight: bold;
 }
 
 /* Order Summary */
@@ -190,15 +195,6 @@ body {
     background-color: #FF5722; /* Naranja más oscuro */
 }
 
-/* Alertas */
-.alert {
-    background-color: #FF0000; /* Indicadores/Alertas (Rojo) */
-    color: #FFFFFF; /* Texto blanco */
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-}
-
 /* Responsive Design */
 @media screen and (max-width: 768px) {
     .main-container {
@@ -219,7 +215,7 @@ body {
         width: 150px;
     }
 
-    .add-btn {
+    .add-btn, .remove-btn, .decrease-btn, .increase-btn {
         font-size: 14px;
         padding: 8px;
     }
