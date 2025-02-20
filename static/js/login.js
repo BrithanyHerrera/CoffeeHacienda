@@ -1,11 +1,8 @@
 const container = document.querySelector('.container');
-const registerBtn = document.querySelector('.register-btn');
 const loginBtn = document.querySelector('.login-btn');
 
-registerBtn.addEventListener('click', () => {
-    container.classList.add('active');
-})
-
-loginBtn.addEventListener('click', () => {
-    container.classList.remove('active');
-})
+loginBtn.addEventListener('click', (event) => {
+    event.preventDefault(); // Evita el envío del formulario
+    container.classList.add('active'); // Agrega la clase para el efecto
+    window.location.href = '/menu'; // Redirige a menu.html
+});
