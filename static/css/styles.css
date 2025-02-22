@@ -1,4 +1,4 @@
-
+/* Cuerpo de la app */
 body {
     font-family: Arial, sans-serif;
     background-color: #F9E6D3;
@@ -7,16 +7,15 @@ body {
     display: flex;
 }
 
-/* Contenedor principal */
-.container {
+/* Sidebar */
+.contenedorSidebar {
     display: flex;
     width: 100%;
 }
 
-/* Sidebar */
 .sidebar {
     width: 250px;
-    height: 100vh; /* Ocupar toda la altura de la pantalla */
+    height: 100vh;
     position: fixed;
     left: 0;
     top: 0;
@@ -46,21 +45,59 @@ body {
     border-radius: 50%;
 }
 
-/* Contenido principal */
-.main-content {
+.sidebar ul li a {
+    text-decoration: none;
+    color: inherit; 
+    display: block; 
+    padding: 10px;
+}
+
+.sidebar ul li a:hover {
+    color: #FF7F50; 
+}
+
+/* Bienvenida */
+.contenedorBienvenida {
+    margin-left: 250px; /* Ajusta el contenido para que no se solape con el sidebar */
+    width: calc(100% - 250px); /* Resta el ancho del sidebar */
+    min-height: 100vh; /* Ocupar al menos toda la pantalla */
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    text-align: center; /* Alinear texto */
+}
+
+.mensajeBienvenida {
+    background: white; /* Color del fondo del mesaje bienvenida */
+    padding: 20px; /* Grosor de la caja del mensaje */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombreado de la caja del mensaje */
+}
+
+/* Menu */
+.contenedorMenu {
     flex-grow: 1;
-    margin-left: 300px; /* Deja espacio para la sidebar */
+    margin-left: 30px; /* Deja espacio para la sidebar */
     padding: 20px;
     transition: margin-left 0.3s ease-in-out;
 }
 
-/* Estilos del encabezado */
+.menu {
+    width: 100%;
+    max-width: 1100px; /* Define un ancho máximo */
+    flex-direction: column;
+    align-items: flex-start; /* Alinea el menú al inicio */
+}
+
 header {
+    position: absolute;
+    top: 19px;
+    left: 300px;
     display: flex;
-    align-items: center;
+    gap: 650px;
     justify-content: space-between;
     background: #ffffff;
-    padding: 15px 48px;
+    padding: 13px 48px;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -81,12 +118,11 @@ header input[type="text"] {
     border: none;
     border-radius: 30px;
     background-color: #F9E6D3;
-    margin: 0 20px;
+    margin: 0 10px;
     font-size: 16px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Botón de filtro */
 .filter-btn {
     background: #FF914D;
     border: none;
@@ -105,11 +141,10 @@ header input[type="text"] {
     background: #FF6A00;
 }
 
-/* Usuario en el header */
-.user-container {
+.contenedorUsuario {
     position: absolute;
     top: 19px;
-    right: 5px;
+    right: 15px;
     display: flex;
     align-items: center;
     gap: 15px;
@@ -120,7 +155,7 @@ header input[type="text"] {
     font-size: 18px;
 }
 
-.user-container img {
+.contenedorUsuario img {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -128,21 +163,25 @@ header input[type="text"] {
     border: 3px solid #FF914D;
 }
 
-.user-container span {
+.contenedorUsuario span {
     font-size: 18px;
     font-weight: bold;
     color: #333;
 }
 
-/* Categorías */
-.categories {
+.categoriasBebidas {
+    position: absolute;
+    top: 100px;
+    left: 300px;
+    align-items: center;
+    padding: 0.5px 48px;
+    border-radius: 10px;
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
-    margin-top: 10px;
+
 }
 
-.categories button {
+.categoriasBebidas button {
     padding: 8px 15px;
     border: none;
     background: #FFE0C0;
@@ -150,21 +189,23 @@ header input[type="text"] {
     cursor: pointer;
 }
 
-.categories button.active {
+.categoriasBebidas button.active {
     background: #FF7F50;
     color: white;
 }
 
-/* Sección de productos */
-.products {
+.menuProductos {
+    position: absolute;
+    top: 150px;
+    left: 300px;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    justify-content: flex-start;
 }
 
-.product {
+.producto {
     background: white;
-    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -174,14 +215,13 @@ header input[type="text"] {
     justify-content: space-between;
 }
 
-.product img {
+.producto img {
     width: 150px;
     height: 150px;
     object-fit: cover;
 }
 
-/* Tamaños de café */
-.product .sizes button {
+.producto .tamaños button {
     padding: 5px 10px;
     margin: 5px;
     border: none;
@@ -190,8 +230,7 @@ header input[type="text"] {
     cursor: pointer;
 }
 
-/* Botón agregar al carrito */
-.product .add-to-cart {
+.producto .añadirCarrito {
     background: #FF7F50;
     color: white;
     padding: 10px;
@@ -200,34 +239,34 @@ header input[type="text"] {
     cursor: pointer;
 }
 
-/* Carrito */
-.cart {
+.carrito {
+    position: absolute;
+    top: 100px;
+    right: 15px;
     width: 260px;
     height: 500px;
     background: white;
     padding: 20px;
     box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 90px;
     border-radius: 10px;
 }
 
-.cart-item {
+.carritoItem {
     display: flex;
     gap: 10px;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.cart-item img {
+.carritoItem img {
     width: 50px;
 }
 
-.cart-item input {
+.carritoItem input {
     width: 40px;
     padding: 5px;
 }
 
-/* Botón de pago */
 .checkout {
     background: #FF7F50;
     color: white;
@@ -236,3 +275,5 @@ header input[type="text"] {
     width: 100%;
     cursor: pointer;
 }
+
+
