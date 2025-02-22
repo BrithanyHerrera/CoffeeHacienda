@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cafetería{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="contenedorPrincipal">
+    <div class="contenedorSidebar">
         <!-- Barra lateral -->
         <aside class="sidebar">
             <h2>Cafetería La Hacienda</h2>
             <nav>
                 <ul>
-                    <li><a href="/paginaPrincipal">🏠 Página Principal</a></li>
+                    <li><a href="/bienvenida">🏠 Página Principal</a></li>
                     <li><a href="/menu">📋 Menú</a></li>
+                    <li><a href="/gestionProductos">📝 Gestión Productos</a></li>
                     <li><a href="/ordenes">🛒 Ordenes <span class="badge">3</span></a></li>
                     <li><a href="/historial">📜 Historial</a></li>
                     <li><a href="/usuarios">🤝 Usuarios</a></li>
