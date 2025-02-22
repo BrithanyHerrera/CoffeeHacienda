@@ -1,4 +1,4 @@
-/* Estilos generales */
+/* Cuerpo de la app */
 body {
     font-family: Arial, sans-serif;
     background-color: #F9E6D3;
@@ -7,16 +7,15 @@ body {
     display: flex;
 }
 
-/* Contenedor principal */
-.container {
+/* Sidebar */
+.contenedorPrincipal {
     display: flex;
     width: 100%;
 }
 
-/* Sidebar */
 .sidebar {
     width: 250px;
-    height: 100vh; /* Ocupar toda la altura de la pantalla */
+    height: 100vh;
     position: fixed;
     left: 0;
     top: 0;
@@ -57,8 +56,8 @@ body {
     color: #FF7F50; 
 }
 
-/* Contenido principal */
-.content {
+/* Bienvenida */
+.contenedorBienvenida {
     margin-left: 250px; /* Ajusta el contenido para que no se solape con el sidebar */
     width: calc(100% - 250px); /* Resta el ancho del sidebar */
     min-height: 100vh; /* Ocupar al menos toda la pantalla */
@@ -68,4 +67,10 @@ body {
     text-align: center; /* Alinear texto */
 }
 
+.mensajeBienvenida {
+    background: white; /* Color del fondo del mesaje bienvenida */
+    padding: 20px; /* Grosor de la caja del mensaje */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombreado de la caja del mensaje */
+}
 

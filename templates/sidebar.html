@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
 </head>
 <body>
-    <div class="container">
+    <div class="contenedorPrincipal">
         <!-- Barra lateral -->
         <aside class="sidebar">
             <h2>Cafetería La Hacienda</h2>
@@ -25,7 +25,7 @@
         </aside>
 
         <!-- Contenido dinámico -->
-        <main class="content">
+        <main class="contenedorBienvenida">
             {% block content %}{% endblock %}
         </main>
     </div>
