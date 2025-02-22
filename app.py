@@ -23,11 +23,11 @@ productos = [
     {'id': 1, 'nombre': 'Cappuccino', 'precio': 4.98}
 ]
 
-@app.route('/productosCRUD')
-def listar_productos():
-    return render_template('productosCRUD.html', productos=productos)
+@app.route('/gestionProductos')
+def gestionProductos():
+    return render_template('gestionProductos.html', productos=productos)
 
-@app.route('/productosCRUD/agregar', methods=['POST'])
+@app.route('/gestionProductos/agregar', methods=['POST'])
 def agregar_producto():
     nuevo_producto = {
         'id': len(productos) + 1,
@@ -37,7 +37,7 @@ def agregar_producto():
     productos.append(nuevo_producto)
     return redirect(url_for('listar_productos'))
 
-@app.route('/productosCRUD/eliminar/<int:id>')
+@app.route('/gestionProductos/eliminar/<int:id>')
 def eliminar_producto(id):
     global productos
     productos = [p for p in productos if p['id'] != id]
