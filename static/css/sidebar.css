@@ -45,3 +45,27 @@ body {
     padding: 2px 6px;
     border-radius: 50%;
 }
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: inherit; 
+    display: block; 
+    padding: 10px;
+}
+
+.sidebar ul li a:hover {
+    color: #FF7F50; 
+}
+
+/* Contenido principal */
+.content {
+    margin-left: 250px; /* Ajusta el contenido para que no se solape con el sidebar */
+    width: calc(100% - 250px); /* Resta el ancho del sidebar */
+    min-height: 100vh; /* Ocupar al menos toda la pantalla */
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    text-align: center; /* Alinear texto */
+}
+
+

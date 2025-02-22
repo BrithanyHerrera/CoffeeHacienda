@@ -10,6 +10,10 @@ def login():
 def sidebar():
     return render_template('sidebar.html')
 
+@app.route('/paginaPrincipal')
+def paginaPrincipal():
+    return render_template('paginaPrincipal.html')
+
 @app.route('/menu')
 def principal():
     return render_template('menu.html')
