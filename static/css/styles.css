@@ -22,6 +22,8 @@ h1 {
 }
 
 h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
     font-size: 18px;
 }
 
@@ -288,7 +290,70 @@ header input[type="text"] {
     padding: 5px;
 }
 
+.metodosPago select {
+    background-color: #f0f0f0; 
+    color: #333; 
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    width: 100%; 
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.metodosPago select:hover {
+    border-color: #888; 
+}
+
+.metodosPago select:focus {
+    outline: none;
+    border-color: #3f51b5; 
+}
+
+.metodosPago select {
+    background-color: #f0f0f0; 
+    color: #333; 
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.metodosPago select:hover {
+    border-color: #888;
+}
+
+.metodosPago select:focus {
+    outline: none;
+    border-color: #3f51b5;
+}
+
+
+.eliminarItemCarrito {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.eliminarItemCarrito:hover {
+    background-color: #d32f2f;
+}
+
+.eliminarItemCarrito:focus {
+    outline: none;
+}
+
 .checkout {
+    margin-top: 10px;
     background: #FF7F50;
     color: white;
     padding: 10px;
@@ -399,140 +464,3 @@ input {
     height: 100px;
     object-fit: cover;
 }
-
-/*FINALIZAR ORDEN*/
-
-.contenedorFinalizarOrden {
-    display: flex;
-    width: 280%; 
-    justify-content: space-between;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.desgloseFinalizarOrden {
-    display: flex;
-    width: 100%;
-    gap: 30px; 
-}
-
-.seccionMenu {
-    margin-top: 10px;
-    width: 100%; 
-    border-radius: 20px;
-    background-color: #FFFFFF; 
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.lateralDerecho {
-    width: 50%; 
-    display: flex;
-    flex-direction: column;
-}
-
-.infoRestaurante, .resumenOrden {
-    margin-top: 10px;
-    margin-right: 10px;
-    border-radius: 20px;
-    background-color: #FFFFFF; 
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.itemsMenu {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.itemMenu {
-    background-color: #FFFFFF;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 200px;
-    text-align: center;
-}
-
-.itemMenu img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.accionesMenu {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.add-btn, .remove-btn, .decrease-btn, .increase-btn {
-    background-color: #FF7F50; 
-    color: #FFFFFF; 
-    border: none;
-    padding: 10px;
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.add-btn:hover, .remove-btn:hover, .decrease-btn:hover, .increase-btn:hover {
-    background-color: #FF5722; 
-}
-
-.cualidadItem {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    align-items: center;
-}
-
-.cualidadItem .cualidad {
-    font-size: 18px;
-    color: #000000; 
-    font-weight: bold;
-}
-
-.itemsOrden {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 15px;
-}
-
-.itemsOrden li {
-    font-size: 16px;
-    color: #000000; 
-    margin-bottom: 10px;
-}
-
-.totalOrden {
-    font-size: 18px;
-    color: #000000; 
-    margin-bottom: 20px;
-}
-
-.totalOrden span {
-    font-weight: bold;
-}
-
-.finalizarBtn {
-    background-color: #FF7F50; 
-    color: #FFFFFF;
-    padding: 15px;
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-}
-
-.finalizarBtn:hover {
-    background-color: #FF5722; 
-}
-
-
