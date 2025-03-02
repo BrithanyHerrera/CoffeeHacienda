@@ -1,11 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuarios</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "sidebar.html" %}
+
+{% block title %}Gestión Productos{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <div class="contenedorGestionUsuarios">
+        <header>
+            <h1>Gestión de Usuarios</h1>
+        </header>
+
+        <section class="formularioGestionUsuario">
+            <h2>Crear/Editar Usuario</h2>
+            <form id="userForm" method="POST">
+                <input type="hidden" id="userId" name="userId">
+                <label for="username">Nombre de Usuario:</label>
+                <input type="text" id="username" name="username" required>
+                
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="role">Nivel de Privilegio:</label>
+                <select id="role" name="role" required>
+                    <option value="admin">Administrador</option>
+                    <option value="seller">Vendedor</option>
+                </select>
+
+                <button class="btnGuardarUsuario" type="submit">Guardar Usuario</button>
+            </form>
+        </section>
+
+        <section class="tablaUsuarios">
+            <h2>Usuarios Registrados</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre de Usuario</th>
+                        <th>Contraseña</th>
+                        <th>Privilegio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Aquí se cargarán los usuarios desde el backend -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</main>
+{% endblock %}
