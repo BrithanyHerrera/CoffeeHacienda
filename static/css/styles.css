@@ -296,17 +296,38 @@ header input[type="text"] {
     cursor: pointer;
 }
 
-/* GESTIÓN PRODUCTOS */
+/* Asegurar que todos los elementos usen border-box */
+* {
+    box-sizing: border-box;
+}
 
+/* GESTIÓN PRODUCTOS */
 .gestionProductos {
+    margin-top: 10px;
     display: flex;
-    width: 220%;
+    width: 200%; 
     justify-content: space-between;
     background: white;
-    padding: 13px 48px;
+    padding: 13px 48px; /* Padding consistente */
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* LISTA DE PRODUCTOS */
+.listaProductos {
+    width: 100%; /* Ancho completo */
+    margin-top: 10px;
+}
+
+.listaProductos table {
+    width: 200%;
+    background: white;
+    padding: 13px 48px; /* Padding consistente con .gestionProductos */
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
 
 .btnAgregarProducto {
     background: #FF7F50;
@@ -317,16 +338,6 @@ header input[type="text"] {
     cursor: pointer;
 }
 
-.listaProductos table {
-    margin-top: 10px;
-    width: 220%;
-    justify-content: space-between;
-    background: white;
-    padding: 13px 48px;
-    border-radius: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-}
 
 .listaProductos th, .listaProductos td {
     padding: 10px;
