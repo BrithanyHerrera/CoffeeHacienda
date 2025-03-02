@@ -6,7 +6,7 @@ app = Flask(__name__)
 def login():
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/')
 def Salir():
     return render_template('login.html')
 
