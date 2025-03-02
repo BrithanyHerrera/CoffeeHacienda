@@ -22,6 +22,10 @@ def bienvenida():
 def menu():
     return render_template('menu.html')
 
+@app.route('/finalizarOrden')
+def finalizarOrden():
+    return render_template('finalizarOrden.html')
+
 @app.route('/gestionProductos')
 def gestion_productos():
     return render_template('gestionProductos.html', productos=productos)
