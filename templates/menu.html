@@ -12,7 +12,7 @@
         </header>
         
         <div class="contenedorUsuario">
-            <img src="static\images\EliasGood.jpg" alt="User">
+            <img src="static/images/EliasGood.jpg" alt="User">
             <span>Administrador</span>
         </div>
 
@@ -29,31 +29,7 @@
                 <div class="producto">
                     <img src="static/images/capuccino.png" alt="Cappuccino">
                     <h3>Cappuccino <span></span></h3>
-                    <p>La combinación perfecta de café, leche y espuma. </p>
-                    <div class="tamaños">
-                        <button>Chico</button>
-                        <button>Mediano</button>
-                        <button>Grande</button>
-                    </div>
-                    <button class="añadirCarrito">Añadir a la orden</button>
-                </div>
-
-                <div class="producto">
-                    <img src="static/images/latte.png" alt="Coffee Latte">
-                    <h3>Café Latte <span></span></h3>
-                    <p>Delicioso café con leche. </p>
-                    <div class="tamaños">
-                        <button>Chico</button>
-                        <button>Mediano</button>
-                        <button>Grande</button>
-                    </div>
-                    <button class="añadirCarrito">Añadir a la orden</button>
-                </div>
-
-                <div class="producto">
-                    <img src="static/images/flatw.png" alt="Flat White">
-                    <h3>Flat White <span></span></h3>
-                    <p>Un café para despertar. Intenso café con leche. </p>
+                    <p>La combinación perfecta de café, leche y espuma.</p>
                     <div class="tamaños">
                         <button>Chico</button>
                         <button>Mediano</button>
@@ -67,7 +43,7 @@
 
     <!-- Carrito -->
     <aside class="carrito">
-        <h2>Orden</h2>
+        <h1>Orden</h1>
         <div class="carritoItems">
             <div class="carritoItem">
                 <img src="static/images/capuccino.png" alt="Cappuccino">
@@ -76,13 +52,29 @@
                     <p>Chico - $50</p>
                 </div>
                 <input type="number" value="1">
+                <button class="eliminarItemCarrito">X</button>
             </div>
         </div>
 
-        <a href="/finalizarOrden">
-            <button class="checkout">Realizar la orden</button>
-        </a>
+        <!-- Total en el carrito -->
+        <div class="totalCarrito">
+            <h3>Total</h3>
+            <p id="total">$50</p> <!-- Este valor será actualizado dinámicamente -->
+        </div>
+
+        <!-- Métodos de Pago -->
+        <div class="metodosPago">
+            <h3>Método de Pago</h3>
+            <select name="metodoPago">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia Bancaria</option>
+            </select>
+        </div>
+
+        <button class="checkout">Realizar la orden</button>
     </aside>
 </main>
+
 {% endblock %}
 
