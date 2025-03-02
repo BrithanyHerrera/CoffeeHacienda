@@ -1,101 +1,76 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión Productos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gestionProductos.css') }}">
-</head>
-<body>
-    <div class="container">
-        <!-- Barra lateral -->
-        <aside class="sidebar">
-            <h2>Cafetería La Hacienda</h2>
-            <nav>
-                <ul>
-                    <li>🏠 Página Principal</li>
-                    <li>📋 Menú</li>
-                    <li>🛒 Ordenes <span class="badge">3</span></li>
-                    <li>📜 Historial</li>
-                    <li>🤝 Usuarios</li>
-                    <li>❤ Propinas</li>
-                    <li>🚪 Salir</li>
-                </ul>
-            </nav>
-        </aside>
+{% extends "sidebar.html" %}
 
+{% block title %}Gestión Productos{% endblock %}
 
-        <!-- Contenido principal -->
-        <main class="contenidoPrincipal">
-            <header>
-                <h1>Gestión de Productos</h1>
-                <button class="btnAgregar" onclick="abrirEAModal()">➕ Agregar Producto</button>
-            </header>
+{% block content %}
+<main class="contenidoGeneral">
+    <section class="gestionProductos">
+        <h1>Gestión de Productos</h1>
+        <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
+    </section>
+    
 
-            <section class="listaProductos">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Precio</th>
-                            <th>Imagen</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Cappuccino</td>
-                            <td>$4.98</td>
-                            <td><img src="static/images/capuccino.png" alt="Cappuccino" class="imagenProducto"></td>
-                            <td>
-                                <button class="btnVer" onclick="abrirVerProducto(1, 'Cappuccino', 4.98, 'static/images/capuccino.png')">👁️</button>
-                                <button class="btnEditar" onclick="abrirEAModal(1, 'Cappuccino', 4.98, 'static/images/capuccino.png ')">✏️</button>
-                                <button class="btnEliminar">🗑️</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </main>
+    <section class="listaProductos">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Imagen</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Cappuccino</td>
+                    <td>$4.98</td>
+                    <td><img src="static/images/capuccino.png" alt="Cappuccino" class="imagenProducto"></td>
+                    <td>
+                        <button class="btnVerProducto" onclick="abrirVerProducto(1, 'Cappuccino', 4.98, 'static/images/capuccino.png')">👁️</button>
+                        <button class="btnEditarProducto" onclick="abrirEAModal(1, 'Cappuccino', 4.98, 'static/images/capuccino.png')">✏️</button>
+                        <button class="btnEliminarProducto">🗑️</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
 
-        <!-- Modal para agregar/editar productos -->
-        <div class="modal" id="productoModal">
-            <div class="contenedorModal">
-                <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
-                <h2 id="tituloModal">Agregar Producto</h2>
-                <form id="formProducto" enctype="multipart/form-data">
-                    <input type="hidden" id="idProducto">
-                    <label for="nombreProducto">Nombre:</label>
-                    <input type="text" id="nombreProducto" required>
-        
-                    <label for="precioProducto">Precio:</label>
-                    <input type="number" id="precioProducto" required>
-        
-                    <label for="imagenProducto">Imagen:</label>
-                    <input type="file" id="imagenProducto" accept="image/*">
-        
-                    <button type="submit">Guardar</button>
-                </form>
-            </div>
+<div class="modal" id="productoModal">
+    <div class="contenedorModal">
+        <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
+        <h3 id="tituloModal">Agregar Producto</h3>
+        <form id="formProducto" enctype="multipart/form-data">
+            <input type="hidden" id="idProducto">
+            <label for="nombreProducto">Nombre:</label>
+            <input type="text" id="nombreProducto" required>
+
+            <label for="precioProducto">Precio:</label>
+            <input type="number" id="precioProducto" required>
+
+            <label for="imagenProducto">Imagen:</label>
+            <input type="file" id="imagenProducto" accept="image/*">
+
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="verModalProducto">
+    <div class="contenedorModal">
+        <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
+        <h3 id="verTituloModal">Ver Producto</h3>
+        <div id="verDetallesProducto">
+            <p><strong>ID:</strong> <span id="verIDProducto"></span></p>
+            <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
+            <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
+            <p><strong>Imagen:</strong></p>
+            <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto">
         </div>
-        
-        <div class="modal" id="verModalProducto">
-            <div class="contenedorModal">
-                <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
-                <h2 id="verTituloModal">Ver Producto</h2>
-                <div id="verDetallesProducto">
-                    <p><strong>ID:</strong> <span id="verIDProducto"></span></p>
-                    <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
-                    <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
-                    <p><strong>Imagen:</strong></p>
-                    <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto">
-                </div>
-            </div>
-        </div>
+    </div>
+</div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
-</html>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
