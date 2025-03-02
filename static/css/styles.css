@@ -11,22 +11,21 @@ body {
 
 .contenidoGeneral {
     margin-top: 10px;
-    margin-left: 300px;
+    margin-left: 320px;
     margin-right: 0px;
     background-color: #F9E6D3;
 }
 
 h1 {
     font-size: 25px;
+    margin-left: 10px;
 }
 
 h3 {
     font-size: 18px;
 }
 
-* {
-    box-sizing: border-box;
-}
+
 
 /* Sidebar */
 
@@ -300,13 +299,11 @@ header input[type="text"] {
 
 /* GESTIÓN PRODUCTOS */
 
-.contenedorGestionProductos {
-    margin-top: 10px;
+.contenedorGestionProductos {    
     display: flex;
-    width: 200%; 
+    width: 280%; 
     justify-content: space-between;
     background: white;
-    padding: 13px 48px;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -317,22 +314,22 @@ header input[type="text"] {
 }
 
 .listaProductos table {
-    width: 200%;
+    width: 280%;
     background: white;
-    padding: 13px 48px;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-
-
 .btnAgregarProducto {
+    margin-right: 10px;
+    margin-top: 10px;
     background: #FF7F50;
     color: white;
-    padding: 10px 15px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    width: 150px;
+    height: 50px;
 }
 
 
@@ -405,48 +402,43 @@ input {
 
 /*FINALIZAR ORDEN*/
 
-
 .contenedorFinalizarOrden {
-    background-color: #F9E6D3; 
-    font-size: 16px;
-    color: #000000; 
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-
-.contenedorTitulo {
-    width: 100%;
-    background-color: #FFFFFF; 
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 280%; 
+    justify-content: space-between;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .desgloseFinalizarOrden {
-    width: 80%;
-    max-width: 1100px;
-    margin: 30px 0;
     display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.infoRestaurante {
-    background-color: #FFFFFF; 
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    width: 100%;
+    gap: 30px; 
 }
 
 .seccionMenu {
+    margin-top: 10px;
+    width: 100%; 
+    border-radius: 20px;
     background-color: #FFFFFF; 
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+}
+
+.lateralDerecho {
+    width: 50%; 
+    display: flex;
+    flex-direction: column;
+}
+
+.infoRestaurante, .resumenOrden {
+    margin-top: 10px;
+    margin-right: 10px;
+    border-radius: 20px;
+    background-color: #FFFFFF; 
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .itemsMenu {
@@ -505,13 +497,6 @@ input {
     font-size: 18px;
     color: #000000; 
     font-weight: bold;
-}
-
-.resumenOrden {
-    background-color: #FFFFFF; 
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
 }
 
 .itemsOrden {

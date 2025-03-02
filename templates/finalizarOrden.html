@@ -1,66 +1,69 @@
 {% extends "sidebar.html" %}
 
-{% block title %}¡Bienvenido!{% endblock %}
+{% block title %}Finalizar Orden{% endblock %}
 
 {% block content %}
 <main class="contenidoGeneral">
-    <div class="contenedorFinalizarOrden">
-        <section class="contenedorTitulo">
-            <h1>Realizar Orden</h1>
-        </section>
-        <main class="desgloseFinalizarOrden">
-            <section class="infoRestaurante">
-                <h2>Cafeteria: La Hacienda</h2>
-                <p><strong>Dirección:</strong> Calle Falsa 123</p>
-                <p><strong>Tiempo estimado:</strong> 30-40 min</p>
-            </section>
+    <section class="contenedorFinalizarOrden">
+        <h1>Realizar Orden</h1>
+    </section>
 
-            <section class="seccionMenu">
-                <h2>Menú</h2>
-                <div class="itemsMenu">
-                    <div class="itemMenu">
-                        <img src="static/images/capuccino.png" alt="Cappuccino">
-                        <h3>Cappuccino</h3>
-                        <p>Precio: $10.99</p>
-                        <div class="accionesMenu">
-                            <button class="add-btn" data-item="Cappuccino" data-price="$10.99">Agregar</button>
-                            <div class="cualidadItem">
-                                <button class="decrease-btn">-</button>
-                                <span class="cualidad">0</span>
-                                <button class="increase-btn">+</button>
-                            </div>
-                            <button class="remove-btn">Eliminar</button>
+    <section class="desgloseFinalizarOrden">
+        <section class="seccionMenu">
+            <h2>Menú</h2>
+            <div class="itemsMenu">
+                <div class="itemMenu">
+                    <img src="static/images/capuccino.png" alt="Cappuccino">
+                    <h3>Cappuccino</h3>
+                    <p>Precio: $10.99</p>
+                    <div class="accionesMenu">
+                        <button class="add-btn" data-item="Cappuccino" data-price="10.99">Agregar</button>
+                        <div class="cualidadItem">
+                            <button class="decrease-btn">-</button>
+                            <span class="cualidad">0</span>
+                            <button class="increase-btn">+</button>
                         </div>
-                    </div>
-                    <div class="itemMenu">
-                        <img src="static/images/latte.png" alt="Coffee Latte">
-                        <h3>Coffee Latte</h3>
-                        <p>Precio: $12.99</p>
-                        <div class="accionesMenu">
-                            <button class="add-btn" data-item="Coffee Latte" data-price="$12.99">Agregar</button>
-                            <div class="cualidadItem">
-                                <button class="decrease-btn">-</button>
-                                <span class="cualidad">0</span>
-                                <button class="increase-btn">+</button>
-                            </div>
-                            <button class="remove-btn">Eliminar</button>
-                        </div>
-                    </div>
-                    <div class="itemMenu">
-                        <img src="static/images/flatw.png" alt="Flat White">
-                        <h3>Pasta Alfredo</h3>
-                        <p>Precio: $9.99</p>
-                        <div class="accionesMenu">
-                            <button class="add-btn" data-item="Pasta Alfredo" data-price="$9.99">Agregar</button>
-                            <div class="cualidadItem">
-                                <button class="decrease-btn">-</button>
-                                <span class="cualidad">0</span>
-                                <button class="increase-btn">+</button>
-                            </div>
-                            <button class="remove-btn">Eliminar</button>
-                        </div>
+                        <button class="remove-btn">Eliminar</button>
                     </div>
                 </div>
+
+                <div class="itemMenu">
+                    <img src="static/images/latte.png" alt="Coffee Latte">
+                    <h3>Coffee Latte</h3>
+                    <p>Precio: $12.99</p>
+                    <div class="accionesMenu">
+                        <button class="add-btn" data-item="Coffee Latte" data-price="12.99">Agregar</button>
+                        <div class="cualidadItem">
+                            <button class="decrease-btn">-</button>
+                            <span class="cualidad">0</span>
+                            <button class="increase-btn">+</button>
+                        </div>
+                        <button class="remove-btn">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="itemMenu">
+                    <img src="static/images/flatw.png" alt="Flat White">
+                    <h3>Pasta Alfredo</h3>
+                    <p>Precio: $9.99</p>
+                    <div class="accionesMenu">
+                        <button class="add-btn" data-item="Pasta Alfredo" data-price="9.99">Agregar</button>
+                        <div class="cualidadItem">
+                            <button class="decrease-btn">-</button>
+                            <span class="cualidad">0</span>
+                            <button class="increase-btn">+</button>
+                        </div>
+                        <button class="remove-btn">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="lateralDerecho">
+            <section class="infoRestaurante">
+                <h2>Cafetería: La Hacienda</h2>
+                <p><strong>Dirección:</strong> Calle Falsa 123</p>
+                <p><strong>Tiempo estimado:</strong> 30-40 min</p>
             </section>
 
             <section class="resumenOrden">
@@ -73,8 +76,9 @@
                 </div>
                 <button class="finalizarBtn">Realizar Pedido</button>
             </section>
-        </main>
-        <script src="{{ url_for('static', filename='js/realizarOrden.js') }}"></script>
-    </div>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/realizarOrden.js') }}"></script>
 </main>
 {% endblock %}
