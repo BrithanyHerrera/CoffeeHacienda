@@ -24,6 +24,10 @@ h3 {
     font-size: 18px;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 /* Sidebar */
 
 .contenedorSidebar {
@@ -296,13 +300,9 @@ header input[type="text"] {
     cursor: pointer;
 }
 
-/* Asegurar que todos los elementos usen border-box */
-* {
-    box-sizing: border-box;
-}
-
 /* GESTIÓN PRODUCTOS */
-.gestionProductos {
+
+.contenedorGestionProductos {
     margin-top: 10px;
     display: flex;
     width: 200%; 
@@ -313,16 +313,15 @@ header input[type="text"] {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* LISTA DE PRODUCTOS */
 .listaProductos {
-    width: 100%; /* Ancho completo */
+    width: 100%;
     margin-top: 10px;
 }
 
 .listaProductos table {
     width: 200%;
     background: white;
-    padding: 13px 48px; /* Padding consistente con .gestionProductos */
+    padding: 13px 48px;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
