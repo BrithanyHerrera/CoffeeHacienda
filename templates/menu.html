@@ -4,84 +4,85 @@
 
 {% block content %}
 <!-- Contenido principal -->
-<main class="contenedorMenu">
-    <header>
-        <input type="text" placeholder="Search...">
-        <button class="filter-btn">Filter</button>
-    </header>
-    
-    <div class="contenedorUsuario">
-        <img src="static\images\EliasGood.jpg" alt="User">
-        <span>Administrador</span>
-    </div>
-
-    <section class="menu">
-        <div class="categoriasBebidas">
-            <button>Bebidas Calientes</button>
-            <button>Bebidas Frías</button>
-            <button>Snacks</button>
-            <button>Postres</button>
-            <button>Otras Bebidas</button>
+<main class="contenidoGeneral">
+    <div class="contenedorMenu">
+        <header>
+            <input type="text" placeholder="Search...">
+            <button class="filter-btn">Filter</button>
+        </header>
+        
+        <div class="contenedorUsuario">
+            <img src="static\images\EliasGood.jpg" alt="User">
+            <span>Administrador</span>
         </div>
 
-        <div class="menuProductos">
-            <div class="producto">
+        <section class="menu">
+            <div class="categoriasBebidas">
+                <button>Bebidas Calientes</button>
+                <button>Bebidas Frías</button>
+                <button>Snacks</button>
+                <button>Postres</button>
+                <button>Otras Bebidas</button>
+            </div>
+
+            <div class="menuProductos">
+                <div class="producto">
+                    <img src="static/images/capuccino.png" alt="Cappuccino">
+                    <h3>Cappuccino <span></span></h3>
+                    <p>La combinación perfecta de café, leche y espuma. </p>
+                    <div class="tamaños">
+                        <button>Chico</button>
+                        <button>Mediano</button>
+                        <button>Grande</button>
+                    </div>
+                    <button class="añadirCarrito">Añadir a la orden</button>
+                </div>
+
+                <div class="producto">
+                    <img src="static/images/latte.png" alt="Coffee Latte">
+                    <h3>Café Latte <span></span></h3>
+                    <p>Delicioso café con leche. </p>
+                    <div class="tamaños">
+                        <button>Chico</button>
+                        <button>Mediano</button>
+                        <button>Grande</button>
+                    </div>
+                    <button class="añadirCarrito">Añadir a la orden</button>
+                </div>
+
+                <div class="producto">
+                    <img src="static/images/flatw.png" alt="Flat White">
+                    <h3>Flat White <span></span></h3>
+                    <p>Un café para despertar. Intenso café con leche. </p>
+                    <div class="tamaños">
+                        <button>Chico</button>
+                        <button>Mediano</button>
+                        <button>Grande</button>
+                    </div>
+                    <button class="añadirCarrito">Añadir a la orden</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Carrito -->
+    <aside class="carrito">
+        <h2>Orden</h2>
+        <div class="carritoItems">
+            <div class="carritoItem">
                 <img src="static/images/capuccino.png" alt="Cappuccino">
-                <h3>Cappuccino <span></span></h3>
-                <p>La combinación perfecta de café, leche y espuma. </p>
-                <div class="tamaños">
-                    <button>Chico</button>
-                    <button>Mediano</button>
-                    <button>Grande</button>
+                <div>
+                    <h4>Cappuccino</h4>
+                    <p>Chico - $50</p>
                 </div>
-                <button class="añadirCarrito">Añadir a la orden</button>
-            </div>
-
-            <div class="producto">
-                <img src="static/images/latte.png" alt="Coffee Latte">
-                <h3>Café Latte <span></span></h3>
-                <p>Delicioso café con leche. </p>
-                <div class="tamaños">
-                    <button>Chico</button>
-                    <button>Mediano</button>
-                    <button>Grande</button>
-                </div>
-                <button class="añadirCarrito">Añadir a la orden</button>
-            </div>
-
-            <div class="producto">
-                <img src="static/images/flatw.png" alt="Flat White">
-                <h3>Flat White <span></span></h3>
-                <p>Un café para despertar. Intenso café con leche. </p>
-                <div class="tamaños">
-                    <button>Chico</button>
-                    <button>Mediano</button>
-                    <button>Grande</button>
-                </div>
-                <button class="añadirCarrito">Añadir a la orden</button>
+                <input type="number" value="1">
             </div>
         </div>
-    </section>
+
+        <a href="/finalizarOrden">
+            <button class="checkout">Realizar la orden</button>
+        </a>
+    </aside>
 </main>
-
-<!-- Carrito -->
-<aside class="carrito">
-    <h2>Orden</h2>
-    <div class="carritoItems">
-        <div class="carritoItem">
-            <img src="static/images/capuccino.png" alt="Cappuccino">
-            <div>
-                <h4>Cappuccino</h4>
-                <p>Chico - $50</p>
-            </div>
-            <input type="number" value="1">
-        </div>
-    </div>
-
-    <a href="/finalizarOrden">
-        <button class="checkout">Realizar la orden</button>
-    </a>
-
-</aside>
 {% endblock %}
 
