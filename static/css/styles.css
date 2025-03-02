@@ -464,3 +464,151 @@ input {
     height: 100px;
     object-fit: cover;
 }
+
+/* GESTIÓN DE USUARIOS */
+
+.contenedorGestionUsuarios {
+    margin-top: 110px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.formularioGestionUsuario {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input, select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+}
+
+input:focus, select:focus {
+    border-color: #3f51b5; /* Azul al hacer foco */
+    outline: none;
+}
+
+.btnGuardarUsuario {
+    background: #FF7F50; /* Color Coral */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    width: 200px;
+    margin-top: 10px;
+}
+
+.btnGuardarUsuario:hover {
+    background-color: #FF7043; /* Rojo Coral más oscuro */
+}
+
+/* Tabla de usuarios */
+
+.tablaUsuarios {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tablaUsuarios th, .tablaUsuarios td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tablaUsuarios th {
+    background-color: #f6b964; /* Azul */
+    color: white;
+}
+
+.tablaUsuarios td {
+    background-color: #fafafa; /* Fondo claro para las celdas */
+}
+
+.tablaUsuarios .btnEditarUsuario, .tablaUsuarios .btnEliminarUsuario {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    margin: 5px;
+}
+
+.tablaUsuarios .btnEditarUsuario {
+    background: #FFBF00; /* Amarillo */
+    color: white;
+}
+
+.tablaUsuarios .btnEliminarUsuario {
+    background: #E74C3C; /* Rojo */
+    color: white;
+}
+
+.tablaUsuarios .btnEditarUsuario:hover {
+    background: #F39C12; /* Amarillo oscuro */
+}
+
+.tablaUsuarios .btnEliminarUsuario:hover {
+    background: #C0392B; /* Rojo oscuro */
+}
+
+/* Modal 
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedorModal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+    */
+
+.cerrar {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+.cerrar:hover {
+    color: #FF7F50; /* Rojo Coral al pasar el ratón */
+}
+
+/* Imagen de usuario */
+.imagenUsuario {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.usuarioDetalles {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
