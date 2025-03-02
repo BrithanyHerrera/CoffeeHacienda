@@ -139,7 +139,7 @@ form {
     background: #FF7F50; /* Naranja */
     border-radius: 150px;
     z-index: 2;
-     transition: 1.8s ease-in-out;
+    transition: 1.8s ease-in-out;
 }
 
 .container.active .toggle-box::before {
