@@ -77,36 +77,36 @@ h3 {
 /* Bienvenida */
 
 .contenedorBienvenida {
-    margin-left: 250px; /* Ajusta el contenido para que no se solape con el sidebar */
-    width: calc(100% - 250px); /* Resta el ancho del sidebar */
-    min-height: 100vh; /* Ocupar al menos toda la pantalla */
+    margin-left: 350px; 
+    width: calc(100% - 250px); 
+    min-height: 95vh;
     display: flex;
-    justify-content: center; /* Centrar horizontalmente */
-    align-items: center; /* Centrar verticalmente */
-    text-align: center; /* Alinear texto */
+    justify-content: center;
+    align-items: center; 
+    text-align: center; 
 }
 
 .mensajeBienvenida {
-    background: white; /* Color del fondo del mesaje bienvenida */
-    padding: 20px; /* Grosor de la caja del mensaje */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombreado de la caja del mensaje */
+    background: white;
+    padding: 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Menu */
 
 .contenedorMenu {
     flex-grow: 1;
-    margin-left: 30px; /* Deja espacio para la sidebar */
+    margin-left: 30px; 
     padding: 20px;
     transition: margin-left 0.3s ease-in-out;
 }
 
 .menu {
     width: 100%;
-    max-width: 1100px; /* Define un ancho máximo */
+    max-width: 1100px; 
     flex-direction: column;
-    align-items: flex-start; /* Alinea el menú al inicio */
+    align-items: flex-start; 
 }
 
 header {
