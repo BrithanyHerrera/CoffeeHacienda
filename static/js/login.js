@@ -8,6 +8,6 @@ loginBtn.addEventListener('click', (event) => {
 
     // Espera 600 ms (el tiempo de la animación) antes de redirigir
     setTimeout(() => {
-        window.location.href = '/menu'; // Redirige a menu.html
+        window.location.href = '/bienvenida'; // Redirige a menu.html
     }, 600); // Este valor debe coincidir con la duración de la animación
 });
