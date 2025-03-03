@@ -479,15 +479,15 @@ input {
 
 .contenedorPrincipal {
     display: flex;
-    justify-content: space-between; /* Espacia los elementos */
-    gap: 20px; /* Espacio entre los dos contenedores */
+    justify-content: space-between;
+    gap: 20px;
 }
 
 .contenedorGestionUsuarios, .contenedorGestionUsuarios2 {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
-    width: 48%; /* Se ajusta para que ambos ocupen la misma fila */
+    width: 48%; 
     padding: 10px;
     background-color: white;
     border-radius: 20px;
@@ -597,9 +597,46 @@ input {
     background: #C0392B;
 }
 
+.password-container {
+    display: flex; /* Se utiliza flexbox para alinear correctamente */
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.password-container .password-text {
+    flex-grow: 1; /* El texto ocupa todo el espacio disponible */
+    overflow: hidden; /* Evita desbordamientos */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.password-container .togglePassword {
+    flex-shrink: 0; /* El botón no se encoge */
+    margin-left: 10px; /* Espaciado entre el texto y el botón */
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #3f51b5;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.password-container .togglePassword:hover {
+    color: #1a237e;
+}
+
+.password-container .togglePassword:focus {
+    outline: none;
+}
+
+.buscarUsuario {
+    width: 95%;
+}
+
+
 /* GESTIÓN ÓRDENES */
 
-/* Estilo para el contenedor de la gestión de órdenes */
 .contenedorGestionOrdenes {    
     display: flex;
     width: 220%; 
@@ -610,7 +647,6 @@ input {
     margin-top: 20px;
 }
 
-/* Estilo para la lista de órdenes */
 .listaOrdenes {
     width: 100%;
     margin-top: 10px;
@@ -624,7 +660,6 @@ input {
     margin-top: 20px;
 }
 
-/* Estilo para las celdas de la tabla */
 .listaOrdenes th, .listaOrdenes td {
     padding: 10px;
     text-align: left;
@@ -636,7 +671,6 @@ input {
     cursor: pointer;
 }
 
-/* Botones de Acción */
 .btnVerOrden {
     padding: 5px 10px;
     border: none;
@@ -650,7 +684,7 @@ input {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
-    background: #2ECC71;  /* Verde para indicar que la orden está lista */
+    background: #2ECC71;
     color: white;
     border-radius: 5px;
 }
@@ -659,12 +693,11 @@ input {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
-    background: #E74C3C;  /* Rojo para indicar que la orden se ha cancelado */
+    background: #E74C3C;
     color: white;
     border-radius: 5px;
 }
 
-/* Estado de la Orden */
 .estadoOrden {
     padding: 5px;
     border-radius: 5px;
@@ -687,7 +720,6 @@ input {
     color: white;
 }
 
-/* Modal de detalles de la orden */
 .modal {
     display: none;
     position: fixed;
@@ -714,7 +746,6 @@ input {
     cursor: pointer;
 }
 
-/* Estilo de la tabla dentro del modal */
 #tablaProductos {
     width: 100%;
     margin-top: 10px;
@@ -730,7 +761,6 @@ input {
 #tablaProductos th {
     background-color: #f2f2f2;
 }
-
 
 /* HISTORIAL DE VENTAS */
 
@@ -803,7 +833,6 @@ input {
     cursor: pointer;
 }
 
-/* Estilo de la tabla dentro del modal */
 #tablaProductosVenta {
     width: 100%;
     margin-top: 10px;
@@ -819,6 +848,10 @@ input {
 #tablaProductosVenta th {
     background-color: #f2f2f2;
 }
+
+
+
+
 
 
 
