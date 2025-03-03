@@ -38,9 +38,9 @@ def ordenes():
 def historial():
     return render_template('historial.html')
 
-@app.route('/usuarios')
-def usuarios():
-    return render_template('usuarios.html')
+@app.route('/gestionUsuarios')
+def gestionUsuarios():
+    return render_template('gestionUsuarios.html')
 
 @app.route('/propinas')
 def propinas():
