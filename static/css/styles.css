@@ -11,7 +11,7 @@ body {
 
 .contenidoGeneral {
     margin-top: 10px;
-    margin-left: 320px;
+    margin-left: 335px;
     margin-right: 0px;
     background-color: #F9E6D3;
 }
@@ -25,6 +25,16 @@ h3 {
     margin-top: 10px;
     margin-bottom: 10px;
     font-size: 18px;
+}
+
+.contenedorTitulo {
+    display: flex;
+    width: 1300px; 
+    padding: 10px;
+    justify-content: space-between;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -365,10 +375,11 @@ header input[type="text"] {
 /* GESTIÓN PRODUCTOS */
 
 .contenedorGestionProductos {    
+    margin-top: 10px;
     display: flex;
-    width: 280%; 
-    justify-content: space-between;
-    background: white;
+    width: 1300px;
+    padding: 10px;
+    background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -379,7 +390,7 @@ header input[type="text"] {
 }
 
 .listaProductos table {
-    width: 280%;
+    width: 100%;
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -396,7 +407,6 @@ header input[type="text"] {
     width: 150px;
     height: 50px;
 }
-
 
 .listaProductos th, .listaProductos td {
     padding: 10px;
@@ -465,14 +475,20 @@ input {
     object-fit: cover;
 }
 
-/* GESTIÓN DE USUARIOS */
+/* GESTIÓN DE USUARIOS */  
 
-.contenedorGestionUsuarios {
-    margin-top: 110px;
+.contenedorPrincipal {
+    display: flex;
+    justify-content: space-between; /* Espacia los elementos */
+    gap: 20px; /* Espacio entre los dos contenedores */
+}
+
+.contenedorGestionUsuarios, .contenedorGestionUsuarios2 {
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    padding: 20px;
+    width: 48%; /* Se ajusta para que ambos ocupen la misma fila */
+    padding: 10px;
     background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -481,41 +497,56 @@ input {
 .formularioGestionUsuario {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     margin-bottom: 20px;
 }
 
-input, select {
+.filaFormulario {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filaFormulario label {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.filaFormulario input, 
+.filaFormulario select {
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    width: 100%;
+    width: 95%;
 }
 
-input:focus, select:focus {
-    border-color: #3f51b5; /* Azul al hacer foco */
+.filaFormulario input:focus, 
+.filaFormulario select:focus {
+    border-color: #3f51b5;
     outline: none;
 }
 
+.contenedorBoton {
+    margin-top: 10px;
+    text-align: left;
+}
+
 .btnGuardarUsuario {
-    background: #FF7F50; /* Color Coral */
+    background: #FF7F50; 
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    padding: 10px;
+    padding: 10px 15px;
     font-size: 16px;
     transition: background-color 0.3s ease;
-    width: 200px;
-    margin-top: 10px;
 }
 
 .btnGuardarUsuario:hover {
-    background-color: #FF7043; /* Rojo Coral más oscuro */
+    background-color: #FF7043; 
 }
-
-/* Tabla de usuarios */
 
 .tablaUsuarios {
     width: 100%;
@@ -524,21 +555,22 @@ input:focus, select:focus {
 }
 
 .tablaUsuarios th, .tablaUsuarios td {
-    padding: 15px;
+    padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
 .tablaUsuarios th {
-    background-color: #f6b964; /* Azul */
+    background-color: #f6b964;
     color: white;
 }
 
 .tablaUsuarios td {
-    background-color: #fafafa; /* Fondo claro para las celdas */
+    background-color: #fafafa; 
 }
 
-.tablaUsuarios .btnEditarUsuario, .tablaUsuarios .btnEliminarUsuario {
+.tablaUsuarios .btnEditarUsuario, 
+.tablaUsuarios .btnEliminarUsuario {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
@@ -548,67 +580,19 @@ input:focus, select:focus {
 }
 
 .tablaUsuarios .btnEditarUsuario {
-    background: #FFBF00; /* Amarillo */
+    background: #FFBF00; 
     color: white;
 }
 
 .tablaUsuarios .btnEliminarUsuario {
-    background: #E74C3C; /* Rojo */
+    background: #E74C3C; 
     color: white;
 }
 
 .tablaUsuarios .btnEditarUsuario:hover {
-    background: #F39C12; /* Amarillo oscuro */
+    background: #F39C12; 
 }
 
 .tablaUsuarios .btnEliminarUsuario:hover {
-    background: #C0392B; /* Rojo oscuro */
-}
-
-/* Modal 
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-}
-
-.contenedorModal {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-}
-    */
-
-.cerrar {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
-    color: #333;
-}
-
-.cerrar:hover {
-    color: #FF7F50; /* Rojo Coral al pasar el ratón */
-}
-
-/* Imagen de usuario */
-.imagenUsuario {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.usuarioDetalles {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
+    background: #C0392B;
 }

@@ -1,51 +1,75 @@
 {% extends "sidebar.html" %}
 
-{% block title %}Gestión Productos{% endblock %}
+{% block title %}Gestión de Usuarios{% endblock %}
 
 {% block content %}
 <main class="contenidoGeneral">
-    <div class="contenedorGestionUsuarios">
-        <header>
-            <h1>Gestión de Usuarios</h1>
-        </header>
+    <div class="contenedorTitulo">
+        <h1>Gestión de Usuarios</h1>
+    </div>
 
-        <section class="formularioGestionUsuario">
-            <h2>Crear/Editar Usuario</h2>
-            <form id="userForm" method="POST">
-                <input type="hidden" id="userId" name="userId">
-                <label for="username">Nombre de Usuario:</label>
-                <input type="text" id="username" name="username" required>
-                
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" required>
+    <div class="contenedorPrincipal">
+        <!-- Contenedor Izquierdo: Formulario -->
+        <div class="contenedorGestionUsuarios">
+            <section class="formularioGestionUsuario">
+                <h2>Crear/Editar Usuario</h2>
+                <form id="userForm" method="POST">
+                    <input type="hidden" id="userId" name="userId">
 
-                <label for="role">Nivel de Privilegio:</label>
-                <select id="role" name="role" required>
-                    <option value="admin">Administrador</option>
-                    <option value="seller">Vendedor</option>
-                </select>
+                    <div class="filaFormulario">
+                        <label for="username">Nombre de Usuario:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
 
-                <button class="btnGuardarUsuario" type="submit">Guardar Usuario</button>
-            </form>
-        </section>
+                    <div class="filaFormulario">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
 
-        <section class="tablaUsuarios">
-            <h2>Usuarios Registrados</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre de Usuario</th>
-                        <th>Contraseña</th>
-                        <th>Privilegio</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="userTableBody">
-                    <!-- Aquí se cargarán los usuarios desde el backend -->
-                </tbody>
-            </table>
-        </section>
+                    <div class="filaFormulario">
+                        <label for="role">Nivel de Privilegio:</label>
+                        <select id="role" name="role" required>
+                            <option value="admin">Administrador</option>
+                            <option value="seller">Vendedor</option>
+                        </select>
+                    </div>
+
+                    <div class="contenedorBoton">
+                        <button class="btnGuardarUsuario" type="submit">Guardar Usuario</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- Contenedor Derecho: Tabla de Usuarios -->
+        <div class="contenedorGestionUsuarios2">
+            <section class="tablaUsuarios">
+                <h2>Usuarios Registrados</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre de Usuario</th>
+                            <th>Contraseña</th>
+                            <th>Privilegio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr>
+                            <td>1</td>
+                            <td>admin123</td>
+                            <td>********</td>
+                            <td>Administrador</td>
+                            <td>
+                                <button class="btnEditarUsuario">Editar</button>
+                                <button class="btnEliminarUsuario">Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
     </div>
 
     <script src="app.js"></script>
