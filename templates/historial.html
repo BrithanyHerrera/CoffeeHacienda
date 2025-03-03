@@ -1,11 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial</title>
-</head>
-<body>
+{% extends "sidebar.html" %}
+
+{% block title %}Historial de Ventas{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <section class="contenedorGestionVentas">    
+        <h1>Historial de Ventas</h1>
+    </section>
     
-</body>
-</html>
+    <section class="listaVentas">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Fecha de Venta</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Juan Pérez</td>
+                    <td>2025-03-02</td>
+                    <td>$19.92</td>
+                    <td>
+                        <button class="btnVerVenta" onclick="verDetallesVenta(1)">👁️</button>
+                    </td>
+                </tr>
+                <!-- Agregar más ventas según sea necesario -->
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<!-- Modal para ver detalles de la venta -->
+<div class="modal" id="ventaModal">
+    <div class="contenedorModal">
+        <span class="cerrar" onclick="cerrarDetallesVenta()">&times;</span>
+        <h3>Detalles de la Venta</h3>
+        <div id="detallesVenta">
+            <p><strong>ID:</strong> <span id="idVenta"></span></p>
+            <p><strong>Cliente:</strong> <span id="nombreClienteVenta"></span></p>
+            <p><strong>Fecha de Venta:</strong> <span id="fechaVenta"></span></p>
+            <p><strong>Total:</strong> $<span id="totalVenta"></span></p>
+
+            <h4>Productos Vendidos:</h4>
+            <table id="tablaProductosVenta">
+                <!-- Los productos de la venta se cargarán aquí -->
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ejemplo de producto -->
+                    <tr>
+                        <td>Cappuccino</td>
+                        <td>$4.98</td>
+                        <td>2</td>
+                        <td>$9.96</td>
+                    </tr>
+                    <!-- Agregar más productos según sea necesario -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/historial.js') }}"></script>
+
+{% endblock %}
