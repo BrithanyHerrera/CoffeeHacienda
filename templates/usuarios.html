@@ -23,7 +23,10 @@
 
                     <div class="filaFormulario">
                         <label for="password">Contraseña:</label>
-                        <input type="password" id="password" name="password" required>
+                        <div class="password-container">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="togglePassword" onclick="togglePassword('password', this)">👁</button>
+                        </div>
                     </div>
 
                     <div class="filaFormulario">
@@ -45,6 +48,7 @@
         <div class="contenedorGestionUsuarios2">
             <section class="tablaUsuarios">
                 <h2>Usuarios Registrados</h2>
+                <input class="buscarUsuario" type="text" id="searchUser" placeholder="Buscar usuario..." onkeyup="filterUsers()">
                 <table>
                     <thead>
                         <tr>
@@ -59,7 +63,12 @@
                         <tr>
                             <td>1</td>
                             <td>admin123</td>
-                            <td>********</td>
+                            <td>
+                                <div class="password-container">
+                                    <span class="password-text">********</span>
+                                    <button type="button" class="togglePassword" onclick="toggleTablePassword(this)">👁</button>
+                                </div>
+                            </td>
                             <td>Administrador</td>
                             <td>
                                 <button class="btnEditarUsuario">Editar</button>
@@ -72,6 +81,33 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        function toggleTablePassword(button) {
+            const passwordText = button.previousElementSibling;
+            if (passwordText.innerText === "********") {
+                passwordText.innerText = "miContraseña123"; 
+            } else {
+                passwordText.innerText = "********";
+            }
+        }
+
+        function filterUsers() {
+            const input = document.getElementById("searchUser").value.toLowerCase();
+            const rows = document.querySelectorAll("#userTableBody tr");
+            rows.forEach(row => {
+                const username = row.cells[1].innerText.toLowerCase();
+                row.style.display = username.includes(input) ? "" : "none";
+            });
+        }
+    </script>
 </main>
 {% endblock %}
