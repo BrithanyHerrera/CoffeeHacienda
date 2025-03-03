@@ -4,23 +4,23 @@
 
 {% block content %}
 <main class="contenidoGeneral">
-    <section class="contenedorGestionProductos">
+    <div class="contenedorTitulo">
         <h1>Gestión de Productos</h1>
         <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
-    </section>
+    </div>
     
-    <section class="listaProductos">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Precio</th>
-                    <th>Imagen</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
+    <div class="contenedorGestionProductos">
+        <section class="listaProductos">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Imagen</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
                 <tr>
                     <td>1</td>
                     <td>Cappuccino</td>
@@ -32,44 +32,44 @@
                         <button class="btnEliminarProducto">🗑️</button>
                     </td>
                 </tr>
-            </tbody>
-        </table>
-    </section>
+            </table>
+        </section>
+
+        <section class="modal" id="productoModal">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
+                <h3 id="tituloModal">Agregar Producto</h3>
+                <form id="formProducto" enctype="multipart/form-data">
+                    <input type="hidden" id="idProducto">
+                    <label for="nombreProducto">Nombre:</label>
+                    <input type="text" id="nombreProducto" required>
+        
+                    <label for="precioProducto">Precio:</label>
+                    <input type="number" id="precioProducto" required>
+        
+                    <label for="imagenProducto">Imagen:</label>
+                    <input type="file" id="imagenProducto" accept="image/*">
+        
+                    <button type="submit">Guardar</button>
+                </form>
+            </section>
+        </section>
+        
+        <section class="modal" id="verModalProducto">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
+                <h3 id="verTituloModal">Ver Producto</h3>
+                <section id="verDetallesProducto">
+                    <p><strong>ID:</strong> <span id="verIDProducto"></span></p>
+                    <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
+                    <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
+                    <p><strong>Imagen:</strong></p>
+                    <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto">
+                </section>
+            </section>
+        </section>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </main>
-
-<div class="modal" id="productoModal">
-    <div class="contenedorModal">
-        <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
-        <h3 id="tituloModal">Agregar Producto</h3>
-        <form id="formProducto" enctype="multipart/form-data">
-            <input type="hidden" id="idProducto">
-            <label for="nombreProducto">Nombre:</label>
-            <input type="text" id="nombreProducto" required>
-
-            <label for="precioProducto">Precio:</label>
-            <input type="number" id="precioProducto" required>
-
-            <label for="imagenProducto">Imagen:</label>
-            <input type="file" id="imagenProducto" accept="image/*">
-
-            <button type="submit">Guardar</button>
-        </form>
-    </div>
-</div>
-
-<div class="modal" id="verModalProducto">
-    <div class="contenedorModal">
-        <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
-        <h3 id="verTituloModal">Ver Producto</h3>
-        <div id="verDetallesProducto">
-            <p><strong>ID:</strong> <span id="verIDProducto"></span></p>
-            <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
-            <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
-            <p><strong>Imagen:</strong></p>
-            <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto">
-        </div>
-    </div>
-</div>
-
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}
