@@ -11,7 +11,7 @@
         </header>
         
         <div class="contenedorUsuario">
-            <img src="static/images/EliasGood.jpg" alt="User   ">
+            <img src="static/images/EliasGood.jpg" alt="User     ">
             <span>Administrador</span>
         </div>
 
@@ -28,7 +28,7 @@
             <div class="menuProductos">
                 <div class="producto" categoriasDatos="bebidas calientes">
                     <img src="static/images/capuccino.png" alt="Cappuccino">
-                    <h3>Cappuccino <span class="precio" preciosDatos="50">$50</span></h3>
+                    <h3>Cappuccino</h3>
                     <p>La combinación perfecta de café, leche y espuma.</p>
                     <div class="tamaños">
                         <button class="tamaño" preciosDatos="50">Chico - $50</button>
@@ -40,7 +40,7 @@
                 
                 <div class="producto" categoriasDatos="postres">
                     <img src="static/images/EliasGood.jpg" alt="Elias">
-                    <h3>Elias <span class="precio" preciosDatos="50">$50</span></h3>
+                    <h3>Elias</h3>
                     <p>La combinación perfecta de ternura, esponjosidad y chiquitez.</p>
                     <div class="tamaños">
                         <button class="tamaño" preciosDatos="50">Chico - $50</button>
@@ -60,6 +60,12 @@
             <!-- Los productos se agregarán aquí dinámicamente -->
         </div>
 
+        <!-- Campo para el nombre del cliente -->
+        <div class="nombreCliente">
+            <label for="nombreCliente">Nombre del Cliente:</label>
+            <input type="text" id="nombreCliente" placeholder="Ingrese su nombre" required>
+        </div>
+
         <!-- Total en el carrito -->
         <div class="totalCarrito">
             <h3>Total</h3>
@@ -76,9 +82,9 @@
             </select>
         </div>
 
-        <button class="checkout">Realizar la orden</button>
-    </aside>
-
+        <button class="checkout" onclick="realizarPedido(); generarPDF();">Realizar la orden</button>
+        
     <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </main>
 {% endblock %}
