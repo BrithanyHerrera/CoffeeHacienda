@@ -118,3 +118,52 @@ document.querySelectorAll('.tamaño').forEach(button => {
         this.classList.add('selected');
     });
 });
+
+function realizarPedido() {
+    const nombreCliente = document.getElementById('nombreCliente').value.trim(); // Obtener el nombre del cliente
+
+    if (nombreCliente === '') {
+        alert('Por favor, ingrese su nombre.'); // Alerta si el nombre está vacío
+        return; // Salir de la función si el nombre está vacío
+    }
+
+    // Aquí puedes agregar la lógica para procesar el pedido
+    alert(`Pedido realizado por: ${nombreCliente}\nTotal: ${document.getElementById('total').textContent}`);
+    
+    // Limpiar el carrito y el nombre del cliente después de realizar el pedido
+    carrito = [];
+    actualizarCarrito();
+    document.getElementById('nombreCliente').value = ''; // Limpiar el campo de nombre
+}
+
+function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Obtener la fecha y hora actual
+    const fechaHora = new Date().toLocaleString();
+    const nombreCliente = document.getElementById('nombreCliente').value.trim();
+    const direccionSucursal = "Calle Ejemplo 123, Ciudad"; // Dirección de la sucursal
+
+    // Agregar contenido al PDF
+    doc.text(`Recibo`, 10, 10);
+    doc.text(`Fecha y Hora: ${fechaHora}`, 10, 20);
+    doc.text(`Nombre del Vendedor: Administrador`, 10, 30);
+    doc.text(`Dirección de la Sucursal: ${direccionSucursal}`, 10, 40);
+    doc.text(`Nombre del Cliente: ${nombreCliente}`, 10, 50);
+    doc.text(`Artículos:`, 10, 60);
+
+    // Agregar los artículos al PDF
+    let y = 70; // Posición vertical inicial para los artículos
+    carrito.forEach(item => {
+        doc.text(`${item.nombre} (${item.tamaño}) - $${item.precio} x ${item.cantidad}`, 10, y);
+        y += 10; // Incrementar la posición vertical
+    });
+
+    // Calcular y agregar el total
+    const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    doc.text(`Total: $${total}`, 10, y);
+
+    // Guardar el PDF
+    doc.save('recibo.pdf');
+}

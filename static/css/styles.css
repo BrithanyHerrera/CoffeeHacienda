@@ -257,6 +257,7 @@ header input[type="text"] {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: flex-start;
+    overflow-y: auto;
 }
 
 .producto {
@@ -265,7 +266,7 @@ header input[type="text"] {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 250px;
-    height: 350px;
+    height: 400px;
     flex-direction: column;
     justify-content: space-between;
 }
@@ -307,11 +308,12 @@ header input[type="text"] {
     top: 100px;
     right: 15px;
     width: 260px;
-    height: 500px;
+    height: 600px;
     background: white;
     padding: 20px;
     box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    overflow-y: auto;
 }
 
 .carritoItem {
