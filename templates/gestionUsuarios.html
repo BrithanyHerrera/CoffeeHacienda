@@ -1,113 +1,81 @@
 {% extends "sidebar.html" %}
 
-{% block title %}Gestión de Usuarios{% endblock %}
+{% block title %}Gestión Usuarios{% endblock %}
 
 {% block content %}
 <main class="contenidoGeneral">
     <div class="contenedorTitulo">
         <h1>Gestión de Usuarios</h1>
+        <button class="btnAgregarUsuario" onclick="abrirEAModal()">➕ Agregar Usuario</button>
     </div>
+    
+    <div class="contenedorGestionUsuarios">
+        <section class="listaUsuarios">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Tipo de Privilegio</th>
+                        <th>Fecha de Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Juan Pérez</td>
+                        <td>Admin</td>
+                        <td>2023-01-15</td>
+                        <td>
+                            <button class="btnVerUsuario" onclick="abrirVerUsuario(1, 'Juan Pérez', 'Admin', '2023-01-15', 'contrasena123')">👁️</button>
+                            <button class="btnEditarUsuario" onclick="abrirEAModal(1, 'Juan Pérez', 'Admin', '2023-01-15', 'contrasena123')">✏️</button>
+                            <button class="btnEliminarUsuario">🗑️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-    <div class="contenedorPrincipal">
-        <!-- Contenedor Izquierdo: Formulario -->
-        <div class="contenedorGestionUsuarios">
-            <section class="formularioGestionUsuario">
-                <h2>Crear/Editar Usuario</h2>
-                <form id="userForm" method="POST">
-                    <input type="hidden" id="userId" name="userId">
-
-                    <div class="filaFormulario">
-                        <label for="username">Nombre de Usuario:</label>
-                        <input type="text" id="username" name="username" required>
-                    </div>
-
-                    <div class="filaFormulario">
-                        <label for="password">Contraseña:</label>
-                        <div class="password-container">
-                            <input type="password" id="password" name="password" required>
-                            <button type="button" class="togglePassword" onclick="togglePassword('password', this)">👁</button>
-                        </div>
-                    </div>
-
-                    <div class="filaFormulario">
-                        <label for="role">Nivel de Privilegio:</label>
-                        <select id="role" name="role" required>
-                            <option value="admin">Administrador</option>
-                            <option value="seller">Vendedor</option>
-                        </select>
-                    </div>
-
-                    <div class="contenedorBoton">
-                        <button class="btnGuardarUsuario" type="submit">Guardar Usuario</button>
-                    </div>
+        <section class="modal" id="usuarioModal">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
+                <h3 id="tituloModal">Agregar Usuario</h3>
+                <form id="formUsuario">
+                    <input type="hidden" id="idUsuario">
+                    <label for="nombreUsuario">Nombre:</label>
+                    <input type="text" id="nombreUsuario" required>
+        
+                    <label for="contrasenaUsuario">Contraseña:</label>
+                    <input type="password" id="contrasenaUsuario" required>
+        
+                    <label for="tipoPrivilegio">Tipo de Privilegio:</label>
+                    <select id="tipoPrivilegio" required>
+                        <option value="Admin">Admin</option>
+                        <option value="Usuario">Usuario</option>
+                    </select>
+                    <br>
+                    <br>
+                    <button type="submit">Guardar</button>
                 </form>
             </section>
-        </div>
-
-        <!-- Contenedor Derecho: Tabla de Usuarios -->
-        <div class="contenedorGestionUsuarios2">
-            <section class="tablaUsuarios">
-                <h2>Usuarios Registrados</h2>
-                <input class="buscarUsuario" type="text" id="searchUser" placeholder="Buscar usuario..." onkeyup="filterUsers()">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre de Usuario</th>
-                            <th>Contraseña</th>
-                            <th>Privilegio</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody">
-                        <tr>
-                            <td>1</td>
-                            <td>admin123</td>
-                            <td>
-                                <div class="password-container">
-                                    <span class="password-text">********</span>
-                                    <button type="button" class="togglePassword" onclick="toggleTablePassword(this)">👁</button>
-                                </div>
-                            </td>
-                            <td>Administrador</td>
-                            <td>
-                                <button class="btnEditarUsuario">Editar</button>
-                                <button class="btnEliminarUsuario">Eliminar</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        </section>
+        
+        <section class="modal" id="verModalUsuario">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarVerUsuario()">&times;</span>
+                <h3 id="verTituloModal">Ver Usuario</h3>
+                <section id="verDetallesUsuario">
+                    <p><strong>ID:</strong> <span id="verIDUsuario"></span></p>
+                    <p><strong>Nombre:</strong> <span id="verNombreUsuario"></span></p>
+                    <p><strong>Tipo de Privilegio:</strong> <span id="verTipoPrivilegio"></span></p>
+                    <p><strong>Fecha de Registro:</strong> <span id="verFechaRegistro"></span></p>
+                    <p><strong>Contraseña:</strong> <span id="verContrasenaUsuario"></span></p> <!-- Mostrar contraseña -->
+                </section>
             </section>
-        </div>
+        </section>
     </div>
-
-    <script>
-        function togglePassword(inputId, button) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-            } else {
-                input.type = "password";
-            }
-        }
-
-        function toggleTablePassword(button) {
-            const passwordText = button.previousElementSibling;
-            if (passwordText.innerText === "********") {
-                passwordText.innerText = "miContraseña123"; 
-            } else {
-                passwordText.innerText = "********";
-            }
-        }
-
-        function filterUsers() {
-            const input = document.getElementById("searchUser").value.toLowerCase();
-            const rows = document.querySelectorAll("#userTableBody tr");
-            rows.forEach(row => {
-                const username = row.cells[1].innerText.toLowerCase();
-                row.style.display = username.includes(input) ? "" : "none";
-            });
-        }
-    </script>
+    
+    <script src="{{ url_for('static', filename='js/gestionUsuarios.js') }}"></script>
 </main>
 {% endblock %}
