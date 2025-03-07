@@ -11,7 +11,7 @@
         </header>
         
         <div class="contenedorUsuario">
-            <img src="static/images/EliasGood.jpg" alt="User ">
+            <img src="static/images/EliasGood.jpg" alt="User   ">
             <span>Administrador</span>
         </div>
 
@@ -21,30 +21,31 @@
                 <button>Bebidas Frías</button>
                 <button>Snacks</button>
                 <button>Postres</button>
+                <button>Todos</button>
                 <button>Otras Bebidas</button>
             </div>
 
             <div class="menuProductos">
-                <div class="producto">
+                <div class="producto" categoriasDatos="bebidas calientes">
                     <img src="static/images/capuccino.png" alt="Cappuccino">
-                    <h3>Cappuccino <span></span></h3>
+                    <h3>Cappuccino <span class="precio" preciosDatos="50">$50</span></h3>
                     <p>La combinación perfecta de café, leche y espuma.</p>
                     <div class="tamaños">
-                        <button>Chico</button>
-                        <button>Mediano</button>
-                        <button>Grande</button>
+                        <button class="tamaño" preciosDatos="50">Chico - $50</button>
+                        <button class="tamaño" preciosDatos="70">Mediano - $70</button>
+                        <button class="tamaño" preciosDatos="90">Grande - $90</button>
                     </div>
                     <button class="añadirCarrito">Añadir a la orden</button>
                 </div>
-
-                <div class="producto">
+                
+                <div class="producto" categoriasDatos="postres">
                     <img src="static/images/EliasGood.jpg" alt="Elias">
-                    <h3>Elias <span></span></h3>
+                    <h3>Elias <span class="precio" preciosDatos="50">$50</span></h3>
                     <p>La combinación perfecta de ternura, esponjosidad y chiquitez.</p>
                     <div class="tamaños">
-                        <button>Chico</button>
-                        <button>Mediano</button>
-                        <button>Grande</button>
+                        <button class="tamaño" preciosDatos="50">Chico - $50</button>
+                        <button class="tamaño" preciosDatos="70">Mediano - $70</button>
+                        <button class="tamaño" preciosDatos="90">Grande - $90</button>
                     </div>
                     <button class="añadirCarrito">Añadir a la orden</button>
                 </div>
@@ -56,21 +57,13 @@
     <aside class="carrito">
         <h1>Orden</h1>
         <div class="carritoItems">
-            <div class="carritoItem">
-                <img src="static/images/capuccino.png" alt="Cappuccino">
-                <div>
-                    <h4>Cappuccino</h4>
-                    <p>Chico - $50</p>
-                </div>
-                <input type="number" value="1">
-                <button class="eliminarItemCarrito">X</button>
-            </div>
+            <!-- Los productos se agregarán aquí dinámicamente -->
         </div>
 
         <!-- Total en el carrito -->
         <div class="totalCarrito">
             <h3>Total</h3>
-            <p id="total">$50</p> <!-- Este valor será actualizado dinámicamente -->
+            <p id="total">$0</p> <!-- Este valor será actualizado dinámicamente -->
         </div>
 
         <!-- Métodos de Pago -->
