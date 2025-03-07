@@ -7,12 +7,11 @@
 <main class="contenidoGeneral">
     <div class="contenedorMenu">
         <header>
-            <input type="text" placeholder="Search...">
-            <button class="filter-btn">Filter</button>
+            <input type="text" id="searchInput" placeholder="Search..."> <!-- Campo de búsqueda -->
         </header>
         
         <div class="contenedorUsuario">
-            <img src="static/images/EliasGood.jpg" alt="User">
+            <img src="static/images/EliasGood.jpg" alt="User ">
             <span>Administrador</span>
         </div>
 
@@ -30,6 +29,18 @@
                     <img src="static/images/capuccino.png" alt="Cappuccino">
                     <h3>Cappuccino <span></span></h3>
                     <p>La combinación perfecta de café, leche y espuma.</p>
+                    <div class="tamaños">
+                        <button>Chico</button>
+                        <button>Mediano</button>
+                        <button>Grande</button>
+                    </div>
+                    <button class="añadirCarrito">Añadir a la orden</button>
+                </div>
+
+                <div class="producto">
+                    <img src="static/images/EliasGood.jpg" alt="Elias">
+                    <h3>Elias <span></span></h3>
+                    <p>La combinación perfecta de ternura, esponjosidad y chiquitez.</p>
                     <div class="tamaños">
                         <button>Chico</button>
                         <button>Mediano</button>
@@ -74,7 +85,7 @@
 
         <button class="checkout">Realizar la orden</button>
     </aside>
+
+    <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
 </main>
-
 {% endblock %}
-
