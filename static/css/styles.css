@@ -16,6 +16,8 @@ body {
     background-color: #F9E6D3;
 }
 
+/* GESTIONES */
+
 h1 {
     font-size: 25px;
     margin-left: 10px;
@@ -38,6 +40,39 @@ h3 {
 }
 
 
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedorModal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+} 
+
+.cerrar {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
 
 /* Sidebar */
 
@@ -435,40 +470,6 @@ header input[type="text"] {
     color: white;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-}
-
-.contenedorModal {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-}
-
-.cerrar {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-input {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
 .imagenProducto {
     width: 100px;
     height: 100px;
@@ -477,161 +478,71 @@ input {
 
 /* GESTIÓN DE USUARIOS */  
 
-.contenedorPrincipal {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.contenedorGestionUsuarios, .contenedorGestionUsuarios2 {
+.contenedorGestionUsuarios {    
     margin-top: 10px;
     display: flex;
-    flex-direction: column;
-    width: 48%; 
+    width: 1300px;
     padding: 10px;
     background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.formularioGestionUsuario {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.filaFormulario {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.filaFormulario label {
-    font-size: 16px;
-    font-weight: bold;
-    text-align: left;
-}
-
-.filaFormulario input, 
-.filaFormulario select {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 95%;
-}
-
-.filaFormulario input:focus, 
-.filaFormulario select:focus {
-    border-color: #3f51b5;
-    outline: none;
-}
-
-.contenedorBoton {
+.listaUsuarios {
+    width: 100%;
     margin-top: 10px;
-    text-align: left;
 }
 
-.btnGuardarUsuario {
-    background: #FF7F50; 
+.listaUsuarios table {
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btnAgregarUsuario {
+    margin-right: 10px;
+    margin-top: 10px;
+    background: #FF7F50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    padding: 10px 15px;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+    width: 150px;
+    height: 50px;
 }
 
-.btnGuardarUsuario:hover {
-    background-color: #FF7043; 
-}
-
-.tablaUsuarios {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.tablaUsuarios th, .tablaUsuarios td {
-    padding: 12px;
+.listaUsuarios th, .listaUsuarios td {
+    padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-.tablaUsuarios th {
-    background-color: #f6b964;
-    color: white;
-}
-
-.tablaUsuarios td {
-    background-color: #fafafa; 
-}
-
-.tablaUsuarios .btnEditarUsuario, 
-.tablaUsuarios .btnEliminarUsuario {
+.btnEditarUsuario, .btnEliminarUsuario, .btnVerUsuario {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    margin: 5px;
 }
 
-.tablaUsuarios .btnEditarUsuario {
-    background: #FFBF00; 
+.btnEditarUsuario {
+    background: #FFBF00;
     color: white;
 }
 
-.tablaUsuarios .btnEliminarUsuario {
-    background: #E74C3C; 
+.btnEliminarUsuario {
+    background: #E74C3C;
     color: white;
 }
 
-.tablaUsuarios .btnEditarUsuario:hover {
-    background: #F39C12; 
+.btnVerUsuario {
+    background: #3498DB;
+    color: white;
 }
 
-.tablaUsuarios .btnEliminarUsuario:hover {
-    background: #C0392B;
-}
-
-.password-container {
-    display: flex; /* Se utiliza flexbox para alinear correctamente */
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.password-container .password-text {
-    flex-grow: 1; /* El texto ocupa todo el espacio disponible */
-    overflow: hidden; /* Evita desbordamientos */
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.password-container .togglePassword {
-    flex-shrink: 0; /* El botón no se encoge */
-    margin-left: 10px; /* Espaciado entre el texto y el botón */
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #3f51b5;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.password-container .togglePassword:hover {
-    color: #1a237e;
-}
-
-.password-container .togglePassword:focus {
-    outline: none;
-}
-
-.buscarUsuario {
-    width: 95%;
+.imagenProducto {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
 }
 
 
