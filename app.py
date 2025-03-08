@@ -1,10 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
+from bd import Conexion_BD
+from models.models_login import verificar_usuario
+import logging
 
 app = Flask(__name__)
 
-@app.route('/')
+app.secret_key = 'mi_clave_secreta'  # Cambia esto por una clave segura
+@app.route('/', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        contrasena = request.form['contrasena']
+        
+        # Verificar usuario y contraseña con la base de datos
+        usuario_valido = verificar_usuario(usuario, contrasena)
+        
+        if usuario_valido:
+            # Si el usuario es válido, redirigir a la página principal
+            return redirect(url_for('bienvenida'))
+        else:
+            # Si no es válido, mostrar mensaje de error
+            flash('Usuario o contraseña incorrectos', 'danger')
+            return redirect(url_for('login'))  # Volver al login
+    
+    return render_template('login.html')  # Mostrar el formulario de login
 
 @app.route('/salir')
 def salir():
