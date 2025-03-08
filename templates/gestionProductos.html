@@ -36,8 +36,8 @@
         <section class="modal" id="productoModal">
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
-                <h3 id="tituloModal">Agregar Producto</h3>
-                <form id="formProducto" enctype="multipart/form-data">
+                <h3 class="tituloModal" id="tituloModal"></h3>
+                <form id="formProducto" enctype="multipart/form-data"></form>
                     <input type="hidden" id="idProducto">
                     <label for="nombreProducto">Nombre:</label>
                     <input type="text" id="nombreProducto" required>
@@ -48,7 +48,7 @@
                     <label for="imagenProducto">Imagen:</label>
                     <input type="file" id="imagenProducto" accept="image/*">
         
-                    <button type="submit">Guardar</button>
+                    <button class="guardarBtn" type="submit">Guardar</button>
                 </form>
             </section>
         </section>

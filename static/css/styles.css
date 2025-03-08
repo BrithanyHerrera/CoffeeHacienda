@@ -53,13 +53,32 @@ h3 {
 }
 
 .contenedorModal {
-    background: #FFE0C0;
+    background: #ffffff;
     padding: 20px;
     border-radius: 10px;
     width: 400px;
+    text-align: left
+}
+
+.tituloModal {
     text-align: center;
 }
 
+.guardarBtn {
+    background: #FF7F50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block; 
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.guardarBtn:hover{
+    background: #ce6641;
+}
 
 .cerrar {
     float: right;
@@ -68,10 +87,11 @@ h3 {
 }
 
 input {
-    width: 100%;
+    width: 90%;
     padding: 8px;
     margin: 10px 0;
     border: 1px solid #ddd;
+    background: #dbdbdb;
     border-radius: 5px;
 }
 
