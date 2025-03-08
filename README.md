@@ -1,4 +1,4 @@
-CLONAR REPOSITORIO A LAPTOP: :)
+CLONAR REPOSITORIO A LAPTOP: :
 
     1. Ir a la direccion en la que quieres que se encuentre el repositorio.
     2. Clocar en el cmd: git clone https://github.com/AnaGC10/veterinariaPPI2.git
