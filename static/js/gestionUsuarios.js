@@ -62,7 +62,7 @@ function toggleContrasena() {
 
     if (contrasenaInput.type === 'password') {
         contrasenaInput.type = 'text';
-        toggleIcon.textContent = '🙈'; // Cambia el ícono a un "ojo cerrado"
+        toggleIcon.textContent = '🔒'; // Cambia el ícono a un "ojo cerrado"
     } else {
         contrasenaInput.type = 'password';
         toggleIcon.textContent = '👁️'; // Cambia el ícono a un "ojo abierto"
