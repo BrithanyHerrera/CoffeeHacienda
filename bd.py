@@ -12,7 +12,7 @@ def Conexion_BD():
             port=int(os.getenv('DB_PORT', 3307)),
             user=os.getenv('DB_USER', 'root'),
             password=os.getenv('DB_PASSWORD', 'root'),
-            database=os.getenv('DB_NAME', 'puntodeventa'),
+            database=os.getenv('DB_NAME', 'bd'),
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor
         )

@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from bd import Conexion_BD
-from models.models_login import verificar_usuario
+from models.modelsLogin import verificar_usuario
 import logging
 
 app = Flask(__name__)
