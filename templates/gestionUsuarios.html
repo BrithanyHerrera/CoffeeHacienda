@@ -15,6 +15,7 @@
                 <thead>
                     <tr>
                         <th>Nombre</th>
+                        <th>Correo</th>
                         <th>Tipo de Privilegio</th>
                         <th>Fecha de Registro</th>
                         <th>Acciones</th>
@@ -23,11 +24,12 @@
                 <tbody>
                     <tr>
                         <td>Juan Pérez</td>
+                        <td>juan123@gmail.com</td>
                         <td>Admin</td>
                         <td>2023-01-15</td>
                         <td>
-                            <button class="btnVerUsuario" onclick="abrirVerUsuario(1, 'Juan Pérez', 'Admin', '2023-01-15', 'contrasena123')">👁️</button>
-                            <button class="btnEditarUsuario" onclick="abrirEAModal(1, 'Juan Pérez', 'Admin', '2023-01-15', 'contrasena123')">✏️</button>
+                            <button class="btnVerUsuario" onclick="abrirVerUsuario(1, 'Juan Pérez', 'juan123@gmail.com', 'Admin', '2023-01-15', 'contrasena123')">👁️</button>
+                            <button class="btnEditarUsuario" onclick="abrirEAModal(1, 'Juan Pérez', 'juan123@gmail.com', 'Admin', '2023-01-15', 'contrasena123')">✏️</button>
                             <button class="btnEliminarUsuario">🗑️</button>
                         </td>
                     </tr>
@@ -35,6 +37,7 @@
             </table>
         </section>
 
+        <!-- Modal de agregar/editar usuario -->
         <section class="modal" id="usuarioModal">
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
@@ -43,10 +46,16 @@
                     <input type="hidden" id="idUsuario">
                     <label for="nombreUsuario">Nombre:</label>
                     <input type="text" id="nombreUsuario" required>
-        
+
+                    <label for="correoUsuario">Correo:</label>
+                    <input type="email" id="correoUsuario" required>
+            
                     <label for="contrasenaUsuario">Contraseña:</label>
-                    <input type="password" id="contrasenaUsuario" required>
-        
+                    <div class="inputContrasena">
+                        <input type="password" id="contrasenaUsuario" required>
+                        <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
+                    </div>
+            
                     <label for="tipoPrivilegio">Tipo de Privilegio:</label>
                     <select id="tipoPrivilegio" required>
                         <option value="Admin">Admin</option>
@@ -58,7 +67,8 @@
                 </form>
             </section>
         </section>
-        
+
+        <!-- Modal de ver usuario -->
         <section class="modal" id="verModalUsuario">
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarVerUsuario()">&times;</span>
@@ -66,9 +76,10 @@
                 <section id="verDetallesUsuario">
                     <p><strong>ID:</strong> <span id="verIDUsuario"></span></p>
                     <p><strong>Nombre:</strong> <span id="verNombreUsuario"></span></p>
+                    <p><strong>Correo:</strong> <span id="verCorreoUsuario"></span></p>
                     <p><strong>Tipo de Privilegio:</strong> <span id="verTipoPrivilegio"></span></p>
                     <p><strong>Fecha de Registro:</strong> <span id="verFechaRegistro"></span></p>
-                    <p><strong>Contraseña:</strong> <span id="verContrasenaUsuario"></span></p> <!-- Mostrar contraseña -->
+                    <p><strong>Contraseña:</strong> <span id="verContrasenaUsuario"></span></p>
                 </section>
             </section>
         </section>
