@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models.modelsLogin import verificar_usuario
 import logging
+from functools import wraps  # Necesitamos importar wraps
 
 app = Flask(__name__)
 
@@ -8,13 +9,12 @@ app.secret_key = 'mi_clave_secreta'  # Cambia esto por una clave segura
 
 # Decorador para proteger las rutas
 def login_required(f):
+    @wraps(f)  # Esto preserva el nombre y la información de la vista original
     def wrapped_view(*args, **kwargs):
         if 'usuario' not in session:  # Verifica si el usuario está en la sesión
             return redirect(url_for('login'))  # Si no está, redirige al login
         return f(*args, **kwargs)
     
-    # Asignar un endpoint único a cada ruta decorada
-    wrapped_view.__name__ = f"wrapped_{f.__name__}"  # Cambiar el nombre de la función interna
     return wrapped_view
 
 @app.route('/', methods=['GET', 'POST'])
