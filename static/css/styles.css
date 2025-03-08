@@ -82,6 +82,17 @@ h3 {
     background: #ce6641;
 }
 
+.inputContrasena {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggleContrasena {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
 .cerrar {
     float: right;
     font-size: 20px;
