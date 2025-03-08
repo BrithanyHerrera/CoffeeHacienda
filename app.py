@@ -1,41 +1,65 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models.modelsLogin import verificar_usuario
 import logging
-from functools import wraps  # Necesitamos importar wraps
+from functools import wraps
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
 app.secret_key = 'mi_clave_secreta'  # Cambia esto por una clave segura
 
-# Decorador para proteger las rutas
+# Configuración para prevenir el cacheo del navegador
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 def login_required(f):
-    @wraps(f)  # Esto preserva el nombre y la información de la vista original
+    @wraps(f)
     def wrapped_view(*args, **kwargs):
-        if 'usuario' not in session:  # Verifica si el usuario está en la sesión
-            return redirect(url_for('login'))  # Si no está, redirige al login
+        # Verificar si el usuario está en la sesión y si la sesión no ha expirado
+        if 'usuario' not in session:
+            return redirect(url_for('login'))
+        
+        # Verificar el tiempo de la última actividad
+        if 'last_activity' not in session:
+            session.clear()
+            return redirect(url_for('login'))
+        
+        # Si han pasado más de 30 minutos desde la última actividad
+        last_activity = datetime.fromisoformat(session['last_activity'])
+        if datetime.now() - last_activity > timedelta(minutes=30):
+            session.clear()
+            return redirect(url_for('login'))
+        
+        # Actualizar el tiempo de última actividad
+        session['last_activity'] = datetime.now().isoformat()
         return f(*args, **kwargs)
     
     return wrapped_view
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
+    # Limpiar cualquier sesión existente
+    session.clear()
+    
     if request.method == 'POST':
         usuario = request.form['usuario']
         contrasena = request.form['contrasena']
         
-        # Verificar usuario y contraseña con la base de datos
         usuario_valido = verificar_usuario(usuario, contrasena)
         
         if usuario_valido:
-            session['usuario'] = usuario  # Guarda el usuario en la sesión
-            # Si el usuario es válido, redirigir a la página principal
+            session['usuario'] = usuario
+            session['last_activity'] = datetime.now().isoformat()
             return redirect(url_for('bienvenida'))
         else:
-            # Si no es válido, mostrar mensaje de error
             flash('Usuario o contraseña incorrectos', 'danger')
-            return redirect(url_for('login'))  # Volver al login
+            return redirect(url_for('login'))
     
-    return render_template('login.html')  # Mostrar el formulario de login
+    return render_template('login.html')
 
 @app.route('/salir')
 def salir():
