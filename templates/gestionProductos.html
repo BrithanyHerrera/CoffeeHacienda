@@ -20,24 +20,29 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tr>
-                    <td>Cappuccino</td>
-                    <td>$4.98</td>
-                    <td><img src="static/images/capuccino.png" alt="Cappuccino" class="imagenProducto"></td>
-                    <td>
-                        <button class="btnVerProducto" onclick="abrirVerProducto(1, 'Cappuccino', 4.98, 'static/images/capuccino.png')">👁️</button>
-                        <button class="btnEditarProducto" onclick="abrirEAModal(1, 'Cappuccino', 4.98, 'static/images/capuccino.png')">✏️</button>
-                        <button class="btnEliminarProducto">🗑️</button>
-                    </td>
-                </tr>
+                <tbody id="productosLista">
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td><img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="imagenProducto"></td>
+                        <td>
+                            <button class="btnVerProducto" onclick="abrirVerProducto({{ producto.id }}, '{{ producto.nombre }}', {{ producto.precio }}, '{{ producto.imagen }}')">👁️</button>
+                            <button class="btnEditarProducto" onclick="abrirEAModal({{ producto.id }}, '{{ producto.nombre }}', {{ producto.precio }}, '{{ producto.imagen }}')">✏️</button>
+                            <button class="btnEliminarProducto" onclick="eliminarProducto({{ producto.id }})">🗑️</button>                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </section>
 
+        <!-- Modal de Agregar/Editar Producto -->
         <section class="modal" id="productoModal">
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
-                <h3 class="tituloModal" id="tituloModal"></h3>
-                <form id="formProducto" enctype="multipart/form-data"></form>
+                <h3 class="tituloModal" id="tituloModal">Agregar Producto</h3>
+                <form id="formProducto" enctype="multipart/form-data" onsubmit="guardarProducto(event)">
                     <input type="hidden" id="idProducto">
                     <label for="nombreProducto">Nombre:</label>
                     <input type="text" id="nombreProducto" required>
@@ -47,12 +52,15 @@
         
                     <label for="imagenProducto">Imagen:</label>
                     <input type="file" id="imagenProducto" accept="image/*">
+                    <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none;">
+                    
         
                     <button class="guardarBtn" type="submit">Guardar</button>
                 </form>
             </section>
         </section>
         
+        <!-- Modal de Ver Producto -->
         <section class="modal" id="verModalProducto">
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
