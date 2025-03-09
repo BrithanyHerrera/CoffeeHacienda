@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models.modelsLogin import verificar_usuario
+from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -102,9 +104,58 @@ def historial():
     return render_template('historial.html')
 
 @app.route('/gestionUsuarios')
-@login_required  # Ruta protegida
+@login_required
 def gestionUsuarios():
-    return render_template('gestionUsuarios.html')
+    usuarios = obtener_usuarios()
+    roles = obtener_roles()
+    return render_template('gestionUsuarios.html', usuarios=usuarios, roles=roles)
+
+# Eliminar o comentar las rutas existentes para agregar/editar usuario
+# @app.route('/gestionUsuarios/agregar', methods=['GET', 'POST'])
+# @app.route('/gestionUsuarios/editar/<int:id>', methods=['GET', 'POST'])
+
+# Agregar nuevas rutas para manejar solicitudes AJAX
+@app.route('/api/usuarios/guardar', methods=['POST'])
+@login_required
+def guardar_usuario():
+    try:
+        data = request.json
+        id_usuario = data.get('id')
+        usuario = data.get('nombre')
+        contrasena = data.get('contrasena')
+        correo = data.get('correo')
+        rol_id = data.get('tipoPrivilegio')
+        
+        if id_usuario:  # Editar usuario existente
+            # Si no se proporciona nueva contraseña, mantener la actual
+            if not contrasena:
+                usuario_actual = obtener_usuario_por_id(id_usuario)
+                contrasena = usuario_actual['contrasena']
+                
+            resultado = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
+            mensaje = 'Usuario actualizado exitosamente' if resultado else 'Error al actualizar usuario'
+        else:  # Crear nuevo usuario
+            resultado = crear_usuario(usuario, contrasena, correo, rol_id)
+            mensaje = 'Usuario creado exitosamente' if resultado else 'Error al crear usuario'
+        
+        return jsonify({
+            'success': resultado,
+            'message': mensaje
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/gestionUsuarios/eliminar/<int:id>')
+@login_required
+def eliminar_usuario_route(id):
+    if eliminar_usuario(id):
+        flash('Usuario eliminado exitosamente', 'success')
+    else:
+        flash('Error al eliminar usuario', 'danger')
+    return redirect(url_for('gestionUsuarios'))
 
 @app.route('/propinas')
 @login_required  # Ruta protegida
