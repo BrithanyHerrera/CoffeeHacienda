@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 09-03-2025 a las 04:19:09
+-- Tiempo de generación: 08-03-2025 a las 04:24:30
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `bd`
+-- Base de datos: `puntodeventa`
 --
 
 -- --------------------------------------------------------
@@ -50,25 +50,6 @@ CREATE TABLE `tclientes` (
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tcorreos`
---
-
-CREATE TABLE `tcorreos` (
-  `Id` int(11) NOT NULL,
-  `correo` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Volcado de datos para la tabla `tcorreos`
---
-
-INSERT INTO `tcorreos` (`Id`, `correo`) VALUES
-(1, 'ismaelcm18182@gmail.com'),
-(2, 'amorcito@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -307,17 +288,8 @@ CREATE TABLE `tusuarios` (
   `usuario` varchar(255) NOT NULL,
   `contrasena` varchar(255) NOT NULL,
   `rol_id` int(11) NOT NULL,
-  `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
-  `id_correo` int(11) DEFAULT NULL
+  `creado_en` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Volcado de datos para la tabla `tusuarios`
---
-
-INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `rol_id`, `creado_en`, `id_correo`) VALUES
-(2, 'Isma', '123', 1, '2025-03-08 22:18:15', 1),
-(3, 'Bri', '123', 2, '2025-03-08 22:18:41', 2);
 
 -- --------------------------------------------------------
 
@@ -357,12 +329,6 @@ ALTER TABLE `tclientes`
   ADD PRIMARY KEY (`Id`),
   ADD UNIQUE KEY `telefono_UNIQUE` (`telefono`),
   ADD UNIQUE KEY `correo_UNIQUE` (`correo`);
-
---
--- Indices de la tabla `tcorreos`
---
-ALTER TABLE `tcorreos`
-  ADD PRIMARY KEY (`Id`);
 
 --
 -- Indices de la tabla `tcortescaja`
@@ -455,8 +421,7 @@ ALTER TABLE `ttiposmovimiento`
 ALTER TABLE `tusuarios`
   ADD PRIMARY KEY (`Id`),
   ADD UNIQUE KEY `usuario_UNIQUE` (`usuario`),
-  ADD KEY `rol_id` (`rol_id`),
-  ADD KEY `fk_usuarios_correos` (`id_correo`);
+  ADD KEY `rol_id` (`rol_id`);
 
 --
 -- Indices de la tabla `tventas`
@@ -486,12 +451,6 @@ ALTER TABLE `tclientes`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `tcorreos`
---
-ALTER TABLE `tcorreos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
 -- AUTO_INCREMENT de la tabla `tcortescaja`
 --
 ALTER TABLE `tcortescaja`
@@ -513,7 +472,7 @@ ALTER TABLE `troles`
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`
@@ -544,7 +503,7 @@ ALTER TABLE `tdetalleventas`
 ALTER TABLE `tdevoluciones`
   ADD CONSTRAINT `tdevoluciones_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`),
   ADD CONSTRAINT `tdevoluciones_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`id`),
-  ADD CONSTRAINT `tdevoluciones_ibfk_3` FOREIGN KEY (`tipo_devolucion_id`) REFERENCES `ttiposdevolucion` (`id`),
+  ADD CONSTRAINT `tdevoluciones_ibfk_3` FOREIGN KEY (`tipo_devolucion_id`) REFERENCES `ttiposdevolucion` (`Id`),
   ADD CONSTRAINT `tdevoluciones_ibfk_4` FOREIGN KEY (`estado_devolucion_id`) REFERENCES `testadosdevolucion` (`id`);
 
 --
@@ -572,7 +531,6 @@ ALTER TABLE `tproductos`
 -- Filtros para la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  ADD CONSTRAINT `fk_usuarios_correos` FOREIGN KEY (`id_correo`) REFERENCES `tcorreos` (`Id`),
   ADD CONSTRAINT `tusuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `troles` (`Id`);
 
 --
