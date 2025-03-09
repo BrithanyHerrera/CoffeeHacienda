@@ -1,0 +1,46 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <div class="contenedorTitulo">
+        <h1>Editar Usuario</h1>
+    </div>
+    
+    <div class="formularioContainer">
+        <form method="POST" action="{{ url_for('editar_usuario', id=usuario.Id) }}">
+            <div class="form-group">
+                <label for="usuario">Usuario:</label>
+                <input type="text" id="usuario" name="usuario" value="{{ usuario.usuario }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contrasena">Nueva Contraseña:</label>
+                <input type="password" id="contrasena" name="contrasena" placeholder="Dejar en blanco para mantener la actual">
+            </div>
+
+            <div class="form-group">
+                <label for="correo">Correo:</label>
+                <input type="email" id="correo" name="correo" value="{{ usuario.correo }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="rol_id">Rol:</label>
+                <select id="rol_id" name="rol_id" required>
+                    {% for rol in roles %}
+                    <option value="{{ rol.Id }}" {% if rol.Id == usuario.rol_id %}selected{% endif %}>
+                        {{ rol.rol }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btnGuardar">Guardar Cambios</button>
+                <button type="button" class="btnCancelar" onclick="window.location.href='/gestionUsuarios'">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

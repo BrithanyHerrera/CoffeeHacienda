@@ -4,7 +4,7 @@ function abrirEAModal(id = null, nombre = '', correo = '', tipoPrivilegio = '', 
     console.log('Abrir modal con los siguientes datos:', id, nombre, correo, tipoPrivilegio, fechaRegistro, contrasena);
 
     // Rellenar los campos del modal con los valores recibidos
-    document.getElementById('idUsuario').value = id;
+    document.getElementById('idUsuario').value = id || '';
     document.getElementById('nombreUsuario').value = nombre;
     document.getElementById('correoUsuario').value = correo;
     document.getElementById('tipoPrivilegio').value = tipoPrivilegio;
@@ -22,19 +22,49 @@ function cerrarEAModal() {
     document.getElementById('usuarioModal').style.display = 'none';
 }
 
-// Evitar el comportamiento por defecto del formulario y cerrar el modal.
-document.getElementById('formUsuario').addEventListener('submit', function(event) {
-    event.preventDefault();
-    // Aquí puedes agregar la lógica para guardar el usuario (ya sea agregar o editar)
-    // Por ejemplo, enviar los datos a tu servidor mediante AJAX o Fetch API.
-    console.log('Usuario guardado:', {
-        id: document.getElementById('idUsuario').value,
-        nombre: document.getElementById('nombreUsuario').value,
-        correo: document.getElementById('correoUsuario').value,
-        contrasena: document.getElementById('contrasenaUsuario').value,
-        tipoPrivilegio: document.getElementById('tipoPrivilegio').value
-    });
-    cerrarEAModal(); // Cerrar el modal después de guardar
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener referencia al formulario
+    const formUsuario = document.getElementById('formUsuario');
+    
+    if (formUsuario) {
+        formUsuario.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const userData = {
+                id: document.getElementById('idUsuario').value || null,
+                nombre: document.getElementById('nombreUsuario').value,
+                correo: document.getElementById('correoUsuario').value,
+                contrasena: document.getElementById('contrasenaUsuario').value,
+                tipoPrivilegio: document.getElementById('tipoPrivilegio').value
+            };
+            
+            console.log('Enviando datos:', userData);
+            
+            fetch('/api/usuarios/guardar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al guardar el usuario');
+            });
+            
+            cerrarEAModal();
+        });
+    }
 });
 
 // Función para abrir el modal de ver usuario.
