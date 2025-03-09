@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models.modelsLogin import verificar_usuario
 from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles
+from models.modelsProductos import obtener_productos, agregar_producto, actualizar_producto, eliminar_producto
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
@@ -9,6 +10,17 @@ from flask import jsonify
 app = Flask(__name__)
 
 app.secret_key = 'mi_clave_secreta'  # Cambia esto por una clave segura
+
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+class Producto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    precio = db.Column(db.Float, nullable=False)
+    imagen = db.Column(db.String(255), nullable=True)
+
 
 # Configuración para prevenir el cacheo del navegador
 @app.after_request
@@ -88,11 +100,6 @@ def menu():
 def finalizarOrden():
     return render_template('finalizarOrden.html')
 
-@app.route('/gestionProductos')
-@login_required  # Ruta protegida
-def gestion_productos():
-    return render_template('gestionProductos.html', productos=productos)
-
 @app.route('/ordenes')
 @login_required  # Ruta protegida
 def ordenes():
@@ -162,28 +169,86 @@ def eliminar_usuario_route(id):
 def propinas():
     return render_template('propinas.html')
 
-# Datos de ejemplo
-productos = [
-    {'id': 1, 'nombre': 'Cappuccino', 'precio': 4.98}
-]
+@app.route('/gestionProductos')
+@login_required
+def gestion_productos():
+    return render_template('gestionProductos.html', productos=obtener_productos())
 
-@app.route('/gestionProductos/agregar', methods=['POST'])
-@login_required  # Ruta protegida
-def agregar_producto():
-    nuevo_producto = {
-        'id': len(productos) + 1,
-        'nombre': request.form['nombre'],
-        'precio': float(request.form['precio'])
-    }
-    productos.append(nuevo_producto)
-    return redirect(url_for('gestion_productos'))
+@app.route('/api/productos/eliminar', methods=['POST'])
+@login_required
+def eliminar_producto_route():
+    try:
+        data = request.json
+        producto_id = data.get('id')
+        
+        if eliminar_producto(producto_id):
+            return jsonify({'success': True, 'message': 'Producto eliminado exitosamente'})
+        else:
+            return jsonify({'success': False, 'message': 'Error al eliminar producto'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
-@app.route('/gestionProductos/eliminar/<int:id>')
-@login_required  # Ruta protegida
-def eliminar_producto(id):
-    global productos
-    productos = [p for p in productos if p['id'] != id]
-    return redirect(url_for('gestion_productos'))
+from flask import request, jsonify
+from werkzeug.utils import secure_filename
+import os
+
+# Ruta de ejemplo para manejar la solicitud de guardar un producto
+@app.route('/api/productos/guardar', methods=['POST'])
+@login_required
+def guardar_producto():
+    try:
+        # Obtener los datos del formulario
+        nombre = request.form['nombre']
+        precio = float(request.form['precio'])
+        imagen = request.files.get('imagen')  # Imagen opcional
+        imagen_path = None
+        
+        # Verificar si la imagen fue proporcionada
+        if imagen:
+            # Asegúrate de guardar la imagen en una carpeta segura
+            imagen_filename = secure_filename(imagen.filename)
+            imagen_path = os.path.join('static/images', imagen_filename)
+            imagen.save(imagen_path)
+        
+        # Obtener el ID del producto (si existe)
+        id_producto = request.form.get('id')
+        
+        if id_producto:  # Si se está actualizando el producto
+            # Lógica para actualizar el producto
+            producto = Producto.query.get(id_producto)  # Suponiendo que usas SQLAlchemy para interactuar con la base de datos
+            
+            if producto:
+                # Actualizar el nombre y precio del producto
+                producto.nombre = nombre
+                producto.precio = precio
+
+                # Si se proporcionó una nueva imagen, actualizar la ruta de la imagen
+                if imagen:
+                    producto.imagen = imagen_path
+                
+                # Guardar los cambios
+                db.session.commit()
+                return jsonify({'success': True, 'message': 'Producto actualizado exitosamente'})
+            else:
+                return jsonify({'success': False, 'message': 'Producto no encontrado'})
+
+        else:  # Si se está agregando un nuevo producto
+            # Lógica para agregar un nuevo producto
+            nuevo_producto = Producto(
+                nombre=nombre,
+                precio=precio,
+                imagen=imagen_path if imagen else None  # Si no se proporciona imagen, se guarda como None
+            )
+            
+            # Agregar el nuevo producto a la base de datos
+            db.session.add(nuevo_producto)
+            db.session.commit()
+            
+            return jsonify({'success': True, 'message': 'Producto agregado exitosamente'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al guardar el producto: {str(e)}'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
