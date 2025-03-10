@@ -1,16 +1,22 @@
 // Función para abrir el modal de Edición y Agregar Producto
-function abrirEAModal(id = null, nombre = '', precio = 0, imagen = '') {
+function abrirEAModal(id = null, nombre = '', descripcion = '', precio = 0, stock = 0, 
+                      stockMin = 10, stockMax = 100, categoriaId = null, imagen = '') {
     document.getElementById('idProducto').value = id || '';
     document.getElementById('nombreProducto').value = nombre;
+    document.getElementById('descripcionProducto').value = descripcion || '';
     document.getElementById('precioProducto').value = precio;
+    document.getElementById('stockProducto').value = stock || 0;
+    document.getElementById('stockMinProducto').value = stockMin || 10;
+    document.getElementById('stockMaxProducto').value = stockMax || 100;
+    document.getElementById('categoriaProducto').value = categoriaId || '';
     document.getElementById('tituloModal').innerText = id ? 'Editar Producto' : 'Agregar Producto';
     
-    // Si estamos editando, deshabilitar la imagen
+    // Si estamos editando, mostrar la imagen actual
     if (id) {
-        document.getElementById('imagenProducto').disabled = true;
-        document.getElementById('imagenActual').src = imagen;  // Mostrar la imagen actual
+        document.getElementById('imagenActual').src = imagen;
+        document.getElementById('imagenActual').style.display = 'block';
     } else {
-        document.getElementById('imagenProducto').disabled = false;
+        document.getElementById('imagenActual').style.display = 'none';
     }
 
     document.getElementById('productoModal').style.display = 'flex';
@@ -21,13 +27,19 @@ function abrirEAModal(id = null, nombre = '', precio = 0, imagen = '') {
 function cerrarEAModal() {
     document.getElementById('productoModal').style.display = 'none';
     document.getElementById('formProducto').reset();
+    document.getElementById('imagenActual').style.display = 'none';
 }
 
-function abrirVerProducto(id, nombre, precio, imagen) {
+function abrirVerProducto(id, nombre, descripcion, precio, stock, stockMin, stockMax, categoria, imagen) {
     document.getElementById('verIDProducto').innerText = id;
     document.getElementById('verNombreProducto').innerText = nombre;
+    document.getElementById('verDescripcionProducto').innerText = descripcion || 'Sin descripción';
     document.getElementById('verPrecioProducto').innerText = precio;
-    document.getElementById('verImagenProducto').src = imagen || 'ruta/default/image.jpg';  // Si no hay imagen, usar una imagen predeterminada
+    document.getElementById('verStockProducto').innerText = stock || 0;
+    document.getElementById('verStockMinProducto').innerText = stockMin || 10;
+    document.getElementById('verStockMaxProducto').innerText = stockMax || 100;
+    document.getElementById('verCategoriaProducto').innerText = categoria || 'Sin categoría';
+    document.getElementById('verImagenProducto').src = imagen || '/static/images/default-product.jpg';
     
     document.getElementById('verModalProducto').style.display = 'flex';
 }
@@ -69,11 +81,23 @@ function guardarProducto(event) {
     // Obtener los valores de los campos
     const nombreProducto = document.getElementById('nombreProducto').value;
     const precioProducto = document.getElementById('precioProducto').value;
+    const stockProducto = document.getElementById('stockProducto').value;
+    const categoriaProducto = document.getElementById('categoriaProducto').value;
 
     // Verificar si los campos obligatorios están vacíos
-    if (!nombreProducto || !precioProducto) {
+    if (!nombreProducto || !precioProducto || !stockProducto || !categoriaProducto) {
         alert("Por favor, complete todos los campos requeridos.");
         return;  // Evita el envío del formulario
+    }
+
+    // Validar que el stock esté dentro de los límites
+    const stockMin = parseInt(document.getElementById('stockMinProducto').value);
+    const stockMax = parseInt(document.getElementById('stockMaxProducto').value);
+    const stock = parseInt(stockProducto);
+    
+    if (stockMin > stockMax) {
+        alert("El stock mínimo no puede ser mayor que el stock máximo.");
+        return;
     }
 
     // Si todo está correcto, se crea un objeto FormData
@@ -97,4 +121,33 @@ function guardarProducto(event) {
         alert('Error al guardar el producto: ' + error);
     });
 }
+
+// Función para cargar las categorías en el select
+function cargarCategorias() {
+    fetch('/api/categorias')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const selectCategoria = document.getElementById('categoriaProducto');
+                // Limpiar opciones existentes
+                selectCategoria.innerHTML = '<option value="">Seleccione una categoría</option>';
+                
+                // Agregar las categorías
+                data.categorias.forEach(categoria => {
+                    const option = document.createElement('option');
+                    option.value = categoria.Id;
+                    option.textContent = categoria.categoria;
+                    selectCategoria.appendChild(option);
+                });
+            } else {
+                console.error('Error al cargar categorías:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar categorías:', error);
+        });
+}
+
+// Cargar categorías cuando se carga la página
+document.addEventListener('DOMContentLoaded', cargarCategorias);
 

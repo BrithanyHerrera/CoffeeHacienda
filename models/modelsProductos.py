@@ -1,27 +1,130 @@
-# Lista de productos simulada (en un caso real, usarías una base de datos)
-productos = []
+from bd import Conexion_BD
+import os
+from datetime import datetime
+import pymysql
 
 def obtener_productos():
+    productos = []
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = """
+            SELECT p.*, c.categoria 
+            FROM tproductos p 
+            LEFT JOIN tcategorias c ON p.categoria_id = c.Id
+            ORDER BY p.nombre_producto
+            """
+            cursor.execute(query)
+            productos = cursor.fetchall()
+        connection.close()
+    except Exception as e:
+        print(f"Error al obtener productos: {e}")
+    
     return productos
 
-def agregar_producto(nombre, precio, imagen):
-    nuevo_producto = {
-        'id': len(productos) + 1,
-        'nombre': nombre,
-        'precio': precio,
-        'imagen': imagen
-    }
-    productos.append(nuevo_producto)
-    return True
+def obtener_categorias():
+    categorias = []
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM tcategorias ORDER BY categoria"
+            cursor.execute(query)
+            categorias = cursor.fetchall()
+        connection.close()
+    except Exception as e:
+        print(f"Error al obtener categorías: {e}")
+    
+    return categorias
 
-def actualizar_producto(id, nombre, precio, imagen):
-    for producto in productos:
-        if producto['id'] == id:
-            producto.update({'nombre': nombre, 'precio': precio, 'imagen': imagen})
-            return True
-    return False
+def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen):
+    resultado = False
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = """
+            INSERT INTO tproductos (nombre_producto, descripcion, precio, stock, 
+                                   stock_minimo, stock_maximo, categoria_id, ruta_imagen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            valores = (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
+            cursor.execute(query, valores)
+        connection.commit()
+        resultado = True
+        connection.close()
+    except Exception as e:
+        print(f"Error al agregar producto: {e}")
+    
+    return resultado
+
+def actualizar_producto(id, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen=None):
+    resultado = False
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            # Si se proporciona una nueva imagen, actualizar también la ruta de la imagen
+            if ruta_imagen:
+                query = """
+                UPDATE tproductos 
+                SET nombre_producto = %s, descripcion = %s, precio = %s, stock = %s,
+                    stock_minimo = %s, stock_maximo = %s, categoria_id = %s, ruta_imagen = %s
+                WHERE Id = %s
+                """
+                valores = (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen, id)
+            else:
+                # Si no se proporciona una nueva imagen, mantener la imagen actual
+                query = """
+                UPDATE tproductos 
+                SET nombre_producto = %s, descripcion = %s, precio = %s, stock = %s,
+                    stock_minimo = %s, stock_maximo = %s, categoria_id = %s
+                WHERE Id = %s
+                """
+                valores = (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, id)
+                
+            cursor.execute(query, valores)
+        connection.commit()
+        resultado = cursor.rowcount > 0
+        connection.close()
+    except Exception as e:
+        print(f"Error al actualizar producto: {e}")
+    
+    return resultado
 
 def eliminar_producto(id):
-    global productos
-    productos = [p for p in productos if p['id'] != id]
-    return True
+    resultado = False
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = "DELETE FROM tproductos WHERE Id = %s"
+            cursor.execute(query, (id,))
+        connection.commit()
+        resultado = cursor.rowcount > 0
+        connection.close()
+    except Exception as e:
+        print(f"Error al eliminar producto: {e}")
+    
+    return resultado
+
+def obtener_producto_por_id(id):
+    producto = None
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = """
+            SELECT p.*, c.categoria 
+            FROM tproductos p 
+            LEFT JOIN tcategorias c ON p.categoria_id = c.Id
+            WHERE p.Id = %s
+            """
+            cursor.execute(query, (id,))
+            producto = cursor.fetchone()
+        connection.close()
+    except Exception as e:
+        print(f"Error al obtener producto: {e}")
+    
+    return producto
