@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 09-03-2025 a las 04:19:09
+-- Tiempo de generación: 10-03-2025 a las 07:18:21
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -33,6 +33,18 @@ CREATE TABLE `tcategorias` (
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tcategorias`
+--
+
+INSERT INTO `tcategorias` (`Id`, `categoria`, `creado_en`, `actualizado_en`) VALUES
+(1, 'Bebidas Calientes', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
+(2, 'Bebidas Frías', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
+(3, 'Snacks', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
+(4, 'Postres', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
+(5, 'Todos', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
+(6, 'Otras Bebidas', '2025-03-09 00:44:07', '2025-03-09 00:44:07');
 
 -- --------------------------------------------------------
 
@@ -67,8 +79,10 @@ CREATE TABLE `tcorreos` (
 --
 
 INSERT INTO `tcorreos` (`Id`, `correo`) VALUES
-(1, 'ismaelcm18182@gmail.com'),
-(2, 'amorcito@gmail.com');
+(1, 'ismaelcm181@gmail.com'),
+(2, 'amorcito@gmail.com'),
+(3, 'amorcito@gmail.com'),
+(4, 'a@ana.com');
 
 -- --------------------------------------------------------
 
@@ -234,6 +248,13 @@ CREATE TABLE `tproductos` (
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Volcado de datos para la tabla `tproductos`
+--
+
+INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
+(2, 'Ps yo', 'Prieto', '2.00', 1, 10, 100, 4, '/static/images/productos/20250310005543_image-removebg-preview.png', '2025-03-10 00:55:43', '2025-03-10 00:55:43');
+
 -- --------------------------------------------------------
 
 --
@@ -252,6 +273,27 @@ CREATE TABLE `troles` (
 INSERT INTO `troles` (`Id`, `rol`) VALUES
 (1, 'Administrador'),
 (2, 'Vendedor');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ttamanos`
+--
+
+CREATE TABLE `ttamanos` (
+  `Id` int(11) NOT NULL,
+  `tamano` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `ttamanos`
+--
+
+INSERT INTO `ttamanos` (`Id`, `tamano`) VALUES
+(1, 'Pequeño'),
+(2, 'Mediano'),
+(3, 'Grande'),
+(4, 'Extra Grande');
 
 -- --------------------------------------------------------
 
@@ -316,8 +358,8 @@ CREATE TABLE `tusuarios` (
 --
 
 INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `rol_id`, `creado_en`, `id_correo`) VALUES
-(2, 'Isma', '123', 1, '2025-03-08 22:18:15', 1),
-(3, 'Bri', '123', 2, '2025-03-08 22:18:41', 2);
+(2, 'Ismael', '1', 2, '2025-03-08 22:18:15', 1),
+(4, 'Bri', '1234', 2, '2025-03-08 22:20:15', 3);
 
 -- --------------------------------------------------------
 
@@ -438,6 +480,12 @@ ALTER TABLE `troles`
   ADD PRIMARY KEY (`Id`);
 
 --
+-- Indices de la tabla `ttamanos`
+--
+ALTER TABLE `ttamanos`
+  ADD PRIMARY KEY (`Id`);
+
+--
 -- Indices de la tabla `ttiposdevolucion`
 --
 ALTER TABLE `ttiposdevolucion`
@@ -477,7 +525,7 @@ ALTER TABLE `tventas`
 -- AUTO_INCREMENT de la tabla `tcategorias`
 --
 ALTER TABLE `tcategorias`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `tclientes`
@@ -489,7 +537,7 @@ ALTER TABLE `tclientes`
 -- AUTO_INCREMENT de la tabla `tcorreos`
 --
 ALTER TABLE `tcorreos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `tcortescaja`
@@ -504,16 +552,28 @@ ALTER TABLE `testadosventa`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `tproductos`
+--
+ALTER TABLE `tproductos`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `troles`
 --
 ALTER TABLE `troles`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT de la tabla `ttamanos`
+--
+ALTER TABLE `ttamanos`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`
@@ -535,8 +595,7 @@ ALTER TABLE `tcortescaja`
 -- Filtros para la tabla `tdetalleventas`
 --
 ALTER TABLE `tdetalleventas`
-  ADD CONSTRAINT `tdetalleventas_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`),
-  ADD CONSTRAINT `tdetalleventas_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`id`);
+  ADD CONSTRAINT `tdetalleventas_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`);
 
 --
 -- Filtros para la tabla `tdevoluciones`
