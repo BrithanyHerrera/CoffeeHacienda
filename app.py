@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from models.modelsLogin import verificar_usuario
 from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles
-from models.modelsProductos import obtener_productos, agregar_producto, actualizar_producto, eliminar_producto
+from models.modelsProductos import obtener_productos, agregar_producto, actualizar_producto, eliminar_producto, obtener_producto_por_id, obtener_categorias
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
 from flask import jsonify
+import os 
 
 app = Flask(__name__)
 
@@ -174,6 +175,15 @@ def propinas():
 def gestion_productos():
     return render_template('gestionProductos.html', productos=obtener_productos())
 
+@app.route('/api/categorias')
+@login_required
+def obtener_categorias_api():
+    try:
+        categorias = obtener_categorias()
+        return jsonify({'success': True, 'categorias': categorias})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
 @app.route('/api/productos/eliminar', methods=['POST'])
 @login_required
 def eliminar_producto_route():
@@ -188,67 +198,85 @@ def eliminar_producto_route():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
-from flask import request, jsonify
-from werkzeug.utils import secure_filename
-import os
-
-# Ruta de ejemplo para manejar la solicitud de guardar un producto
 @app.route('/api/productos/guardar', methods=['POST'])
 @login_required
 def guardar_producto():
     try:
         # Obtener los datos del formulario
-        nombre = request.form['nombre']
-        precio = float(request.form['precio'])
-        imagen = request.files.get('imagen')  # Imagen opcional
-        imagen_path = None
-        
-        # Verificar si la imagen fue proporcionada
-        if imagen:
-            # Asegúrate de guardar la imagen en una carpeta segura
-            imagen_filename = secure_filename(imagen.filename)
-            imagen_path = os.path.join('static/images', imagen_filename)
-            imagen.save(imagen_path)
-        
-        # Obtener el ID del producto (si existe)
         id_producto = request.form.get('id')
+        nombre = request.form.get('nombre')
+        descripcion = request.form.get('descripcion', '')
+        precio = float(request.form.get('precio'))
+        stock = int(request.form.get('stock'))
+        stock_min = int(request.form.get('stockMin', 10))
+        stock_max = int(request.form.get('stockMax', 100))
+        categoria_id = int(request.form.get('categoria'))
         
-        if id_producto:  # Si se está actualizando el producto
-            # Lógica para actualizar el producto
-            producto = Producto.query.get(id_producto)  # Suponiendo que usas SQLAlchemy para interactuar con la base de datos
-            
-            if producto:
-                # Actualizar el nombre y precio del producto
-                producto.nombre = nombre
-                producto.precio = precio
-
-                # Si se proporcionó una nueva imagen, actualizar la ruta de la imagen
-                if imagen:
-                    producto.imagen = imagen_path
-                
-                # Guardar los cambios
-                db.session.commit()
-                return jsonify({'success': True, 'message': 'Producto actualizado exitosamente'})
+        # Manejar la imagen si se proporciona
+        imagen = request.files.get('imagen')
+        ruta_imagen = None
+        
+        if imagen and imagen.filename and allowed_file(imagen.filename):
+            # Crear un nombre de archivo seguro
+            filename = secure_filename(imagen.filename)
+            # Añadir timestamp para evitar duplicados
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            filename = f"{timestamp}_{filename}"
+            # Ruta completa para guardar
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            # Guardar la imagen
+            imagen.save(filepath)
+            # Ruta relativa para la base de datos
+            ruta_imagen = f"/{UPLOAD_FOLDER}/{filename}"
+        
+        if id_producto:  # Actualizar producto existente
+            # Si no hay nueva imagen, mantener la actual
+            if not ruta_imagen:
+                resultado = actualizar_producto(
+                    id_producto, nombre, descripcion, precio, stock, 
+                    stock_min, stock_max, categoria_id
+                )
             else:
-                return jsonify({'success': False, 'message': 'Producto no encontrado'})
-
-        else:  # Si se está agregando un nuevo producto
-            # Lógica para agregar un nuevo producto
-            nuevo_producto = Producto(
-                nombre=nombre,
-                precio=precio,
-                imagen=imagen_path if imagen else None  # Si no se proporciona imagen, se guarda como None
+                resultado = actualizar_producto(
+                    id_producto, nombre, descripcion, precio, stock, 
+                    stock_min, stock_max, categoria_id, ruta_imagen
+                )
+            
+            mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
+        else:  # Crear nuevo producto
+            resultado = agregar_producto(
+                nombre, descripcion, precio, stock, 
+                stock_min, stock_max, categoria_id, ruta_imagen
             )
-            
-            # Agregar el nuevo producto a la base de datos
-            db.session.add(nuevo_producto)
-            db.session.commit()
-            
-            return jsonify({'success': True, 'message': 'Producto agregado exitosamente'})
-
+            mensaje = 'Producto agregado exitosamente' if resultado else 'Error al agregar producto'
+        
+        return jsonify({
+            'success': resultado,
+            'message': mensaje
+        })
     except Exception as e:
-        return jsonify({'success': False, 'message': f'Error al guardar el producto: {str(e)}'})
+        return jsonify({
+            'success': False,
+            'message': f'Error al guardar el producto: {str(e)}'
+        })
 
+
+# Configuración para guardar imágenes
+UPLOAD_FOLDER = 'static/images/productos'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Asegurarse de que el directorio de carga existe
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+from flask import request, jsonify
+from werkzeug.utils import secure_filename  # Movemos esta importación aquí
+
+# Eliminar la segunda definición de la ruta '/api/productos/guardar'
+# y la función guardar_producto duplicada
 
 if __name__ == '__main__':
     app.run(debug=True)
