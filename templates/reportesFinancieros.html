@@ -1,0 +1,73 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Reportes Financieros{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <div class="contenedorTitulo">
+        <h1>Reportes Financieros</h1>
+    </div>
+        
+        <!-- Contenedor para el filtro de fechas y la tabla -->
+        <div class="contenedor-reporte">
+            <!-- Filtro de fechas -->
+            <div class="fecha-selector">
+                <div class="fecha-item">
+                    <label for="fechaDesde">Desde</label>
+                    <input type="date" id="fechaDesde">
+                </div>
+                <div class="fecha-item">
+                    <label for="fechaHasta">Hasta</label>
+                    <input type="date" id="fechaHasta">
+                </div>
+                <button id="filtrarFechas" class="btnFiltrar">Filtrar Fechas</button>
+            </div>
+            
+            <!-- Tabla de Reportes Financieros -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Ventas Totales</th>
+                        <th>Devoluciones</th>
+                        <th>Retiros</th>
+                        <th>Ganancia/Pérdida</th>
+                    </tr>
+                </thead>
+                <tbody id="reportesBody">
+                    <!-- Filas de reporte serán generadas dinámicamente -->
+                    <tr>
+                        <td>2025-03-01</td>
+                        <td>$2000</td>
+                        <td>$150</td>
+                        <td>$300</td>
+                        <td class="ganancia">+$1550</td>
+                    </tr>
+                    <tr>
+                        <td>2025-03-02</td>
+                        <td>$1800</td>
+                        <td>$100</td>
+                        <td>$200</td>
+                        <td class="perdida">-$300</td>
+                    </tr>
+                    <!-- Más filas de reporte -->
+                </tbody>
+            </table>
+        </div>
+</main>
+
+<script>
+    // Función para filtrar los reportes por fechas
+    document.getElementById('filtrarFechas').onclick = function() {
+        let fechaDesde = document.getElementById('fechaDesde').value;
+        let fechaHasta = document.getElementById('fechaHasta').value;
+
+        // Aquí puedes agregar la lógica para filtrar los datos basados en las fechas
+        // Este ejemplo solo muestra cómo se capturan las fechas
+        console.log(`Filtrar reportes desde: ${fechaDesde} hasta: ${fechaHasta}`);
+
+        // Lógica de filtrado aquí...
+    }
+</script>
+
+{% endblock %}
