@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from models.modelsLogin import verificar_usuario
 from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles
-from models.modelsProductos import obtener_productos, agregar_producto, actualizar_producto, eliminar_producto, obtener_producto_por_id, obtener_categorias
+from models.modelsProductos import (obtener_productos, agregar_producto, actualizar_producto, 
+                                   eliminar_producto, obtener_producto_por_id, obtener_categorias,
+                                   obtener_tamanos, agregar_variante_producto, obtener_variantes_por_producto,
+                                   actualizar_variante_producto, eliminar_variantes_producto)
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
@@ -172,8 +175,11 @@ def propinas():
 
 @app.route('/gestionProductos')
 @login_required
-def gestion_productos():
-    return render_template('gestionProductos.html', productos=obtener_productos())
+def gestionProductos():
+    productos = obtener_productos()
+    categorias = obtener_categorias()
+    tamanos = obtener_tamanos()
+    return render_template('gestionProductos.html', productos=productos, categorias=categorias, tamanos=tamanos)
 
 @app.route('/api/categorias')
 @login_required
@@ -202,53 +208,67 @@ def eliminar_producto_route():
 @login_required
 def guardar_producto():
     try:
-        # Obtener los datos del formulario
         id_producto = request.form.get('id')
         nombre = request.form.get('nombre')
-        descripcion = request.form.get('descripcion', '')
-        precio = float(request.form.get('precio'))
-        stock = int(request.form.get('stock'))
-        stock_min = int(request.form.get('stockMin', 10))
-        stock_max = int(request.form.get('stockMax', 100))
-        categoria_id = int(request.form.get('categoria'))
+        descripcion = request.form.get('descripcion')
+        precio = request.form.get('precio')
+        stock = request.form.get('stock')
+        stock_min = request.form.get('stockMin')
+        stock_max = request.form.get('stockMax')
+        categoria_id = request.form.get('categoria')
+        tamano_id = request.form.get('tamano')  # Obtener el tamaño seleccionado
         
-        # Manejar la imagen si se proporciona
-        imagen = request.files.get('imagen')
+        # Procesar la imagen si se proporciona
+        imagen_file = request.files.get('imagen')
         ruta_imagen = None
         
-        if imagen and imagen.filename and allowed_file(imagen.filename):
-            # Crear un nombre de archivo seguro
-            filename = secure_filename(imagen.filename)
-            # Añadir timestamp para evitar duplicados
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            filename = f"{timestamp}_{filename}"
-            # Ruta completa para guardar
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            # Guardar la imagen
-            imagen.save(filepath)
-            # Ruta relativa para la base de datos
-            ruta_imagen = f"/{UPLOAD_FOLDER}/{filename}"
-        
-        if id_producto:  # Actualizar producto existente
-            # Si no hay nueva imagen, mantener la actual
-            if not ruta_imagen:
-                resultado = actualizar_producto(
-                    id_producto, nombre, descripcion, precio, stock, 
-                    stock_min, stock_max, categoria_id
-                )
-            else:
-                resultado = actualizar_producto(
-                    id_producto, nombre, descripcion, precio, stock, 
-                    stock_min, stock_max, categoria_id, ruta_imagen
-                )
+        if imagen_file and imagen_file.filename:
+            # Crear directorio si no existe
+            directorio = os.path.join('static', 'images', 'productos')
+            if not os.path.exists(directorio):
+                os.makedirs(directorio)
             
-            mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
-        else:  # Crear nuevo producto
-            resultado = agregar_producto(
-                nombre, descripcion, precio, stock, 
-                stock_min, stock_max, categoria_id, ruta_imagen
-            )
-            mensaje = 'Producto agregado exitosamente' if resultado else 'Error al agregar producto'
+            # Generar nombre único para la imagen
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            extension = os.path.splitext(imagen_file.filename)[1]
+            nombre_archivo = f"{timestamp}{extension}"
+            
+            # Guardar la imagen
+            ruta_completa = os.path.join(directorio, nombre_archivo)
+            imagen_file.save(ruta_completa)
+            
+            # Ruta para la base de datos
+            ruta_imagen = f"/static/images/productos/{nombre_archivo}"
+        
+        # Guardar o actualizar el producto
+        if id_producto:
+            resultado = actualizar_producto(id_producto, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
+            mensaje = 'Producto actualizado exitosamente'
+            
+            # Si se actualizó correctamente, procesar la variante
+            if resultado and tamano_id:
+                # Primero eliminar las variantes existentes
+                eliminar_variantes_producto(id_producto)
+                
+                # Agregar la nueva variante con el tamaño seleccionado
+                agregar_variante_producto(id_producto, tamano_id, precio)
+        else:
+            # Agregar nuevo producto
+            resultado = agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
+            
+            # Obtener el ID del producto recién agregado
+            productos = obtener_productos()
+            nuevo_producto_id = None
+            for producto in productos:
+                if producto['nombre_producto'] == nombre:
+                    nuevo_producto_id = producto['Id']
+                    break
+            
+            mensaje = 'Producto agregado exitosamente'
+            
+            # Si se agregó correctamente, procesar la variante
+            if resultado and tamano_id and nuevo_producto_id:
+                agregar_variante_producto(nuevo_producto_id, tamano_id, precio)
         
         return jsonify({
             'success': resultado,
@@ -257,8 +277,39 @@ def guardar_producto():
     except Exception as e:
         return jsonify({
             'success': False,
-            'message': f'Error al guardar el producto: {str(e)}'
+            'message': f'Error: {str(e)}'
         })
+
+@app.route('/api/productos/variantes/<int:producto_id>', methods=['GET'])
+@login_required
+def obtener_variantes_producto(producto_id):
+    try:
+        variantes = obtener_variantes_por_producto(producto_id)
+        return jsonify({
+            'success': True,
+            'variantes': variantes
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+
+@app.route('/api/productos/eliminar/<int:id>', methods=['DELETE'])
+@login_required
+def eliminar_producto_route_id(id):
+    try:
+        # Primero eliminar las variantes asociadas al producto
+        eliminar_variantes_producto(id)
+        
+        # Luego eliminar el producto
+        if eliminar_producto(id):
+            return jsonify({'success': True, 'message': 'Producto eliminado exitosamente'})
+        else:
+            return jsonify({'success': False, 'message': 'Error al eliminar producto'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 
 # Configuración para guardar imágenes
