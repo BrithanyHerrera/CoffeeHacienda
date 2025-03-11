@@ -192,6 +192,10 @@ input {
     align-items: flex-start; 
 }
 
+.tamaño.selected {
+    color: #b42100;
+}
+
 header {
     position: absolute;
     top: 19px;
