@@ -15,9 +15,8 @@
                 <thead>
                     <tr>
                         <th>Nombre</th>
+                        <th>Tamaño</th>
                         <th>Precio</th>
-                        <th>Stock</th>
-                        <th>Categoría</th>
                         <th>Imagen</th>
                         <th>Acciones</th>
                     </tr>
@@ -26,9 +25,8 @@
                     {% for producto in productos %}
                     <tr>
                         <td>{{ producto.nombre_producto }}</td>
+                        <td>${{ producto.tamano }}</td>
                         <td>${{ producto.precio }}</td>
-                        <td>{{ producto.stock }}</td>
-                        <td>{{ producto.categoria }}</td>
                         <td>
                             {% if producto.ruta_imagen %}
                             <img src="{{ producto.ruta_imagen }}" alt="{{ producto.nombre_producto }}" class="imagenProducto">
@@ -38,28 +36,30 @@
                         </td>
                         <td>
                             <button class="btnVerProducto" onclick="abrirVerProducto(
-                                {{ producto.Id }}, 
+                                '{{ producto.Id }}', 
                                 '{{ producto.nombre_producto }}', 
                                 '{{ producto.descripcion|default('', true) }}', 
-                                {{ producto.precio }}, 
-                                {{ producto.stock }}, 
-                                {{ producto.stock_minimo }}, 
-                                {{ producto.stock_maximo }}, 
+                                '{{ producto.precio }}',
+                                '{{ producto.tamano }}',  
+                                '{{ producto.stock }}', 
+                                '{{ producto.stock_minimo }}', 
+                                '{{ producto.stock_maximo }}', 
                                 '{{ producto.categoria }}', 
-                                '{{ producto.ruta_imagen|default('', true) }}'
+                                '{{ producto.ruta_imagen|default('', true)}}'
                             )">👁️</button>
                             <button class="btnEditarProducto" onclick="abrirEAModal(
-                                {{ producto.Id }}, 
+                                '{{ producto.Id }}', 
                                 '{{ producto.nombre_producto }}', 
                                 '{{ producto.descripcion|default('', true) }}', 
-                                {{ producto.precio }}, 
-                                {{ producto.stock }}, 
-                                {{ producto.stock_minimo }}, 
-                                {{ producto.stock_maximo }}, 
-                                {{ producto.categoria_id }}, 
+                                '{{ producto.precio }}',
+                                '{{ producto.tamano }}',  
+                                '{{ producto.stock }}', 
+                                '{{ producto.stock_minimo }}', 
+                                '{{ producto.stock_maximo }}', 
+                                '{{ producto.categoria }}', 
                                 '{{ producto.ruta_imagen|default('', true) }}'
                             )">✏️</button>
-                            <button class="btnEliminarProducto" onclick="eliminarProducto({{ producto.Id }})">🗑️</button>                            
+                            <button class="btnEliminarProducto" onclick="eliminarProducto('{{ producto.Id }}')">🗑️</button>                            
                         </td>
                     </tr>
                     {% endfor %}
@@ -75,34 +75,50 @@
                 <form id="formProducto" enctype="multipart/form-data" onsubmit="guardarProducto(event)">
                     <input type="hidden" id="idProducto" name="id">
                     
-                    <label for="nombreProducto">Nombre:</label>
-                    <input type="text" id="nombreProducto" name="nombre" required>
+                    <section class="contenedorIzquierdo">
+                        <label for="nombreProducto">Nombre:</label>
+                        <input type="text" id="nombreProducto" name="nombre" required>
+
+                        <label for="descripcionProducto">Descripción:</label>
+                        <textarea id="descripcionProducto" name="descripcion" rows="3"></textarea>
+                        
+                        <label for="tamañoProducto">Tamaño:</label>
+                        <select id="tamañoProducto" name="tamaño" required>
+                            <option value="">Seleccione un tamaño</option>
+                            <option value="Pequeño">Chico</option>
+                            <option value="Mediano">Mediano</option>
+                            <option value="Grande">Grande</option>
+                        </select>
+
+                        <label for="precioProducto">Precio:</label>
+                        <input type="number" id="precioProducto" name="precio" step="0.01" required>
+                        
+                        <label for="stockProducto">Stock:</label>
+                        <input type="number" id="stockProducto" name="stock" required>
+                    </section>
         
-                    <label for="descripcionProducto">Descripción:</label>
-                    <textarea id="descripcionProducto" name="descripcion" rows="3"></textarea>
+                    <section class="contenedorDerecho">
+                        <label for="stockMinProducto">Stock Mínimo:</label>
+                        <input type="number" id="stockMinProducto" name="stockMin" required>
+
+                        <label for="stockMaxProducto">Stock Máximo:</label>
+                        <input type="number" id="stockMaxProducto" name="stockMax" required>
+
+                        <label for="categoriaProducto">Categoría:</label>
+                        <select id="categoriaProducto" name="categoria" required>
+                            <option value="">Seleccione una categoría</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.Id }}">{{ categoria.nombre_categoria }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="imagenProducto">Imagen:</label>
+                        <input type="file" id="imagenProducto" name="imagen" accept="image/*">
+                        <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
+
+                        <button class="guardarBtn" type="submit">Guardar</button>
+                    </section>
                     
-                    <label for="precioProducto">Precio:</label>
-                    <input type="number" id="precioProducto" name="precio" step="0.01" required>
-                    
-                    <label for="stockProducto">Stock:</label>
-                    <input type="number" id="stockProducto" name="stock" required>
-                    
-                    <label for="stockMinProducto">Stock Mínimo:</label>
-                    <input type="number" id="stockMinProducto" name="stockMin" value="10">
-                    
-                    <label for="stockMaxProducto">Stock Máximo:</label>
-                    <input type="number" id="stockMaxProducto" name="stockMax" value="100">
-                    
-                    <label for="categoriaProducto">Categoría:</label>
-                    <select id="categoriaProducto" name="categoria" required>
-                        <option value="">Seleccione una categoría</option>
-                    </select>
-        
-                    <label for="imagenProducto">Imagen:</label>
-                    <input type="file" id="imagenProducto" name="imagen" accept="image/*">
-                    <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
-                    
-                    <button class="guardarBtn" type="submit">Guardar</button>
                 </form>
             </section>
         </section>
@@ -117,6 +133,7 @@
                     <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
                     <p><strong>Descripción:</strong> <span id="verDescripcionProducto"></span></p>
                     <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
+                    <p><strong>Tamaño:</strong> <span id="verTamañoProducto"></span></p>
                     <p><strong>Stock:</strong> <span id="verStockProducto"></span></p>
                     <p><strong>Stock Mínimo:</strong> <span id="verStockMinProducto"></span></p>
                     <p><strong>Stock Máximo:</strong> <span id="verStockMaxProducto"></span></p>

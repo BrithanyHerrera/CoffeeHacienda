@@ -11,7 +11,7 @@ body {
 
 .contenidoGeneral {
     margin-top: 10px;
-    margin-left: 335px;
+    margin-left: 300px;
     margin-right: 0px;
     background-color: #F9E6D3;
 }
@@ -33,7 +33,7 @@ h3 {
 
 .contenedorTitulo {
     display: flex;
-    width: 1300px; 
+    width: 1200px; 
     padding: 10px;
     justify-content: space-between;
     background: white;
@@ -59,7 +59,8 @@ h3 {
     padding: 20px;
     border-radius: 10px;
     width: 400px;
-    text-align: left
+    height: 600px;
+    text-align: left;
 }
 
 .tituloModal {
@@ -444,15 +445,29 @@ header input[type="text"] {
 }
 
 /* GESTIÓN PRODUCTOS */
-
 .contenedorGestionProductos {    
     margin-top: 10px;
     display: flex;
-    width: 1300px;
+    width: 1200px;
     padding: 10px;
     background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: row; /* Hacer que los contenedores estén lado a lado */
+    gap: 20px; /* Espacio entre los contenedores */
+    width: 100%;
+}
+
+.contenedorIzquierdo,
+.contenedorDerecho {
+    flex: 1; /* Ambos contenedores tendrán el mismo tamaño */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espacio entre los elementos dentro de los contenedores */
 }
 
 .listaProductos {
@@ -517,7 +532,7 @@ header input[type="text"] {
 .contenedorGestionUsuarios {    
     margin-top: 10px;
     display: flex;
-    width: 1300px;
+    width: 1200px;
     padding: 10px;
     background-color: white;
     border-radius: 20px;
