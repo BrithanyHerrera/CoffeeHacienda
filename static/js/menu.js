@@ -167,3 +167,17 @@ function generarPDF() {
     // Guardar el PDF
     doc.save('recibo.pdf');
 }
+
+function seleccionarTamaño(boton) {
+    // Get all size buttons within the same product
+    const producto = boton.closest('.producto');
+    const botonesTamaño = producto.querySelectorAll('.tamaño');
+    
+    // Remove selected class from all buttons in this product
+    botonesTamaño.forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked button
+    boton.classList.add('selected');
+}
