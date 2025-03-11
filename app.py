@@ -185,5 +185,15 @@ def eliminar_producto(id):
     productos = [p for p in productos if p['id'] != id]
     return redirect(url_for('gestion_productos'))
 
+@app.route('/corteCaja')
+@login_required  # Ruta protegida
+def corte():
+    return render_template('corteCaja.html')
+
+@app.route('/reporteFinanciero')
+@login_required  # Ruta protegida
+def reporte():
+    return render_template('reportesFinancieros.html')
+
 if __name__ == '__main__':
     app.run(debug=True)

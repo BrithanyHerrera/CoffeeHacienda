@@ -1,0 +1,168 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Corte de Caja{% endblock %}
+
+{% block content %}
+
+<main class="contenidoGeneral">
+    <div class="contenedorTitulo">
+        <h1>Corte de Caja</h1>
+        <div class="contenedorBotones">
+            <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
+            <button id="btnRealizarRetiro" class="btnRealizarRetiro">Realizar Retiro</button>
+        </div>
+    </div>
+
+    <!-- Tabla Principal -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Caja</th>
+                <th>Contado</th>
+                <th>Calculado</th>
+                <th>Diferencia</th>
+                <th>Retiro</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ejemplo de fila con datos -->
+            <tr>
+                <td>2025-03-11</td>
+                <td>2000</td>
+                <td>1500</td>
+                <td>1550</td>
+                <td>50</td>
+                <td>500</td>
+                <td>Usuario1</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Modal de Corte de Caja -->
+    <div id="miModal" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" id="cerrarModal">&times;</span>
+            <h2>Corte de Caja</h2>
+
+            <div class="modal-container">
+                <div class="fecha-selector">
+                    <div class="fecha-item">
+                        <label for="fechaDesde">Desde</label>
+                        <input type="date" id="fechaDesde">
+                    </div>
+                    <div class="fecha-item">
+                        <label for="fechaHasta">Hasta</label>
+                        <input type="date" id="fechaHasta">
+                    </div>
+                    <button id="btnFiltrarFechas" class="btnFiltrar">Filtrar Fechas</button>
+                </div>
+
+                <table class="table">
+                    <tr>
+                        <th> </th>
+                        <th>Contado</th>
+                        <th>Calculado</th>
+                        <th>Diferencia</th>
+                    </tr>
+                    <tr>
+                        <td>Efectivo</td>
+                        <td><input type="number" class="input-field" id="contado" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculado" value="0"></td>
+                        <td><input type="number" class="input-field" id="diferencia" value="0" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>Transferencias</td>
+                        <td><input type="number" class="input-field" id="cheque" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculadoCheque" value="0"></td>
+                        <td><input type="number" class="input-field" id="diferenciaCheque" value="0" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>PayPal</td>
+                        <td><input type="number" class="input-field" id="vales" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculadoVales" value="0"></td>
+                        <td><input type="number" class="input-field" id="diferenciaVales" value="0" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>Devoluciones</td>
+                        <td><input type="number" class="input-field" id="tarjeta" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculadoTarjeta" value="0"></td>
+                        <td><input type="number" class="input-field" id="diferenciaTarjeta" value="0" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td><input type="number" class="input-field total" id="total" value="0" readonly></td>
+                        <td><input type="number" class="input-field total" id="totalCalculado" value="0" readonly></td>
+                        <td><input type="number" class="input-field total" id="totalDiferencia" value="0" readonly></td>
+                    </tr>
+                </table>
+                <button id="btnFiltrarFechas" class="btnRealizar">Realizar Corte</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Realizar Retiro -->
+    <div id="miModalRetiro" class="modal">
+        <div class="modal-content-retiro">
+            <span class="cerrar" id="cerrarModalRetiro">&times;</span>
+            <h2>Realizar Retiro</h2>
+
+            <div class="retiro-container">
+                <label for="efectivoRetiro">Efectivo:</label>
+                <input type="number" id="efectivoRetiro" value="0" /><br>
+                <label for="chequeRetiro">Transferencias:</label>
+                <input type="number" id="chequeRetiro" value="0" /><br>
+                <label for="valesRetiro">PayPal:</label>
+                <input type="number" id="valesRetiro" value="0" /><br>
+                <label for="totalRetiro">Total:</label>
+                <input type="number" id="totalRetiro" value="0" /><br>
+
+                <button id="guardarRetiro">Realizar Retiro</button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    // Abrir y cerrar el modal del corte de caja
+    var modal = document.getElementById("miModal");
+    var btn = document.getElementById("btnAgregarCorte");
+    var span = document.getElementById("cerrarModal");
+
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Abrir y cerrar el modal para realizar retiro
+    var modalRetiro = document.getElementById("miModalRetiro");
+    var btnRetiro = document.getElementById("btnRealizarRetiro");
+    var spanRetiro = document.getElementById("cerrarModalRetiro");
+
+    btnRetiro.onclick = function() {
+        modalRetiro.style.display = "block";
+    }
+
+    spanRetiro.onclick = function() {
+        modalRetiro.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modalRetiro) {
+            modalRetiro.style.display = "none";
+        }
+    }
+</script>
+
+{% endblock %}
