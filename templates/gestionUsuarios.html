@@ -49,27 +49,31 @@
             <h3 class="tituloModal" id="tituloModal"></h3>
             <form id="formUsuario" method="POST">
                 <input type="hidden" id="idUsuario" name="id">
-                <label for="nombreUsuario">Nombre:</label>
-                <input type="text" id="nombreUsuario" name="nombre" required>
+                    <section class="contenedorIzquierdo">
+                        <label for="nombreUsuario">Nombre:</label>
+                        <input type="text" id="nombreUsuario" name="nombre" required>
+                    
+                        <label for="correoUsuario">Correo:</label>
+                        <input type="email" id="correoUsuario" name="correo" required>
+                    </section>
 
-                <label for="correoUsuario">Correo:</label>
-                <input type="email" id="correoUsuario" name="correo" required>
-        
-                <label for="contrasenaUsuario">Contraseña:</label>
-                <div class="inputContrasena">
-                    <input type="password" id="contrasenaUsuario" name="contrasena" required>
-                    <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
-                </div>
-        
-                <label for="tipoPrivilegio">Tipo de Privilegio:</label>
-                <select id="tipoPrivilegio" name="tipoPrivilegio" required>
-                    {% for rol in roles %}
-                    <option value="{{ rol.Id }}">{{ rol.rol }}</option>
-                    {% endfor %}
-                </select>
-                <br>
-                <br>
-                <button class="guardarBtn" type="submit">Guardar</button>
+                    <section class="contenedorDerecho">
+                        <label for="contrasenaUsuario">Contraseña:</label>
+                        <div class="inputContrasena">
+                            <input type="password" id="contrasenaUsuario" name="contrasena" required>
+                            <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
+                        </div>
+                
+                        <label for="tipoPrivilegio">Tipo de Privilegio:</label>
+                        <select id="tipoPrivilegio" name="tipoPrivilegio" required>
+                            {% for rol in roles %}
+                            <option value="{{ rol.Id }}">{{ rol.rol }}</option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        <br>
+                        <button class="guardarBtn" type="submit">Guardar</button>
+                    </section>
             </form>
         </section>
     </section>
