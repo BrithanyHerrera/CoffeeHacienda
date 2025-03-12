@@ -38,6 +38,99 @@ def obtener_categorias():
     
     return categorias
 
+def obtener_tamanos():
+    tamanos = []
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM ttamanos ORDER BY Id"
+            cursor.execute(query)
+            tamanos = cursor.fetchall()
+        connection.close()
+    except Exception as e:
+        print(f"Error al obtener tamaños: {e}")
+    
+    return tamanos
+
+def agregar_variante_producto(producto_id, tamano_id, precio):
+    resultado = False
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = """
+            INSERT INTO tproductos_variantes (producto_id, tamano_id, precio)
+            VALUES (%s, %s, %s)
+            """
+            valores = (producto_id, tamano_id, precio)
+            cursor.execute(query, valores)
+        connection.commit()
+        resultado = True
+        connection.close()
+    except Exception as e:
+        print(f"Error al agregar variante de producto: {e}")
+    
+    return resultado
+
+def obtener_variantes_por_producto(producto_id):
+    variantes = []
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = """
+            SELECT pv.*, t.tamano 
+            FROM tproductos_variantes pv 
+            JOIN ttamanos t ON pv.tamano_id = t.Id
+            WHERE pv.producto_id = %s
+            ORDER BY t.Id
+            """
+            cursor.execute(query, (producto_id,))
+            variantes = cursor.fetchall()
+        connection.close()
+    except Exception as e:
+        print(f"Error al obtener variantes del producto: {e}")
+    
+    return variantes
+
+def actualizar_variante_producto(variante_id, precio):
+    resultado = False
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = """
+            UPDATE tproductos_variantes 
+            SET precio = %s
+            WHERE Id = %s
+            """
+            valores = (precio, variante_id)
+            cursor.execute(query, valores)
+        connection.commit()
+        resultado = cursor.rowcount > 0
+        connection.close()
+    except Exception as e:
+        print(f"Error al actualizar variante de producto: {e}")
+    
+    return resultado
+
+def eliminar_variantes_producto(producto_id):
+    resultado = False
+    
+    try:
+        connection = Conexion_BD()
+        with connection.cursor() as cursor:
+            query = "DELETE FROM tproductos_variantes WHERE producto_id = %s"
+            cursor.execute(query, (producto_id,))
+        connection.commit()
+        resultado = True
+        connection.close()
+    except Exception as e:
+        print(f"Error al eliminar variantes del producto: {e}")
+    
+    return resultado
+
 def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen):
     resultado = False
     

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 10-03-2025 a las 07:18:21
+-- Tiempo de generación: 11-03-2025 a las 08:04:07
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -62,27 +62,6 @@ CREATE TABLE `tclientes` (
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tcorreos`
---
-
-CREATE TABLE `tcorreos` (
-  `Id` int(11) NOT NULL,
-  `correo` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Volcado de datos para la tabla `tcorreos`
---
-
-INSERT INTO `tcorreos` (`Id`, `correo`) VALUES
-(1, 'ismaelcm181@gmail.com'),
-(2, 'amorcito@gmail.com'),
-(3, 'amorcito@gmail.com'),
-(4, 'a@ana.com');
 
 -- --------------------------------------------------------
 
@@ -253,7 +232,29 @@ CREATE TABLE `tproductos` (
 --
 
 INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
-(2, 'Ps yo', 'Prieto', '2.00', 1, 10, 100, 4, '/static/images/productos/20250310005543_image-removebg-preview.png', '2025-03-10 00:55:43', '2025-03-10 00:55:43');
+(2, 'Isma', 'pRIETO X2', '20.00', 12, 10, 100, 2, '/static/images/productos/20250311015016.png', '2025-03-11 01:50:16', '2025-03-11 01:50:16');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tproductos_variantes`
+--
+
+CREATE TABLE `tproductos_variantes` (
+  `Id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `tamano_id` int(11) NOT NULL,
+  `precio` decimal(10,2) NOT NULL,
+  `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
+  `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tproductos_variantes`
+--
+
+INSERT INTO `tproductos_variantes` (`Id`, `producto_id`, `tamano_id`, `precio`, `creado_en`, `actualizado_en`) VALUES
+(1, 2, 2, '20.00', '2025-03-11 01:50:16', '2025-03-11 01:50:16');
 
 -- --------------------------------------------------------
 
@@ -348,18 +349,17 @@ CREATE TABLE `tusuarios` (
   `Id` int(11) NOT NULL,
   `usuario` varchar(255) NOT NULL,
   `contrasena` varchar(255) NOT NULL,
+  `correo` varchar(100) NOT NULL,
   `rol_id` int(11) NOT NULL,
-  `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
-  `id_correo` int(11) DEFAULT NULL
+  `creado_en` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `tusuarios`
 --
 
-INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `rol_id`, `creado_en`, `id_correo`) VALUES
-(2, 'Ismael', '1', 2, '2025-03-08 22:18:15', 1),
-(4, 'Bri', '1234', 2, '2025-03-08 22:20:15', 3);
+INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `correo`, `rol_id`, `creado_en`) VALUES
+(6, 'Isma', '123', 'ismaelcm18182@gmail.com', 1, '2025-03-10 23:19:36');
 
 -- --------------------------------------------------------
 
@@ -401,12 +401,6 @@ ALTER TABLE `tclientes`
   ADD UNIQUE KEY `correo_UNIQUE` (`correo`);
 
 --
--- Indices de la tabla `tcorreos`
---
-ALTER TABLE `tcorreos`
-  ADD PRIMARY KEY (`Id`);
-
---
 -- Indices de la tabla `tcortescaja`
 --
 ALTER TABLE `tcortescaja`
@@ -419,7 +413,7 @@ ALTER TABLE `tcortescaja`
 ALTER TABLE `tdetalleventas`
   ADD PRIMARY KEY (`Id`),
   ADD KEY `venta_id` (`venta_id`),
-  ADD KEY `producto_id` (`producto_id`);
+  ADD KEY `tdetalleventas_ibfk_2` (`producto_id`);
 
 --
 -- Indices de la tabla `tdevoluciones`
@@ -474,6 +468,14 @@ ALTER TABLE `tproductos`
   ADD KEY `categoria_id` (`categoria_id`);
 
 --
+-- Indices de la tabla `tproductos_variantes`
+--
+ALTER TABLE `tproductos_variantes`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `tamano_id` (`tamano_id`);
+
+--
 -- Indices de la tabla `troles`
 --
 ALTER TABLE `troles`
@@ -503,8 +505,7 @@ ALTER TABLE `ttiposmovimiento`
 ALTER TABLE `tusuarios`
   ADD PRIMARY KEY (`Id`),
   ADD UNIQUE KEY `usuario_UNIQUE` (`usuario`),
-  ADD KEY `rol_id` (`rol_id`),
-  ADD KEY `fk_usuarios_correos` (`id_correo`);
+  ADD KEY `rol_id` (`rol_id`);
 
 --
 -- Indices de la tabla `tventas`
@@ -534,12 +535,6 @@ ALTER TABLE `tclientes`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `tcorreos`
---
-ALTER TABLE `tcorreos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
 -- AUTO_INCREMENT de la tabla `tcortescaja`
 --
 ALTER TABLE `tcortescaja`
@@ -558,6 +553,12 @@ ALTER TABLE `tproductos`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT de la tabla `tproductos_variantes`
+--
+ALTER TABLE `tproductos_variantes`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `troles`
 --
 ALTER TABLE `troles`
@@ -573,7 +574,7 @@ ALTER TABLE `ttamanos`
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`
@@ -595,7 +596,8 @@ ALTER TABLE `tcortescaja`
 -- Filtros para la tabla `tdetalleventas`
 --
 ALTER TABLE `tdetalleventas`
-  ADD CONSTRAINT `tdetalleventas_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`);
+  ADD CONSTRAINT `tdetalleventas_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`),
+  ADD CONSTRAINT `tdetalleventas_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`);
 
 --
 -- Filtros para la tabla `tdevoluciones`
@@ -628,10 +630,16 @@ ALTER TABLE `tproductos`
   ADD CONSTRAINT `tproductos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `tcategorias` (`Id`);
 
 --
+-- Filtros para la tabla `tproductos_variantes`
+--
+ALTER TABLE `tproductos_variantes`
+  ADD CONSTRAINT `tproductos_variantes_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`),
+  ADD CONSTRAINT `tproductos_variantes_ibfk_2` FOREIGN KEY (`tamano_id`) REFERENCES `ttamanos` (`Id`);
+
+--
 -- Filtros para la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  ADD CONSTRAINT `fk_usuarios_correos` FOREIGN KEY (`id_correo`) REFERENCES `tcorreos` (`Id`),
   ADD CONSTRAINT `tusuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `troles` (`Id`);
 
 --
