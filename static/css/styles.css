@@ -95,8 +95,17 @@ h3 {
 }
 
 .cerrar {
+    color: #aaa;
     float: right;
-    font-size: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.cerrar:hover,
+.cerrar:focus {
+    color: black;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -686,12 +695,6 @@ form {
     color: white;
 }
 
-.cerrar {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
-}
-
 #tablaProductos {
     width: 100%;
     margin-top: 10px;
@@ -751,12 +754,6 @@ form {
     background: #3498DB;
     color: white;
     border-radius: 5px;
-}
-
-.cerrar {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
 }
 
 #tablaProductosVenta {
@@ -835,6 +832,7 @@ form {
     width: 150px;
     height: 40px;
 }
+
 .modal-content {
     background-color: #F9E6D3;
     margin: 5% auto;
@@ -973,32 +971,20 @@ form {
     background-color: #FF7F50;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    padding-top: 60px;
-}
 
 .modal-content-retiro {
     background-color: #F9E6D3;
     margin: 5% auto;
     padding: 20px;
     border-radius: 10px;
-    width: 500px;  /* Ancho del modal */
-    height: 600px; /* Alto del modal */
+    width: 500px;
+    height: 600px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     margin-top: 30px;
-}
+} 
 
 .retiro-container input[type="number"] {
     width: 95%;
@@ -1026,22 +1012,7 @@ form {
     background-color: #FFE0C0;
 }
 
-.cerrar {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
 
-.cerrar:hover,
-.cerrar:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Mejorando la accesibilidad para pantallas pequeñas */
 @media (max-width: 768px) {
     .modal-content,
     .modal-content-retiro {
