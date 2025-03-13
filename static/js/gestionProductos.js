@@ -75,53 +75,6 @@ function eliminarProducto(id) {
     }
 }
 
-function guardarProducto(event) {
-    event.preventDefault();  // Prevenir el envío del formulario
-
-    // Obtener los valores de los campos
-    const nombreProducto = document.getElementById('nombreProducto').value;
-    const precioProducto = document.getElementById('precioProducto').value;
-    const stockProducto = document.getElementById('stockProducto').value;
-    const categoriaProducto = document.getElementById('categoriaProducto').value;
-
-    // Verificar si los campos obligatorios están vacíos
-    if (!nombreProducto || !precioProducto || !stockProducto || !categoriaProducto) {
-        alert("Por favor, complete todos los campos requeridos.");
-        return;  // Evita el envío del formulario
-    }
-
-    // Validar que el stock esté dentro de los límites
-    const stockMin = parseInt(document.getElementById('stockMinProducto').value);
-    const stockMax = parseInt(document.getElementById('stockMaxProducto').value);
-    const stock = parseInt(stockProducto);
-    
-    if (stockMin > stockMax) {
-        alert("El stock mínimo no puede ser mayor que el stock máximo.");
-        return;
-    }
-
-    // Si todo está correcto, se crea un objeto FormData
-    const formData = new FormData(document.getElementById('formProducto'));
-
-    // Realizamos la solicitud con fetch
-    fetch('/api/productos/guardar', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            location.reload();  // Recargar la página para actualizar la lista de productos
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        alert('Error al guardar el producto: ' + error);
-    });
-}
-
 // Función para cargar las categorías en el select
 function cargarCategorias() {
     fetch('/api/categorias')
@@ -148,6 +101,103 @@ function cargarCategorias() {
         });
 }
 
-// Cargar categorías cuando se carga la página
-document.addEventListener('DOMContentLoaded', cargarCategorias);
+// Función para cargar los tamaños en el select
+function cargarTamanos() {
+    fetch('/api/tamanos')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const selectTamano = document.getElementById('tamanoProducto');
+                // Limpiar opciones existentes
+                selectTamano.innerHTML = '<option value="">Seleccione un tamaño</option>';
+                
+                // Agregar los tamaños
+                data.tamanos.forEach(tamano => {
+                    const option = document.createElement('option');
+                    option.value = tamano.Id;
+                    option.textContent = tamano.tamano;
+                    selectTamano.appendChild(option);
+                });
+            } else {
+                console.error('Error al cargar tamaños:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar tamaños:', error);
+        });
+}
+
+// Cargar categorías y tamaños cuando se carga la página
+// Ensure this code is in your DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', function() {
+    cargarCategorias();
+    cargarTamanos();
+    
+    // Add event listener for the form
+    const formProducto = document.getElementById('formProducto');
+    if (formProducto) {
+        formProducto.addEventListener('submit', function(event) {
+            event.preventDefault();
+            guardarProducto(event);
+        });
+    }
+});
+
+// Función para guardar el producto
+function guardarProducto(event) {
+    event.preventDefault();
+    
+    // Obtener los valores de los campos
+    const nombreProducto = document.getElementById('nombreProducto').value;
+    const precioProducto = document.getElementById('precioProducto').value;
+    const stockProducto = document.getElementById('stockProducto').value;
+    const categoriaProducto = document.getElementById('categoriaProducto').value;
+
+    // Verificar si los campos obligatorios están vacíos
+    if (!nombreProducto || !precioProducto || !stockProducto || !categoriaProducto) {
+        alert("Por favor, complete todos los campos requeridos.");
+        return;  // Evita el envío del formulario
+    }
+
+    // Validar que el stock esté dentro de los límites
+    const stockMin = parseInt(document.getElementById('stockMinProducto').value);
+    const stockMax = parseInt(document.getElementById('stockMaxProducto').value);
+    const stock = parseInt(stockProducto);
+    
+    if (stockMin > stockMax) {
+        alert("El stock mínimo no puede ser mayor que el stock máximo.");
+        return;
+    }
+
+    // Si todo está correcto, se crea un objeto FormData
+    const formData = new FormData(document.getElementById('formProducto'));
+    
+    // Asegurarse de que los nombres de los campos coincidan con lo que espera el servidor
+    formData.set('nombreProducto', nombreProducto);
+    formData.set('descripcionProducto', document.getElementById('descripcionProducto').value);
+    formData.set('precioProducto', precioProducto);
+    formData.set('stockProducto', stockProducto);
+    formData.set('stockMinProducto', stockMin);
+    formData.set('stockMaxProducto', stockMax);
+    formData.set('categoriaProducto', categoriaProducto);
+    formData.set('tamanoProducto', document.getElementById('tamanoProducto').value);
+
+    // Realizamos la solicitud con fetch
+    fetch('/api/productos/guardar', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();  // Recargar la página para actualizar la lista de productos
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error al guardar el producto: ' + error);
+    });
+}
 
