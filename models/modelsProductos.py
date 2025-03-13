@@ -10,7 +10,7 @@ def obtener_productos():
         connection = Conexion_BD()
         with connection.cursor() as cursor:
             query = """
-            SELECT p.*, c.categoria, t.tamano, pv.tamano_id as id_tamano 
+            SELECT p.*, c.categoria, c.Id as id_categoria, t.tamano, pv.tamano_id as id_tamano 
             FROM tproductos p 
             LEFT JOIN tcategorias c ON p.categoria_id = c.Id
             LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
@@ -211,7 +211,7 @@ def obtener_producto_por_id(id):
         connection = Conexion_BD()
         with connection.cursor() as cursor:
             query = """
-            SELECT p.*, c.categoria 
+            SELECT p.*, c.categoria, c.Id as id_categoria
             FROM tproductos p 
             LEFT JOIN tcategorias c ON p.categoria_id = c.Id
             WHERE p.Id = %s

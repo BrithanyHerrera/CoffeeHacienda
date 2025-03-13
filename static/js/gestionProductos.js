@@ -30,18 +30,45 @@ function cerrarEAModal() {
     document.getElementById('imagenActual').style.display = 'none';
 }
 
-function abrirVerProducto(id, nombre, descripcion, precio, stock, stockMin, stockMax, categoria, imagen) {
-    document.getElementById('verIDProducto').innerText = id;
-    document.getElementById('verNombreProducto').innerText = nombre;
-    document.getElementById('verDescripcionProducto').innerText = descripcion || 'Sin descripción';
-    document.getElementById('verPrecioProducto').innerText = precio;
-    document.getElementById('verStockProducto').innerText = stock || 0;
-    document.getElementById('verStockMinProducto').innerText = stockMin || 10;
-    document.getElementById('verStockMaxProducto').innerText = stockMax || 100;
-    document.getElementById('verCategoriaProducto').innerText = categoria || 'Sin categoría';
-    document.getElementById('verImagenProducto').src = imagen || '/static/images/default-product.jpg';
-    
-    document.getElementById('verModalProducto').style.display = 'flex';
+function abrirVerProducto(id) {
+    // Obtener los datos completos del producto incluyendo tamaño y categoría
+    fetch(`/api/productos/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const producto = data.producto;
+                
+                // Establecer el contenido en el modal de ver producto
+                document.getElementById('verIDProducto').textContent = producto.Id;
+                document.getElementById('verNombreProducto').textContent = producto.nombre_producto;
+                document.getElementById('verDescripcionProducto').textContent = producto.descripcion || 'Sin descripción';
+                document.getElementById('verPrecioProducto').textContent = producto.precio;
+                document.getElementById('verStockProducto').textContent = producto.stock || 0;
+                document.getElementById('verStockMinProducto').textContent = producto.stock_minimo || 10;
+                document.getElementById('verStockMaxProducto').textContent = producto.stock_maximo || 100;
+                document.getElementById('verCategoriaProducto').textContent = producto.categoria || 'Sin categoría';
+                
+                // Mostrar el tamaño si hay variantes
+                if (data.variantes && data.variantes.length > 0) {
+                    const tamanos = data.variantes.map(v => v.tamano).join(', ');
+                    document.getElementById('verTamanoProducto').textContent = tamanos;
+                } else {
+                    document.getElementById('verTamanoProducto').textContent = 'Sin tamaño';
+                }
+                
+                // Mostrar la imagen
+                document.getElementById('verImagenProducto').src = producto.ruta_imagen || '/static/images/default-product.jpg';
+                
+                // Mostrar el modal de ver producto
+                document.getElementById('verModalProducto').style.display = 'flex';
+            } else {
+                alert('Error al obtener los datos del producto');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al obtener los datos del producto');
+        });
 }
 
 
@@ -243,6 +270,80 @@ function reestablecerFiltros() {
     productos.forEach(producto => {
         producto.style.display = ''; // Mostrar todos
     });
+}
+
+function abrirEAModal(id = null) {
+    if (id) {
+        // Si es edición, obtener los datos completos del producto
+        fetch(`/api/productos/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const producto = data.producto;
+                    
+                    // Rellenar los campos del modal con los valores recibidos
+                    document.getElementById('idProducto').value = producto.Id;
+                    document.getElementById('nombreProducto').value = producto.nombre_producto;
+                    document.getElementById('descripcionProducto').value = producto.descripcion || '';
+                    document.getElementById('precioProducto').value = producto.precio;
+                    document.getElementById('stockProducto').value = producto.stock || 0;
+                    document.getElementById('stockMinProducto').value = producto.stock_minimo || 10;
+                    document.getElementById('stockMaxProducto').value = producto.stock_maximo || 100;
+                    
+                    // Asegurarse de seleccionar la categoría correcta
+                    if (producto.categoria_id) {
+                        document.getElementById('categoriaProducto').value = producto.categoria_id;
+                    } else {
+                        document.getElementById('categoriaProducto').value = '';
+                    }
+                    
+                    // Si hay variantes, seleccionar el primer tamaño
+                    if (data.variantes && data.variantes.length > 0) {
+                        document.getElementById('tamanoProducto').value = data.variantes[0].tamano_id;
+                    } else {
+                        document.getElementById('tamanoProducto').value = '';
+                    }
+                    
+                    // Mostrar la imagen actual si existe
+                    if (producto.ruta_imagen) {
+                        document.getElementById('imagenActual').src = producto.ruta_imagen;
+                        document.getElementById('imagenActual').style.display = 'block';
+                    } else {
+                        document.getElementById('imagenActual').style.display = 'none';
+                    }
+                    
+                    // Establecer el título del modal
+                    document.getElementById('tituloModal').innerText = 'Editar Producto';
+                    
+                    // Mostrar el modal de agregar/editar producto
+                    document.getElementById('productoModal').style.display = 'flex';
+                } else {
+                    alert('Error al obtener los datos del producto');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al obtener los datos del producto');
+            });
+    } else {
+        // Si es agregar nuevo producto, simplemente mostrar el modal con campos vacíos
+        document.getElementById('idProducto').value = '';
+        document.getElementById('nombreProducto').value = '';
+        document.getElementById('descripcionProducto').value = '';
+        document.getElementById('precioProducto').value = '';
+        document.getElementById('stockProducto').value = '0';
+        document.getElementById('stockMinProducto').value = '10';
+        document.getElementById('stockMaxProducto').value = '100';
+        document.getElementById('categoriaProducto').value = '';
+        document.getElementById('tamanoProducto').value = '';
+        document.getElementById('imagenActual').style.display = 'none';
+        
+        // Establecer el título del modal
+        document.getElementById('tituloModal').innerText = 'Agregar Producto';
+        
+        // Mostrar el modal de agregar/editar producto
+        document.getElementById('productoModal').style.display = 'flex';
+    }
 }
 
 
