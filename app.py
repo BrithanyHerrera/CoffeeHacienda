@@ -341,5 +341,50 @@ def obtener_variantes(producto_id):
             'message': f'Error: {str(e)}'
         })
 
+@app.route('/api/usuarios/<int:id>', methods=['GET'])
+@login_required
+def get_usuario(id):
+    try:
+        usuario = obtener_usuario_por_id(id)
+        if usuario:
+            return jsonify({
+                'success': True,
+                'usuario': usuario
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Usuario no encontrado'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/productos/<int:id>', methods=['GET'])
+@login_required
+def get_producto(id):
+    try:
+        producto = obtener_producto_por_id(id)
+        if producto:
+            # Obtener también las variantes del producto
+            variantes = obtener_variantes_por_producto(id)
+            return jsonify({
+                'success': True,
+                'producto': producto,
+                'variantes': variantes
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Producto no encontrado'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
 if __name__ == '__main__':
     app.run(debug=True)

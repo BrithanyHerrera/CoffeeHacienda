@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 13-03-2025 a las 05:25:02
+-- Tiempo de generación: 13-03-2025 a las 07:36:04
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -227,13 +227,6 @@ CREATE TABLE `tproductos` (
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Volcado de datos para la tabla `tproductos`
---
-
-INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
-(9, 'Cappuccino', 'cfh ', '11.00', 11, 100, 100, 2, '/static/images/productos/20250312231152.jpg', '2025-03-12 23:11:52', '2025-03-12 23:11:52');
-
 -- --------------------------------------------------------
 
 --
@@ -248,13 +241,6 @@ CREATE TABLE `tproductos_variantes` (
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Volcado de datos para la tabla `tproductos_variantes`
---
-
-INSERT INTO `tproductos_variantes` (`Id`, `producto_id`, `tamano_id`, `precio`, `creado_en`, `actualizado_en`) VALUES
-(7, 9, 2, '11.00', '2025-03-12 23:11:53', '2025-03-12 23:11:53');
 
 -- --------------------------------------------------------
 
@@ -293,8 +279,7 @@ CREATE TABLE `ttamanos` (
 INSERT INTO `ttamanos` (`Id`, `tamano`) VALUES
 (1, 'Pequeño'),
 (2, 'Mediano'),
-(3, 'Grande'),
-(4, 'Extra Grande');
+(3, 'Grande');
 
 -- --------------------------------------------------------
 
@@ -550,13 +535,13 @@ ALTER TABLE `testadosventa`
 -- AUTO_INCREMENT de la tabla `tproductos`
 --
 ALTER TABLE `tproductos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `tproductos_variantes`
 --
 ALTER TABLE `tproductos_variantes`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `troles`
@@ -574,7 +559,7 @@ ALTER TABLE `ttamanos`
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`

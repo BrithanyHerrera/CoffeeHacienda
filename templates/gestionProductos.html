@@ -68,12 +68,8 @@
                         </td>
 
                         <td class="categoriaProducto">
-                            {% if producto.id_categoria %}
-                                {% for categoria in categorias %}
-                                    {% if categoria.Id == producto.id_categoria %}
-                                        {{ categoria.categoria }}
-                                    {% endif %}
-                                {% endfor %}
+                            {% if producto.categoria %}
+                                {{ producto.categoria }}
                             {% else %}
                                 Sin categoría
                             {% endif %}
@@ -90,30 +86,8 @@
                         </td>
 
                         <td>
-                            <button class="btnVerProducto" onclick="abrirVerProducto(
-                                '{{ producto.Id }}', 
-                                '{{ producto.nombre_producto }}', 
-                                '{{ producto.descripcion|default('', true) }}', 
-                                '{{ producto.precio }}',
-                                '{{ producto.tamano }}',  
-                                '{{ producto.stock }}', 
-                                '{{ producto.stock_minimo }}', 
-                                '{{ producto.stock_maximo }}', 
-                                '{{ producto.categoria }}', 
-                                '{{ producto.ruta_imagen|default('', true)}}'
-                            )">👁️</button>
-                            <button class="btnEditarProducto" onclick="abrirEAModal(
-                                '{{ producto.Id }}', 
-                                '{{ producto.nombre_producto }}', 
-                                '{{ producto.descripcion|default('', true) }}', 
-                                '{{ producto.precio }}',
-                                '{{ producto.tamano }}',  
-                                '{{ producto.stock }}', 
-                                '{{ producto.stock_minimo }}', 
-                                '{{ producto.stock_maximo }}', 
-                                '{{ producto.categoria }}', 
-                                '{{ producto.ruta_imagen|default('', true) }}'
-                            )">✏️</button>
+                            <button class="btnVerProducto" onclick="abrirVerProducto('{{ producto.Id }}')">👁️</button>
+                            <button class="btnEditarProducto" onclick="abrirEAModal('{{ producto.Id }}')">✏️</button>
                             <button class="btnEliminarProducto" onclick="eliminarProducto('{{ producto.Id }}')">🗑️</button>                            
                         </td>
                     </tr>
