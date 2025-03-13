@@ -8,6 +8,17 @@
         <h1>Gestión de Usuarios</h1>
         <button class="btnAgregarUsuario" onclick="abrirEAModal()">➕ Agregar Usuario</button>
     </div>
+
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" oninput="buscarUsuario()">
+            <label for="fechaInicio">Desde:</label>
+            <input type="date" id="fechaInicio" name="fechaInicio" onchange="buscarUsuario()">
+            <label for="fechaFin">Hasta:</label>
+            <input type="date" id="fechaFin" name="fechaFin" onchange="buscarUsuario()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+        </section>
+    </section>
     
     <div class="contenedorGestionUsuarios">
         <section class="listaUsuarios">

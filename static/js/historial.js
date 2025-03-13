@@ -50,3 +50,16 @@ function buscarVentas() {
         }
     });
 }
+
+// Función para reestablecer los filtros y mostrar todos los registros
+function reestablecerFiltros() {
+    document.getElementById('buscarCliente').value = '';
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+
+    // Muestra todas las filas nuevamente
+    const filas = document.querySelectorAll('#tablaHistorialVentas tr');
+    filas.forEach(fila => {
+        fila.style.display = ''; // Muestra todas las filas
+    });
+}
