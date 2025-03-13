@@ -201,3 +201,48 @@ function guardarProducto(event) {
     });
 }
 
+// Función para filtrar productos
+function filtrarProductos() {
+    // Obtener valores de los filtros
+    const nombre = document.getElementById('buscarNombre').value.toLowerCase();
+    const tamano = document.getElementById('buscarTamano').value;
+    const categoria = document.getElementById('buscarCategoria').value;
+
+    // Obtener la lista de productos
+    const productos = document.querySelectorAll('#productosLista tr');
+
+    // Recorrer todos los productos
+    productos.forEach(producto => {
+        const nombreProducto = producto.querySelector('td:nth-child(1)').textContent.toLowerCase();
+        const tamanoProducto = producto.querySelector('.tamanoProducto').textContent.trim();
+        const categoriaProducto = producto.querySelector('.categoriaProducto').textContent.trim();
+
+        // Verificar si el producto coincide con los filtros
+        const coincideNombre = !nombre || nombreProducto.includes(nombre);
+        const coincideTamano = !tamano || tamanoProducto === tamano;
+        const coincideCategoria = !categoria || categoriaProducto === categoria;
+
+        // Mostrar u ocultar el producto según los filtros
+        if (coincideNombre && coincideTamano && coincideCategoria) {
+            producto.style.display = ''; // Mostrar
+        } else {
+            producto.style.display = 'none'; // Ocultar
+        }
+    });
+}
+
+// Función para restablecer los filtros
+function reestablecerFiltros() {
+    // Limpiar valores de los filtros
+    document.getElementById('buscarNombre').value = '';
+    document.getElementById('buscarTamano').value = '';
+    document.getElementById('buscarCategoria').value = '';
+
+    // Mostrar todos los productos
+    const productos = document.querySelectorAll('#productosLista tr');
+    productos.forEach(producto => {
+        producto.style.display = ''; // Mostrar todos
+    });
+}
+
+

@@ -9,6 +9,34 @@
         <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
     </div>
     
+    <section class="buscador">
+        <section id="formBuscador">
+            <!-- Campo de búsqueda por nombre -->
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarProductos()">
+            
+            <!-- Filtro por tamaño -->
+            <select id="buscarTamano" name="tamano" onchange="filtrarProductos()">
+                <option value="">Todos los tamaños</option>
+                {% for tamano in tamanos %}
+                <option value="{{ tamano.tamano }}">{{ tamano.tamano }}</option>
+                {% endfor %}
+            </select>
+    
+            <!-- Filtro por categoría -->
+            <select id="buscarCategoria" name="categoria" onchange="filtrarProductos()">
+                <option value="">Todas las categorías</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.categoria }}">{{ categoria.categoria }}</option>
+                {% endfor %}
+            </select>
+            
+            <!-- Botón para restablecer los filtros -->
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+        </section>
+    </section>
+    
+    
+
     <div class="contenedorGestionProductos">
         <section class="listaProductos">
             <table>
@@ -16,6 +44,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Tamaño</th>
+                        <th>Categoria</th>
                         <th>Precio</th>
                         <th>Imagen</th>
                         <th>Acciones</th>
@@ -25,6 +54,7 @@
                     {% for producto in productos %}
                     <tr>
                         <td>{{ producto.nombre_producto }}</td>
+
                         <td class="tamanoProducto" data-producto-id="{{ producto.Id }}">
                             {% if producto.id_tamano %}
                                 {% for tamano in tamanos %}
@@ -36,7 +66,21 @@
                                 Sin tamaño
                             {% endif %}
                         </td>
+
+                        <td class="categoriaProducto">
+                            {% if producto.id_categoria %}
+                                {% for categoria in categorias %}
+                                    {% if categoria.Id == producto.id_categoria %}
+                                        {{ categoria.categoria }}
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Sin categoría
+                            {% endif %}
+                        </td>
+
                         <td>${{ producto.precio }}</td>
+
                         <td>
                             {% if producto.ruta_imagen %}
                             <img src="{{ producto.ruta_imagen }}" alt="{{ producto.nombre_producto }}" class="imagenProducto">
@@ -44,6 +88,7 @@
                             <img src="/static/images/default-product.jpg" alt="Sin imagen" class="imagenProducto">
                             {% endif %}
                         </td>
+
                         <td>
                             <button class="btnVerProducto" onclick="abrirVerProducto(
                                 '{{ producto.Id }}', 
