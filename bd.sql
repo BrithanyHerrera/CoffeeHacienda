@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 11-03-2025 a las 08:04:07
+-- Tiempo de generación: 13-03-2025 a las 05:25:02
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -232,7 +232,7 @@ CREATE TABLE `tproductos` (
 --
 
 INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
-(2, 'Isma', 'pRIETO X2', '20.00', 12, 10, 100, 2, '/static/images/productos/20250311015016.png', '2025-03-11 01:50:16', '2025-03-11 01:50:16');
+(9, 'Cappuccino', 'cfh ', '11.00', 11, 100, 100, 2, '/static/images/productos/20250312231152.jpg', '2025-03-12 23:11:52', '2025-03-12 23:11:52');
 
 -- --------------------------------------------------------
 
@@ -254,7 +254,7 @@ CREATE TABLE `tproductos_variantes` (
 --
 
 INSERT INTO `tproductos_variantes` (`Id`, `producto_id`, `tamano_id`, `precio`, `creado_en`, `actualizado_en`) VALUES
-(1, 2, 2, '20.00', '2025-03-11 01:50:16', '2025-03-11 01:50:16');
+(7, 9, 2, '11.00', '2025-03-12 23:11:53', '2025-03-12 23:11:53');
 
 -- --------------------------------------------------------
 
@@ -550,13 +550,13 @@ ALTER TABLE `testadosventa`
 -- AUTO_INCREMENT de la tabla `tproductos`
 --
 ALTER TABLE `tproductos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `tproductos_variantes`
 --
 ALTER TABLE `tproductos_variantes`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `troles`
@@ -574,7 +574,7 @@ ALTER TABLE `ttamanos`
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`
@@ -633,7 +633,7 @@ ALTER TABLE `tproductos`
 -- Filtros para la tabla `tproductos_variantes`
 --
 ALTER TABLE `tproductos_variantes`
-  ADD CONSTRAINT `tproductos_variantes_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`),
+  ADD CONSTRAINT `tproductos_variantes_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`) ON DELETE CASCADE,
   ADD CONSTRAINT `tproductos_variantes_ibfk_2` FOREIGN KEY (`tamano_id`) REFERENCES `ttamanos` (`Id`);
 
 --

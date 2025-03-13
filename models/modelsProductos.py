@@ -10,9 +10,11 @@ def obtener_productos():
         connection = Conexion_BD()
         with connection.cursor() as cursor:
             query = """
-            SELECT p.*, c.categoria 
+            SELECT p.*, c.categoria, t.tamano, pv.tamano_id as id_tamano 
             FROM tproductos p 
             LEFT JOIN tcategorias c ON p.categoria_id = c.Id
+            LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
+            LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
             ORDER BY p.nombre_producto
             """
             cursor.execute(query)
