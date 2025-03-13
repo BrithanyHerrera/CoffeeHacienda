@@ -8,13 +8,14 @@
         <h1>Historial de Ventas</h1>
     </section>
 
-    <section class="buscadorVentas">
-        <section id="formBuscadorVentas">
-            <input type="text" id="buscarCliente" placeholder="Buscar por cliente" name="cliente" oninput="buscarVentas()">
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarCliente" placeholder="Buscar por nombre" name="cliente" oninput="buscarVentas()">
             <label for="fechaInicio">Desde:</label>
             <input type="date" id="fechaInicio" name="fechaInicio" onchange="buscarVentas()">
             <label for="fechaFin">Hasta:</label>
             <input type="date" id="fechaFin" name="fechaFin" onchange="buscarVentas()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
         </section>
     </section>
     

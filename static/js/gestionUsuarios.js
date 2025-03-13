@@ -98,3 +98,41 @@ function toggleContrasena() {
         toggleIcon.textContent = '👁️'; // Cambia el ícono a un "ojo abierto"
     }
 }
+
+// Función para filtrar usuarios automáticamente
+function buscarUsuario() {
+    const nombreUsuario = document.getElementById('buscarUsuario').value.toLowerCase();
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+
+    // Filtra las filas en la tabla
+    const filas = document.querySelectorAll('.listaUsuarios tbody tr');
+    filas.forEach(fila => {
+        const usuarioNombre = fila.querySelector('td:nth-child(1)').textContent.toLowerCase();
+        const fechaRegistro = fila.querySelector('td:nth-child(4)').textContent;
+
+        // Comprueba si coincide con el nombre y las fechas
+        const coincideNombre = nombreUsuario === '' || usuarioNombre.includes(nombreUsuario);
+        const coincideFechaInicio = fechaInicio === '' || new Date(fechaRegistro) >= new Date(fechaInicio);
+        const coincideFechaFin = fechaFin === '' || new Date(fechaRegistro) <= new Date(fechaFin);
+
+        if (coincideNombre && coincideFechaInicio && coincideFechaFin) {
+            fila.style.display = ''; // Muestra la fila
+        } else {
+            fila.style.display = 'none'; // Oculta la fila
+        }
+    });
+}
+
+// Función para reestablecer los filtros y mostrar todos los registros
+function reestablecerFiltros() {
+    document.getElementById('buscarUsuario').value = '';
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+
+    // Muestra todas las filas nuevamente
+    const filas = document.querySelectorAll('.listaUsuarios tbody tr');
+    filas.forEach(fila => {
+        fila.style.display = ''; // Muestra todas las filas
+    });
+}

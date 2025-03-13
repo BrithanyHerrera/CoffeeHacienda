@@ -779,7 +779,10 @@ form {
     background-color: #f2f2f2;
 }
 
-.buscadorVentas {
+
+/* BUSCADOR / FILTROS*/
+
+.buscador {
     display: flex;
     justify-content: center; /* Centra horizontalmente */
     align-items: center; /* Centra verticalmente */
@@ -791,14 +794,30 @@ form {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.buscadorVentas input[type="text"],
-.buscadorVentas input[type="date"] {
+.buscador input[type="text"],
+.buscador input[type="date"] {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
-    width: 320px; /* Mantén el ancho consistente */
+    width: 250px; /* Mantén el ancho consistente */
     margin: 0 10px; /* Añade espacio horizontal entre los elementos */
+}
+
+.btnReestablecer {
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    background: #f39c12;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btnReestablecer:hover {
+    background: #e67e22;
 }
 
 
