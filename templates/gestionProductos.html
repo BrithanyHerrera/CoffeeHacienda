@@ -9,6 +9,34 @@
         <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
     </div>
     
+    <section class="buscador">
+        <section id="formBuscador">
+            <!-- Campo de búsqueda por nombre -->
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarProductos()">
+            
+            <!-- Filtro por tamaño -->
+            <select id="buscarTamano" name="tamano" onchange="filtrarProductos()">
+                <option value="">Todos los tamaños</option>
+                {% for tamano in tamanos %}
+                <option value="{{ tamano.tamano }}">{{ tamano.tamano }}</option>
+                {% endfor %}
+            </select>
+    
+            <!-- Filtro por categoría -->
+            <select id="buscarCategoria" name="categoria" onchange="filtrarProductos()">
+                <option value="">Todas las categorías</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.categoria }}">{{ categoria.categoria }}</option>
+                {% endfor %}
+            </select>
+            
+            <!-- Botón para restablecer los filtros -->
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+        </section>
+    </section>
+    
+    
+
     <div class="contenedorGestionProductos">
         <section class="listaProductos">
             <table>
@@ -16,6 +44,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Tamaño</th>
+                        <th>Categoria</th>
                         <th>Precio</th>
                         <th>Imagen</th>
                         <th>Acciones</th>
@@ -25,6 +54,7 @@
                     {% for producto in productos %}
                     <tr>
                         <td>{{ producto.nombre_producto }}</td>
+
                         <td class="tamanoProducto" data-producto-id="{{ producto.Id }}">
                             {% if producto.id_tamano %}
                                 {% for tamano in tamanos %}
@@ -36,7 +66,17 @@
                                 Sin tamaño
                             {% endif %}
                         </td>
+
+                        <td class="categoriaProducto">
+                            {% if producto.categoria %}
+                                {{ producto.categoria }}
+                            {% else %}
+                                Sin categoría
+                            {% endif %}
+                        </td>
+
                         <td>${{ producto.precio }}</td>
+
                         <td>
                             {% if producto.ruta_imagen %}
                             <img src="{{ producto.ruta_imagen }}" alt="{{ producto.nombre_producto }}" class="imagenProducto">
@@ -44,31 +84,10 @@
                             <img src="/static/images/default-product.jpg" alt="Sin imagen" class="imagenProducto">
                             {% endif %}
                         </td>
+
                         <td>
-                            <button class="btnVerProducto" onclick="abrirVerProducto(
-                                '{{ producto.Id }}', 
-                                '{{ producto.nombre_producto }}', 
-                                '{{ producto.descripcion|default('', true) }}', 
-                                '{{ producto.precio }}',
-                                '{{ producto.tamano }}',  
-                                '{{ producto.stock }}', 
-                                '{{ producto.stock_minimo }}', 
-                                '{{ producto.stock_maximo }}', 
-                                '{{ producto.categoria }}', 
-                                '{{ producto.ruta_imagen|default('', true)}}'
-                            )">👁️</button>
-                            <button class="btnEditarProducto" onclick="abrirEAModal(
-                                '{{ producto.Id }}', 
-                                '{{ producto.nombre_producto }}', 
-                                '{{ producto.descripcion|default('', true) }}', 
-                                '{{ producto.precio }}',
-                                '{{ producto.tamano }}',  
-                                '{{ producto.stock }}', 
-                                '{{ producto.stock_minimo }}', 
-                                '{{ producto.stock_maximo }}', 
-                                '{{ producto.categoria }}', 
-                                '{{ producto.ruta_imagen|default('', true) }}'
-                            )">✏️</button>
+                            <button class="btnVerProducto" onclick="abrirVerProducto('{{ producto.Id }}')">👁️</button>
+                            <button class="btnEditarProducto" onclick="abrirEAModal('{{ producto.Id }}')">✏️</button>
                             <button class="btnEliminarProducto" onclick="eliminarProducto('{{ producto.Id }}')">🗑️</button>                            
                         </td>
                     </tr>
@@ -82,18 +101,19 @@
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
                 <h3 class="tituloModal" id="tituloModal">Agregar Producto</h3>
-                <form id="formProducto" enctype="multipart/form-data" onsubmit="guardarProducto(event)">
+                <!-- Remove the onsubmit attribute from the form tag -->
+                <form id="formProducto" enctype="multipart/form-data">
                     <input type="hidden" id="idProducto" name="id">
                     
                     <section class="contenedorIzquierdo">
                         <label for="nombreProducto">Nombre:</label>
-                        <input type="text" id="nombreProducto" name="nombre" required>
+                        <input type="text" id="nombreProducto" name="nombreProducto" required>
 
                         <label for="descripcionProducto">Descripción:</label>
-                        <textarea id="descripcionProducto" name="descripcion" rows="3"></textarea>
+                        <textarea id="descripcionProducto" name="descripcionProducto" rows="3"></textarea>
 
                         <label for="tamanoProducto">Tamaño:</label>
-                        <select id="tamanoProducto" name="tamano" required>
+                        <select id="tamanoProducto" name="tamanoProducto">
                             <option value="">Seleccione un tamaño</option>
                             {% for tamano in tamanos %}
                             <option value="{{ tamano.Id }}">{{ tamano.tamano }}</option>
@@ -101,34 +121,33 @@
                         </select>
 
                         <label for="precioProducto">Precio:</label>
-                        <input type="number" id="precioProducto" name="precio" step="0.01" required>
+                        <input type="number" id="precioProducto" name="precioProducto" step="0.01" required>
                         
                         <label for="stockProducto">Stock:</label>
-                        <input type="number" id="stockProducto" name="stock" required>
+                        <input type="number" id="stockProducto" name="stockProducto" required>
                     </section>
-        
+
                     <section class="contenedorDerecho">
                         <label for="stockMinProducto">Stock Mínimo:</label>
-                        <input type="number" id="stockMinProducto" name="stockMin" required>
+                        <input type="number" id="stockMinProducto" name="stockMinProducto" required>
 
                         <label for="stockMaxProducto">Stock Máximo:</label>
-                        <input type="number" id="stockMaxProducto" name="stockMax" required>
+                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" required>
 
                         <label for="categoriaProducto">Categoría:</label>
-                        <select id="categoriaProducto" name="categoria" required>
+                        <select id="categoriaProducto" name="categoriaProducto" required>
                             <option value="">Seleccione una categoría</option>
                             {% for categoria in categorias %}
-                            <option value="{{ categoria.Id }}">{{ categoria.nombre_categoria }}</option>
+                            <option value="{{ categoria.Id }}">{{ categoria.categoria }}</option>
                             {% endfor %}
                         </select>
 
                         <label for="imagenProducto">Imagen:</label>
-                        <input type="file" id="imagenProducto" name="imagen" accept="image/*">
+                        <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*">
                         <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
 
                         <button class="guardarBtn" type="submit">Guardar</button>
                     </section>
-                    
                 </form>
             </section>
         </section>

@@ -26,3 +26,40 @@ function cerrarDetallesVenta() {
     let modal = document.getElementById('ventaModal');
     modal.style.display = 'none';
 }
+// Función para filtrar ventas automáticamente
+function buscarVentas() {
+    const cliente = document.getElementById('buscarCliente').value.toLowerCase();
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+
+    // Filtra las filas en la tabla
+    const filas = document.querySelectorAll('#tablaHistorialVentas tr');
+    filas.forEach(fila => {
+        const clienteNombre = fila.querySelector('td:nth-child(1)').textContent.toLowerCase();
+        const fechaVenta = fila.querySelector('td:nth-child(2)').textContent;
+
+        // Comprueba si coincide con el cliente y las fechas
+        const coincideCliente = cliente === '' || clienteNombre.includes(cliente);
+        const coincideFechaInicio = fechaInicio === '' || new Date(fechaVenta) >= new Date(fechaInicio);
+        const coincideFechaFin = fechaFin === '' || new Date(fechaVenta) <= new Date(fechaFin);
+
+        if (coincideCliente && coincideFechaInicio && coincideFechaFin) {
+            fila.style.display = ''; // Muestra la fila
+        } else {
+            fila.style.display = 'none'; // Oculta la fila
+        }
+    });
+}
+
+// Función para reestablecer los filtros y mostrar todos los registros
+function reestablecerFiltros() {
+    document.getElementById('buscarCliente').value = '';
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+
+    // Muestra todas las filas nuevamente
+    const filas = document.querySelectorAll('#tablaHistorialVentas tr');
+    filas.forEach(fila => {
+        fila.style.display = ''; // Muestra todas las filas
+    });
+}
