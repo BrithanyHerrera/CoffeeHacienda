@@ -718,25 +718,32 @@ form {
 
 .contenedorGestionVentas {    
     display: flex;
-    width: 280%; 
+    width: 1200px; 
     justify-content: space-between;
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    top: 10px;
+    padding: 10px;
 }
 
 .listaVentas {
-    width: 100%;
-    margin-top: 10px;
-}
-
-.listaVentas table {
-    width: 280%;
+    display: flex;
+    width: 1200px; 
+    justify-content: space-between;
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.listaVentas table {
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    top: 10px;
 }
 
 .listaVentas th, .listaVentas td {
@@ -774,6 +781,48 @@ form {
 #tablaProductosVenta th {
     background-color: #f2f2f2;
 }
+
+
+/* BUSCADOR / FILTROS*/
+
+.buscador {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    width: 1200px;
+    padding: 10px;
+    background: white;
+    border-radius: 20px;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.buscador input[type="text"],
+.buscador input[type="date"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 250px; /* Mantén el ancho consistente */
+    margin: 0 10px; /* Añade espacio horizontal entre los elementos */
+}
+
+.btnReestablecer {
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    background: #f39c12;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btnReestablecer:hover {
+    background: #e67e22;
+}
+
 
 /* CORTES DE CAJA */
  

@@ -7,6 +7,17 @@
     <section class="contenedorGestionVentas">    
         <h1>Historial de Ventas</h1>
     </section>
+
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarCliente" placeholder="Buscar por nombre" name="cliente" oninput="buscarVentas()">
+            <label for="fechaInicio">Desde:</label>
+            <input type="date" id="fechaInicio" name="fechaInicio" onchange="buscarVentas()">
+            <label for="fechaFin">Hasta:</label>
+            <input type="date" id="fechaFin" name="fechaFin" onchange="buscarVentas()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+        </section>
+    </section>
     
     <section class="listaVentas">
         <table>
@@ -18,10 +29,19 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tablaHistorialVentas">
                 <tr>
                     <td>Juan Pérez</td>
                     <td>2025-03-02</td>
+                    <td>$19.92</td>
+                    <td>
+                        <button class="btnVerVenta" onclick="verDetallesVenta(1)">👁️</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Eduardo Pérez</td>
+                    <td>2026-03-02</td>
                     <td>$19.92</td>
                     <td>
                         <button class="btnVerVenta" onclick="verDetallesVenta(1)">👁️</button>
