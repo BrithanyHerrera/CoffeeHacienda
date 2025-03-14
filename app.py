@@ -81,7 +81,8 @@ def bienvenida():
 @app.route('/menu')
 @login_required  # Ruta protegida
 def menu():
-    return render_template('menu.html')
+    nombre_usuario = session['usuario']
+    return render_template('menu.html', nombre_usuario=nombre_usuario)
 
 @app.route('/finalizarOrden')
 @login_required  # Ruta protegida
