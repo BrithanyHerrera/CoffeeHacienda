@@ -4,8 +4,15 @@
 
 {% block content %}
 <main class="contenidoGeneral">
-    <section class="contenedorGestionOrdenes">    
+    <section class="contenedorTitulo">    
         <h1>Gestión de Órdenes</h1>
+    </section>
+
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarCliente" placeholder="Buscar por nombre" name="cliente" oninput="buscarVentas()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+        </section>        
     </section>
     
     <section class="listaOrdenes">
@@ -30,6 +37,16 @@
                     </td>
                 </tr>
                 <!-- Agregar más órdenes según sea necesario -->
+                <tr>
+                    <td>Lalo</td>
+                    <td>2025-03-01</td>
+                    <td><span class="estadoOrden enEspera">En Espera</span></td>
+                    <td>
+                        <button class="btnVerOrden" onclick="verDetallesOrden(1)">👁️ Ver</button>
+                        <button class="btnListaOrden" onclick="cambiarEstadoOrden(1, 'Lista')">✔️ Lista</button>
+                        <button class="btnCancelarOrden" onclick="cambiarEstadoOrden(1, 'Cancelada')">❌ Cancelar</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </section>
