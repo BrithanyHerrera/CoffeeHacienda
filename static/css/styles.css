@@ -1093,16 +1093,17 @@ form {
     }
 }
 
+/* REPORTES FINANCIEROS */
+
 .contenedor-reporte {    
     margin-top: 10px;
-    width: 1300px;
+    width: 1200px;
     padding: 10px;
     background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Selector de Fechas */
 .fecha-selector {
     display: flex;
     justify-content: space-between;
