@@ -36,6 +36,14 @@ COMANDO PARA VER QUIEN HA HECHO MÁS COMMITS (PONGANSE A CHAMBEAR)
 
     1. git shortlog -s -n --all
 
+COMANDO PARA REFRESAR A UN COMMIT ESEPCIFICO SIN GUARDAR TUS CAMBIOS ACTUALES:
+
+    1. git reset --hard <commit>
+    (El id del commit se consigue en  source control graph haciendo click derecho sobre el commit )
+
+
+
+
 
 Para la BD y librerias
 
