@@ -29,9 +29,9 @@
                     <i class='bx bxs-user'></i>
                 </div>
                 <div class="input-box">
-                    <input type="password" placeholder="Contraseña" name="contrasena" required>
-                    <i class='bx bxs-lock-alt'></i>
-                </div>
+                    <input type="password" placeholder="Contraseña" name="contrasena" id="passwordInput" required>
+                    <span class="toggle-password" id="togglePassword">👁️</span>
+                </div>                                     
                 <div class="forgot-link">
                     <a href="#">¿Olvidaste tu contraseña?</a>
                 </div>
@@ -45,8 +45,6 @@
             </div>
         </div>
     </div>
-
-    <!--<script src="{{ url_for('static', filename='js/login.js') }}"></script>--> 
-
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 </html>

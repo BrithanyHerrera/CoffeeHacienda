@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 
 * {
     margin: 0;
@@ -56,7 +56,6 @@ form {
     text-align: center;
     padding: 40px;
     z-index: 1;
-    /* Eliminado la animación */
 }
 
 .container.active .form-box {
@@ -79,12 +78,11 @@ form {
 .input-box input {
     width: 100%;
     padding: 13px 50px 13px 20px;
-    background: #eee; /* Gris Claro */
+    background: #dbdbdb; /* Gris Claro */
     border-radius: 8px;
     border: none;
     outline: none;
     font-size: 16px;
-    color: #333333; /* Negro Suave */
     font-weight: 500;
 }
 
@@ -139,7 +137,6 @@ form {
     background: #FF7F50; /* Naranja */
     border-radius: 150px;
     z-index: 2;
-    /* Eliminado la animación */
 }
 
 .container.active .toggle-box::before {
@@ -156,7 +153,6 @@ form {
     justify-content: center;
     align-items: center;
     z-index: 2;
-    /* Eliminado la animación */
 }
 
 .toggle-panel.toggle-left {
@@ -269,4 +265,18 @@ form {
     border: 1px solid #c3e6cb;
 }
 
+/* Estilo para mostrar y ocultar la contraseña */
+.input-box .toggle-password {
+    position: absolute;
+    right: 20px; /* Posiciona el emoji al lado derecho */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
 
+.input-box .toggle-password:hover {
+    color: #555; /* Cambia el color al pasar el cursor */
+}
