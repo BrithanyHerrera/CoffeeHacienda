@@ -151,16 +151,17 @@ def guardar_usuario():
                 usuario_actual = obtener_usuario_por_id(id_usuario)
                 contrasena = usuario_actual['contrasena']
                 
-            resultado = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
-            mensaje = 'Usuario actualizado exitosamente' if resultado else 'Error al actualizar usuario'
+            resultado, mensaje = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
+            return jsonify({
+                'success': resultado,
+                'message': mensaje
+            })
         else:  # Crear nuevo usuario
-            resultado = crear_usuario(usuario, contrasena, correo, rol_id)
-            mensaje = 'Usuario creado exitosamente' if resultado else 'Error al crear usuario'
-        
-        return jsonify({
-            'success': resultado,
-            'message': mensaje
-        })
+            resultado, mensaje = crear_usuario(usuario, contrasena, correo, rol_id)
+            return jsonify({
+                'success': resultado,
+                'message': mensaje
+            })
     except Exception as e:
         return jsonify({
             'success': False,

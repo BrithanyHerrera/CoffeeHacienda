@@ -41,10 +41,6 @@ COMANDO PARA REFRESAR A UN COMMIT ESEPCIFICO SIN GUARDAR TUS CAMBIOS ACTUALES:
     1. git reset --hard <commit>
     (El id del commit se consigue en  source control graph haciendo click derecho sobre el commit )
 
-
-
-
-
 Para la BD y librerias
 
 pip install pymysql
