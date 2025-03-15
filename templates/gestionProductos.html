@@ -121,18 +121,18 @@
                         </select>
 
                         <label for="precioProducto">Precio:</label>
-                        <input type="number" id="precioProducto" name="precioProducto" step="0.01" required>
-                        
+                        <input type="number" id="precioProducto" name="precioProducto" step="0.01" min="0" required>
+    
                         <label for="stockProducto">Stock:</label>
-                        <input type="number" id="stockProducto" name="stockProducto" required>
+                        <input type="number" id="stockProducto" name="stockProducto" min="0" required>
                     </section>
 
                     <section class="contenedorDerecho">
                         <label for="stockMinProducto">Stock Mínimo:</label>
-                        <input type="number" id="stockMinProducto" name="stockMinProducto" required>
-
+                        <input type="number" id="stockMinProducto" name="stockMinProducto" min="0" required>
+    
                         <label for="stockMaxProducto">Stock Máximo:</label>
-                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" required>
+                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" min="0" required>
 
                         <label for="categoriaProducto">Categoría:</label>
                         <select id="categoriaProducto" name="categoriaProducto" required>

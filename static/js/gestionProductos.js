@@ -346,4 +346,22 @@ function abrirEAModal(id = null) {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const numericFields = [
+        "precioProducto",
+        "stockProducto",
+        "stockMinProducto",
+        "stockMaxProducto",
+    ];
+
+    numericFields.forEach((fieldId) => {
+        const field = document.getElementById(fieldId);
+        field.addEventListener("input", function () {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+    });
+});
+
 
