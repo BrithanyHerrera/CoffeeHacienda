@@ -6,9 +6,9 @@
 <!-- Contenido principal -->
 <main class="contenidoGeneral">
     <div class="contenedorMenu">
-        <header>
-            <input type="text" id="searchInput" placeholder="Search..."> <!-- Campo de búsqueda -->
-        </header>
+        <section class="contenedorBusquedaMenu">
+            <input class="inputMenu" type="text" id="searchInput" placeholder="Search..."> <!-- Campo de búsqueda -->
+        </section>
         
         <div class="contenedorUsuario">
             <span>{{ nombre_usuario }}</span>
@@ -62,7 +62,7 @@
         <!-- Campo para el nombre del cliente -->
         <div class="nombreCliente">
             <label for="nombreCliente">Nombre del Cliente:</label>
-            <input type="text" id="nombreCliente" placeholder="Ingrese su nombre" required>
+            <input class="inputCliente" type="text" id="nombreCliente" placeholder="Ingrese su nombre" required>
         </div>
 
         <!-- Total en el carrito -->
