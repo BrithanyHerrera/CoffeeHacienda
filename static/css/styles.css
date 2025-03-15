@@ -18,7 +18,7 @@ body {
 
 
 
-/* GESTIONES */
+/* GENERALES */
 
 h1 {
     font-size: 25px;
@@ -40,7 +40,6 @@ h3 {
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
 
 .modal {
     display: none;
@@ -111,8 +110,8 @@ h3 {
 
 input {
     width: 90%;
-    padding: 8px;
-    margin: 10px 0;
+    padding: 10px;
+
     border: 1px solid #ddd;
     background: #dbdbdb;
     border-radius: 5px;
@@ -191,7 +190,6 @@ input {
 
 .contenedorMenu {
     flex-grow: 1;
-    padding: 20px;
 }
 
 .menu {
@@ -205,36 +203,34 @@ input {
     color: #b42100;
 }
 
-header {
-    position: absolute;
-    top: 19px;
-    left: 300px;
+.contenedorBusquedaMenu {
+    margin-top: 10px;
     display: flex;
-    gap: 650px;
-    justify-content: space-between;
-    background: #ffffff;
-    padding: 13px 48px;
+    width: 865px;
+    padding: 10px;
+    background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    justify-content: center;
 }
 
-header h2 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #FF914D;
-}
-
-header h2 span {
-    color: #000;
-}
-
-header input[type="text"] {
-    width: 900px;
+.inputMenu input[type="text"] {
+    width: 90%;
     flex-grow: 1;
     padding: 12px;
     border: none;
     border-radius: 30px;
-    background-color: #FFE0C0;
+    margin: 0 10px;
+    font-size: 16px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.inputCliente input[type="text"] {
+    width: 80%;
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 30px;
     margin: 0 10px;
     font-size: 16px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -245,16 +241,16 @@ header input[type="text"] {
     top: 19px;
     right: 15px;
     display: flex;
-    align-items: center;
     gap: 15px;
     background: white;
-    padding: 0.5px 48px;
+    padding: 0.5px 25px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     font-size: 18px;
     width: 250px;
-    height: 68px;
-    text-align: center;
+    height: 57px;
+    justify-content: center;
+    align-items: center;
 }
 
 .contenedorUsuario img {
@@ -480,10 +476,10 @@ form {
 
 .contenedorIzquierdo,
 .contenedorDerecho {
-    flex: 1; /* Ambos contenedores tendrán el mismo tamaño */
+    flex: 1; 
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Espacio entre los elementos dentro de los contenedores */
+    gap: 10px;
 }
 
 .listaProductos {
@@ -787,8 +783,8 @@ form {
 
 .buscador {
     display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center; /* Centra verticalmente */
+    justify-content: center; 
+    align-items: center; 
     width: 1200px;
     padding: 10px;
     background: white;
@@ -803,8 +799,8 @@ form {
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
-    width: 250px; /* Mantén el ancho consistente */
-    margin: 0 10px; /* Añade espacio horizontal entre los elementos */
+    width: 250px;
+    margin: 0 10px;
 }
 
 .btnReestablecer {
