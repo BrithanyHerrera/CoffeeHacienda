@@ -7,11 +7,27 @@
 <main class="contenidoGeneral">
     <div class="contenedorTitulo">
         <h1>Corte de Caja</h1>
+<<<<<<< HEAD
         <div class="contenedorBotones">
             <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
             <button id="btnRealizarRetiro" class="btnRealizarRetiro">Realizar Pago</button>
         </div>
+=======
+        <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
+        <button id="btnRealizarRetiro" class="btnRealizarRetiro">Realizar Retiro</button>
+>>>>>>> 63fa7045b92774a230f422680c91313319ee344a
     </div>
+
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" oninput="buscarUsuario()">
+            <label for="fechaInicio">Desde:</label>
+            <input type="date" id="fechaInicio" name="fechaInicio" onchange="buscarUsuario()">
+            <label for="fechaFin">Hasta:</label>
+            <input type="date" id="fechaFin" name="fechaFin" onchange="buscarUsuario()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+        </section>
+    </section>
 
     <!-- Tabla Principal -->
     <table class="table">
@@ -36,6 +52,15 @@
                 <td>50</td>
                 <td>500</td>
                 <td>Usuario1</td>
+            </tr>
+            <tr>
+                <td>2025-03-10</td>
+                <td>1000</td>
+                <td>900</td>
+                <td>950</td>
+                <td>50</td>
+                <td>100</td>
+                <td>Usuario2</td>
             </tr>
         </tbody>
     </table>
