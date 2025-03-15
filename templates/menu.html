@@ -6,9 +6,15 @@
 <!-- Contenido principal -->
 <main class="contenidoGeneral">
     <div class="contenedorMenu">
+<<<<<<< HEAD
+        <header>
+            <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="buscarProducto()"> <!-- Campo de búsqueda -->
+        </header>
+=======
         <section class="contenedorBusquedaMenu">
             <input class="inputMenu" type="text" id="searchInput" placeholder="Search..."> <!-- Campo de búsqueda -->
         </section>
+>>>>>>> 63fa7045b92774a230f422680c91313319ee344a
         
         <div class="contenedorUsuario">
             <span>{{ nombre_usuario }}</span>
@@ -25,29 +31,23 @@
             </div>
 
             <div class="menuProductos">
-                <div class="producto" categoriasDatos="bebidas calientes">
-                    <img src="static/images/capuccino.png" alt="Cappuccino">
-                    <h3>Cappuccino</h3>
-                    <p>La combinación perfecta de café, leche y espuma.</p>
-                    <div class="tamaños">
-                        <button class="tamaño" onclick="seleccionarTamaño(this)" preciosDatos="50">Chico - $50</button>
-                        <button class="tamaño" onclick="seleccionarTamaño(this)" preciosDatos="70">Mediano - $70</button>
-                        <button class="tamaño" onclick="seleccionarTamaño(this)" preciosDatos="90">Grande - $90</button>
+                {% for producto in productos %}
+                    <div class="producto" categoriasDatos="{{ producto.categoria }}">
+                        {% if producto.ruta_imagen %}
+                        <img src="{{ producto.ruta_imagen }}" class="imagenProducto">
+                        {% else %}
+                        <img src="/static/images/default-product.jpg" alt="Sin imagen" class="imagenProducto">
+                        {% endif %}
+                        <h3>{{ producto.nombre_producto }}</h3>
+                        <p>{{ producto.descripcion }}</p>
+                        <div class="tamaños">
+                            {% for variante in producto.variantes %}
+                                <button class="tamaño" onclick="seleccionarTamaño(this)" preciosDatos="{{ variante.precio }}">{{ variante.tamano }} - ${{ variante.precio }}</button>
+                            {% endfor %}
+                        </div>
+                        <button class="añadirCarrito">Añadir a la orden</button>
                     </div>
-                    <button class="añadirCarrito">Añadir a la orden</button>
-                </div>
-                
-                <div class="producto" categoriasDatos="postres">
-                    <img src="static/images/EliasGood.jpg" alt="Elias">
-                    <h3>Elias</h3>
-                    <p>La combinación perfecta de ternura, esponjosidad y chiquitez.</p>
-                    <div class="tamaños">
-                        <button class="tamaño" preciosDatos="50">Chico - $50</button>
-                        <button class="tamaño" preciosDatos="70">Mediano - $70</button>
-                        <button class="tamaño" preciosDatos="90">Grande - $90</button>
-                    </div>
-                    <button class="añadirCarrito">Añadir a la orden</button>
-                </div>
+                {% endfor %}
             </div>
         </section>
     </div>
