@@ -87,7 +87,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Error al guardar el usuario');
             });
             
-            cerrarEAModal();
+            // No cerramos el modal inmediatamente para permitir ver los errores
+            // Solo cerramos si la operación fue exitosa
         });
     }
 });

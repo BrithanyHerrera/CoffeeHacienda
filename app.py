@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models.modelsLogin import verificar_usuario
-from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles
+from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
@@ -151,21 +151,23 @@ def guardar_usuario():
                 usuario_actual = obtener_usuario_por_id(id_usuario)
                 contrasena = usuario_actual['contrasena']
                 
-            resultado = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
-            mensaje = 'Usuario actualizado exitosamente' if resultado else 'Error al actualizar usuario'
+            resultado, mensaje = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
+            return jsonify({
+                'success': resultado,
+                'message': mensaje
+            })
         else:  # Crear nuevo usuario
-            resultado = crear_usuario(usuario, contrasena, correo, rol_id)
-            mensaje = 'Usuario creado exitosamente' if resultado else 'Error al crear usuario'
-        
-        return jsonify({
-            'success': resultado,
-            'message': mensaje
-        })
+            resultado, mensaje = crear_usuario(usuario, contrasena, correo, rol_id)
+            return jsonify({
+                'success': resultado,
+                'message': mensaje
+            })
     except Exception as e:
         return jsonify({
             'success': False,
             'message': f'Error: {str(e)}'
-        })
+        }) 
+
 
 @app.route('/gestionUsuarios/eliminar/<int:id>')
 @login_required
