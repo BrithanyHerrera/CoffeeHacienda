@@ -7,8 +7,15 @@
 <main class="contenidoGeneral">
     <div class="contenedorTitulo">
         <h1>Corte de Caja</h1>
+<<<<<<< HEAD
+        <div class="contenedorBotones">
+            <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
+            <button id="btnRealizarRetiro" class="btnRealizarRetiro">Realizar Pago</button>
+        </div>
+=======
         <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
         <button id="btnRealizarRetiro" class="btnRealizarRetiro">Realizar Retiro</button>
+>>>>>>> 63fa7045b92774a230f422680c91313319ee344a
     </div>
 
     <section class="buscador">
@@ -27,11 +34,11 @@
         <thead>
             <tr>
                 <th>Fecha</th>
-                <th>Caja</th>
+                <th>Fondo</th>
                 <th>Contado</th>
                 <th>Calculado</th>
-                <th>Diferencia</th>
-                <th>Retiro</th>
+                <th>Devoluciones</th>
+                <th>Pagos realizados</th>
                 <th>Usuario</th>
             </tr>
         </thead>
@@ -39,8 +46,8 @@
             <!-- Ejemplo de fila con datos -->
             <tr>
                 <td>2025-03-11</td>
-                <td>2000</td>
-                <td>1500</td>
+                <td>500</td>
+                <td>1000</td>
                 <td>1550</td>
                 <td>50</td>
                 <td>500</td>
@@ -124,7 +131,7 @@
     <div id="miModalRetiro" class="modal">
         <div class="modal-content-retiro">
             <span class="cerrar" id="cerrarModalRetiro">&times;</span>
-            <h2>Realizar Retiro</h2>
+            <h2>Realizar Pago</h2>
 
             <div class="retiro-container">
                 <label for="efectivoRetiro">Efectivo:</label>
@@ -136,7 +143,7 @@
                 <label for="totalRetiro">Total:</label>
                 <input type="number" id="totalRetiro" value="0" /><br>
 
-                <button id="guardarRetiro">Realizar Retiro</button>
+                <button id="guardarRetiro">Realizar Pago</button>
             </div>
         </div>
     </div>
