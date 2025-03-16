@@ -179,6 +179,7 @@ function guardarProducto(event) {
     const precioProducto = document.getElementById('precioProducto').value;
     const stockProducto = document.getElementById('stockProducto').value;
     const categoriaProducto = document.getElementById('categoriaProducto').value;
+    const idProducto = document.getElementById('idProducto').value;
 
     // Verificar si los campos obligatorios están vacíos
     if (!nombreProducto || !precioProducto || !stockProducto || !categoriaProducto) {
@@ -194,6 +195,16 @@ function guardarProducto(event) {
     if (stockMin > stockMax) {
         alert("El stock mínimo no puede ser mayor que el stock máximo.");
         return;
+    }
+
+    // Verificar si se está editando y no se seleccionó una nueva imagen
+    const imagenInput = document.getElementById('imagenProducto');
+    if (idProducto && (!imagenInput.files || !imagenInput.files[0]) && document.getElementById('imagenActual').style.display !== 'none') {
+        // Si estamos editando y no se seleccionó una nueva imagen, no es necesario validar el campo de imagen
+        imagenInput.required = false;
+    } else if (!idProducto) {
+        // Si es un nuevo producto, la imagen es requerida
+        imagenInput.required = true;
     }
 
     // Si todo está correcto, se crea un objeto FormData
