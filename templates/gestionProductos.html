@@ -63,7 +63,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                Sin tamaño
+                                No Aplica
                             {% endif %}
                         </td>
 
@@ -101,7 +101,7 @@
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
                 <h3 class="tituloModal" id="tituloModal">Agregar Producto</h3>
-                <!-- Remove the onsubmit attribute from the form tag -->
+
                 <form id="formProducto" enctype="multipart/form-data">
                     <input type="hidden" id="idProducto" name="id">
                     
@@ -121,18 +121,19 @@
                         </select>
 
                         <label for="precioProducto">Precio:</label>
-                        <input type="number" id="precioProducto" name="precioProducto" step="0.01" required>
-                        
+                        <input type="number" id="precioProducto" name="precioProducto" step="1" min="0" required placeholder="Ingrese el precio">
+
+    
                         <label for="stockProducto">Stock:</label>
-                        <input type="number" id="stockProducto" name="stockProducto" required>
+                        <input type="number" id="stockProducto" name="stockProducto" min="0" required placeholder="Ingrese el stock">
                     </section>
 
                     <section class="contenedorDerecho">
                         <label for="stockMinProducto">Stock Mínimo:</label>
-                        <input type="number" id="stockMinProducto" name="stockMinProducto" required>
-
+                        <input type="number" id="stockMinProducto" name="stockMinProducto" min="0" required placeholder="Ingrese el stock mínimo">
+    
                         <label for="stockMaxProducto">Stock Máximo:</label>
-                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" required>
+                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" min="0" required placeholder="Ingrese el stock máximo">
 
                         <label for="categoriaProducto">Categoría:</label>
                         <select id="categoriaProducto" name="categoriaProducto" required>
@@ -143,8 +144,8 @@
                         </select>
 
                         <label for="imagenProducto">Imagen:</label>
-                        <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*" required>
-                        <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;" required>
+                        <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*">
+                        <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
 
                         <button class="guardarBtn" type="submit">Guardar</button>
                     </section>
@@ -164,9 +165,9 @@
                     <p><strong>Descripción:</strong> <span id="verDescripcionProducto"></span></p>
                     <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
                     <p><strong>Tamaño:</strong> <span id="verTamanoProducto"></span></p>
-                    <p><strong>Stock:</strong> <span id="verStockProducto"></span></p>
-                    <p><strong>Stock Mínimo:</strong> <span id="verStockMinProducto"></span></p>
-                    <p><strong>Stock Máximo:</strong> <span id="verStockMaxProducto"></span></p>
+                    <p id="verStockLabel"><strong>Stock:</strong> <span id="verStockProducto"></span></p>
+                    <p id="verStockMinLabel"><strong>Stock Mínimo:</strong> <span id="verStockMinProducto"></span></p>
+                    <p id="verStockMaxLabel"><strong>Stock Máximo:</strong> <span id="verStockMaxProducto"></span></p>
                     <p><strong>Categoría:</strong> <span id="verCategoriaProducto"></span></p>
                     <p><strong>Imagen:</strong></p>
                     <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto" style="max-width: 300px;">
