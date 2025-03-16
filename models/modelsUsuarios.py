@@ -1,6 +1,41 @@
 from bd import Conexion_BD
 
+def verificar_usuario_existente(usuario):
+    connection = Conexion_BD()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE usuario = %s"
+            cursor.execute(sql, (usuario,))
+            resultado = cursor.fetchone()
+            return resultado['count'] > 0
+    except Exception as e:
+        print(f"Error al verificar usuario existente: {e}")
+        return False
+    finally:
+        connection.close()
+
+def verificar_correo_existente(correo):
+    connection = Conexion_BD()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE correo = %s"
+            cursor.execute(sql, (correo,))
+            resultado = cursor.fetchone()
+            return resultado['count'] > 0
+    except Exception as e:
+        print(f"Error al verificar correo existente: {e}")
+        return False
+    finally:
+        connection.close()
+
 def crear_usuario(usuario, contrasena, correo, rol_id):
+    # Verificar si el usuario o correo ya existen
+    if verificar_usuario_existente(usuario):
+        return False, "El nombre de usuario ya está en uso"
+    
+    if verificar_correo_existente(correo):
+        return False, "El correo electrónico ya está registrado"
+    
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
@@ -9,11 +44,11 @@ def crear_usuario(usuario, contrasena, correo, rol_id):
             cursor.execute(sql, (usuario, contrasena, rol_id, correo))
             
         connection.commit()
-        return True
+        return True, "Usuario creado exitosamente"
     except Exception as e:
         connection.rollback()
         print(f"Error al crear usuario: {e}")
-        return False
+        return False, f"Error al crear usuario: {str(e)}"
     finally:
         connection.close()
 
@@ -35,19 +70,38 @@ def obtener_usuarios():
         connection.close()
 
 def actualizar_usuario(id, usuario, contrasena, correo, rol_id):
+    # Verificar si el usuario ya existe para otro usuario
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
+            # Verificar si el usuario ya está en uso por otro usuario
+            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE usuario = %s AND Id != %s"
+            cursor.execute(sql, (usuario, id))
+            resultado = cursor.fetchone()
+            
+            if resultado['count'] > 0:
+                print(f"Error: El usuario '{usuario}' ya está en uso por otro usuario")
+                return False, "El nombre de usuario ya está en uso por otro usuario"
+            
+            # Verificar si el correo ya está en uso por otro usuario
+            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE correo = %s AND Id != %s"
+            cursor.execute(sql, (correo, id))
+            resultado = cursor.fetchone()
+            
+            if resultado['count'] > 0:
+                print(f"Error: El correo '{correo}' ya está registrado por otro usuario")
+                return False, "El correo electrónico ya está registrado por otro usuario"
+            
             # Actualizar usuario con el correo directamente
             sql = "UPDATE tusuarios SET usuario = %s, contrasena = %s, rol_id = %s, correo = %s WHERE Id = %s"
             cursor.execute(sql, (usuario, contrasena, rol_id, correo, id))
 
         connection.commit()
-        return True
+        return True, "Usuario actualizado exitosamente"
     except Exception as e:
         connection.rollback()
         print(f"Error al actualizar usuario: {e}")
-        return False
+        return False, f"Error al actualizar usuario: {str(e)}"
     finally:
         connection.close()
 

@@ -181,21 +181,3 @@ function seleccionarTamaño(boton) {
     // Add selected class to clicked button
     boton.classList.add('selected');
 }
-
-function buscarProducto() {
-    let input = document.getElementById('searchInput');
-    let filter = input.value.toLowerCase();
-    let productos = document.getElementsByClassName('producto');  // Asume que los productos tienen la clase "producto"
-    
-    // Iterar sobre los productos y esconder los que no coincidan con la búsqueda
-    for (let i = 0; i < productos.length; i++) {
-        let producto = productos[i];
-        let nombreProducto = producto.getElementsByTagName("h3")[0].innerText.toLowerCase();  // Nombre del producto
-        
-        if (nombreProducto.indexOf(filter) > -1) {
-            producto.style.display = "";  // Mostrar producto si coincide con la búsqueda
-        } else {
-            producto.style.display = "none";  // Esconder producto si no coincide con la búsqueda
-        }
-    }
-}

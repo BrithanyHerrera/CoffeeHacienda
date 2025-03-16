@@ -1,0 +1,109 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Inventario{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <div class="contenedorTitulo">
+        <h1>Inventario</h1>
+    </div>
+
+    <!-- Buscador -->
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarInventario()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltrosInventario()">🔄 Reestablecer</button>
+        </section>
+    </section>
+
+    <!-- Tabla de Inventario -->
+    <div class="contenedorInventario">
+        <section class="listaInventario">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Stock</th>
+                        <th>Stock Mínimo</th>
+                        <th>Stock Máximo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventarioLista">
+                    <!-- Ejemplo de productos cargados -->
+                    <tr data-id="1" data-nombre="Laptop HP" data-stock="10" data-stock-min="5" data-stock-max="20">
+                        <td>Laptop HP</td>
+                        <td class="stockProducto">10</td>
+                        <td class="stockMinProducto">5</td>
+                        <td class="stockMaxProducto">20</td>
+                        <td>
+                            <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
+                        </td>
+                    </tr>
+                    <tr data-id="2" data-nombre="Mouse Logitech" data-stock="50" data-stock-min="10" data-stock-max="100">
+                        <td>Mouse Logitech</td>
+                        <td class="stockProducto">50</td>
+                        <td class="stockMinProducto">10</td>
+                        <td class="stockMaxProducto">100</td>
+                        <td>
+                            <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
+                        </td>
+                    </tr>
+                    <tr data-id="3" data-nombre="Teclado Mecánico" data-stock="30" data-stock-min="8" data-stock-max="50">
+                        <td>Teclado Mecánico</td>
+                        <td class="stockProducto">30</td>
+                        <td class="stockMinProducto">8</td>
+                        <td class="stockMaxProducto">50</td>
+                        <td>
+                            <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Modal de Editar Inventario -->
+        <section class="modal" id="editarInventarioModal" style="display: none;">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarEditarInventario()">&times;</span>
+                <h3 class="tituloModal">Editar Inventario</h3>
+
+                <form id="formProducto">
+                    <input type="hidden" id="idProducto" name="id">
+
+                    <section class="contenedorIzquierdo">
+                        <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
+
+                        <label for="editarStockInventario">Stock Actual:</label>
+                        <input type="number" id="editarStockInventario" name="stock" disabled>
+
+                        <label for="editarStockMinInventario">Stock Mínimo Actual:</label>
+                        <input type="number" id="editarStockMinInventario" name="stock_minimo" min="0" disabled>
+
+                        <label for="editarStockMaxInventario">Stock Máximo Actual:</label>
+                        <input type="number" id="editarStockMaxInventario" name="stock_maximo" min="0" disabled>
+                    </section>
+
+                    <section class="contenedorDerecho">
+                        <br>
+                        <br>
+                        <br>
+                        <label for="agregarStockInventario">Agregar al Stock:</label>
+                        <input type="number" id="agregarStockInventario" name="agregar_stock" min="0" required>
+
+                        <label for="agregarStockMinimoInventario">Agregar al Stock Mínimo:</label>
+                        <input type="number" id="agregarStockMinimoInventario" name="agregar_stock_min" min="0" required>
+
+                        <label for="agregarStockMaximoInventario">Agregar al Stock Máximo:</label>
+                        <input type="number" id="agregarStockMaximoInventario" name="agregar_stock_max" min="0" required>
+
+                        <button class="guardarBtn" type="submit">Guardar</button>
+                    </section>
+                </form>
+            </section>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/inventario.js') }}"></script>
+</main>
+{% endblock %}

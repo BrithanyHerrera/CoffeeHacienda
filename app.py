@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models.modelsLogin import verificar_usuario
-from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles
+from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
@@ -28,7 +28,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Configuración para prevenir el cacheo del navegador
 @app.after_request
@@ -103,8 +103,6 @@ def bienvenida():
 def menu():
     nombre_usuario = session['usuario']
     productos = obtener_productos_menu()
-
-    print("Productos obtenidos:", productos)
     return render_template('menu.html', nombre_usuario=nombre_usuario, productos=productos)
 
 @app.route('/finalizarOrden')
@@ -119,6 +117,11 @@ def gestion_productos():
     categorias = obtener_categorias()
     tamanos = obtener_tamanos()
     return render_template('gestionProductos.html', productos=productos, categorias=categorias, tamanos=tamanos)
+
+@app.route('/inventario')
+@login_required  # Ruta protegida
+def inventario():
+    return render_template('inventario.html')
 
 @app.route('/ordenes')
 @login_required  # Ruta protegida
@@ -155,21 +158,23 @@ def guardar_usuario():
                 usuario_actual = obtener_usuario_por_id(id_usuario)
                 contrasena = usuario_actual['contrasena']
                 
-            resultado = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
-            mensaje = 'Usuario actualizado exitosamente' if resultado else 'Error al actualizar usuario'
+            resultado, mensaje = actualizar_usuario(id_usuario, usuario, contrasena, correo, rol_id)
+            return jsonify({
+                'success': resultado,
+                'message': mensaje
+            })
         else:  # Crear nuevo usuario
-            resultado = crear_usuario(usuario, contrasena, correo, rol_id)
-            mensaje = 'Usuario creado exitosamente' if resultado else 'Error al crear usuario'
-        
-        return jsonify({
-            'success': resultado,
-            'message': mensaje
-        })
+            resultado, mensaje = crear_usuario(usuario, contrasena, correo, rol_id)
+            return jsonify({
+                'success': resultado,
+                'message': mensaje
+            })
     except Exception as e:
         return jsonify({
             'success': False,
             'message': f'Error: {str(e)}'
-        })
+        }) 
+
 
 @app.route('/gestionUsuarios/eliminar/<int:id>')
 @login_required
@@ -263,6 +268,29 @@ def guardar_producto():
                 ruta_imagen = f'/static/images/productos/{filename}'
         
         if id_producto:  # Editar producto existente
+            # Si no se proporcionó una nueva imagen, mantener la imagen actual
+            if not ruta_imagen:
+                producto_actual = obtener_producto_por_id(id_producto)
+                if producto_actual and producto_actual.get('ruta_imagen'):
+                    ruta_imagen = producto_actual['ruta_imagen']
+            
+            # Verificar si hay cambios en el producto
+            producto_actual = obtener_producto_por_id(id_producto)
+            if (producto_actual and 
+                str(producto_actual['nombre_producto']) == str(nombre) and
+                str(producto_actual.get('descripcion', '')) == str(descripcion or '') and
+                float(producto_actual['precio']) == float(precio) and
+                int(producto_actual['stock']) == int(stock) and
+                int(producto_actual.get('stock_minimo', 0)) == int(stock_min) and
+                int(producto_actual.get('stock_maximo', 0)) == int(stock_max) and
+                int(producto_actual['categoria_id']) == int(categoria_id) and
+                producto_actual.get('ruta_imagen') == ruta_imagen):
+                # No hay cambios, devolver mensaje informativo
+                return jsonify({
+                    'success': True,
+                    'message': 'No se realizaron cambios en el producto'
+                })
+                    
             resultado = actualizar_producto(id_producto, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
             mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
         else:  # Crear nuevo producto
@@ -283,7 +311,7 @@ def guardar_producto():
         print(f"Error en guardar_producto: {str(e)}")
         return jsonify({
             'success': False,
-            'message': f'Error: {str(e)}'
+            'message': f'No se realizaron cambios en el producto. Detalles: {str(e)}'
         })
 
 @app.route('/api/productos/eliminar', methods=['POST'])
@@ -384,6 +412,29 @@ def get_producto(id):
             return jsonify({
                 'success': False,
                 'message': 'Producto no encontrado'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/categorias/<int:id>', methods=['GET'])
+@login_required
+def get_categoria(id):
+    try:
+        categorias = obtener_categorias()
+        categoria = next((cat for cat in categorias if cat['Id'] == id), None)
+        
+        if categoria:
+            return jsonify({
+                'success': True,
+                'categoria': categoria
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Categoría no encontrada'
             })
     except Exception as e:
         return jsonify({
