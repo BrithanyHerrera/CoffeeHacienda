@@ -43,9 +43,42 @@ function abrirVerProducto(id) {
                 document.getElementById('verNombreProducto').textContent = producto.nombre_producto;
                 document.getElementById('verDescripcionProducto').textContent = producto.descripcion || 'Sin descripción';
                 document.getElementById('verPrecioProducto').textContent = producto.precio;
-                document.getElementById('verStockProducto').textContent = producto.stock || '';
-                document.getElementById('verStockMinProducto').textContent = producto.stock_minimo || '';
-                document.getElementById('verStockMaxProducto').textContent = producto.stock_maximo || '';
+                
+                // Verificar si la categoría requiere inventario
+                fetch(`/api/categorias/${producto.categoria_id}`)
+                    .then(response => response.json())
+                    .then(catData => {
+                        if (catData.success) {
+                            const requiereInventario = catData.categoria.requiere_inventario;
+                            
+                            // Mostrar valores de stock según si requiere inventario
+                            if (requiereInventario) {
+                                document.getElementById('verStockProducto').textContent = producto.stock || '0';
+                                document.getElementById('verStockMinProducto').textContent = producto.stock_minimo || '0';
+                                document.getElementById('verStockMaxProducto').textContent = producto.stock_maximo || '0';
+                                
+                                // Mostrar las etiquetas de stock
+                                document.getElementById('verStockLabel').style.display = 'block';
+                                document.getElementById('verStockMinLabel').style.display = 'block';
+                                document.getElementById('verStockMaxLabel').style.display = 'block';
+                                document.getElementById('verStockProducto').style.display = 'inline';
+                                document.getElementById('verStockMinProducto').style.display = 'inline';
+                                document.getElementById('verStockMaxProducto').style.display = 'inline';
+                            } else {
+                                // Ocultar las etiquetas y valores de stock
+                                document.getElementById('verStockLabel').style.display = 'none';
+                                document.getElementById('verStockMinLabel').style.display = 'none';
+                                document.getElementById('verStockMaxLabel').style.display = 'none';
+                                document.getElementById('verStockProducto').style.display = 'none';
+                                document.getElementById('verStockMinProducto').style.display = 'none';
+                                document.getElementById('verStockMaxProducto').style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener información de la categoría:', error);
+                    });
+                
                 document.getElementById('verCategoriaProducto').textContent = producto.categoria || 'Sin categoría';
                 
                 // Mostrar el tamaño si hay variantes
@@ -155,7 +188,6 @@ function cargarTamanos() {
 }
 
 // Cargar categorías y tamaños cuando se carga la página
-// Ensure this code is in your DOMContentLoaded event handler
 document.addEventListener('DOMContentLoaded', function() {
     cargarCategorias();
     cargarTamanos();
@@ -168,7 +200,121 @@ document.addEventListener('DOMContentLoaded', function() {
             guardarProducto(event);
         });
     }
+    
+    // Agregar event listeners para los cambios en categoría y tamaño
+    const categoriaSelect = document.getElementById('categoriaProducto');
+    const tamanoSelect = document.getElementById('tamanoProducto');
+    
+    if (categoriaSelect) {
+        categoriaSelect.addEventListener('change', function() {
+            manejarCambioCategoria();
+        });
+    }
+    
+    if (tamanoSelect) {
+        tamanoSelect.addEventListener('change', function() {
+            manejarCambioTamano();
+        });
+    }
 });
+
+// Función para manejar el cambio de categoría
+function manejarCambioCategoria() {
+    const categoriaSelect = document.getElementById('categoriaProducto');
+    const tamanoSelect = document.getElementById('tamanoProducto');
+    const categoriaId = categoriaSelect.value;
+    
+    if (!categoriaId) {
+        // Si no hay categoría seleccionada, no hacer nada
+        return;
+    }
+    
+    // Obtener información de la categoría para saber si requiere inventario
+    fetch(`/api/categorias/${categoriaId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const requiereInventario = data.categoria.requiere_inventario;
+                
+                // Mostrar u ocultar campos de stock según requiera inventario
+                mostrarOcultarCamposStock(requiereInventario);
+                
+                // Si requiere inventario, seleccionar automáticamente "No Aplica" como tamaño
+                if (requiereInventario) {
+                    // Buscar el valor de "No Aplica" en las opciones
+                    for (let i = 0; i < tamanoSelect.options.length; i++) {
+                        if (tamanoSelect.options[i].text === 'No Aplica') {
+                            tamanoSelect.value = tamanoSelect.options[i].value;
+                            break;
+                        }
+                    }
+                } else {
+                    // Si no requiere inventario y el tamaño es "No Aplica", resetear el tamaño
+                    for (let i = 0; i < tamanoSelect.options.length; i++) {
+                        if (tamanoSelect.options[i].text === 'No Aplica' && tamanoSelect.value === tamanoSelect.options[i].value) {
+                            tamanoSelect.value = '';
+                            break;
+                        }
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error al obtener información de la categoría:', error);
+        });
+}
+
+// Función para manejar el cambio de tamaño
+function manejarCambioTamano() {
+    const categoriaSelect = document.getElementById('categoriaProducto');
+    const tamanoSelect = document.getElementById('tamanoProducto');
+    const tamanoText = tamanoSelect.options[tamanoSelect.selectedIndex]?.text;
+    
+    // Si se selecciona un tamaño que no es "No Aplica" y la categoría requiere inventario,
+    // resetear la categoría
+    if (tamanoText && tamanoText !== 'No Aplica') {
+        const categoriaId = categoriaSelect.value;
+        
+        if (categoriaId) {
+            fetch(`/api/categorias/${categoriaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.categoria.requiere_inventario) {
+                        categoriaSelect.value = '';
+                        mostrarOcultarCamposStock(false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener información de la categoría:', error);
+                });
+        }
+    }
+}
+
+// Función para mostrar u ocultar campos de stock
+function mostrarOcultarCamposStock(mostrar) {
+    const stockFields = [
+        document.querySelector('label[for="stockProducto"]'),
+        document.getElementById('stockProducto'),
+        document.querySelector('label[for="stockMinProducto"]'),
+        document.getElementById('stockMinProducto'),
+        document.querySelector('label[for="stockMaxProducto"]'),
+        document.getElementById('stockMaxProducto')
+    ];
+    
+    stockFields.forEach(field => {
+        if (field) {
+            field.style.display = mostrar ? 'block' : 'none';
+        }
+    });
+    
+    // Si no se requiere inventario, establecer valores predeterminados
+    if (!mostrar) {
+        document.getElementById('stockProducto').value = '0';
+        document.getElementById('stockMinProducto').value = '0';
+        document.getElementById('stockMaxProducto').value = '0';
+    }
+}
 
 // Función para guardar el producto
 function guardarProducto(event) {
@@ -304,15 +450,20 @@ function abrirEAModal(id = null) {
                     // Asegurarse de seleccionar la categoría correcta
                     if (producto.categoria_id) {
                         document.getElementById('categoriaProducto').value = producto.categoria_id;
-                    } else {
-                        document.getElementById('categoriaProducto').value = '';
+                        
+                        // Verificar si la categoría requiere inventario
+                        fetch(`/api/categorias/${producto.categoria_id}`)
+                            .then(response => response.json())
+                            .then(catData => {
+                                if (catData.success) {
+                                    mostrarOcultarCamposStock(catData.categoria.requiere_inventario);
+                                }
+                            });
                     }
                     
-                    // Si hay variantes, seleccionar el primer tamaño
+                    // Si hay variantes, seleccionar el tamaño
                     if (data.variantes && data.variantes.length > 0) {
                         document.getElementById('tamanoProducto').value = data.variantes[0].tamano_id;
-                    } else {
-                        document.getElementById('tamanoProducto').value = '';
                     }
                     
                     // Mostrar la imagen actual si existe
@@ -323,11 +474,7 @@ function abrirEAModal(id = null) {
                         document.getElementById('imagenActual').style.display = 'none';
                     }
                     
-                    // Establecer el título del modal
                     document.getElementById('tituloModal').innerText = 'Editar Producto';
-                    
-                    // Mostrar el modal de agregar/editar producto
-                    document.getElementById('productoModal').style.display = 'flex';
                 } else {
                     alert('Error al obtener los datos del producto');
                 }
@@ -337,7 +484,7 @@ function abrirEAModal(id = null) {
                 alert('Error al obtener los datos del producto');
             });
     } else {
-        // Si es agregar nuevo producto, simplemente mostrar el modal con campos vacíos
+        // Si es un nuevo producto, limpiar el formulario
         document.getElementById('idProducto').value = '';
         document.getElementById('nombreProducto').value = '';
         document.getElementById('descripcionProducto').value = '';
@@ -348,13 +495,13 @@ function abrirEAModal(id = null) {
         document.getElementById('categoriaProducto').value = '';
         document.getElementById('tamanoProducto').value = '';
         document.getElementById('imagenActual').style.display = 'none';
-        
-        // Establecer el título del modal
         document.getElementById('tituloModal').innerText = 'Agregar Producto';
         
-        // Mostrar el modal de agregar/editar producto
-        document.getElementById('productoModal').style.display = 'flex';
+        // Por defecto, ocultar los campos de stock
+        mostrarOcultarCamposStock(false);
     }
+    
+    document.getElementById('productoModal').style.display = 'flex';
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -372,6 +519,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.value = 0;
             }
         });
+    });
+});
+
+// Agregar event listeners para limpiar el valor "0" al hacer clic
+document.addEventListener('DOMContentLoaded', function() {
+    const stockInputs = [
+        document.getElementById('stockProducto'),
+        document.getElementById('stockMinProducto'),
+        document.getElementById('stockMaxProducto')
+    ];
+    
+    stockInputs.forEach(input => {
+        if (input) {
+            input.addEventListener('focus', function() {
+                if (this.value === '0') {
+                    this.value = '';
+                }
+            });
+            
+            // Restaurar el valor "0" si el campo queda vacío al perder el foco
+            input.addEventListener('blur', function() {
+                if (this.value === '') {
+                    this.value = '0';
+                }
+            });
+        }
     });
 });
 

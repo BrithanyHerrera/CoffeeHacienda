@@ -412,5 +412,28 @@ def get_producto(id):
             'message': f'Error: {str(e)}'
         })
 
+@app.route('/api/categorias/<int:id>', methods=['GET'])
+@login_required
+def get_categoria(id):
+    try:
+        categorias = obtener_categorias()
+        categoria = next((cat for cat in categorias if cat['Id'] == id), None)
+        
+        if categoria:
+            return jsonify({
+                'success': True,
+                'categoria': categoria
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Categoría no encontrada'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
 if __name__ == '__main__':
     app.run(debug=True)

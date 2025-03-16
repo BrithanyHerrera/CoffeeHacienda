@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 16-03-2025 a las 00:12:03
+-- Tiempo de generación: 16-03-2025 a las 05:05:04
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -31,20 +31,21 @@ CREATE TABLE `tcategorias` (
   `Id` int(11) NOT NULL,
   `categoria` varchar(100) NOT NULL,
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
-  `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `requiere_inventario` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `tcategorias`
 --
 
-INSERT INTO `tcategorias` (`Id`, `categoria`, `creado_en`, `actualizado_en`) VALUES
-(1, 'Bebidas Calientes', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
-(2, 'Bebidas Frías', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
-(3, 'Snacks', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
-(4, 'Postres', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
-(5, 'Todos', '2025-03-09 00:44:07', '2025-03-09 00:44:07'),
-(6, 'Otras Bebidas', '2025-03-09 00:44:07', '2025-03-09 00:44:07');
+INSERT INTO `tcategorias` (`Id`, `categoria`, `creado_en`, `actualizado_en`, `requiere_inventario`) VALUES
+(1, 'Bebidas Calientes', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
+(2, 'Bebidas Frías', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
+(3, 'Snacks', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
+(4, 'Postres', '2025-03-09 00:44:07', '2025-03-15 19:24:32', 1),
+(5, 'Todos', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
+(6, 'Otras Bebidas', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0);
 
 -- --------------------------------------------------------
 
