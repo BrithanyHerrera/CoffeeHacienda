@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 from flask import jsonify
 # Importar las funciones necesarias de modelsProductos
 from models.modelsProductos import (obtener_productos, obtener_categorias, obtener_tamanos,
-                                   agregar_producto, actualizar_producto, eliminar_producto,
-                                   obtener_producto_por_id, agregar_variante_producto,
-                                   obtener_variantes_por_producto, actualizar_variante_producto,
-                                   eliminar_variantes_producto)
+                                    agregar_producto, actualizar_producto, eliminar_producto,
+                                    obtener_producto_por_id, agregar_variante_producto,
+                                    obtener_variantes_por_producto, actualizar_variante_producto,
+                                    eliminar_variantes_producto)
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -27,7 +27,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Configuración para prevenir el cacheo del navegador
 @app.after_request
