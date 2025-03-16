@@ -11,7 +11,7 @@ from models.modelsProductos import (obtener_productos, obtener_categorias, obten
                                    obtener_producto_por_id, agregar_variante_producto,
                                    obtener_variantes_por_producto, actualizar_variante_producto,
                                    eliminar_variantes_producto)
-from models.modelsProductosMenu import (obtener_productos_menu)
+from models.modelsProductosMenu import obtener_productos_menu
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -103,6 +103,8 @@ def bienvenida():
 def menu():
     nombre_usuario = session['usuario']
     productos = obtener_productos_menu()
+
+    print("Productos obtenidos:", productos)
     return render_template('menu.html', nombre_usuario=nombre_usuario, productos=productos)
 
 @app.route('/finalizarOrden')
