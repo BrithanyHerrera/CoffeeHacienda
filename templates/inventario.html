@@ -1,0 +1,86 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Inventario{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <div class="contenedorTitulo">
+        <h1>Inventario</h1>
+    </div>
+
+    <section class="buscador">
+        <section id="formBuscador">
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarInventario()">
+            <button type="button" class="btnReestablecer" onclick="reestablecerFiltrosInventario()">🔄 Reestablecer</button>
+        </section>
+    </section>
+
+    <div class="contenedorInventario">
+        <section class="listaInventario">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Stock</th>
+                        <th>Stock Mínimo</th>
+                        <th>Stock Máximo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventarioLista">
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre_producto }}</td>
+                        <td class="stockProducto">{{ producto.stock }}</td>
+                        <td class="stockMinProducto">{{ producto.stock_minimo }}</td>
+                        <td class="stockMaxProducto">{{ producto.stock_maximo }}</td>
+                        <td>
+                            <button class="btnEditarInventario" onclick="editarInventario('{{ producto.Id }}')">✏️</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Modal de Editar Inventario -->
+        <section class="modal" id="editarInventarioModal">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarEditarInventario()">&times;</span>
+                <h3 class="tituloModal" id="tituloModal">Editar Inventario</h3>
+
+                <form id="formProducto" enctype="multipart/form-data">
+                    <input type="hidden" id="idProducto" name="id">
+
+                    <section class="contenedorIzquierdo">
+                        <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
+
+                        <label for="editarStockInventario">Stock Actual:</label>
+                        <input type="number" id="editarStockInventario" name="stock" disabled>
+                    </section>
+
+                    <section class="contenedorDerecho">
+                        <br>
+                        <br>
+                        <br>
+                        <label for="agregarStockInventario">Agregar al Stock:</label>
+                        <div class="agregarStock">
+                            <input type="number" id="agregarStockInventario" name="agregar_stock" min="0" required>
+                        </div>
+
+                        <label for="editarStockMinInventario">Stock Mínimo:</label>
+                        <input type="number" id="editarStockMinInventario" name="stock_minimo" min="0" required>
+
+                        <label for="editarStockMaxInventario">Stock Máximo:</label>
+                        <input type="number" id="editarStockMaxInventario" name="stock_maximo" min="0" required>
+
+                        <button class="guardarBtn" type="submit">Guardar</button>
+                    </section>
+                </form>
+            </section>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/inventario.js') }}"></script>
+</main>
+{% endblock %}
