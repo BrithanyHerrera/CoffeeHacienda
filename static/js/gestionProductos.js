@@ -1,13 +1,13 @@
 // Función para abrir el modal de Edición y Agregar Producto
-function abrirEAModal(id = null, nombre = '', descripcion = '', precio = 0, stock = 0, 
-                      stockMin = 10, stockMax = 100, categoriaId = null, imagen = '') {
+function abrirEAModal(id = null, nombre = '', descripcion = '', precio = '', stock = '', 
+                      stockMin = '', stockMax = '', categoriaId = null, imagen = '') {
     document.getElementById('idProducto').value = id || '';
     document.getElementById('nombreProducto').value = nombre;
     document.getElementById('descripcionProducto').value = descripcion || '';
     document.getElementById('precioProducto').value = precio;
-    document.getElementById('stockProducto').value = stock || 0;
-    document.getElementById('stockMinProducto').value = stockMin || 10;
-    document.getElementById('stockMaxProducto').value = stockMax || 100;
+    document.getElementById('stockProducto').value = stock || '';
+    document.getElementById('stockMinProducto').value = stockMin || '';
+    document.getElementById('stockMaxProducto').value = stockMax || '';
     document.getElementById('categoriaProducto').value = categoriaId || '';
     document.getElementById('tituloModal').innerText = id ? 'Editar Producto' : 'Agregar Producto';
     
@@ -43,9 +43,9 @@ function abrirVerProducto(id) {
                 document.getElementById('verNombreProducto').textContent = producto.nombre_producto;
                 document.getElementById('verDescripcionProducto').textContent = producto.descripcion || 'Sin descripción';
                 document.getElementById('verPrecioProducto').textContent = producto.precio;
-                document.getElementById('verStockProducto').textContent = producto.stock || 0;
-                document.getElementById('verStockMinProducto').textContent = producto.stock_minimo || 10;
-                document.getElementById('verStockMaxProducto').textContent = producto.stock_maximo || 100;
+                document.getElementById('verStockProducto').textContent = producto.stock || '';
+                document.getElementById('verStockMinProducto').textContent = producto.stock_minimo || '';
+                document.getElementById('verStockMaxProducto').textContent = producto.stock_maximo || '';
                 document.getElementById('verCategoriaProducto').textContent = producto.categoria || 'Sin categoría';
                 
                 // Mostrar el tamaño si hay variantes
@@ -297,9 +297,9 @@ function abrirEAModal(id = null) {
                     document.getElementById('nombreProducto').value = producto.nombre_producto;
                     document.getElementById('descripcionProducto').value = producto.descripcion || '';
                     document.getElementById('precioProducto').value = producto.precio;
-                    document.getElementById('stockProducto').value = producto.stock || 0;
-                    document.getElementById('stockMinProducto').value = producto.stock_minimo || 10;
-                    document.getElementById('stockMaxProducto').value = producto.stock_maximo || 100;
+                    document.getElementById('stockProducto').value = producto.stock || '';
+                    document.getElementById('stockMinProducto').value = producto.stock_minimo || '';
+                    document.getElementById('stockMaxProducto').value = producto.stock_maximo || '';
                     
                     // Asegurarse de seleccionar la categoría correcta
                     if (producto.categoria_id) {
@@ -342,9 +342,9 @@ function abrirEAModal(id = null) {
         document.getElementById('nombreProducto').value = '';
         document.getElementById('descripcionProducto').value = '';
         document.getElementById('precioProducto').value = '';
-        document.getElementById('stockProducto').value = '0';
-        document.getElementById('stockMinProducto').value = '10';
-        document.getElementById('stockMaxProducto').value = '100';
+        document.getElementById('stockProducto').value = '';
+        document.getElementById('stockMinProducto').value = '';
+        document.getElementById('stockMaxProducto').value = '';
         document.getElementById('categoriaProducto').value = '';
         document.getElementById('tamanoProducto').value = '';
         document.getElementById('imagenActual').style.display = 'none';
