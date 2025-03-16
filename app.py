@@ -116,6 +116,11 @@ def gestion_productos():
     tamanos = obtener_tamanos()
     return render_template('gestionProductos.html', productos=productos, categorias=categorias, tamanos=tamanos)
 
+@app.route('/inventario')
+@login_required  # Ruta protegida
+def inventario():
+    return render_template('inventario.html')
+
 @app.route('/ordenes')
 @login_required  # Ruta protegida
 def ordenes():

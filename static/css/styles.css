@@ -144,7 +144,7 @@ input {
 }
 
 .sidebar ul li {
-    padding: 10px;
+    padding: 5px;
     cursor: pointer;
 }
 
@@ -1148,8 +1148,45 @@ form {
     font-weight: bold;
 }
 
+/* INVENTARIO */
+.contenedorInventario {    
+    margin-top: 10px;
+    display: flex;
+    width: 1200px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
+.listaInventario {
+    width: 100%;
+    margin-top: 10px;
+}
 
+.listaInventario table {
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.listaInventario th, .listaInventario td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.btnEditarInventario {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.btnEditarInventario {
+    background: #FFBF00;
+    color: white;
+}
 
 
 
