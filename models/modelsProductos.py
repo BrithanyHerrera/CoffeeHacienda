@@ -141,7 +141,7 @@ def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, c
         with connection.cursor() as cursor:
             query = """
             INSERT INTO tproductos (nombre_producto, descripcion, precio, stock, 
-                                   stock_minimo, stock_maximo, categoria_id, ruta_imagen)
+                                stock_minimo, stock_maximo, categoria_id, ruta_imagen)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
             valores = (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
