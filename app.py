@@ -261,6 +261,29 @@ def guardar_producto():
                 ruta_imagen = f'/static/images/productos/{filename}'
         
         if id_producto:  # Editar producto existente
+            # Si no se proporcionó una nueva imagen, mantener la imagen actual
+            if not ruta_imagen:
+                producto_actual = obtener_producto_por_id(id_producto)
+                if producto_actual and producto_actual.get('ruta_imagen'):
+                    ruta_imagen = producto_actual['ruta_imagen']
+            
+            # Verificar si hay cambios en el producto
+            producto_actual = obtener_producto_por_id(id_producto)
+            if (producto_actual and 
+                str(producto_actual['nombre_producto']) == str(nombre) and
+                str(producto_actual.get('descripcion', '')) == str(descripcion or '') and
+                float(producto_actual['precio']) == float(precio) and
+                int(producto_actual['stock']) == int(stock) and
+                int(producto_actual.get('stock_minimo', 0)) == int(stock_min) and
+                int(producto_actual.get('stock_maximo', 0)) == int(stock_max) and
+                int(producto_actual['categoria_id']) == int(categoria_id) and
+                producto_actual.get('ruta_imagen') == ruta_imagen):
+                # No hay cambios, devolver mensaje informativo
+                return jsonify({
+                    'success': True,
+                    'message': 'No se realizaron cambios en el producto'
+                })
+                    
             resultado = actualizar_producto(id_producto, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
             mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
         else:  # Crear nuevo producto
@@ -281,7 +304,7 @@ def guardar_producto():
         print(f"Error en guardar_producto: {str(e)}")
         return jsonify({
             'success': False,
-            'message': f'Error: {str(e)}'
+            'message': f'No se realizaron cambios en el producto. Detalles: {str(e)}'
         })
 
 @app.route('/api/productos/eliminar', methods=['POST'])

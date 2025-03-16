@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 13-03-2025 a las 07:36:04
+-- Tiempo de generación: 16-03-2025 a las 00:12:03
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -227,6 +227,13 @@ CREATE TABLE `tproductos` (
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Volcado de datos para la tabla `tproductos`
+--
+
+INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
+(1, 'Cappuccino', 'fsd', '12.00', 100, 10, 100, 2, '/static/images/productos/20250315172012.png', '2025-03-15 15:09:31', '2025-03-15 18:09:02');
+
 -- --------------------------------------------------------
 
 --
@@ -241,6 +248,13 @@ CREATE TABLE `tproductos_variantes` (
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tproductos_variantes`
+--
+
+INSERT INTO `tproductos_variantes` (`Id`, `producto_id`, `tamano_id`, `precio`, `creado_en`, `actualizado_en`) VALUES
+(1, 1, 1, '12.00', '2025-03-15 15:09:31', '2025-03-15 15:09:31');
 
 -- --------------------------------------------------------
 
@@ -279,7 +293,8 @@ CREATE TABLE `ttamanos` (
 INSERT INTO `ttamanos` (`Id`, `tamano`) VALUES
 (1, 'Pequeño'),
 (2, 'Mediano'),
-(3, 'Grande');
+(3, 'Grande'),
+(4, 'No Aplica');
 
 -- --------------------------------------------------------
 
@@ -344,7 +359,8 @@ CREATE TABLE `tusuarios` (
 --
 
 INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `correo`, `rol_id`, `creado_en`) VALUES
-(6, 'Isma', '123', 'ismaelcm18182@gmail.com', 1, '2025-03-10 23:19:36');
+(6, 'Isma', '123', 'ismaelcm18182@gmail.com', 1, '2025-03-10 23:19:36'),
+(13, 'Isma2', '123', 'ismaelcm181821@gmail.com', 2, '2025-03-15 17:16:44');
 
 -- --------------------------------------------------------
 
@@ -490,6 +506,7 @@ ALTER TABLE `ttiposmovimiento`
 ALTER TABLE `tusuarios`
   ADD PRIMARY KEY (`Id`),
   ADD UNIQUE KEY `usuario_UNIQUE` (`usuario`),
+  ADD UNIQUE KEY `unique_correo` (`correo`),
   ADD KEY `rol_id` (`rol_id`);
 
 --
@@ -535,13 +552,13 @@ ALTER TABLE `testadosventa`
 -- AUTO_INCREMENT de la tabla `tproductos`
 --
 ALTER TABLE `tproductos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `tproductos_variantes`
 --
 ALTER TABLE `tproductos_variantes`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `troles`
@@ -559,7 +576,7 @@ ALTER TABLE `ttamanos`
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`
