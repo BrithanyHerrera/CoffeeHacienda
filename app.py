@@ -138,11 +138,40 @@ def actualizar_inventario():
         nuevo_stock_min = data.get('stock_min')
         nuevo_stock_max = data.get('stock_max')
         
+        # Obtener valores actuales para comparar
+        productos = obtener_productos_inventario()
+        producto_actual = next((p for p in productos if p['Id'] == int(id_producto)), None)
+        
+        if not producto_actual:
+            return jsonify({
+                'success': False,
+                'message': 'Producto no encontrado'
+            })
+        
+        # Verificar si hay cambios
+        if (producto_actual['stock'] == nuevo_stock and 
+            producto_actual['stock_minimo'] == nuevo_stock_min and 
+            producto_actual['stock_maximo'] == nuevo_stock_max):
+            return jsonify({
+                'success': True,
+                'message': 'No se realizaron cambios en el inventario'
+            })
+        
         resultado = actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max)
+        
+        # Determinar mensaje basado en qué cambió
+        mensaje = 'Inventario actualizado correctamente'
+        if resultado:
+            if producto_actual['stock'] != nuevo_stock and producto_actual['stock_minimo'] == nuevo_stock_min and producto_actual['stock_maximo'] == nuevo_stock_max:
+                mensaje = 'Stock actualizado correctamente'
+            elif producto_actual['stock'] == nuevo_stock and (producto_actual['stock_minimo'] != nuevo_stock_min or producto_actual['stock_maximo'] != nuevo_stock_max):
+                mensaje = 'Límites de stock actualizados correctamente'
+        else:
+            mensaje = 'Error al actualizar inventario'
         
         return jsonify({
             'success': resultado,
-            'message': 'Inventario actualizado correctamente' if resultado else 'Error al actualizar inventario'
+            'message': mensaje
         })
     except Exception as e:
         return jsonify({
