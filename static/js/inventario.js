@@ -6,26 +6,51 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
 
             const idProducto = document.getElementById("idProducto").value;
+            const stockActual = parseInt(document.getElementById("editarStockInventario").value) || 0;
             const agregarStock = parseInt(document.getElementById("agregarStockInventario").value) || 0;
+            const nuevoStock = stockActual + agregarStock;
             const nuevoStockMinimo = parseInt(document.getElementById("agregarStockMinimoInventario").value) || 0;
             const nuevoStockMaximo = parseInt(document.getElementById("agregarStockMaximoInventario").value) || 0;
 
-            const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
-            const stockActual = parseInt(fila.getAttribute("data-stock"));
-            const nuevoStock = stockActual + agregarStock;
+            // Enviar datos al servidor
+            fetch('/api/inventario/actualizar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: idProducto,
+                    stock: nuevoStock,
+                    stock_min: nuevoStockMinimo,
+                    stock_max: nuevoStockMaximo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar la interfaz
+                    const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
+                    
+                    // Actualizar los atributos de la fila
+                    fila.setAttribute("data-stock", nuevoStock);
+                    fila.setAttribute("data-stock-min", nuevoStockMinimo);
+                    fila.setAttribute("data-stock-max", nuevoStockMaximo);
 
-            // Actualizar los atributos de la fila
-            fila.setAttribute("data-stock", nuevoStock);
-            fila.setAttribute("data-stock-min", nuevoStockMinimo);
-            fila.setAttribute("data-stock-max", nuevoStockMaximo);
+                    // Actualizar la tabla
+                    fila.querySelector(".stockProducto").textContent = nuevoStock;
+                    fila.querySelector(".stockMinProducto").textContent = nuevoStockMinimo;
+                    fila.querySelector(".stockMaxProducto").textContent = nuevoStockMaximo;
 
-            // Actualizar la tabla
-            fila.querySelector(".stockProducto").textContent = nuevoStock;
-            fila.querySelector(".stockMinProducto").textContent = nuevoStockMinimo;
-            fila.querySelector(".stockMaxProducto").textContent = nuevoStockMaximo;
-
-            alert("Inventario actualizado correctamente.");
-            cerrarEditarInventario();
+                    alert("Inventario actualizado correctamente.");
+                    cerrarEditarInventario();
+                } else {
+                    alert("Error al actualizar inventario: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error al comunicarse con el servidor");
+            });
         });
     }
 });

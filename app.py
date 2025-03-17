@@ -15,6 +15,8 @@ from models.modelsProductosMenu import obtener_productos_menu
 from werkzeug.utils import secure_filename
 import os
 import time
+# Importar las funciones del modelo de inventario
+from models.modelsInventario import obtener_productos_inventario, actualizar_stock_producto
 
 app = Flask(__name__)
 
@@ -119,9 +121,34 @@ def gestion_productos():
     return render_template('gestionProductos.html', productos=productos, categorias=categorias, tamanos=tamanos)
 
 @app.route('/inventario')
-@login_required  # Ruta protegida
+@login_required
 def inventario():
-    return render_template('inventario.html')
+    # Obtener productos que requieren inventario
+    productos = obtener_productos_inventario()
+    return render_template('inventario.html', productos=productos)
+
+# Agregar ruta API para actualizar el stock
+@app.route('/api/inventario/actualizar', methods=['POST'])
+@login_required
+def actualizar_inventario():
+    try:
+        data = request.json
+        id_producto = data.get('id')
+        nuevo_stock = data.get('stock')
+        nuevo_stock_min = data.get('stock_min')
+        nuevo_stock_max = data.get('stock_max')
+        
+        resultado = actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max)
+        
+        return jsonify({
+            'success': resultado,
+            'message': 'Inventario actualizado correctamente' if resultado else 'Error al actualizar inventario'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
 
 @app.route('/ordenes')
 @login_required  # Ruta protegida
