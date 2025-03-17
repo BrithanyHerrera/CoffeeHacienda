@@ -30,34 +30,23 @@
                     </tr>
                 </thead>
                 <tbody id="inventarioLista">
-                    <!-- Ejemplo de productos cargados -->
-                    <tr data-id="1" data-nombre="Laptop HP" data-stock="10" data-stock-min="5" data-stock-max="20">
-                        <td>Laptop HP</td>
-                        <td class="stockProducto">10</td>
-                        <td class="stockMinProducto">5</td>
-                        <td class="stockMaxProducto">20</td>
-                        <td>
-                            <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
-                        </td>
-                    </tr>
-                    <tr data-id="2" data-nombre="Mouse Logitech" data-stock="50" data-stock-min="10" data-stock-max="100">
-                        <td>Mouse Logitech</td>
-                        <td class="stockProducto">50</td>
-                        <td class="stockMinProducto">10</td>
-                        <td class="stockMaxProducto">100</td>
-                        <td>
-                            <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
-                        </td>
-                    </tr>
-                    <tr data-id="3" data-nombre="Teclado Mecánico" data-stock="30" data-stock-min="8" data-stock-max="50">
-                        <td>Teclado Mecánico</td>
-                        <td class="stockProducto">30</td>
-                        <td class="stockMinProducto">8</td>
-                        <td class="stockMaxProducto">50</td>
-                        <td>
-                            <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
-                        </td>
-                    </tr>
+                    {% if productos %}
+                        {% for producto in productos %}
+                        <tr data-id="{{ producto.Id }}" data-nombre="{{ producto.nombre_producto }}" data-stock="{{ producto.stock }}" data-stock-min="{{ producto.stock_minimo }}" data-stock-max="{{ producto.stock_maximo }}">
+                            <td>{{ producto.nombre_producto }}</td>
+                            <td class="stockProducto">{{ producto.stock }}</td>
+                            <td class="stockMinProducto">{{ producto.stock_minimo }}</td>
+                            <td class="stockMaxProducto">{{ producto.stock_maximo }}</td>
+                            <td>
+                                <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No hay productos que requieran inventario</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </section>
