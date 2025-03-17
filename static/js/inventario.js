@@ -7,12 +7,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const idProducto = document.getElementById("idProducto").value;
             const stockActual = parseInt(document.getElementById("editarStockInventario").value) || 0;
-            const agregarStock = parseInt(document.getElementById("agregarStockInventario").value) || 0;
-            const nuevoStock = stockActual + agregarStock;
-            const nuevoStockMinimo = parseInt(document.getElementById("agregarStockMinimoInventario").value) || 0;
-            const nuevoStockMaximo = parseInt(document.getElementById("agregarStockMaximoInventario").value) || 0;
+            const stockMinActual = parseInt(document.getElementById("editarStockMinInventario").value) || 0;
+            const stockMaxActual = parseInt(document.getElementById("editarStockMaxInventario").value) || 0;
+            
+            // Get values from input fields, defaulting to 0 if empty
+            const ajusteStock = document.getElementById("agregarStockInventario").value === "" ? 0 : 
+                               parseInt(document.getElementById("agregarStockInventario").value) || 0;
+            const nuevoStockMin = document.getElementById("agregarStockMinimoInventario").value === "" ? 
+                                 stockMinActual : parseInt(document.getElementById("agregarStockMinimoInventario").value) || 0;
+            const nuevoStockMax = document.getElementById("agregarStockMaximoInventario").value === "" ? 
+                                 stockMaxActual : parseInt(document.getElementById("agregarStockMaximoInventario").value) || 0;
+            
+            // Calculate new stock value
+            const nuevoStock = stockActual + ajusteStock;
+            
+            // Validate that the new stock is not negative
+            if (nuevoStock < 0) {
+                alert("El stock no puede ser negativo. Ajuste el valor.");
+                return;
+            }
 
-            // Enviar datos al servidor
+            // Check if there are any changes
+            if (ajusteStock === 0 && nuevoStockMin === stockMinActual && nuevoStockMax === stockMaxActual) {
+                alert("No se realizaron cambios en el inventario");
+                cerrarEditarInventario();
+                return;
+            }
+
+            // Send data to server
             fetch('/api/inventario/actualizar', {
                 method: 'POST',
                 headers: {
@@ -21,27 +43,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({
                     id: idProducto,
                     stock: nuevoStock,
-                    stock_min: nuevoStockMinimo,
-                    stock_max: nuevoStockMaximo
+                    stock_min: nuevoStockMin,
+                    stock_max: nuevoStockMax
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Actualizar la interfaz
+                    // Update the interface
                     const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
                     
-                    // Actualizar los atributos de la fila
+                    // Update row attributes
                     fila.setAttribute("data-stock", nuevoStock);
-                    fila.setAttribute("data-stock-min", nuevoStockMinimo);
-                    fila.setAttribute("data-stock-max", nuevoStockMaximo);
+                    fila.setAttribute("data-stock-min", nuevoStockMin);
+                    fila.setAttribute("data-stock-max", nuevoStockMax);
 
-                    // Actualizar la tabla
+                    // Update table cells
                     fila.querySelector(".stockProducto").textContent = nuevoStock;
-                    fila.querySelector(".stockMinProducto").textContent = nuevoStockMinimo;
-                    fila.querySelector(".stockMaxProducto").textContent = nuevoStockMaximo;
+                    fila.querySelector(".stockMinProducto").textContent = nuevoStockMin;
+                    fila.querySelector(".stockMaxProducto").textContent = nuevoStockMax;
 
-                    alert("Inventario actualizado correctamente.");
+                    alert(data.message);
                     cerrarEditarInventario();
                 } else {
                     alert("Error al actualizar inventario: " + data.message);
@@ -64,6 +86,11 @@ function editarInventario(boton) {
     document.getElementById("editarStockInventario").value = fila.getAttribute("data-stock");
     document.getElementById("editarStockMinInventario").value = fila.getAttribute("data-stock-min");
     document.getElementById("editarStockMaxInventario").value = fila.getAttribute("data-stock-max");
+    
+    // Reset adjustment fields to empty
+    document.getElementById("agregarStockInventario").value = "";
+    document.getElementById("agregarStockMinimoInventario").value = "";
+    document.getElementById("agregarStockMaximoInventario").value = "";
 
     document.getElementById("editarInventarioModal").style.display = "flex";
 }
