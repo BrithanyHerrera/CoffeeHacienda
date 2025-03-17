@@ -29,6 +29,41 @@ def obtener_productos_inventario():
         print(f"Error al obtener productos de inventario: {e}")
         return []
 
+def obtener_productos_bajo_stock():
+    """
+    Obtiene los productos que están en nivel crítico o de alerta de stock
+    """
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Consulta para obtener productos con stock bajo o crítico
+        query = """
+        SELECT p.Id, p.nombre_producto, p.stock, p.stock_minimo, p.stock_maximo,
+               CASE 
+                   WHEN p.stock <= p.stock_minimo THEN 'critico'
+                   WHEN p.stock <= p.stock_minimo + 5 THEN 'critico'
+                   WHEN p.stock <= p.stock_minimo + 10 THEN 'alerta'
+                   ELSE 'normal'
+               END as nivel_stock
+        FROM tproductos p
+        INNER JOIN tcategorias c ON p.categoria_id = c.Id
+        WHERE c.requiere_inventario = 1
+        AND (p.stock <= p.stock_minimo + 10)
+        ORDER BY nivel_stock, p.nombre_producto
+        """
+        
+        cursor.execute(query)
+        productos = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+        return productos
+    except Exception as e:
+        print(f"Error al obtener productos de bajo stock: {e}")
+        return []
+
 def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max):
     """
     Actualiza el stock y los límites de stock de un producto

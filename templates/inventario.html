@@ -32,9 +32,10 @@
                 <tbody id="inventarioLista">
                     {% if productos %}
                         {% for producto in productos %}
-                        <tr data-id="{{ producto.Id }}" data-nombre="{{ producto.nombre_producto }}" data-stock="{{ producto.stock }}" data-stock-min="{{ producto.stock_minimo }}" data-stock-max="{{ producto.stock_maximo }}">
+                        <tr data-id="{{ producto.Id }}" data-nombre="{{ producto.nombre_producto }}" data-stock="{{ producto.stock }}" data-stock-min="{{ producto.stock_minimo }}" data-stock-max="{{ producto.stock_maximo }}" 
+                            class="{% if producto.stock <= producto.stock_minimo %}nivel-critico{% elif producto.stock <= producto.stock_minimo + 5 %}nivel-critico{% elif producto.stock <= producto.stock_minimo + 10 %}nivel-alerta{% endif %}">
                             <td>{{ producto.nombre_producto }}</td>
-                            <td class="stockProducto">{{ producto.stock }}</td>
+                            <td class="stockProducto {% if producto.stock <= producto.stock_minimo %}texto-critico{% elif producto.stock <= producto.stock_minimo + 5 %}texto-critico{% elif producto.stock <= producto.stock_minimo + 10 %}texto-alerta{% endif %}">{{ producto.stock }}</td>
                             <td class="stockMinProducto">{{ producto.stock_minimo }}</td>
                             <td class="stockMaxProducto">{{ producto.stock_maximo }}</td>
                             <td>

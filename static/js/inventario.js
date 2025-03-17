@@ -1,6 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
     const formProducto = document.getElementById("formProducto");
 
+    // Add CSS styles for inventory alerts
+    const style = document.createElement('style');
+    style.textContent = `
+        .nivel-critico {
+            background-color: rgba(255, 200, 200, 0.3);
+        }
+        .nivel-alerta {
+            background-color: rgba(255, 243, 205, 0.3);
+        }
+        .texto-critico {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .texto-alerta {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+    `;
+    document.head.appendChild(style);
+
     if (formProducto) {
         formProducto.addEventListener("submit", function (event) {
             event.preventDefault();
@@ -50,19 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update the interface
-                    const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
+                    // Usar la función para actualizar la fila con las clases correctas
+                    actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoStockMax);
                     
-                    // Update row attributes
-                    fila.setAttribute("data-stock", nuevoStock);
-                    fila.setAttribute("data-stock-min", nuevoStockMin);
-                    fila.setAttribute("data-stock-max", nuevoStockMax);
-
-                    // Update table cells
-                    fila.querySelector(".stockProducto").textContent = nuevoStock;
-                    fila.querySelector(".stockMinProducto").textContent = nuevoStockMin;
-                    fila.querySelector(".stockMaxProducto").textContent = nuevoStockMax;
-
                     alert(data.message);
                     cerrarEditarInventario();
                 } else {
@@ -77,15 +87,75 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// Función para actualizar la fila de inventario con las clases de alerta correctas
+function actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoStockMax) {
+    const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
+    
+    // Update row attributes
+    fila.setAttribute("data-stock", nuevoStock);
+    fila.setAttribute("data-stock-min", nuevoStockMin);
+    fila.setAttribute("data-stock-max", nuevoStockMax);
+
+    // Update table cells
+    const stockCell = fila.querySelector(".stockProducto");
+    stockCell.textContent = nuevoStock;
+    fila.querySelector(".stockMinProducto").textContent = nuevoStockMin;
+    fila.querySelector(".stockMaxProducto").textContent = nuevoStockMax;
+    
+    // Eliminar todas las clases de alerta existentes
+    fila.classList.remove("nivel-critico", "nivel-alerta");
+    stockCell.classList.remove("texto-critico", "texto-alerta");
+    
+    // Aplicar las clases de alerta según los nuevos valores
+    if (nuevoStock <= nuevoStockMin) {
+        // Si el stock es igual o menor al mínimo, es crítico
+        fila.classList.add("nivel-critico");
+        stockCell.classList.add("texto-critico");
+    } else if (nuevoStock <= nuevoStockMin + 5) {
+        // Si el stock está entre mínimo+1 y mínimo+5, es crítico
+        fila.classList.add("nivel-critico");
+        stockCell.classList.add("texto-critico");
+    } else if (nuevoStock <= nuevoStockMin + 10) {
+        // Si el stock está entre mínimo+6 y mínimo+10, es alerta
+        fila.classList.add("nivel-alerta");
+        stockCell.classList.add("texto-alerta");
+    }
+}
+
 // Función para abrir el modal con los datos del producto seleccionado
 function editarInventario(boton) {
     const fila = boton.closest("tr");
 
-    document.getElementById("idProducto").value = fila.getAttribute("data-id");
-    document.getElementById("verNombreProducto").textContent = fila.getAttribute("data-nombre");
-    document.getElementById("editarStockInventario").value = fila.getAttribute("data-stock");
-    document.getElementById("editarStockMinInventario").value = fila.getAttribute("data-stock-min");
-    document.getElementById("editarStockMaxInventario").value = fila.getAttribute("data-stock-max");
+    const idProducto = fila.getAttribute("data-id");
+    const nombreProducto = fila.getAttribute("data-nombre");
+    const stockActual = parseInt(fila.getAttribute("data-stock"));
+    const stockMin = parseInt(fila.getAttribute("data-stock-min"));
+    const stockMax = parseInt(fila.getAttribute("data-stock-max"));
+
+    document.getElementById("idProducto").value = idProducto;
+    document.getElementById("verNombreProducto").textContent = nombreProducto;
+    
+    const stockInput = document.getElementById("editarStockInventario");
+    stockInput.value = stockActual;
+    
+    // Limpiar clases y estilos anteriores
+    stockInput.classList.remove("texto-critico", "texto-alerta");
+    stockInput.style.backgroundColor = "";
+    
+    // Add visual indicator for stock level in the modal
+    if (stockActual <= stockMin) {
+        stockInput.classList.add("texto-critico");
+        stockInput.style.backgroundColor = "rgba(255, 200, 200, 0.3)";
+    } else if (stockActual <= stockMin + 5) {
+        stockInput.classList.add("texto-critico");
+        stockInput.style.backgroundColor = "rgba(255, 200, 200, 0.3)";
+    } else if (stockActual <= stockMin + 10) {
+        stockInput.classList.add("texto-alerta");
+        stockInput.style.backgroundColor = "rgba(255, 243, 205, 0.3)";
+    }
+    
+    document.getElementById("editarStockMinInventario").value = stockMin;
+    document.getElementById("editarStockMaxInventario").value = stockMax;
     
     // Reset adjustment fields to empty
     document.getElementById("agregarStockInventario").value = "";
