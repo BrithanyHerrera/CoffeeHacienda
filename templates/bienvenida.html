@@ -3,7 +3,31 @@
 {% block title %}¡Bienvenido!{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
 <main class="contenidoGeneral">
+    <!-- Alertas de Inventario -->
+    {% if alertas_inventario %}
+    <div class="contenedorAlertas">
+        <div class="alertaInventario {% if alertas_criticas %}alerta-critica{% else %}alerta-normal{% endif %}">
+            <div class="iconoAlerta">⚠️</div>
+            <div class="mensajeAlerta">
+                <h3>Alerta de Inventario</h3>
+                <p>
+                    {% if alertas_criticas and alertas_normales %}
+                        Hay {{ alertas_criticas }} producto{% if alertas_criticas > 1 %}s{% endif %} en estado crítico y {{ alertas_normales }} en alerta.
+                    {% elif alertas_criticas %}
+                        Hay {{ alertas_criticas }} producto{% if alertas_criticas > 1 %}s{% endif %} en estado crítico.
+                    {% elif alertas_normales %}
+                        Hay {{ alertas_normales }} producto{% if alertas_normales > 1 %}s{% endif %} en estado de alerta.
+                    {% endif %}
+                </p>
+                <a href="/inventario" class="btnVerInventario">Ver Inventario</a>
+            </div>
+            <button class="cerrarAlerta" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="contenedorBienvenida">
         <section class="mensajeBienvenida">
             <h1>¡Bienvenido, Cafetería La Hacienda! ☕</h1>

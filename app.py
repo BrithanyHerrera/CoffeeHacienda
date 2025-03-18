@@ -98,7 +98,24 @@ def sidebar():
 @app.route('/bienvenida')
 @login_required  # Ruta protegida
 def bienvenida():
-    return render_template('bienvenida.html')
+    # Obtener productos con alertas de inventario
+    productos = obtener_productos_inventario()
+    
+    alertas_criticas = 0
+    alertas_normales = 0
+    
+    for producto in productos:
+        if producto['stock'] <= producto['stock_minimo'] or producto['stock'] <= producto['stock_minimo'] + 5:
+            alertas_criticas += 1
+        elif producto['stock'] <= producto['stock_minimo'] + 10:
+            alertas_normales += 1
+    
+    alertas_inventario = alertas_criticas + alertas_normales
+    
+    return render_template('bienvenida.html', 
+                          alertas_inventario=alertas_inventario,
+                          alertas_criticas=alertas_criticas,
+                          alertas_normales=alertas_normales)
 
 @app.route('/menu')
 @login_required  # Ruta protegida
