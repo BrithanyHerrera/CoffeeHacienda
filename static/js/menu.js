@@ -154,36 +154,99 @@ function actualizarCarrito() {
     });
 }
 
-
-
 function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // Obtener la fecha y hora actual
+    if (!doc.autoTable) {
+        console.error("autoTable no está cargado correctamente.");
+        alert("Error al generar el PDF. Asegúrate de incluir la librería jsPDF.");
+        return;
+    }
+
+    const margenIzquierdo = 10;
+    let posicionY = 10;
+
+    // Obtener información del pedido
     const fechaHora = new Date().toLocaleString();
-    const nombreCliente = document.getElementById('nombreCliente').value.trim();
-    const direccionSucursal = "Calle Ejemplo 123, Ciudad"; // Dirección de la sucursal
+    const nombreCliente = document.getElementById('nombreCliente').value.trim() || "No especificado";
+    const direccionSucursal = "Calle Ejemplo 123, Ciudad";
+    const nombreVendedor = "Administrador"; // Puedes cambiar esto si el vendedor varía
 
-    // Agregar contenido al PDF
-    doc.text(`Recibo`, 10, 10);
-    doc.text(`Fecha y Hora: ${fechaHora}`, 10, 20);
-    doc.text(`Nombre del Vendedor: Administrador`, 10, 30);
-    doc.text(`Dirección de la Sucursal: ${direccionSucursal}`, 10, 40);
-    doc.text(`Nombre del Cliente: ${nombreCliente}`, 10, 50);
-    doc.text(`Artículos:`, 10, 60);
+    // Configurar fuente compatible
+    doc.setFont("times", "normal");
 
-    // Agregar los artículos al PDF
-    let y = 70; // Posición vertical inicial para los artículos
+    // Título
+    doc.setFontSize(16);
+    doc.text("RECIBO DE COMPRA", 105, posicionY, { align: "center" });
+    posicionY += 10;
+
+    // Línea separadora
+    doc.setLineWidth(0.5);
+    doc.line(margenIzquierdo, posicionY, 200, posicionY);
+    posicionY += 10;
+
+    // Datos del pedido
+    doc.setFontSize(12);
+    doc.text(`Fecha y Hora: ${fechaHora}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    doc.text(`Nombre del Vendedor: ${nombreVendedor}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    doc.text(`Dirección: ${direccionSucursal}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    doc.text(`Cliente: ${nombreCliente}`, margenIzquierdo, posicionY);
+    posicionY += 10;
+
+    // Línea separadora
+    doc.setLineWidth(0.5);
+    doc.line(margenIzquierdo, posicionY, 200, posicionY);
+    posicionY += 10;
+
+    // Listar productos comprados
+    doc.setFont("times", "bold");
+    doc.text("Artículos Comprados:", margenIzquierdo, posicionY);
+    posicionY += 8;
+    doc.setFont("times", "normal");
+
+    let columnas = ["Producto", "Tamaño", "Cantidad", "Precio", "Subtotal"];
+    let filas = [];
+
+    // Obtener productos del carrito
+    let total = 0;
     carrito.forEach(item => {
-        doc.text(`${item.nombre} (${item.tamaño}) - $${item.precio} x ${item.cantidad}`, 10, y);
-        y += 10; // Incrementar la posición vertical
+        let subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        filas.push([
+            item.nombre,
+            item.tamaño,
+            item.cantidad,
+            `$${item.precio.toFixed(2)}`,
+            `$${subtotal.toFixed(2)}`
+        ]);
     });
 
-    // Calcular y agregar el total
-    const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-    doc.text(`Total: $${total}`, 10, y);
+    // Si no hay productos en el carrito, mostrar mensaje
+    if (filas.length === 0) {
+        filas.push(["No hay productos en la orden", "", "", "", ""]);
+    }
+
+    doc.autoTable({
+        startY: posicionY,
+        head: [columnas],
+        body: filas,
+        theme: "striped",
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] }
+    });
+
+    // Posicionar el total después de la tabla
+    posicionY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFont("times", "bold");
+    doc.text(`TOTAL: $${total.toFixed(2)}`, margenIzquierdo, posicionY);
 
     // Guardar el PDF
-    doc.save('recibo.pdf');
+    doc.save(`Recibo_${nombreCliente}.pdf`);
 }
+
+
