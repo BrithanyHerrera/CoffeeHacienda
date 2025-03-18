@@ -26,18 +26,36 @@
                         <th>Stock</th>
                         <th>Stock Mínimo</th>
                         <th>Stock Máximo</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="inventarioLista">
                     {% if productos %}
                         {% for producto in productos %}
-                        <tr data-id="{{ producto.Id }}" data-nombre="{{ producto.nombre_producto }}" data-stock="{{ producto.stock }}" data-stock-min="{{ producto.stock_minimo }}" data-stock-max="{{ producto.stock_maximo }}" 
-                            class="{% if producto.stock <= producto.stock_minimo %}nivel-critico{% elif producto.stock <= producto.stock_minimo + 5 %}nivel-critico{% elif producto.stock <= producto.stock_minimo + 10 %}nivel-alerta{% endif %}">
+                        {% set estado_texto = "" %}
+                        {% set estado_class = "" %}
+                        
+                        {% if producto.stock <= producto.stock_minimo %}
+                            {% set estado_texto = "CRÍTICO" %}
+                            {% set estado_class = "estado-critico" %}
+                        {% elif producto.stock <= producto.stock_minimo + 5 %}
+                            {% set estado_texto = "CRÍTICO" %}
+                            {% set estado_class = "estado-critico" %}
+                        {% elif producto.stock <= producto.stock_minimo + 10 %}
+                            {% set estado_texto = "ALERTA" %}
+                            {% set estado_class = "estado-alerta" %}
+                        {% else %}
+                            {% set estado_texto = "ACEPTABLE" %}
+                            {% set estado_class = "estado-aceptable" %}
+                        {% endif %}
+                        
+                        <tr data-id="{{ producto.Id }}" data-nombre="{{ producto.nombre_producto }}" data-stock="{{ producto.stock }}" data-stock-min="{{ producto.stock_minimo }}" data-stock-max="{{ producto.stock_maximo }}">
                             <td>{{ producto.nombre_producto }}</td>
-                            <td class="stockProducto {% if producto.stock <= producto.stock_minimo %}texto-critico{% elif producto.stock <= producto.stock_minimo + 5 %}texto-critico{% elif producto.stock <= producto.stock_minimo + 10 %}texto-alerta{% endif %}">{{ producto.stock }}</td>
+                            <td class="stockProducto">{{ producto.stock }}</td>
                             <td class="stockMinProducto">{{ producto.stock_minimo }}</td>
                             <td class="stockMaxProducto">{{ producto.stock_maximo }}</td>
+                            <td><span class="estado-inventario {{ estado_class }}">{{ estado_texto }}</span></td>
                             <td>
                                 <button class="btnEditarInventario" onclick="editarInventario(this)">✏️</button>
                             </td>
@@ -45,7 +63,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="5" class="text-center">No hay productos que requieran inventario</td>
+                            <td colspan="6" class="text-center">No hay productos que requieran inventario</td>
                         </tr>
                     {% endif %}
                 </tbody>
