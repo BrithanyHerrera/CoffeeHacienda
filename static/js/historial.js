@@ -1,65 +1,90 @@
+document.addEventListener("DOMContentLoaded", function() {
+    cargarHistorialVentas();
+
+    document.getElementById("buscarCliente").addEventListener("input", buscarVentas);
+    document.getElementById("fechaInicio").addEventListener("change", buscarVentas);
+    document.getElementById("fechaFin").addEventListener("change", buscarVentas);
+});
+
+function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "") {
+    let url = `/api/historial-ventas?cliente=${filtroCliente}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let tablaHistorial = document.getElementById("tablaHistorialVentas");
+                tablaHistorial.innerHTML = "";
+
+                data.ventas.forEach(venta => {
+                    let fila = `
+                        <tr>
+                            <td>${venta.vendedor}</td>
+                            <td>${venta.cliente}</td>
+                            <td>${venta.fecha_venta}</td>
+                            <td>$${venta.total}</td>
+                            <td>
+                                <button class="btnVerVenta" onclick="verDetallesVenta(${venta.id})">👁️</button>
+                            </td>
+                        </tr>`;
+                    tablaHistorial.innerHTML += fila;
+                });
+            } else {
+                alert("Error al cargar ventas: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error al obtener historial de ventas:", error));
+}
+
+function buscarVentas() {
+    let cliente = document.getElementById("buscarCliente").value;
+    let fechaInicio = document.getElementById("fechaInicio").value;
+    let fechaFin = document.getElementById("fechaFin").value;
+
+    cargarHistorialVentas(cliente, fechaInicio, fechaFin);
+}
+
+function reestablecerFiltros() {
+    document.getElementById("buscarCliente").value = "";
+    document.getElementById("fechaInicio").value = "";
+    document.getElementById("fechaFin").value = "";
+    cargarHistorialVentas();
+}
+
 function verDetallesVenta(id) {
-    let modal = document.getElementById('ventaModal');
-    modal.style.display = 'flex';
+    fetch(`/api/historial-ventas/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let venta = data.detalles[0]; // Tomamos la primera fila para obtener la info general
 
-    document.getElementById('idVenta').textContent = id;
-    document.getElementById('nombreClienteVenta').textContent = 'Juan Pérez';  // Ejemplo
-    document.getElementById('fechaVenta').textContent = '2025-03-02';  // Ejemplo
-    document.getElementById('totalVenta').textContent = '19.92';  // Ejemplo
+                document.getElementById("idVenta").innerText = venta.id;
+                document.getElementById("nombreClienteVenta").innerText = venta.cliente;
+                document.getElementById("fechaVenta").innerText = venta.fecha_venta;
+                document.getElementById("totalVenta").innerText = venta.total;
 
-    let tablaProductosVenta = document.getElementById('tablaProductosVenta').getElementsByTagName('tbody')[0];
-    tablaProductosVenta.innerHTML = '';  // Limpiar tabla
+                let tablaProductos = document.getElementById("tablaProductosVenta").querySelector("tbody");
+                tablaProductos.innerHTML = "";
 
-    // Ejemplo
-    let productos = [
-        { producto: 'Cappuccino', precio: 4.98, cantidad: 2, total: 9.96 },
-        { producto: 'Latte', precio: 5.50, cantidad: 1, total: 5.50 }
-    ];
+                data.detalles.forEach(producto => {
+                    let fila = `
+                        <tr>
+                            <td>${producto.nombre_producto}</td>
+                            <td>$${producto.precio_unitario}</td>
+                            <td>${producto.cantidad}</td>
+                            <td>$${(producto.precio_unitario * producto.cantidad).toFixed(2)}</td>
+                        </tr>`;
+                    tablaProductos.innerHTML += fila;
+                });
 
-    productos.forEach((producto) => {
-        let row = tablaProductosVenta.insertRow();
-        row.innerHTML = `<td>${producto.producto}</td><td>$${producto.precio}</td><td>${producto.cantidad}</td><td>$${producto.total}</td>`;
-    });
+                document.getElementById("ventaModal").style.display = "block";
+            } else {
+                alert("No se encontraron detalles de la venta.");
+            }
+        })
+        .catch(error => console.error("Error al obtener detalles de la venta:", error));
 }
 
 function cerrarDetallesVenta() {
-    let modal = document.getElementById('ventaModal');
-    modal.style.display = 'none';
-}
-// Función para filtrar ventas automáticamente
-function buscarVentas() {
-    const cliente = document.getElementById('buscarCliente').value.toLowerCase();
-    const fechaInicio = document.getElementById('fechaInicio').value;
-    const fechaFin = document.getElementById('fechaFin').value;
-
-    // Filtra las filas en la tabla
-    const filas = document.querySelectorAll('#tablaHistorialVentas tr');
-    filas.forEach(fila => {
-        const clienteNombre = fila.querySelector('td:nth-child(1)').textContent.toLowerCase();
-        const fechaVenta = fila.querySelector('td:nth-child(2)').textContent;
-
-        // Comprueba si coincide con el cliente y las fechas
-        const coincideCliente = cliente === '' || clienteNombre.includes(cliente);
-        const coincideFechaInicio = fechaInicio === '' || new Date(fechaVenta) >= new Date(fechaInicio);
-        const coincideFechaFin = fechaFin === '' || new Date(fechaVenta) <= new Date(fechaFin);
-
-        if (coincideCliente && coincideFechaInicio && coincideFechaFin) {
-            fila.style.display = ''; // Muestra la fila
-        } else {
-            fila.style.display = 'none'; // Oculta la fila
-        }
-    });
-}
-
-// Función para reestablecer los filtros y mostrar todos los registros
-function reestablecerFiltros() {
-    document.getElementById('buscarCliente').value = '';
-    document.getElementById('fechaInicio').value = '';
-    document.getElementById('fechaFin').value = '';
-
-    // Muestra todas las filas nuevamente
-    const filas = document.querySelectorAll('#tablaHistorialVentas tr');
-    filas.forEach(fila => {
-        fila.style.display = ''; // Muestra todas las filas
-    });
+    document.getElementById("ventaModal").style.display = "none";
 }

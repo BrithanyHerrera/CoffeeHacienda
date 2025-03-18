@@ -17,6 +17,8 @@ import os
 import time
 # Importar las funciones del modelo de inventario
 from models.modelsInventario import obtener_productos_inventario, actualizar_stock_producto
+from models.modelsHistorial import obtener_historial_ventas, obtener_detalle_venta
+
 
 app = Flask(__name__)
 
@@ -514,6 +516,36 @@ def get_categoria(id):
             'success': False,
             'message': f'Error: {str(e)}'
         })
+
+@app.route('/historial-ventas')
+@login_required
+def historial_ventas():
+    return render_template('historial.html')
+
+@app.route('/api/historial-ventas', methods=['GET'])
+@login_required
+def api_historial_ventas():
+    filtro_cliente = request.args.get('cliente', None)
+    fecha_inicio = request.args.get('fechaInicio', None)
+    fecha_fin = request.args.get('fechaFin', None)
+
+    try:
+        ventas = obtener_historial_ventas(filtro_cliente, fecha_inicio, fecha_fin)
+        return jsonify({'success': True, 'ventas': ventas})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/historial-ventas/<int:id>', methods=['GET'])
+@login_required
+def api_detalle_venta(id):
+    try:
+        detalles = obtener_detalle_venta(id)
+        if detalles:
+            return jsonify({'success': True, 'detalles': detalles})
+        else:
+            return jsonify({'success': False, 'message': 'Venta no encontrada'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 if __name__ == '__main__':
     app.run(debug=True)

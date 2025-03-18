@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 18-03-2025 a las 02:36:05
+-- Tiempo de generación: 18-03-2025 a las 06:17:14
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -55,14 +55,15 @@ INSERT INTO `tcategorias` (`Id`, `categoria`, `creado_en`, `actualizado_en`, `re
 
 CREATE TABLE `tclientes` (
   `Id` int(11) NOT NULL,
-  `nombre` varchar(255) NOT NULL,
-  `apellidoP` varchar(255) NOT NULL,
-  `apellidoM` varchar(20) NOT NULL,
-  `correo` varchar(255) NOT NULL,
-  `telefono` varchar(20) NOT NULL,
-  `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
-  `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `nombre` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tclientes`
+--
+
+INSERT INTO `tclientes` (`Id`, `nombre`) VALUES
+(1, 'BRITHANY');
 
 -- --------------------------------------------------------
 
@@ -94,10 +95,15 @@ CREATE TABLE `tdetalleventas` (
   `producto_id` int(11) DEFAULT NULL,
   `cantidad` int(11) NOT NULL,
   `precio` decimal(10,2) NOT NULL,
-  `descuento` decimal(10,2) DEFAULT '0.00',
-  `impuesto` decimal(10,2) DEFAULT '0.00',
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tdetalleventas`
+--
+
+INSERT INTO `tdetalleventas` (`Id`, `venta_id`, `producto_id`, `cantidad`, `precio`, `creado_en`) VALUES
+(1, 1, 10, 50, '500.00', '2025-03-18 15:30:00');
 
 -- --------------------------------------------------------
 
@@ -233,7 +239,7 @@ CREATE TABLE `tproductos` (
 --
 
 INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
-(8, 'Caffe Verde', 'qasdffg', '8.00', 6, 4, 4, 4, '/static/images/productos/20250316001812.png', '2025-03-16 00:18:12', '2025-03-17 20:25:58'),
+(8, 'Caffe Verde', 'qasdffg', '8.00', 13, 4, 4, 4, '/static/images/productos/20250316001812.png', '2025-03-16 00:18:12', '2025-03-17 22:43:00'),
 (9, 'Caffe Verde123', 'lhk', '6.00', 0, 0, 0, 2, '/static/images/productos/20250316001855.png', '2025-03-16 00:18:55', '2025-03-16 00:18:55'),
 (10, 'Pastel', 'No se we', '25.00', 5, 3, 3, 4, '/static/images/productos/20250317140657.png', '2025-03-17 14:06:57', '2025-03-17 20:23:26');
 
@@ -377,16 +383,20 @@ CREATE TABLE `tventas` (
   `Id` int(11) NOT NULL,
   `cliente_id` int(11) DEFAULT NULL,
   `total` decimal(10,2) NOT NULL,
-  `transaccion_id` varchar(255) DEFAULT NULL,
   `fecha_hora` datetime DEFAULT CURRENT_TIMESTAMP,
   `vendedor_id` int(11) DEFAULT NULL,
   `metodo_pago_id` int(11) DEFAULT NULL,
   `estado_id` int(11) DEFAULT NULL,
   `numero_mesa` varchar(50) DEFAULT NULL,
-  `descuento_total` decimal(10,2) DEFAULT '0.00',
-  `impuesto_total` decimal(10,2) DEFAULT '0.00',
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tventas`
+--
+
+INSERT INTO `tventas` (`Id`, `cliente_id`, `total`, `fecha_hora`, `vendedor_id`, `metodo_pago_id`, `estado_id`, `numero_mesa`, `creado_en`) VALUES
+(1, 1, '500.00', '2025-03-18 15:30:00', 6, 1, 1, '1', '2025-03-18 15:30:00');
 
 --
 -- Índices para tablas volcadas
@@ -402,9 +412,7 @@ ALTER TABLE `tcategorias`
 -- Indices de la tabla `tclientes`
 --
 ALTER TABLE `tclientes`
-  ADD PRIMARY KEY (`Id`),
-  ADD UNIQUE KEY `telefono_UNIQUE` (`telefono`),
-  ADD UNIQUE KEY `correo_UNIQUE` (`correo`);
+  ADD PRIMARY KEY (`Id`);
 
 --
 -- Indices de la tabla `tcortescaja`
@@ -519,7 +527,6 @@ ALTER TABLE `tusuarios`
 --
 ALTER TABLE `tventas`
   ADD PRIMARY KEY (`Id`),
-  ADD UNIQUE KEY `transaccion_id` (`transaccion_id`),
   ADD KEY `cliente_id` (`cliente_id`),
   ADD KEY `vendedor_id` (`vendedor_id`),
   ADD KEY `metodo_pago_id` (`metodo_pago_id`),
@@ -539,7 +546,7 @@ ALTER TABLE `tcategorias`
 -- AUTO_INCREMENT de la tabla `tclientes`
 --
 ALTER TABLE `tclientes`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `tcortescaja`
@@ -587,7 +594,7 @@ ALTER TABLE `tusuarios`
 -- AUTO_INCREMENT de la tabla `tventas`
 --
 ALTER TABLE `tventas`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas
@@ -611,24 +618,24 @@ ALTER TABLE `tdetalleventas`
 --
 ALTER TABLE `tdevoluciones`
   ADD CONSTRAINT `tdevoluciones_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`),
-  ADD CONSTRAINT `tdevoluciones_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`id`),
-  ADD CONSTRAINT `tdevoluciones_ibfk_3` FOREIGN KEY (`tipo_devolucion_id`) REFERENCES `ttiposdevolucion` (`id`),
-  ADD CONSTRAINT `tdevoluciones_ibfk_4` FOREIGN KEY (`estado_devolucion_id`) REFERENCES `testadosdevolucion` (`id`);
+  ADD CONSTRAINT `tdevoluciones_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`),
+  ADD CONSTRAINT `tdevoluciones_ibfk_3` FOREIGN KEY (`tipo_devolucion_id`) REFERENCES `ttiposdevolucion` (`Id`),
+  ADD CONSTRAINT `tdevoluciones_ibfk_4` FOREIGN KEY (`estado_devolucion_id`) REFERENCES `testadosdevolucion` (`Id`);
 
 --
 -- Filtros para la tabla `tmovimientosinventario`
 --
 ALTER TABLE `tmovimientosinventario`
-  ADD CONSTRAINT `tmovimientosinventario_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`id`),
-  ADD CONSTRAINT `tmovimientosinventario_ibfk_2` FOREIGN KEY (`tipo_movimiento_id`) REFERENCES `ttiposmovimiento` (`id`);
+  ADD CONSTRAINT `tmovimientosinventario_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`),
+  ADD CONSTRAINT `tmovimientosinventario_ibfk_2` FOREIGN KEY (`tipo_movimiento_id`) REFERENCES `ttiposmovimiento` (`Id`);
 
 --
 -- Filtros para la tabla `tpagos`
 --
 ALTER TABLE `tpagos`
   ADD CONSTRAINT `tpagos_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`),
-  ADD CONSTRAINT `tpagos_ibfk_2` FOREIGN KEY (`metodo_pago_id`) REFERENCES `tmetodospago` (`id`),
-  ADD CONSTRAINT `tpagos_ibfk_3` FOREIGN KEY (`estado_pago_id`) REFERENCES `testadosdevolucion` (`id`);
+  ADD CONSTRAINT `tpagos_ibfk_2` FOREIGN KEY (`metodo_pago_id`) REFERENCES `tmetodospago` (`Id`),
+  ADD CONSTRAINT `tpagos_ibfk_3` FOREIGN KEY (`estado_pago_id`) REFERENCES `testadosdevolucion` (`Id`);
 
 --
 -- Filtros para la tabla `tproductos`
@@ -655,7 +662,7 @@ ALTER TABLE `tusuarios`
 ALTER TABLE `tventas`
   ADD CONSTRAINT `tventas_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `tclientes` (`Id`),
   ADD CONSTRAINT `tventas_ibfk_2` FOREIGN KEY (`vendedor_id`) REFERENCES `tusuarios` (`Id`),
-  ADD CONSTRAINT `tventas_ibfk_3` FOREIGN KEY (`metodo_pago_id`) REFERENCES `tmetodospago` (`id`),
+  ADD CONSTRAINT `tventas_ibfk_3` FOREIGN KEY (`metodo_pago_id`) REFERENCES `tmetodospago` (`Id`),
   ADD CONSTRAINT `tventas_ibfk_4` FOREIGN KEY (`estado_id`) REFERENCES `testadosventa` (`Id`);
 COMMIT;
 
