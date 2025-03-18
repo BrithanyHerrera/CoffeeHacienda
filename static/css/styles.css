@@ -31,6 +31,14 @@ h3 {
     font-size: 18px;
 }
 
+input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #dbdbdb;
+    border-radius: 5px;
+}
+
 .contenedorTitulo {
     display: flex;
     width: 1200px; 
@@ -106,14 +114,6 @@ h3 {
     color: black;
     text-decoration: none;
     cursor: pointer;
-}
-
-input {
-    width: 90%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background: #dbdbdb;
-    border-radius: 5px;
 }
 
 /* Sidebar */
@@ -194,7 +194,7 @@ input {
 .search-container {
     margin-top: 10px;
     display: flex;
-    width: 1050px;
+    width: 865px;
     padding: 10px;
     background-color: white;
     border-radius: 20px;
@@ -207,7 +207,7 @@ input {
     border: none;
     outline: none;
     padding: 10px 15px;
-    background-color: #f7d1ac; /* Color de fondo interno */
+    background-color: #dbdbdb; /* Color de fondo interno */
     border-radius: 20px;
     font-size: 16px;
     color: black; 
@@ -216,12 +216,26 @@ input {
 }
 
 .search-container input::placeholder {
-    color: #b38b6d; /* Color del placeholder */
+    color: #808080; /* Color del placeholder */
+}
+
+/* Personalizar el scrollbar (opcional) */
+.carritoItems::-webkit-scrollbar {
+    width: 8px;
+}
+
+.carritoItems::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color de la barra */
+    border-radius: 4px;
+}
+
+.carritoItems::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
 }
 
 .menu {
-    width: 100%;
-    max-width: 1100px; 
+    width: 865px;
+    max-width: 865px;
     flex-direction: column;
     align-items: flex-start; 
 }
@@ -288,6 +302,7 @@ input {
     top: 100px;
     left: 300px;
     align-items: center;
+    justify-content: center;
     padding: 0.5px 48px;
     border-radius: 10px;
     display: flex;
@@ -319,8 +334,9 @@ input {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    justify-content: flex-start;
+    justify-content: center;
     overflow-y: auto;
+    width: 865px;
 }
 
 .producto {
@@ -371,7 +387,7 @@ input {
     top: 100px;
     right: 15px;
     width: 260px;
-    height: 600px;
+    height: 530px;
     background: white;
     padding: 20px;
     box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);

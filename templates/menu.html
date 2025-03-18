@@ -12,19 +12,18 @@
             </div>
         </header>
         
-        
         <div class="contenedorUsuario">
             <span>{{ nombre_usuario }}</span>
         </div>
 
         <section class="menu">
             <div class="categoriasBebidas">
-                <button>Bebidas Calientes</button>
-                <button>Bebidas Frías</button>
-                <button>Snacks</button>
-                <button>Postres</button>
-                <button>Todos</button>
-                <button>Otras Bebidas</button>
+                <button onclick="filtrarProductos('bebidas calientes')">Bebidas Calientes</button>
+                <button onclick="filtrarProductos('bebidas frías')">Bebidas Frías</button>
+                <button onclick="filtrarProductos('snacks')">Snacks</button>
+                <button onclick="filtrarProductos('postres')">Postres</button>
+                <button onclick="filtrarProductos('todos')">Todos</button>
+                <button onclick="filtrarProductos('otras bebidas')">Otras Bebidas</button>
             </div>
 
             <div class="menuProductos">
@@ -37,11 +36,15 @@
                         {% endif %}
                         <h3>{{ producto.nombre_producto }}</h3>
                         <p>{{ producto.descripcion }}</p>
+                        
                         <div class="tamaños">
                             {% for variante in producto.variantes %}
-                                <button class="tamaño" onclick="seleccionarTamaño(this)" preciosDatos="{{ variante.precio }}">{{ variante.tamano }} - ${{ variante.precio }}</button>
+                                <p class="tamaño" preciosDatos="{{ variante.precio }}">
+                                    {{ variante.tamano }} - ${{ variante.precio }}
+                                </p>
                             {% endfor %}
                         </div>
+
                         <button class="añadirCarrito">Añadir a la orden</button>
                     </div>
                 {% endfor %}

@@ -1,182 +1,135 @@
-{% extends "sidebar.html" %}
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const productos = document.querySelectorAll('.producto');
 
-{% block title %}Gestión Productos{% endblock %}
+    productos.forEach(producto => {
+        const nombreProducto = producto.querySelector('h3').textContent.toLowerCase();
+        producto.style.display = nombreProducto.includes(searchTerm) ? '' : 'none';
+    });
+});
 
-{% block content %}
-<main class="contenidoGeneral">
-    <!-- Asegúrate de que el botón de agregar producto tenga la clase correcta -->
-    <div class="contenedorTitulo">
-        <h1>Gestión de Productos</h1>
-        <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
-    </div>
+// Función para filtrar productos por categoría
+function filtrarProductos(categoria) {
+    const productos = document.querySelectorAll('.producto');
+
+    productos.forEach(producto => {
+        const productoCategoria = producto.getAttribute('categoriasDatos').toLowerCase();
+        producto.style.display = (productoCategoria === categoria || categoria === 'todos') ? '' : 'none';
+    });
+}
+
+// Inicializar el carrito
+let carrito = [];
+
+// Función para agregar un producto al carrito
+function agregarAlCarrito(nombre, precio, imagen, tamaño) {
+    const productoExistente = carrito.find(item => item.nombre === nombre && item.tamaño === tamaño);
     
-    <div class="contenedorGestionProductos">
-        <section class="listaProductos">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Tamaño</th>
-                        <th>Precio</th>
-                        <th>Stock</th>
-                        <th>Categoría</th>
-                        <th>Imagen</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="productosLista">
-                    {% for producto in productos %}
-                    <tr>
-                        <td>{{ producto.nombre_producto }}</td>
-                        <td class="tamano-producto" data-producto-id="{{ producto.Id }}">
-                            <span class="cargando">Cargando...</span>
-                        </td>
-                        <td>${{ producto.precio }}</td>
-                        <td>{{ producto.stock }}</td>
-                        <td>{{ producto.categoria }}</td>
-                        <td>
-                            {% if producto.ruta_imagen %}
-                            <img src="{{ producto.ruta_imagen }}" alt="{{ producto.nombre_producto }}" class="imagenProducto">
-                            {% else %}
-                            <img src="/static/images/default-product.jpg" alt="Sin imagen" class="imagenProducto">
-                            {% endif %}
-                        </td>
-                        <td>
-                            <button class="btnVerProducto" onclick="abrirVerProducto(
-                                {{ producto.Id }}, 
-                                '{{ producto.nombre_producto }}', 
-                                '{{ producto.descripcion|default('', true) }}', 
-                                {{ producto.precio }}, 
-                                {{ producto.stock }}, 
-                                {{ producto.stock_minimo }}, 
-                                {{ producto.stock_maximo }}, 
-                                '{{ producto.categoria }}', 
-                                '{{ producto.ruta_imagen|default('', true) }}'
-                            )">👁️</button>
-                            <button class="btnEditarProducto" onclick="abrirEAModal(
-                                {{ producto.Id }}, 
-                                '{{ producto.nombre_producto }}', 
-                                '{{ producto.descripcion|default('', true) }}', 
-                                {{ producto.precio }}, 
-                                {{ producto.stock }}, 
-                                {{ producto.stock_minimo }}, 
-                                {{ producto.stock_maximo }}, 
-                                {{ producto.categoria_id }}, 
-                                '{{ producto.ruta_imagen|default('', true) }}'
-                            )">✏️</button>
-                            <button class="btnEliminarProducto" onclick="eliminarProducto({{ producto.Id }})">🗑️</button>                            
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Modal de Agregar/Editar Producto -->
-        <section class="modal" id="productoModal">
-            <section class="contenedorModal">
-                <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
-                <h3 class="tituloModal" id="tituloModal">Agregar Producto</h3>
-                <form id="formProducto" enctype="multipart/form-data" onsubmit="guardarProducto(event)">
-                    <input type="hidden" id="idProducto" name="id">
-                    
-                    <div class="form-group">
-                        <label for="nombreProducto">Nombre:</label>
-                        <input type="text" id="nombreProducto" name="nombre" required>
-                    </div>
-        
-                    <div class="form-group">
-                        <label for="descripcionProducto">Descripción:</label>
-                        <textarea id="descripcionProducto" name="descripcion" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label for="precioProducto">Precio Base:</label>
-                            <input type="number" id="precioProducto" name="precio" step="0.01" required>
-                        </div>
-                        
-                        <div class="form-group half">
-                            <label for="stockProducto">Stock:</label>
-                            <input type="number" id="stockProducto" name="stock" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label for="stockMinProducto">Stock Mínimo:</label>
-                            <input type="number" id="stockMinProducto" name="stockMin" value="10">
-                        </div>
-                        
-                        <div class="form-group half">
-                            <label for="stockMaxProducto">Stock Máximo:</label>
-                            <input type="number" id="stockMaxProducto" name="stockMax" value="100">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="categoriaProducto">Categoría:</label>
-                        <select id="categoriaProducto" name="categoria" required>
-                            <option value="">Seleccione una categoría</option>
-                            {% for categoria in categorias %}
-                            <option value="{{ categoria.Id }}">{{ categoria.categoria }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <!-- Reemplazar la sección de precios por tamaño con un selector de tamaño -->
-                    <div class="form-group">
-                        <label for="tamanoProducto">Tamaño:</label>
-                        <select id="tamanoProducto" name="tamano" required>
-                            <option value="">Seleccione un tamaño</option>
-                            {% for tamano in tamanos %}
-                            <option value="{{ tamano.Id }}">{{ tamano.tamano }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="imagenProducto">Imagen:</label>
-                        <input type="file" id="imagenProducto" name="imagen" accept="image/*" onchange="mostrarImagenPreview(event)">
-                        <div class="imagen-container">
-                            <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
-                            <img id="imagenPreview" class="imagenProducto" src="" alt="Vista previa" style="display: none; max-width: 200px; margin-top: 10px;">
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="cancelarBtn" onclick="cerrarEAModal()">Cancelar</button>
-                        <button class="guardarBtn" type="submit">Guardar</button>
-                    </div>
-                </form>
-            </section>
-        </section>
-        
-        <!-- Modal de Ver Producto -->
-        <section class="modal" id="verModalProducto">
-            <section class="contenedorModal">
-                <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
-                <h3 id="verTituloModal">Ver Producto</h3>
-
-                <!-- En el modal de Ver Producto -->
-                <section id="verDetallesProducto">
-                    <p><strong>ID:</strong> <span id="verIDProducto"></span></p>
-                    <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
-                    <p><strong>Descripción:</strong> <span id="verDescripcionProducto"></span></p>
-                    <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
-                    <p><strong>Stock:</strong> <span id="verStockProducto"></span></p>
-                    <p><strong>Stock Mínimo:</strong> <span id="verStockMinProducto"></span></p>
-                    <p><strong>Stock Máximo:</strong> <span id="verStockMaxProducto"></span></p>
-                    <p><strong>Categoría:</strong> <span id="verCategoriaProducto"></span></p>
-                    <p><strong>Tamaño:</strong> <span id="verTamanoProducto"></span></p>
-                    
-                    <p><strong>Imagen:</strong></p>
-                    <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto" style="max-width: 300px;">
-                </section>
-            </section>
-        </section>
-    </div>
+    if (productoExistente) {
+        productoExistente.cantidad++;
+    } else {
+        carrito.push({ nombre, precio, cantidad: 1, imagen, tamaño });
+    }
     
-    <script src="{{ url_for('static', filename='js/gestionProductos.js') }}"></script>
-</main>
-{% endblock %}
+    actualizarCarrito();
+}
+
+// Agregar eventos a los botones "Añadir a la orden"
+document.querySelectorAll('.añadirCarrito').forEach(button => {
+    button.addEventListener('click', function() {
+        const producto = this.parentElement;
+        const nombre = producto.querySelector('h3').textContent;
+        const imagen = producto.querySelector('img').src;
+        const tamañoTexto = producto.querySelector('.tamaños p').textContent;
+
+        const [tamaño, precioTexto] = tamañoTexto.split(' - $');
+        const precio = parseFloat(precioTexto);
+
+        agregarAlCarrito(nombre, precio, imagen, tamaño);
+    });
+});
+
+// Función para actualizar el carrito en la interfaz
+function actualizarCarrito() {
+    const carritoItems = document.querySelector('.carritoItems');
+    carritoItems.innerHTML = '';
+
+    let total = 0;
+    carrito.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('carritoItem');
+        itemDiv.innerHTML = `
+            <img src="${item.imagen}" alt="${item.nombre}">
+            <div>
+                <h4>${item.nombre} (${item.tamaño})</h4>
+                <p>${item.cantidad} - $${item.precio * item.cantidad}</p>
+            </div>
+            <button class="eliminarItemCarrito" onclick="eliminarDelCarrito('${item.nombre}', '${item.tamaño}')">X</button>
+        `;
+        carritoItems.appendChild(itemDiv);
+        total += item.precio * item.cantidad;
+    });
+
+    document.getElementById('total').textContent = `$${total}`;
+}
+
+// Función para eliminar un producto del carrito
+function eliminarDelCarrito(nombre, tamaño) {
+    carrito = carrito.filter(item => item.nombre !== nombre || item.tamaño !== tamaño);
+    actualizarCarrito();
+}
+
+// Función para realizar el pedido
+function realizarPedido() {
+    const nombreCliente = document.getElementById('nombreCliente').value.trim();
+
+    if (nombreCliente === '') {
+        alert('Por favor, ingrese su nombre.');
+        return;
+    }
+
+    alert(`Pedido realizado por: ${nombreCliente}\nTotal: ${document.getElementById('total').textContent}`);
+    
+    carrito = [];
+    actualizarCarrito();
+    document.getElementById('nombreCliente').value = '';
+}
+
+// Función para eliminar un producto del carrito
+function eliminarDelCarrito(nombre, tamaño) {
+    carrito = carrito.filter(item => item.nombre !== nombre || item.tamaño !== tamaño);
+    actualizarCarrito();
+}
+
+
+function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Obtener la fecha y hora actual
+    const fechaHora = new Date().toLocaleString();
+    const nombreCliente = document.getElementById('nombreCliente').value.trim();
+    const direccionSucursal = "Calle Ejemplo 123, Ciudad"; // Dirección de la sucursal
+
+    // Agregar contenido al PDF
+    doc.text(`Recibo`, 10, 10);
+    doc.text(`Fecha y Hora: ${fechaHora}`, 10, 20);
+    doc.text(`Nombre del Vendedor: Administrador`, 10, 30);
+    doc.text(`Dirección de la Sucursal: ${direccionSucursal}`, 10, 40);
+    doc.text(`Nombre del Cliente: ${nombreCliente}`, 10, 50);
+    doc.text(`Artículos:`, 10, 60);
+
+    // Agregar los artículos al PDF
+    let y = 70; // Posición vertical inicial para los artículos
+    carrito.forEach(item => {
+        doc.text(`${item.nombre} (${item.tamaño}) - $${item.precio} x ${item.cantidad}`, 10, y);
+        y += 10; // Incrementar la posición vertical
+    });
+
+    // Calcular y agregar el total
+    const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    doc.text(`Total: $${total}`, 10, y);
+
+    // Guardar el PDF
+    doc.save('recibo.pdf');
+}

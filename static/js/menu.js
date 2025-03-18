@@ -1,67 +1,60 @@
 document.getElementById('searchInput').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase(); // Obtener el término de búsqueda en minúsculas
-    const productos = document.querySelectorAll('.producto'); // Seleccionar todos los productos
+    const searchTerm = this.value.toLowerCase();
+    const productos = document.querySelectorAll('.producto');
 
     productos.forEach(producto => {
-        const nombreProducto = producto.querySelector('h3').textContent.toLowerCase(); // Obtener el nombre del producto
-        if (nombreProducto.includes(searchTerm)) {
-            producto.style.display = ''; // Mostrar el producto si coincide
-        } else {
-            producto.style.display = 'none'; // Ocultar el producto si no coincide
-        }
+        const nombreProducto = producto.querySelector('h3').textContent.toLowerCase();
+        producto.style.display = nombreProducto.includes(searchTerm) ? '' : 'none';
     });
 });
 
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria) {
-    const productos = document.querySelectorAll('.producto'); // Seleccionar todos los productos
+    const productos = document.querySelectorAll('.producto');
 
     productos.forEach(producto => {
-        const productoCategoria = producto.getAttribute('categoriasDatos').toLowerCase(); // Obtener la categoría del producto
-        if (productoCategoria === categoria || categoria === 'todos') {
-            producto.style.display = ''; // Mostrar el producto si coincide
-        } else {
-            producto.style.display = 'none'; // Ocultar el producto si no coincide
-        }
+        const productoCategoria = producto.getAttribute('categoriasDatos').toLowerCase();
+        producto.style.display = (productoCategoria === categoria || categoria === 'todos') ? '' : 'none';
     });
 }
-
-// Agregar eventos a los botones de categoría
-document.querySelectorAll('.categoriasBebidas button').forEach(button => {
-    button.addEventListener('click', function() {
-        const categoria = this.textContent.toLowerCase().replace('', ''); // Obtener la categoría del botón
-        filtrarProductos(categoria); // Filtrar productos
-    });
-});
-
-// Filtrar todos los productos al cargar la página
-window.onload = function() {
-    filtrarProductos('todos'); // Mostrar todos los productos al cargar
-};
 
 // Inicializar el carrito
 let carrito = [];
 
 // Función para agregar un producto al carrito
 function agregarAlCarrito(nombre, precio, imagen, tamaño) {
-    // Verificar si el producto ya está en el carrito
     const productoExistente = carrito.find(item => item.nombre === nombre && item.tamaño === tamaño);
+    
     if (productoExistente) {
-        // Si ya existe, aumentar la cantidad
         productoExistente.cantidad++;
     } else {
-        // Si no existe, agregarlo al carrito
         carrito.push({ nombre, precio, cantidad: 1, imagen, tamaño });
     }
+    
     actualizarCarrito();
 }
+
+// Agregar eventos a los botones "Añadir a la orden"
+document.querySelectorAll('.añadirCarrito').forEach(button => {
+    button.addEventListener('click', function() {
+        const producto = this.parentElement;
+        const nombre = producto.querySelector('h3').textContent;
+        const imagen = producto.querySelector('img').src;
+        const tamañoTexto = producto.querySelector('.tamaños p').textContent;
+
+        const [tamaño, precioTexto] = tamañoTexto.split(' - $');
+        const precio = parseFloat(precioTexto);
+
+        agregarAlCarrito(nombre, precio, imagen, tamaño);
+    });
+});
 
 // Función para actualizar el carrito en la interfaz
 function actualizarCarrito() {
     const carritoItems = document.querySelector('.carritoItems');
-    carritoItems.innerHTML = ''; // Limpiar el carrito
+    carritoItems.innerHTML = '';
 
-    let total = 0; // Inicializar el total
+    let total = 0;
     carrito.forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('carritoItem');
@@ -71,23 +64,13 @@ function actualizarCarrito() {
                 <h4>${item.nombre} (${item.tamaño})</h4>
                 <p>${item.cantidad} - $${item.precio * item.cantidad}</p>
             </div>
-            <input type="number" value="${item.cantidad}" min="1" onchange="actualizarCantidad('${item.nombre}', this.value, '${item.tamaño}')">
             <button class="eliminarItemCarrito" onclick="eliminarDelCarrito('${item.nombre}', '${item.tamaño}')">X</button>
         `;
         carritoItems.appendChild(itemDiv);
-        total += item.precio * item.cantidad; // Sumar al total
+        total += item.precio * item.cantidad;
     });
 
-    document.getElementById('total').textContent = `$${total}`; // Actualizar el total
-}
-
-// Función para actualizar la cantidad de un producto en el carrito
-function actualizarCantidad(nombre, cantidad, tamaño) {
-    const producto = carrito.find(item => item.nombre === nombre && item.tamaño === tamaño);
-    if (producto) {
-        producto.cantidad = parseInt(cantidad);
-        actualizarCarrito();
-    }
+    document.getElementById('total').textContent = `$${total}`;
 }
 
 // Función para eliminar un producto del carrito
@@ -96,45 +79,82 @@ function eliminarDelCarrito(nombre, tamaño) {
     actualizarCarrito();
 }
 
-// Agregar eventos a los botones "Añadir a la orden"
-document.querySelectorAll('.añadirCarrito').forEach(button => {
-    button.addEventListener('click', function() {
-        const producto = this.parentElement; // Obtener el producto
-        const nombre = producto.querySelector('h3').textContent; // Obtener el nombre del producto
-        const imagen = producto.querySelector('img').src; // Obtener la imagen del producto
-        const tamañoButton = Array.from(producto.querySelectorAll('.tamaño')).find(btn => btn.classList.contains('selected'));
-        const precio = parseFloat(tamañoButton.getAttribute('preciosDatos')); // Obtener el precio del tamaño seleccionado
-        const tamaño = tamañoButton.textContent.split(' - ')[0]; // Obtener el tamaño seleccionado
-        agregarAlCarrito(nombre, precio, imagen, tamaño); // Agregar al carrito
-    });
-});
-
-// Agregar eventos a los botones de tamaño
-document.querySelectorAll('.tamaño').forEach(button => {
-    button.addEventListener('click', function() {
-        // Remover la clase 'selected' de todos los botones
-        document.querySelectorAll('.tamaño').forEach(btn => btn.classList.remove('selected'));
-        // Agregar la clase 'selected' al botón clicado
-        this.classList.add('selected');
-    });
-});
-
+// Función para realizar el pedido
 function realizarPedido() {
-    const nombreCliente = document.getElementById('nombreCliente').value.trim(); // Obtener el nombre del cliente
+    const nombreCliente = document.getElementById('nombreCliente').value.trim();
 
     if (nombreCliente === '') {
-        alert('Por favor, ingrese su nombre.'); // Alerta si el nombre está vacío
-        return; // Salir de la función si el nombre está vacío
+        alert('Por favor, ingrese su nombre.');
+        return;
     }
 
-    // Aquí puedes agregar la lógica para procesar el pedido
     alert(`Pedido realizado por: ${nombreCliente}\nTotal: ${document.getElementById('total').textContent}`);
     
-    // Limpiar el carrito y el nombre del cliente después de realizar el pedido
     carrito = [];
     actualizarCarrito();
-    document.getElementById('nombreCliente').value = ''; // Limpiar el campo de nombre
+    document.getElementById('nombreCliente').value = '';
 }
+
+// Función para eliminar un producto del carrito
+function eliminarDelCarrito(nombre, tamaño) {
+    carrito = carrito.filter(item => !(item.nombre === nombre && item.tamaño === tamaño));
+    actualizarCarrito();
+}
+
+function actualizarCarrito() {
+    const carritoItems = document.querySelector('.carritoItems');
+    carritoItems.innerHTML = '';
+
+    let total = 0;
+    carrito.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('carritoItem');
+
+        itemDiv.innerHTML = `
+            <img src="${item.imagen}" alt="${item.nombre}">
+            <div>
+                <h4>${item.nombre} (${item.tamaño})</h4>
+                <p>Precio: $${item.precio}</p>
+                <p>Total: $<span class="total-item">${item.precio * item.cantidad}</span></p>
+            </div>
+            <input type="number" class="cantidadProducto" data-index="${index}" value="${item.cantidad}" min="1">
+            <button class="eliminarItemCarrito" data-index="${index}">X</button>
+        `;
+
+        carritoItems.appendChild(itemDiv);
+        total += item.precio * item.cantidad;
+    });
+
+    document.getElementById('total').textContent = `$${total}`;
+
+    // Agregar evento a los botones de eliminar
+    document.querySelectorAll('.eliminarItemCarrito').forEach(button => {
+        button.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            carrito.splice(index, 1);
+            actualizarCarrito();
+        });
+    });
+
+    // Agregar evento a los inputs de cantidad
+    document.querySelectorAll('.cantidadProducto').forEach(input => {
+        input.addEventListener('change', function() {
+            const index = this.getAttribute('data-index');
+            let nuevaCantidad = parseInt(this.value);
+
+            // Evitar que la cantidad sea menor a 1
+            if (nuevaCantidad < 1 || isNaN(nuevaCantidad)) {
+                nuevaCantidad = 1;
+                this.value = 1;
+            }
+
+            carrito[index].cantidad = nuevaCantidad;
+            actualizarCarrito();
+        });
+    });
+}
+
+
 
 function generarPDF() {
     const { jsPDF } = window.jspdf;
@@ -166,18 +186,4 @@ function generarPDF() {
 
     // Guardar el PDF
     doc.save('recibo.pdf');
-}
-
-function seleccionarTamaño(boton) {
-    // Get all size buttons within the same product
-    const producto = boton.closest('.producto');
-    const botonesTamaño = producto.querySelectorAll('.tamaño');
-    
-    // Remove selected class from all buttons in this product
-    botonesTamaño.forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    
-    // Add selected class to clicked button
-    boton.classList.add('selected');
 }
