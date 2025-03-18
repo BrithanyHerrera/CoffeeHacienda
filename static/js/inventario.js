@@ -102,23 +102,27 @@ function actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoSt
     fila.querySelector(".stockMinProducto").textContent = nuevoStockMin;
     fila.querySelector(".stockMaxProducto").textContent = nuevoStockMax;
     
-    // Eliminar todas las clases de alerta existentes
-    fila.classList.remove("nivel-critico", "nivel-alerta");
-    stockCell.classList.remove("texto-critico", "texto-alerta");
+    // Obtener la celda de estado
+    const estadoCell = fila.querySelector(".estado-inventario");
+    estadoCell.classList.remove("estado-critico", "estado-alerta", "estado-aceptable");
     
     // Aplicar las clases de alerta según los nuevos valores
     if (nuevoStock <= nuevoStockMin) {
         // Si el stock es igual o menor al mínimo, es crítico
-        fila.classList.add("nivel-critico");
-        stockCell.classList.add("texto-critico");
+        estadoCell.classList.add("estado-critico");
+        estadoCell.textContent = "CRÍTICO";
     } else if (nuevoStock <= nuevoStockMin + 5) {
         // Si el stock está entre mínimo+1 y mínimo+5, es crítico
-        fila.classList.add("nivel-critico");
-        stockCell.classList.add("texto-critico");
+        estadoCell.classList.add("estado-critico");
+        estadoCell.textContent = "CRÍTICO";
     } else if (nuevoStock <= nuevoStockMin + 10) {
         // Si el stock está entre mínimo+6 y mínimo+10, es alerta
-        fila.classList.add("nivel-alerta");
-        stockCell.classList.add("texto-alerta");
+        estadoCell.classList.add("estado-alerta");
+        estadoCell.textContent = "ALERTA";
+    } else {
+        // Si el stock es mayor que mínimo+10, es aceptable
+        estadoCell.classList.add("estado-aceptable");
+        estadoCell.textContent = "ACEPTABLE";
     }
 }
 

@@ -1164,6 +1164,7 @@ form {
     color: red;
     font-weight: bold;
 }
+/* ... existing code ... */
 
 /* INVENTARIO */
 .contenedorInventario {    
@@ -1202,5 +1203,31 @@ form {
 
 .btnEditarInventario {
     background: #FFBF00;
+    color: white;
+}
+
+/* Estilos para la etiqueta de estado */
+.estado-inventario {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+.estado-aceptable {
+    background-color: #28a745;
+    color: white;
+}
+
+.estado-alerta {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.estado-critico {
+    background-color: #dc3545;
     color: white;
 }
