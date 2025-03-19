@@ -40,7 +40,7 @@ def obtener_detalle_venta(id_venta):
 
     query = """
         SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente, 
-               p.nombre_producto, dv.cantidad, dv.precio_unitario
+               p.nombre_producto, dv.cantidad, dv.precio AS precio_unitario
         FROM tventas v
         JOIN tusuarios u ON v.vendedor_id = u.id
         JOIN tclientes c ON v.cliente_id = c.id
