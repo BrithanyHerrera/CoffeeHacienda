@@ -10,15 +10,17 @@
 
     <section class="buscador">
         <section id="formBuscador">
-            <input type="text" id="buscarCliente" placeholder="Buscar por nombre" name="cliente" oninput="buscarVentas()">
-            <label for="fechaInicio">Desde:</label>
-            <input type="date" id="fechaInicio" name="fechaInicio" onchange="buscarVentas()">
-            <label for="fechaFin">Hasta:</label>
-            <input type="date" id="fechaFin" name="fechaFin" onchange="buscarVentas()">
-            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+            <form method="get" action="{{ url_for('historial_ventas') }}">
+                <input type="text" id="buscarCliente" name="cliente" placeholder="Buscar por nombre" value="{{ request.args.get('cliente', '') }}">
+                <label for="fechaInicio">Desde:</label>
+                <input type="date" id="fechaInicio" name="fechaInicio" value="{{ request.args.get('fechaInicio', '') }}">
+                <label for="fechaFin">Hasta:</label>
+                <input type="date" id="fechaFin" name="fechaFin" value="{{ request.args.get('fechaFin', '') }}">
+                <button type="button" class="btnReestablecer" onclick="location.href='{{ url_for('historial_ventas') }}'">🔄 Reestablecer</button>
+            </form>
         </section>
     </section>
-    
+
     <section class="listaVentas">
         <table>
             <thead>
@@ -31,24 +33,17 @@
                 </tr>
             </thead>
             <tbody id="tablaHistorialVentas">
+                {% for venta in ventas %}
                 <tr>
-                    <td>Juan Pérez</td>
-                    <td>2025-03-02</td>
-                    <td>$19.92</td>
+                    <td>{{ venta.vendedor }}</td>
+                    <td>{{ venta.cliente }}</td>
+                    <td>{{ venta.fecha_hora }}</td>
+                    <td>${{ "%.2f"|format(venta.total) }}</td>
                     <td>
-                        <button class="btnVerVenta" onclick="verDetallesVenta(1)">👁️</button>
+                        <button class="btnVerVenta" onclick="verDetallesVenta({{ venta.id }})">👁️</button>
                     </td>
                 </tr>
-
-                <tr>
-                    <td>Eduardo Pérez</td>
-                    <td>2026-03-02</td>
-                    <td>$19.92</td>
-                    <td>
-                        <button class="btnVerVenta" onclick="verDetallesVenta(1)">👁️</button>
-                    </td>
-                </tr>
-                <!-- Agregar más ventas según sea necesario -->
+                {% endfor %}
             </tbody>
         </table>
     </section>
@@ -60,33 +55,7 @@
         <span class="cerrar" onclick="cerrarDetallesVenta()">&times;</span>
         <h3>Detalles de la Venta</h3>
         <div id="detallesVenta">
-            <p><strong>ID:</strong> <span id="idVenta"></span></p>
-            <p><strong>Cliente:</strong> <span id="nombreClienteVenta"></span></p>
-            <p><strong>Fecha de Venta:</strong> <span id="fechaVenta"></span></p>
-            <p><strong>Total:</strong> $<span id="totalVenta"></span></p>
-
-            <h4>Productos Vendidos:</h4>
-            <table id="tablaProductosVenta">
-                <!-- Los productos de la venta se cargarán aquí -->
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Precio</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Ejemplo de producto -->
-                    <tr>
-                        <td>Cappuccino</td>
-                        <td>$4.98</td>
-                        <td>2</td>
-                        <td>$9.96</td>
-                    </tr>
-                    <!-- Agregar más productos según sea necesario -->
-                </tbody>
-            </table>
+            <!-- Aquí se cargarán los detalles dinámicamente -->
         </div>
     </div>
 </div>
