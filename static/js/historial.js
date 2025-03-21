@@ -112,7 +112,7 @@ function verDetallesVenta(id) {
                 document.getElementById("detallesVenta").innerHTML = detallesHTML;
                 
                 // Mostrar el modal
-                document.getElementById("ventaModal").style.display = "block";
+                document.getElementById("ventaModal").style.display = "flex";
             } else {
                 console.error("Datos de la venta incompletos:", data);
                 alert("No se encontraron detalles de la venta. Revisa la consola para más información.");
