@@ -114,6 +114,7 @@ function eliminarDelCarrito(nombre, tamaño) {
 // Función para realizar el pedido
 function realizarPedido() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim();
+    const numeroMesa = document.getElementById('numeroMesa').value.trim();
     const metodoPago = document.querySelector('select[name="metodoPago"]').value;
 
     if (nombreCliente === '') {
@@ -128,7 +129,7 @@ function realizarPedido() {
 
     // Preparar los datos para enviar al servidor
     const productos = carrito.map(item => ({
-        id: item.id, // Usar el ID real del producto
+        id: item.id,
         cantidad: item.cantidad,
         precio: item.precio
     }));
@@ -138,6 +139,7 @@ function realizarPedido() {
 
     console.log("Enviando datos:", {
         cliente: nombreCliente,
+        mesa: numeroMesa,
         productos: productos,
         total: total,
         metodo_pago: obtenerIdMetodoPago(metodoPago)
@@ -151,6 +153,7 @@ function realizarPedido() {
         },
         body: JSON.stringify({
             cliente: nombreCliente,
+            mesa: numeroMesa,
             productos: productos,
             total: total,
             metodo_pago: obtenerIdMetodoPago(metodoPago)

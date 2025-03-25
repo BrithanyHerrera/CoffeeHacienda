@@ -559,6 +559,7 @@ def procesar_venta():
         print("Datos recibidos:", data)  # Agregar log para depuración
         
         nombre_cliente = data.get('cliente', 'Cliente General')
+        numero_mesa = data.get('mesa', '')  # Obtener el número de mesa
         productos = data.get('productos', [])
         total = data.get('total', 0)
         metodo_pago_id = data.get('metodo_pago', 1)  # Default: Efectivo
@@ -623,7 +624,8 @@ def procesar_venta():
         
         # Crear la venta solo con productos válidos
         if productos_validos:
-            exito, venta_id = crear_venta(cliente_id, vendedor_id, total, productos_validos, metodo_pago_id)
+            # Pasar el número de mesa a la función crear_venta
+            exito, venta_id = crear_venta(cliente_id, vendedor_id, total, productos_validos, metodo_pago_id, numero_mesa)
             
             if exito:
                 return jsonify({
