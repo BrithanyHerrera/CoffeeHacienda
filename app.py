@@ -18,6 +18,9 @@ import time
 # Importar las funciones del modelo de inventario
 from models.modelsInventario import obtener_productos_inventario, actualizar_stock_producto
 from models.modelsHistorial import obtener_historial_ventas, obtener_detalle_venta
+# Importar las funciones del modelo de ventas
+from models.modelsVentas import crear_venta, obtener_cliente_por_nombre
+from bd import Conexion_BD
 
 
 app = Flask(__name__)
@@ -325,7 +328,7 @@ def guardar_producto():
         categoria_id = request.form.get('categoriaProducto')
         tamano_id = request.form.get('tamanoProducto')
         
-        # Manejo de la imagen
+        # Manejar la imagen
         ruta_imagen = None
         if 'imagenProducto' in request.files:
             archivo = request.files['imagenProducto']
@@ -546,6 +549,104 @@ def api_detalle_venta(id):
             return jsonify({'success': False, 'message': 'Venta no encontrada'})
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+# Ruta para procesar ventas desde el menú
+@app.route('/api/ventas/crear', methods=['POST'])
+@login_required
+def procesar_venta():
+    try:
+        data = request.json
+        print("Datos recibidos:", data)  # Agregar log para depuración
+        
+        nombre_cliente = data.get('cliente', 'Cliente General')
+        productos = data.get('productos', [])
+        total = data.get('total', 0)
+        metodo_pago_id = data.get('metodo_pago', 1)  # Default: Efectivo
+        
+        # Verificar datos recibidos
+        if not productos:
+            return jsonify({
+                'success': False,
+                'message': 'No se proporcionaron productos'
+            })
+            
+        # Verificar que los productos existan en la base de datos
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        productos_validos = []
+        productos_invalidos = []
+        
+        for producto in productos:
+            producto_id = int(producto['id'])
+            cursor.execute("SELECT Id FROM tproductos WHERE Id = %s", (producto_id,))
+            resultado = cursor.fetchone()
+            
+            if resultado:
+                productos_validos.append({
+                    'id': producto_id,
+                    'cantidad': int(producto['cantidad']),
+                    'precio': float(producto['precio'])
+                })
+            else:
+                productos_invalidos.append(producto_id)
+                print(f"Producto con ID {producto_id} no encontrado en la base de datos")
+        
+        cursor.close()
+        conn.close()
+        
+        if productos_invalidos:
+            return jsonify({
+                'success': False,
+                'message': f'Los siguientes productos no existen en la base de datos: {productos_invalidos}'
+            })
+            
+        # Obtener el ID del cliente (o crear uno nuevo)
+        cliente_id = obtener_cliente_por_nombre(nombre_cliente)
+        
+        # Obtener el ID del vendedor (usuario actual)
+        usuario_actual = session.get('usuario', '')
+        
+        # Obtener el ID del usuario desde la base de datos
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        cursor.execute("SELECT Id FROM tusuarios WHERE usuario = %s", (usuario_actual,))
+        usuario_db = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if usuario_db:
+            vendedor_id = usuario_db['Id']
+        else:
+            # Si no se encuentra el usuario, usar un ID por defecto
+            vendedor_id = 1
+        
+        # Crear la venta solo con productos válidos
+        if productos_validos:
+            exito, venta_id = crear_venta(cliente_id, vendedor_id, total, productos_validos, metodo_pago_id)
+            
+            if exito:
+                return jsonify({
+                    'success': True,
+                    'message': 'Venta registrada exitosamente',
+                    'venta_id': venta_id
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Error al registrar la venta'
+                })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No hay productos válidos para registrar la venta'
+            })
+    except Exception as e:
+        print(f"Error al procesar venta: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error al registrar la venta: {str(e)}'
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)

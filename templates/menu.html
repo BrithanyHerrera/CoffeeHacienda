@@ -28,7 +28,7 @@
 
             <div class="menuProductos">
                 {% for producto in productos %}
-                    <div class="producto" categoriasDatos="{{ producto.categoria }}">
+                    <div class="producto" categoriasDatos="{{ producto.categoria }}" data-id="{{ producto.id }}">
                         {% if producto.ruta_imagen %}
                         <img src="{{ producto.ruta_imagen }}" class="imagenProducto">
                         {% else %}

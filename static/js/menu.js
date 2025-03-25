@@ -22,13 +22,20 @@ function filtrarProductos(categoria) {
 let carrito = [];
 
 // Función para agregar un producto al carrito
-function agregarAlCarrito(nombre, precio, imagen, tamaño) {
+function agregarAlCarrito(nombre, precio, imagen, tamaño, id) {
     const productoExistente = carrito.find(item => item.nombre === nombre && item.tamaño === tamaño);
     
     if (productoExistente) {
         productoExistente.cantidad++;
     } else {
-        carrito.push({ nombre, precio, cantidad: 1, imagen, tamaño });
+        carrito.push({ 
+            nombre, 
+            precio, 
+            cantidad: 1, 
+            imagen, 
+            tamaño,
+            id // Usar el ID real del producto
+        });
     }
     
     actualizarCarrito();
@@ -40,12 +47,37 @@ document.querySelectorAll('.añadirCarrito').forEach(button => {
         const producto = this.parentElement;
         const nombre = producto.querySelector('h3').textContent;
         const imagen = producto.querySelector('img').src;
-        const tamañoTexto = producto.querySelector('.tamaños p').textContent;
-
-        const [tamaño, precioTexto] = tamañoTexto.split(' - $');
-        const precio = parseFloat(precioTexto);
-
-        agregarAlCarrito(nombre, precio, imagen, tamaño);
+        const id = parseInt(producto.getAttribute('data-id')); // Obtener el ID real del producto
+        
+        // Obtener el tamaño seleccionado (si hay varios)
+        let tamaño, precio;
+        const tamaños = producto.querySelectorAll('.tamaño');
+        
+        if (tamaños.length > 1) {
+            // Si hay múltiples tamaños, seleccionar uno
+            const tamaño_seleccionado = prompt(`Seleccione un tamaño para ${nombre}:\n${Array.from(tamaños).map((t, i) => `${i+1}. ${t.textContent.trim()}`).join('\n')}`);
+            
+            if (!tamaño_seleccionado) return; // Si el usuario cancela
+            
+            const indice = parseInt(tamaño_seleccionado) - 1;
+            if (isNaN(indice) || indice < 0 || indice >= tamaños.length) {
+                alert('Selección inválida');
+                return;
+            }
+            
+            tamaño = tamaños[indice].textContent.split('-')[0].trim();
+            precio = parseFloat(tamaños[indice].getAttribute('preciosDatos'));
+        } else if (tamaños.length === 1) {
+            // Si solo hay un tamaño, seleccionarlo automáticamente
+            tamaño = tamaños[0].textContent.split('-')[0].trim();
+            precio = parseFloat(tamaños[0].getAttribute('preciosDatos'));
+        } else {
+            // Si no hay tamaños definidos, usar valores por defecto
+            tamaño = 'Único';
+            precio = parseFloat(producto.getAttribute('data-precio') || 0);
+        }
+        
+        agregarAlCarrito(nombre, precio, imagen, tamaño, id);
     });
 });
 
@@ -82,17 +114,84 @@ function eliminarDelCarrito(nombre, tamaño) {
 // Función para realizar el pedido
 function realizarPedido() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim();
+    const metodoPago = document.querySelector('select[name="metodoPago"]').value;
 
     if (nombreCliente === '') {
-        alert('Por favor, ingrese su nombre.');
+        alert('Por favor, ingrese el nombre del cliente.');
         return;
     }
 
-    alert(`Pedido realizado por: ${nombreCliente}\nTotal: ${document.getElementById('total').textContent}`);
-    
-    carrito = [];
-    actualizarCarrito();
-    document.getElementById('nombreCliente').value = '';
+    if (carrito.length === 0) {
+        alert('El carrito está vacío. Agregue productos antes de realizar la orden.');
+        return;
+    }
+
+    // Preparar los datos para enviar al servidor
+    const productos = carrito.map(item => ({
+        id: item.id, // Usar el ID real del producto
+        cantidad: item.cantidad,
+        precio: item.precio
+    }));
+
+    // Calcular el total
+    const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+
+    console.log("Enviando datos:", {
+        cliente: nombreCliente,
+        productos: productos,
+        total: total,
+        metodo_pago: obtenerIdMetodoPago(metodoPago)
+    });
+
+    // Enviar los datos al servidor
+    fetch('/api/ventas/crear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            cliente: nombreCliente,
+            productos: productos,
+            total: total,
+            metodo_pago: obtenerIdMetodoPago(metodoPago)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            alert('Venta registrada exitosamente');
+            
+            // Vaciar el carrito
+            carrito = [];
+            actualizarCarrito();
+            document.getElementById('nombreCliente').value = '';
+        } else {
+            // Mostrar mensaje de error
+            alert('Error al registrar la venta: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al procesar la venta');
+    });
+}
+
+// Eliminar la función obtenerIdProducto ya que no la necesitamos más
+// function obtenerIdProducto(nombre, tamaño) { ... }
+
+// Función para obtener el ID del método de pago
+function obtenerIdMetodoPago(metodoPago) {
+    switch(metodoPago) {
+        case 'efectivo':
+            return 1;
+        case 'tarjeta':
+            return 2;
+        case 'transferencia':
+            return 3;
+        default:
+            return 1;
+    }
 }
 
 // Función para eliminar un producto del carrito
