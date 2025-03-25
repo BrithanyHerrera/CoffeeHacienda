@@ -6,7 +6,7 @@ def obtener_historial_ventas(filtro_cliente=None, fecha_inicio=None, fecha_fin=N
     cursor = db.cursor()  # Obtenemos el cursor
 
     query = """
-        SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente
+        SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente, v.numero_mesa
         FROM tventas v
         JOIN tusuarios u ON v.vendedor_id = u.id
         JOIN tclientes c ON v.cliente_id = c.id
@@ -40,7 +40,7 @@ def obtener_detalle_venta(id_venta):
 
     query = """
         SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente, 
-               p.nombre_producto, dv.cantidad, dv.precio AS precio_unitario
+               p.nombre_producto, dv.cantidad, dv.precio AS precio_unitario, v.numero_mesa
         FROM tventas v
         JOIN tusuarios u ON v.vendedor_id = u.id
         JOIN tclientes c ON v.cliente_id = c.id

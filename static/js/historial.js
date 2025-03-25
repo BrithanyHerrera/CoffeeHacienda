@@ -6,6 +6,24 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("fechaFin").addEventListener("change", buscarVentas);
 });
 
+function formatearFecha(fechaStr) {
+    if (!fechaStr) return "Sin fecha";
+    
+    // Verificar si la fecha es válida
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha.getTime())) return "Fecha inválida";
+    
+    // Formatear la fecha como DD/MM/YYYY hh:mm AM/PM
+    return fecha.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true // Esto agrega el formato AM/PM
+    });
+}
+
 function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "") {
     let url = `/api/historial-ventas?cliente=${filtroCliente}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
 
@@ -17,12 +35,19 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
                 tablaHistorial.innerHTML = "";
 
                 data.ventas.forEach(venta => {
+                    // Formatear la fecha correctamente
+                    const fechaFormateada = formatearFecha(venta.fecha_hora);
+                    
+                    // Mostrar número de mesa si existe
+                    const numeroMesa = venta.numero_mesa ? `Mesa: ${venta.numero_mesa}` : "Sin mesa";
+                    
                     let fila = `
                         <tr>
                             <td>${venta.vendedor}</td>
                             <td>${venta.cliente}</td>
-                            <td>${venta.fecha_venta}</td>
+                            <td>${fechaFormateada}</td>
                             <td>$${venta.total}</td>
+                            <td>${numeroMesa}</td>
                             <td>
                                 <button class="btnVerVenta" onclick="verDetallesVenta(${venta.id})">👁️</button>
                             </td>
@@ -69,13 +94,23 @@ function verDetallesVenta(id) {
                 // Verificar los nombres de las propiedades
                 console.log("Propiedades disponibles:", Object.keys(venta));
                 
+                // Formatear la fecha correctamente
+                const fechaFormateada = formatearFecha(venta.fecha_hora);
+                
                 // Crear el contenido HTML para los detalles de la venta
                 let detallesHTML = `
                     <div class="infoVenta">
                         <p><strong>ID Venta:</strong> <span id="idVenta">${venta.id}</span></p>
                         <p><strong>Cliente:</strong> <span id="nombreClienteVenta">${venta.cliente}</span></p>
-                        <p><strong>Fecha:</strong> <span id="fechaVenta">${venta.fecha_hora}</span></p>
-                        <p><strong>Total:</strong> $<span id="totalVenta">${venta.total}</span></p>
+                        <p><strong>Fecha:</strong> <span id="fechaVenta">${fechaFormateada}</span></p>
+                        <p><strong>Total:</strong> $<span id="totalVenta">${venta.total}</span></p>`;
+                
+                // Agregar número de mesa si existe
+                if (venta.numero_mesa) {
+                    detallesHTML += `<p><strong>Mesa:</strong> <span id="mesaVenta">${venta.numero_mesa}</span></p>`;
+                }
+                
+                detallesHTML += `
                     </div>
                     <div class="productosVenta">
                         <h4>Productos</h4>

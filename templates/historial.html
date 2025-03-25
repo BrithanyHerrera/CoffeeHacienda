@@ -16,7 +16,7 @@
                 <input type="date" id="fechaInicio" name="fechaInicio" value="{{ request.args.get('fechaInicio', '') }}">
                 <label for="fechaFin">Hasta:</label>
                 <input type="date" id="fechaFin" name="fechaFin" value="{{ request.args.get('fechaFin', '') }}">
-                <button type="button" class="btnReestablecer" onclick="location.href='{{ url_for('historial_ventas') }}'">🔄 Reestablecer</button>
+                <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
             </form>
         </section>
     </section>
@@ -29,21 +29,12 @@
                     <th>Cliente</th>
                     <th>Fecha de Venta</th>
                     <th>Total</th>
+                    <th>Mesa</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="tablaHistorialVentas">
-                {% for venta in ventas %}
-                <tr>
-                    <td>{{ venta.vendedor }}</td>
-                    <td>{{ venta.cliente }}</td>
-                    <td>{{ venta.fecha_hora }}</td>
-                    <td>${{ "%.2f"|format(venta.total) }}</td>
-                    <td>
-                        <button class="btnVerVenta" onclick="verDetallesVenta({{ venta.id }})">👁️</button>
-                    </td>
-                </tr>
-                {% endfor %}
+                <!-- Aquí se cargarán las ventas dinámicamente -->
             </tbody>
         </table>
     </section>
