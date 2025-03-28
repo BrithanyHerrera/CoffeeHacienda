@@ -625,7 +625,20 @@ def procesar_venta():
         # Crear la venta solo con productos válidos
         if productos_validos:
             # Pasar el número de mesa a la función crear_venta
-            exito, venta_id = crear_venta(cliente_id, vendedor_id, total, productos_validos, metodo_pago_id, numero_mesa)
+            # Verificar qué estados existen en la tabla testadosventa
+            conn = Conexion_BD()
+            cursor = conn.cursor()
+            cursor.execute("SELECT Id FROM testadosventa LIMIT 1")
+            estado_result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            
+            # Usar el primer estado disponible o el valor 4 como respaldo
+            estado_id = estado_result['Id'] if estado_result else 4
+            
+            print(f"Usando estado_id: {estado_id}")  # Depuración
+            
+            exito, venta_id = crear_venta(cliente_id, vendedor_id, total, productos_validos, metodo_pago_id, numero_mesa, estado_id)
             
             if exito:
                 return jsonify({
