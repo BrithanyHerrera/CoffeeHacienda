@@ -35,21 +35,21 @@ def obtener_cliente_por_nombre(nombre_cliente):
         print(f"Error al obtener/crear cliente: {e}")
         return 1  # Cliente por defecto
 
-def crear_venta(cliente_id, vendedor_id, total, productos, metodo_pago_id=1, estado_id=1, numero_mesa=''):
+def crear_venta(cliente_id, vendedor_id, total, productos, metodo_pago_id=1, numero_mesa='', estado_id=4):
     """
-    Crea una nueva venta en la base de datos
+    Crea una nueva venta en la base de datos.
     
     Args:
         cliente_id: ID del cliente
         vendedor_id: ID del vendedor
         total: Total de la venta
-        productos: Lista de productos [{'id': id, 'cantidad': cantidad, 'precio': precio}]
-        metodo_pago_id: ID del método de pago (default: 1 - Efectivo)
-        estado_id: ID del estado de la venta (default: 1 - Completada)
+        productos: Lista de diccionarios con id, cantidad y precio de cada producto
+        metodo_pago_id: ID del método de pago (1=Efectivo por defecto)
         numero_mesa: Número de mesa (opcional)
+        estado_id: Estado de la venta (4=Completado por defecto)
         
     Returns:
-        (bool, int): Tupla con éxito de la operación y el ID de la venta creada
+        Tupla (éxito, id_venta)
     """
     try:
         conn = Conexion_BD()
@@ -58,53 +58,25 @@ def crear_venta(cliente_id, vendedor_id, total, productos, metodo_pago_id=1, est
         # Imprimir valores para depuración
         print(f"Insertando venta: cliente_id={cliente_id}, vendedor_id={vendedor_id}, total={total}, metodo_pago_id={metodo_pago_id}, estado_id={estado_id}, numero_mesa={numero_mesa}")
         
-        # Verificar si la tabla tiene una columna para número de mesa
-        cursor.execute("DESCRIBE tventas")
-        columnas = cursor.fetchall()
-        tiene_columna_mesa = any(col['Field'] == 'numero_mesa' for col in columnas)
-        
-        # Si no existe la columna, agregarla
-        if not tiene_columna_mesa:
-            cursor.execute("ALTER TABLE tventas ADD COLUMN numero_mesa VARCHAR(10) NULL")
-            conn.commit()
-            print("Columna numero_mesa agregada a la tabla tventas")
-        
-        # Usar una consulta que incluya el número de mesa
-        if tiene_columna_mesa or True:  # Siempre intentar insertar con la columna
-            query_venta = """
-            INSERT INTO tventas 
-            (cliente_id, vendedor_id, total, metodo_pago_id, estado_id, numero_mesa) 
-            VALUES 
-            (%s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(query_venta, (cliente_id, vendedor_id, total, metodo_pago_id, estado_id, numero_mesa))
-        else:
-            # Consulta sin número de mesa (por si acaso)
-            query_venta = """
-            INSERT INTO tventas 
-            (cliente_id, vendedor_id, total, metodo_pago_id, estado_id) 
-            VALUES 
-            (%s, %s, %s, %s, %s)
-            """
-            cursor.execute(query_venta, (cliente_id, vendedor_id, total, metodo_pago_id, estado_id))
+        # Insertar la venta
+        query = """
+        INSERT INTO tventas (cliente_id, vendedor_id, total, metodo_pago_id, numero_mesa, estado_id)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (cliente_id, vendedor_id, total, metodo_pago_id, numero_mesa, estado_id))
         
         venta_id = cursor.lastrowid
-        print(f"ID de venta generado: {venta_id}")
         
         # Insertar los detalles de la venta
-        for i, producto in enumerate(productos):
+        for producto in productos:
+            # Insertar detalle de venta
             query_detalle = """
-            INSERT INTO tdetalleventas 
-            (venta_id, producto_id, cantidad, precio)
-            VALUES 
-            (%s, %s, %s, %s)
+            INSERT INTO tdetalleventas (venta_id, producto_id, cantidad, precio)
+            VALUES (%s, %s, %s, %s)
             """
-            
-            print(f"Insertando detalle {i+1}: venta_id={venta_id}, producto_id={producto['id']}, cantidad={producto['cantidad']}, precio={producto['precio']}")
             cursor.execute(query_detalle, (venta_id, producto['id'], producto['cantidad'], producto['precio']))
-            print(f"Detalle {i+1} insertado correctamente")
             
-            # Actualizar el stock del producto si es necesario
+            # Actualizar el stock solo si la categoría requiere inventario
             query_stock = """
             UPDATE tproductos p
             JOIN tcategorias c ON p.categoria_id = c.Id
@@ -118,10 +90,11 @@ def crear_venta(cliente_id, vendedor_id, total, productos, metodo_pago_id=1, est
         conn.close()
         
         return True, venta_id
+        
     except Exception as e:
         print(f"Error al crear venta: {e}")
         if 'conn' in locals() and conn:
             conn.rollback()
             cursor.close()
             conn.close()
-        return False, 0
+        return False, None
