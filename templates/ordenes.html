@@ -2,6 +2,7 @@
 
 {% block title %}Gestión Órdenes{% endblock %}
 
+
 {% block content %}
 <main class="contenidoGeneral">
     <section class="contenedorTitulo">    
@@ -25,28 +26,8 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>Ana López</td>
-                    <td>2025-03-01</td>
-                    <td><span class="estadoOrden enEspera">En Espera</span></td>
-                    <td>
-                        <button class="btnVerOrden" onclick="verDetallesOrden(1)">👁️ Ver</button>
-                        <button class="btnListaOrden" onclick="cambiarEstadoOrden(1, 'Lista')">✔️ Lista</button>
-                        <button class="btnCancelarOrden" onclick="cambiarEstadoOrden(1, 'Cancelada')">❌ Cancelar</button>
-                    </td>
-                </tr>
-                <!-- Agregar más órdenes según sea necesario -->
-                <tr>
-                    <td>Lalo</td>
-                    <td>2025-03-01</td>
-                    <td><span class="estadoOrden enEspera">En Espera</span></td>
-                    <td>
-                        <button class="btnVerOrden" onclick="verDetallesOrden(1)">👁️ Ver</button>
-                        <button class="btnListaOrden" onclick="cambiarEstadoOrden(1, 'Lista')">✔️ Lista</button>
-                        <button class="btnCancelarOrden" onclick="cambiarEstadoOrden(1, 'Cancelada')">❌ Cancelar</button>
-                    </td>
-                </tr>
+            <tbody id="tablaOrdenes">
+                <!-- Las órdenes se cargarán dinámicamente aquí -->
             </tbody>
         </table>
     </section>
@@ -56,41 +37,13 @@
 <div class="modal" id="ordenModal">
     <div class="contenedorModal">
         <span class="cerrar" onclick="cerrarDetallesOrden()">&times;</span>
-        <h3>Detalles de la Orden</h3>
+        <h3 class="tituloModal">Detalles de la Orden</h3>
         <div id="detallesOrden">
-            <p><strong>ID:</strong> <span id="idOrden"></span></p>
-            <p><strong>Cliente:</strong> <span id="nombreCliente"></span></p>
-            <p><strong>Fecha:</strong> <span id="fechaOrden"></span></p>
-            <p><strong>Estado:</strong> <span id="estadoOrden"></span></p>
-
-            <h4>Productos:</h4>
-            <table id="tablaProductos">
-                <!-- Los productos de la orden se cargarán aquí -->
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Precio</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Ejemplo de producto -->
-                    <tr>
-                        <td>Cappuccino</td>
-                        <td>$4.98</td>
-                        <td>2</td>
-                        <td>$9.96</td>
-                    </tr>
-                    <!-- Agregar más productos según sea necesario -->
-                </tbody>
-            </table>
-
-            <p><strong>Total de la Orden:</strong> $<span id="totalOrden"></span></p>
+            <!-- Aquí se cargarán los detalles dinámicamente -->
         </div>
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/orden.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ordenes.js') }}"></script>
 
 {% endblock %}
