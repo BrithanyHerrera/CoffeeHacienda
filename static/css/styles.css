@@ -643,6 +643,27 @@ form {
 
 /* GESTIÓN ÓRDENES */
 
+
+.Pendiente {
+    background-color: #FF9800; /* Orange color for Pending */
+    color: white;
+}
+
+.Completada {
+    background-color: #2ECC71; /* Green color for Completed */
+    color: white;
+}
+
+.Cancelada {
+    background-color: #E74C3C; /* Red color for Cancelled */
+    color: white;
+}
+
+.EnProceso, .Enproceso {
+    background-color: #3498DB; /* Blue color for In Process */
+    color: white;
+}
+
 .contenedorGestionOrdenes {    
     display: flex;
     width: 220%; 
@@ -743,6 +764,7 @@ form {
 }
 
 /* HISTORIAL DE VENTAS */
+
 
 .contenedorGestionVentas {    
     display: flex;

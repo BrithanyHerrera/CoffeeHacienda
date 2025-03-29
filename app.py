@@ -19,7 +19,9 @@ import time
 from models.modelsInventario import obtener_productos_inventario, actualizar_stock_producto
 from models.modelsHistorial import obtener_historial_ventas, obtener_detalle_venta
 # Importar las funciones del modelo de ventas
-from models.modelsVentas import crear_venta, obtener_cliente_por_nombre
+from models.modelsVentas import (crear_venta, obtener_cliente_por_nombre, 
+                                obtener_ordenes_pendientes, actualizar_estado_orden,
+                                obtener_detalle_orden)
 from bd import Conexion_BD
 
 
@@ -204,7 +206,86 @@ def actualizar_inventario():
 @app.route('/ordenes')
 @login_required  # Ruta protegida
 def ordenes():
-    return render_template('ordenes.html')
+    # Obtener órdenes pendientes
+    ordenes_pendientes = obtener_ordenes_pendientes()
+    return render_template('ordenes.html', ordenes=ordenes_pendientes)
+
+# Agregar rutas API para gestionar órdenes
+@app.route('/api/ordenes', methods=['GET'])
+@login_required
+def api_obtener_ordenes():
+    try:
+        ordenes = obtener_ordenes_pendientes()
+        return jsonify({
+            'success': True,
+            'ordenes': ordenes
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/ordenes/<int:id>/detalles', methods=['GET'])
+@login_required
+def api_detalle_orden(id):
+    try:
+        detalles = obtener_detalle_orden(id)
+        if detalles:
+            return jsonify({
+                'success': True,
+                'detalles': detalles
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Orden no encontrada'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/ordenes/<int:id>/estado', methods=['POST'])
+@login_required
+def api_actualizar_estado_orden(id):
+    try:
+        data = request.json
+        nuevo_estado = data.get('estado')
+        
+        # Mapear nombres de estado a IDs
+        estados = {
+            'Pendiente': 1,
+            'En proceso': 2,
+            'Cancelado': 3,
+            'Completado': 4,
+            'Reembolsada': 5
+        }
+        
+        if nuevo_estado not in estados:
+            return jsonify({
+                'success': False,
+                'message': 'Estado no válido'
+            })
+        
+        resultado = actualizar_estado_orden(id, estados[nuevo_estado])
+        
+        if resultado:
+            return jsonify({
+                'success': True,
+                'message': f'Estado actualizado a {nuevo_estado}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error al actualizar estado'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
 
 @app.route('/historial')
 @login_required  # Ruta protegida
@@ -546,8 +627,9 @@ def api_detalle_venta(id):
         if detalles:
             return jsonify({'success': True, 'detalles': detalles})
         else:
-            return jsonify({'success': False, 'message': 'Venta no encontrada'})
+            return jsonify({'success': False, 'message': 'Venta no encontrada o sin detalles'})
     except Exception as e:
+        print(f"Error al obtener detalles de venta: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 # Ruta para procesar ventas desde el menú
