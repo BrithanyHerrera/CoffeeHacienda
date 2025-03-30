@@ -664,6 +664,11 @@ form {
     color: white;
 }
 
+/* Añadir después de los estilos de botones de órdenes */
+.btnVerOrden, .btnProcesarOrden, .btnListaOrden {
+    margin-right: 5px;
+}
+
 .contenedorGestionOrdenes {    
     display: flex;
     width: 220%; 

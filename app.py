@@ -331,7 +331,15 @@ def api_actualizar_estado_orden(id):
 @app.route('/historial')
 @login_required  # Ruta protegida
 def historial():
-    return render_template('historial.html')
+    # Obtener la lista de vendedores para el filtro
+    conn = Conexion_BD()
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT usuario FROM tusuarios ORDER BY usuario")
+    vendedores = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return render_template('historial.html', vendedores=vendedores)
 
 @app.route('/gestionUsuarios')
 @login_required
@@ -650,9 +658,10 @@ def historial_ventas():
 @app.route('/api/historial-ventas', methods=['GET'])
 @login_required
 def api_historial_ventas():
-    filtro_cliente = request.args.get('cliente', None)
-    fecha_inicio = request.args.get('fechaInicio', None)
-    fecha_fin = request.args.get('fechaFin', None)
+    filtro_cliente = request.args.get('cliente', '')
+    filtro_vendedor = request.args.get('vendedor', '')
+    fecha_inicio = request.args.get('fechaInicio', '')
+    fecha_fin = request.args.get('fechaFin', '')
 
     try:
         ventas = obtener_historial_ventas(filtro_cliente, fecha_inicio, fecha_fin)
