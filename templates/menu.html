@@ -62,16 +62,26 @@
         <!-- Campo para el nombre del cliente -->
         <div class="nombreCliente">
             <label for="nombreCliente">Nombre del Cliente:</label>
-            <input class="inputCliente" type="text" id="nombreCliente" placeholder="Ingrese su nombre" required>
+            <input class="inputCliente" type="text" id="nombreCliente" placeholder="Ingrese su nombre" 
+                   pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" title="Solo se permiten letras y espacios" 
+                   oninput="this.value = this.value.replace(/[0-9]/g, '')" required>
         </div>
         <br>
-        <br>        
+
+        <!-- Opción para llevar con mejor estilo -->
+        <div class="opcionLlevar">
+            <label for="paraLlevar">Para llevar</label>
+            <div class="checkbox-container">
+                <input type="checkbox" id="paraLlevar" onchange="toggleMesaField()">
+            </div>
+        </div>
+        
         <!-- Agregar campo para número de mesa -->
-        <div class="numeroMesa">
+        <div class="numeroMesa" id="mesaContainer">
             <label for="numeroMesa">Número de Mesa:</label>
             <input class="inputMesa" type="number" id="numeroMesa" placeholder="Ingrese número de mesa" min="1">
-        </div>
-
+        </div>      
+        <br>
         <!-- Total en el carrito -->
         <div class="totalCarrito">
             <h3>Total</h3>

@@ -269,6 +269,47 @@ def api_actualizar_estado_orden(id):
                 'message': 'Estado no válido'
             })
         
+        # Obtener el estado actual de la orden
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        cursor.execute("SELECT estado_id FROM tventas WHERE Id = %s", (id,))
+        resultado = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if not resultado:
+            return jsonify({
+                'success': False,
+                'message': 'Orden no encontrada'
+            })
+        
+        estado_actual_id = resultado['estado_id']
+        
+        # Definir transiciones válidas
+        transiciones_validas = {
+            1: [2, 3],           # Pendiente -> En proceso, Cancelado
+            2: [3, 4],           # En proceso -> Cancelado, Completado
+            3: [],               # Cancelado -> (ninguno)
+            4: [],               # Completado -> (ninguno)
+            5: []                # Reembolsada -> (ninguno)
+        }
+        
+        # Verificar si la transición es válida
+        if estados[nuevo_estado] not in transiciones_validas[estado_actual_id] and estados[nuevo_estado] != estado_actual_id:
+            # Obtener nombre del estado actual
+            estado_actual_nombre = next((nombre for nombre, id in estados.items() if id == estado_actual_id), "Desconocido")
+            
+            # Obtener nombres de estados válidos
+            estados_validos = [next((nombre for nombre, id in estados.items() if id == estado_id), "Desconocido") 
+                              for estado_id in transiciones_validas[estado_actual_id]]
+            
+            mensaje_estados = ", ".join(estados_validos) if estados_validos else "ninguno"
+            
+            return jsonify({
+                'success': False,
+                'message': f'Transición no válida. Desde "{estado_actual_nombre}" solo puede cambiar a: {mensaje_estados}'
+            })
+        
         resultado = actualizar_estado_orden(id, estados[nuevo_estado])
         
         if resultado:
@@ -633,6 +674,7 @@ def api_detalle_venta(id):
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 # Ruta para procesar ventas desde el menú
+# Modificación en la ruta de procesar venta para verificar stock
 @app.route('/api/ventas/crear', methods=['POST'])
 @login_required
 def procesar_venta():
@@ -653,30 +695,57 @@ def procesar_venta():
                 'message': 'No se proporcionaron productos'
             })
             
-        # Verificar que los productos existan en la base de datos
+        # Verificar que los productos existan en la base de datos y tengan stock suficiente
         conn = Conexion_BD()
         cursor = conn.cursor()
         
         productos_validos = []
         productos_invalidos = []
+        productos_sin_stock = []
         
         for producto in productos:
             producto_id = int(producto['id'])
-            cursor.execute("SELECT Id FROM tproductos WHERE Id = %s", (producto_id,))
+            cantidad_solicitada = int(producto['cantidad'])
+            
+            # Verificar que el producto exista y obtener su stock actual
+            cursor.execute("SELECT Id, nombre_producto, stock FROM tproductos WHERE Id = %s", (producto_id,))
             resultado = cursor.fetchone()
             
             if resultado:
-                productos_validos.append({
-                    'id': producto_id,
-                    'cantidad': int(producto['cantidad']),
-                    'precio': float(producto['precio'])
-                })
+                stock_actual = resultado['stock']
+                
+                # Verificar si hay suficiente stock
+                if stock_actual >= cantidad_solicitada:
+                    productos_validos.append({
+                        'id': producto_id,
+                        'cantidad': cantidad_solicitada,
+                        'precio': float(producto['precio'])
+                    })
+                else:
+                    productos_sin_stock.append({
+                        'id': producto_id,
+                        'nombre': resultado['nombre_producto'],
+                        'stock_actual': stock_actual,
+                        'cantidad_solicitada': cantidad_solicitada
+                    })
             else:
                 productos_invalidos.append(producto_id)
                 print(f"Producto con ID {producto_id} no encontrado en la base de datos")
         
         cursor.close()
         conn.close()
+        
+        # Si hay productos sin stock suficiente, rechazar la venta
+        if productos_sin_stock:
+            mensaje_error = "No hay suficiente stock para los siguientes productos:\n"
+            for p in productos_sin_stock:
+                mensaje_error += f"- {p['nombre']}: Stock actual: {p['stock_actual']}, Solicitado: {p['cantidad_solicitada']}\n"
+            
+            return jsonify({
+                'success': False,
+                'message': mensaje_error,
+                'productos_sin_stock': productos_sin_stock
+            })
         
         if productos_invalidos:
             return jsonify({

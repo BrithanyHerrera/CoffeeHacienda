@@ -111,14 +111,20 @@ function eliminarDelCarrito(nombre, tamaño) {
     actualizarCarrito();
 }
 
-// Función para realizar el pedido
+// Modify the realizarPedido function to ensure PDF is only generated on success
 function realizarPedido() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim();
-    const numeroMesa = document.getElementById('numeroMesa').value.trim();
+    const paraLlevar = document.getElementById('paraLlevar').checked;
+    const numeroMesa = paraLlevar ? '' : document.getElementById('numeroMesa').value.trim();
     const metodoPago = document.querySelector('select[name="metodoPago"]').value;
 
     if (nombreCliente === '') {
         alert('Por favor, ingrese el nombre del cliente.');
+        return;
+    }
+
+    if (!paraLlevar && numeroMesa === '') {
+        alert('Por favor, ingrese el número de mesa o marque la opción "Para llevar".');
         return;
     }
 
@@ -136,14 +142,6 @@ function realizarPedido() {
 
     // Calcular el total
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-
-    console.log("Enviando datos:", {
-        cliente: nombreCliente,
-        mesa: numeroMesa,
-        productos: productos,
-        total: total,
-        metodo_pago: obtenerIdMetodoPago(metodoPago)
-    });
 
     // Enviar los datos al servidor
     fetch('/api/ventas/crear', {
@@ -165,19 +163,103 @@ function realizarPedido() {
             // Mostrar mensaje de éxito
             alert('Venta registrada exitosamente');
             
+            // Generar PDF solo si la venta fue exitosa
+            generarPDF();
+            
             // Vaciar el carrito
             carrito = [];
             actualizarCarrito();
             document.getElementById('nombreCliente').value = '';
         } else {
-            // Mostrar mensaje de error
-            alert('Error al registrar la venta: ' + data.message);
+            // Verificar si hay productos sin stock suficiente
+            if (data.productos_sin_stock) {
+                let mensaje = "No se puede completar la venta:\n\n";
+                data.productos_sin_stock.forEach(p => {
+                    mensaje += `- ${p.nombre}: Stock disponible: ${p.stock_actual}, Solicitado: ${p.cantidad_solicitada}\n`;
+                });
+                alert(mensaje);
+            } else {
+                // Mostrar mensaje de error
+                alert('Error al registrar la venta: ' + data.message);
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Error al procesar la venta');
     });
+}
+
+// Update the procesarVenta function to also handle PDF generation
+// Fix the procesarVenta function to only generate PDF on success
+function procesarVenta() {
+    if (carrito.length === 0) {
+        mostrarNotificacion('El carrito está vacío', 'error');
+        return;
+    }
+
+    // Obtener datos del formulario
+    const cliente = document.getElementById('nombreCliente').value || 'Cliente General';
+    const mesa = document.getElementById('numeroMesa').value || '';
+    const metodoPago = document.getElementById('metodoPago').value || 1;
+
+    // Preparar datos para enviar
+    const datos = {
+        cliente: cliente,
+        mesa: mesa,
+        productos: carrito.map(item => ({
+            id: item.id,
+            cantidad: item.cantidad,
+            precio: item.precio
+        })),
+        total: calcularTotal(),
+        metodo_pago: metodoPago
+    };
+
+    // Enviar solicitud al servidor
+    fetch('/api/ventas/crear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion(data.message, 'success');
+            
+            // Generar PDF solo si la venta fue exitosa
+            generarPDF();
+            
+            // Limpiar carrito y formulario
+            carrito = [];
+            actualizarCarritoUI();
+            document.getElementById('formularioVenta').reset();
+            // Cerrar modal
+            document.getElementById('finalizarVentaModal').style.display = 'none';
+        } else {
+            // Verificar si hay productos sin stock suficiente
+            if (data.productos_sin_stock) {
+                let mensaje = "No se puede completar la venta:\n\n";
+                data.productos_sin_stock.forEach(p => {
+                    mensaje += `- ${p.nombre}: Stock disponible: ${p.stock_actual}, Solicitado: ${p.cantidad_solicitada}\n`;
+                });
+                mostrarNotificacion(mensaje, 'error', 10000); // Mostrar por más tiempo
+            } else {
+                mostrarNotificacion(data.message, 'error');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al procesar la venta', 'error');
+    });
+}
+
+// Add a helper function to calculate total if it doesn't exist
+function calcularTotal() {
+    return carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 }
 
 // Eliminar la función obtenerIdProducto ya que no la necesitamos más
@@ -350,5 +432,124 @@ function generarPDF() {
     // Guardar el PDF
     doc.save(`Recibo_${nombreCliente}.pdf`);
 }
+
+// Agregar esta función para manejar la respuesta cuando no hay suficiente stock
+function procesarVenta() {
+    if (carrito.length === 0) {
+        mostrarNotificacion('El carrito está vacío', 'error');
+        return;
+    }
+
+    // Obtener datos del formulario
+    const cliente = document.getElementById('nombreCliente').value || 'Cliente General';
+    const mesa = document.getElementById('numeroMesa').value || '';
+    const metodoPago = document.getElementById('metodoPago').value || 1;
+
+    // Preparar datos para enviar
+    const datos = {
+        cliente: cliente,
+        mesa: mesa,
+        productos: carrito,
+        total: calcularTotal(),
+        metodo_pago: metodoPago
+    };
+
+    // Enviar solicitud al servidor
+    fetch('/api/ventas/crear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion(data.message, 'success');
+            // Limpiar carrito y formulario
+            carrito = [];
+            actualizarCarritoUI();
+            document.getElementById('formularioVenta').reset();
+            // Cerrar modal
+            document.getElementById('finalizarVentaModal').style.display = 'none';
+        } else {
+            // Verificar si hay productos sin stock suficiente
+            if (data.productos_sin_stock) {
+                let mensaje = "No se puede completar la venta:\n\n";
+                data.productos_sin_stock.forEach(p => {
+                    mensaje += `- ${p.nombre}: Stock disponible: ${p.stock_actual}, Solicitado: ${p.cantidad_solicitada}\n`;
+                });
+                mostrarNotificacion(mensaje, 'error', 10000); // Mostrar por más tiempo
+            } else {
+                mostrarNotificacion(data.message, 'error');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al procesar la venta', 'error');
+    });
+}
+
+// Función para mostrar notificaciones con duración personalizable
+function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion ${tipo}`;
+    notificacion.textContent = mensaje;
+    
+    document.body.appendChild(notificacion);
+    
+    // Mostrar la notificación
+    setTimeout(() => {
+        notificacion.classList.add('mostrar');
+    }, 10);
+    
+    // Ocultar y eliminar después de la duración especificada
+    setTimeout(() => {
+        notificacion.classList.remove('mostrar');
+        setTimeout(() => {
+            document.body.removeChild(notificacion);
+        }, 300);
+    }, duracion);
+}
+
+// Función para mostrar/ocultar el campo de número de mesa
+function toggleMesaField() {
+    const paraLlevar = document.getElementById('paraLlevar').checked;
+    const mesaContainer = document.getElementById('mesaContainer');
+    
+    if (paraLlevar) {
+        mesaContainer.style.display = 'none';
+        document.getElementById('numeroMesa').value = ''; // Limpiar el valor
+    } else {
+        mesaContainer.style.display = 'block';
+    }
+}
+
+// Asegurarse de que la función se ejecute cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar estilos al contenedor del checkbox
+    const opcionLlevar = document.querySelector('.opcionLlevar');
+    if (opcionLlevar) {
+        opcionLlevar.style.display = 'flex';
+        opcionLlevar.style.alignItems = 'center';
+        opcionLlevar.style.marginBottom = '15px';
+        opcionLlevar.style.marginTop = '5px';
+    }
+    
+    // Estilizar el checkbox y su etiqueta
+    const checkboxParaLlevar = document.getElementById('paraLlevar');
+    if (checkboxParaLlevar) {
+        checkboxParaLlevar.style.marginRight = '8px';
+        
+        // Ejecutar la función una vez al cargar para establecer el estado inicial
+        toggleMesaField();
+        
+        // Agregar el evento change si no se agregó mediante el atributo HTML
+        if (!checkboxParaLlevar.hasAttribute('onchange')) {
+            checkboxParaLlevar.addEventListener('change', toggleMesaField);
+        }
+    }
+});
 
 
