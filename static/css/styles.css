@@ -1244,28 +1244,30 @@ form {
     color: white;
 }
 
-/* Estilos para la etiqueta de estado */
-.estado-inventario {
-    padding: 4px 8px;
-    border-radius: 4px;
+
+/* Estilos para la opción "Para llevar" */
+.opcionLlevar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+    padding: 8px 0;
+    width: 100%;
+}
+
+.opcionLlevar label {
     font-weight: bold;
-    font-size: 12px;
-    display: inline-block;
-    text-align: center;
-    min-width: 80px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-.estado-aceptable {
-    background-color: #28a745;
-    color: white;
+.opcionLlevar .checkbox-container {
+    display: flex;
+    justify-content: flex-end;
 }
 
-.estado-alerta {
-    background-color: #fd7e14;
-    color: white;
-}
-
-.estado-critico {
-    background-color: #dc3545;
-    color: white;
+.opcionLlevar input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
