@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Cierre de Sesión</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .confirmar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #F9E6D3;
+        }
+        .confirmar-box {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .btn-confirmar {
+            background: #FF7F50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .btn-cancelar {
+            background: #E74C3C;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmar-container">
+        <div class="confirmar-box">
+            <h2>¿Está seguro que desea cerrar sesión?</h2>
+            <p>Se cerrará su sesión actual en Coffee Hacienda.</p>
+            <div class="btn-container">
+                <a href="{{ url_for('confirmar_salir') }}" class="btn-confirmar">Sí, cerrar sesión</a>
+                <a href="{{ url_for('bienvenida') }}" class="btn-cancelar">No, cancelar</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -37,6 +37,24 @@ function cargarOrdenes() {
                         estadoClase = 'Cancelada'; // This should match the CSS class
                     }
                     
+                    // Determinar qué botones mostrar según el estado
+                    let botonesHTML = '';
+                    
+                    // Botón Ver siempre está disponible (columna 1)
+                    botonesHTML += `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️ Ver</button>`;
+                    
+                    // Mostrar botones según el estado actual
+                    if (orden.estado === 'Pendiente') {
+                        // Desde Pendiente solo se puede pasar a En proceso (columna 2) o Cancelado (columna 4)
+                        botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">⏳ Procesando</button>`;
+                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
+                    } else if (orden.estado === 'En proceso') {
+                        // Desde En proceso solo se puede pasar a Completado (columna 3) o Cancelado (columna 4)
+                        botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">✔️ Lista</button>`;
+                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
+                    }
+                    // Para estados Completado o Cancelado no se muestran botones adicionales
+                    
                     // Crear la fila de la tabla
                     let fila = `
                         <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}">
@@ -44,10 +62,7 @@ function cargarOrdenes() {
                             <td>${fechaFormateada}</td>
                             <td><span class="estadoOrden ${estadoClase}">${orden.estado}</span></td>
                             <td>
-                                <button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️ Ver</button>
-                                <button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">⏳ Procesando</button>
-                                <button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">✔️ Lista</button>
-                                <button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>
+                                ${botonesHTML}
                             </td>
                         </tr>
                     `;
@@ -205,5 +220,4 @@ function buscarOrdenes() {
 
 function reestablecerFiltros() {
     document.getElementById('buscarCliente').value = '';
-    cargarOrdenes();
-}
+    cargarOrdenes();}
