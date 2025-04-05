@@ -30,30 +30,23 @@
                         <th>Fecha</th>
                         <th>Fondo</th>
                         <th>Ventas Totales</th>
-                        <th>Ingreso obtenido</th>
                         <th>Salidas de dinero</th>
                         <th>Ganancia/Pérdida</th>
                     </tr>
                 </thead>
-                <tbody id="reportesBody">
-                    <!-- Filas de reporte serán generadas dinámicamente -->
+                <tbody id="reportesbody">
+                    {% for corte in cortes %}
                     <tr>
-                        <td>2025-03-01</td>
-                        <td>$800</td>
-                        <td>$2000</td>
-                        <td>$150</td>
-                        <td>$300</td>
-                        <td class="ganancia">+$1550</td>
+                        <td>{{ corte.fecha_hora_cierre.strftime('%Y-%m-%d') }}</td>
+                        <td>${{ corte.fondo }}</td>
+                        <td>${{ corte.total_ventas }}</td>
+                        <td>${{ corte.pagos_realizados }}</td>
                     </tr>
+                    {% else %}
                     <tr>
-                        <td>2025-03-02</td>
-                        <td>$800</td>
-                        <td>$1800</td>
-                        <td>$100</td>
-                        <td>$200</td>
-                        <td class="perdida">-$300</td>
+                        <td colspan="5">No hay registros de corte de caja aún.</td>
                     </tr>
-                    <!-- Más filas de reporte -->
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
