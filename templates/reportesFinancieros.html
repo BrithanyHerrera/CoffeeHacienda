@@ -41,6 +41,10 @@
                         <td>${{ corte.fondo }}</td>
                         <td>${{ corte.total_ventas }}</td>
                         <td>${{ corte.pagos_realizados }}</td>
+                        <td class="{% if corte.ganancia_o_perdida >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ${{ "%.2f"|format(corte.ganancia_o_perdida) }}
+                        </td>
+                        
                     </tr>
                     {% else %}
                     <tr>

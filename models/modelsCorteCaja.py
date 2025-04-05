@@ -64,21 +64,34 @@ def guardar_corte_caja(
     resultado = False
 
     try:
+        if pagos_realizados < total_ventas:
+            # Hay ganancia
+            ganancia_o_perdida = total_ventas - pagos_realizados
+        else:
+            # Hay pérdida
+            if pagos_realizados > total_ventas:
+                ganancia_o_perdida = (total_ventas + fondo) - pagos_realizados
+                ganancia_o_perdida *= -1
+            else:
+                ganancia_o_perdida = 0  # No hay ni ganancia ni pérdida
+
+
         connection = Conexion_BD()
         with connection.cursor() as cursor:
             query = """
             INSERT INTO tcortescaja (
                 vendedor_id, fecha_hora_inicio, fecha_hora_cierre,
                 total_ventas, total_efectivo,
-                total_transferencias, total_paypal, total_contado, pagos_realizados, fondo
+                total_transferencias, total_paypal, total_contado, pagos_realizados, fondo,
+                ganancia_o_perdida
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             valores = (
                 vendedor_id, fecha_inicio, fecha_cierre,
                 total_ventas, total_efectivo,
                 total_transferencias, total_paypal, total_contado,
-                pagos_realizados, fondo
+                pagos_realizados, fondo, ganancia_o_perdida
             )
             cursor.execute(query, valores)
         connection.commit()

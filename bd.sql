@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 05-04-2025 a las 08:15:35
+-- Tiempo de generación: 05-04-2025 a las 09:18:02
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -104,19 +104,18 @@ CREATE TABLE `tcortescaja` (
   `total_paypal` decimal(10,2) NOT NULL,
   `total_contado` decimal(10,2) NOT NULL DEFAULT '0.00',
   `pagos_realizados` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `fondo` varchar(255) DEFAULT NULL
+  `fondo` varchar(255) DEFAULT NULL,
+  `ganancia_o_perdida` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `tcortescaja`
 --
 
-INSERT INTO `tcortescaja` (`Id`, `vendedor_id`, `fecha_hora_inicio`, `fecha_hora_cierre`, `total_ventas`, `total_efectivo`, `total_transferencias`, `total_paypal`, `total_contado`, `pagos_realizados`, `fondo`) VALUES
-(7, NULL, '2025-04-04 07:37:00', '2025-04-05 00:38:00', '75.00', '25.00', '25.00', '25.00', '47.00', '200.00', '100'),
-(8, NULL, '2025-04-04 18:19:00', '2025-04-05 01:20:00', '75.00', '25.00', '25.00', '25.00', '75.00', '20.00', '100'),
-(9, NULL, '2025-04-04 20:09:00', '2025-04-05 01:25:00', '75.00', '25.00', '25.00', '25.00', '75.00', '20.00', '100'),
-(10, NULL, '2025-04-04 20:02:00', '2025-04-05 01:31:00', '75.00', '25.00', '25.00', '25.00', '75.00', '20.00', '100'),
-(11, NULL, '2025-04-04 20:01:00', '2025-04-05 01:38:00', '75.00', '25.00', '25.00', '25.00', '75.00', '20.00', '100');
+INSERT INTO `tcortescaja` (`Id`, `vendedor_id`, `fecha_hora_inicio`, `fecha_hora_cierre`, `total_ventas`, `total_efectivo`, `total_transferencias`, `total_paypal`, `total_contado`, `pagos_realizados`, `fondo`, `ganancia_o_perdida`) VALUES
+(17, NULL, '2025-04-04 20:00:00', '2025-04-05 02:54:00', '75.00', '25.00', '25.00', '25.00', '75.00', '150.00', '100', 75),
+(18, NULL, '2025-04-04 20:10:00', '2025-04-05 03:10:00', '75.00', '25.00', '25.00', '25.00', '75.00', '150.00', '100', 25),
+(20, NULL, '2025-04-04 20:01:00', '2025-04-05 03:14:00', '75.00', '25.00', '25.00', '25.00', '75.00', '150.00', '100', -25);
 
 -- --------------------------------------------------------
 
@@ -321,18 +320,6 @@ INSERT INTO `tproductos_variantes` (`Id`, `producto_id`, `tamano_id`, `precio`, 
 (8, 8, 4, '8.00', '2025-03-16 00:18:12', '2025-03-16 00:18:12'),
 (9, 9, 1, '6.00', '2025-03-16 00:18:55', '2025-03-16 00:18:55'),
 (10, 10, 4, '25.00', '2025-03-17 14:06:57', '2025-03-17 14:06:57');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `treportes`
---
-
-CREATE TABLE `treportes` (
-  `Id` bigint(20) UNSIGNED NOT NULL,
-  `corte_id` int(11) NOT NULL,
-  `ganancia_o_perdida` float DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -573,14 +560,6 @@ ALTER TABLE `tproductos_variantes`
   ADD KEY `tamano_id` (`tamano_id`);
 
 --
--- Indices de la tabla `treportes`
---
-ALTER TABLE `treportes`
-  ADD PRIMARY KEY (`Id`),
-  ADD UNIQUE KEY `Id` (`Id`),
-  ADD KEY `corte_id` (`corte_id`);
-
---
 -- Indices de la tabla `troles`
 --
 ALTER TABLE `troles`
@@ -643,7 +622,7 @@ ALTER TABLE `tclientes`
 -- AUTO_INCREMENT de la tabla `tcortescaja`
 --
 ALTER TABLE `tcortescaja`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `tdetalleventas`
@@ -668,12 +647,6 @@ ALTER TABLE `tproductos`
 --
 ALTER TABLE `tproductos_variantes`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT de la tabla `treportes`
---
-ALTER TABLE `treportes`
-  MODIFY `Id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `troles`
@@ -752,12 +725,6 @@ ALTER TABLE `tproductos`
 ALTER TABLE `tproductos_variantes`
   ADD CONSTRAINT `tproductos_variantes_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`) ON DELETE CASCADE,
   ADD CONSTRAINT `tproductos_variantes_ibfk_2` FOREIGN KEY (`tamano_id`) REFERENCES `ttamanos` (`Id`);
-
---
--- Filtros para la tabla `treportes`
---
-ALTER TABLE `treportes`
-  ADD CONSTRAINT `treportes_ibfk_1` FOREIGN KEY (`corte_id`) REFERENCES `tcortescaja` (`Id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `tusuarios`

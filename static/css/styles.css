@@ -1198,16 +1198,8 @@ form {
     border-color: #ddd;
 }
 
-.ganancia {
-    color: green;
-    font-weight: bold;
-}
-
-.perdida {
-    color: red;
-    font-weight: bold;
-}
-/* ... existing code ... */
+.text-success { color: green; font-weight: bold; }
+.text-danger { color: red; font-weight: bold; }
 
 /* INVENTARIO */
 .contenedorInventario {    
