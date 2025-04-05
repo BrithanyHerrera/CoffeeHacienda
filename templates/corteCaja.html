@@ -8,7 +8,6 @@
     <div class="contenedorTitulo">
         <h1>Corte de Caja</h1>
         <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
-        <button id="btnRealizarRetiro" class="btnRealizarRetiro">Realizar Pagos</button>
     </div>
 
     <section class="buscador">
@@ -30,32 +29,25 @@
                 <th>Fondo</th>
                 <th>Contado</th>
                 <th>Calculado</th>
-                <th>Devoluciones</th>
                 <th>Pagos realizados</th>
-                <th>Usuario</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Ejemplo de fila con datos -->
+            {% for corte in cortes %}
             <tr>
-                <td>2025-03-11</td>
-                <td>2000</td>
-                <td>1500</td>
-                <td>1550</td>
-                <td>50</td>
-                <td>500</td>
-                <td>Usuario1</td>
+                <td>{{ corte.fecha_hora_cierre.strftime('%Y-%m-%d') }}</td>
+                <td>${{ corte.fondo }}</td>
+                <td>${{ corte.total_contado }}</td>
+                <td>${{ corte.total_ventas }}</td>
+                <td>${{ corte.pagos_realizados }}</td>
             </tr>
+            {% else %}
             <tr>
-                <td>2025-03-10</td>
-                <td>1000</td>
-                <td>900</td>
-                <td>950</td>
-                <td>50</td>
-                <td>100</td>
-                <td>Usuario2</td>
+                <td colspan="5">No hay registros de corte de caja aún.</td>
             </tr>
+            {% endfor %}
         </tbody>
+        
     </table>
 
     <!-- Modal de Corte de Caja -->
@@ -68,11 +60,11 @@
                 <div class="fecha-selector">
                     <div class="fecha-item">
                         <label for="fechaDesde">Desde</label>
-                        <input type="date" id="fechaDesde">
+                        <input type="datetime-local" id="fechaDesde">
                     </div>
                     <div class="fecha-item">
                         <label for="fechaHasta">Hasta</label>
-                        <input type="date" id="fechaHasta">
+                        <input type="datetime-local" id="fechaHasta">
                     </div>
                     <button id="btnFiltrarFechas" class="btnFiltrar">Filtrar Fechas</button>
                 </div>
@@ -87,60 +79,48 @@
                     <tr>
                         <td>Efectivo</td>
                         <td><input type="number" class="input-field" id="contado" value="0"></td>
-                        <td><input type="number" class="input-field" id="calculado" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculado" value="{{ totales['efectivo'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="diferencia" value="0" readonly></td>
                     </tr>
                     <tr>
                         <td>Transferencias</td>
                         <td><input type="number" class="input-field" id="cheque" value="0"></td>
-                        <td><input type="number" class="input-field" id="calculadoCheque" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculadoCheque" value="{{ totales['transferencia'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="diferenciaCheque" value="0" readonly></td>
                     </tr>
                     <tr>
                         <td>PayPal</td>
                         <td><input type="number" class="input-field" id="vales" value="0"></td>
-                        <td><input type="number" class="input-field" id="calculadoVales" value="0"></td>
+                        <td><input type="number" class="input-field" id="calculadoVales" value="{{ totales['paypal'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="diferenciaVales" value="0" readonly></td>
                     </tr>
                     <tr>
-                        <td>Devoluciones</td>
-                        <td><input type="number" class="input-field" id="tarjeta" value="0"></td>
-                        <td><input type="number" class="input-field" id="calculadoTarjeta" value="0"></td>
-                        <td><input type="number" class="input-field" id="diferenciaTarjeta" value="0" readonly></td>
+                        <td>Total</td>
+                        <td><input type="number" class="input-field" id="total" value="0" readonly></td>
+                        <td><input type="number" class="input-field" id="total2" value="0" readonly></td>
+                        <td><input type="number" class="input-field" id="totalDiferencia" value="0" readonly></td>
+                    </tr>                    
+                </table>
+                <table class="table">
+                    <tr>
+                        <td>Fondo</td>
+                        <td><input type="number" class="input-field" id="fondo" value="0"></td>
                     </tr>
                     <tr>
-                        <td>Total</td>
-                        <td><input type="number" class="input-field total" id="total" value="0" readonly></td>
-                        <td><input type="number" class="input-field total" id="totalCalculado" value="0" readonly></td>
-                        <td><input type="number" class="input-field total" id="totalDiferencia" value="0" readonly></td>
+                        <td>Pagos realizados</td>
+                        <td><input type="number" class="input-field" id="pagos_realizados" value="0"></td>
                     </tr>
                 </table>
-                <button id="btnFiltrarFechas" class="btnRealizar">Realizar Corte</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal deRealizar Retiro -->
-    <div id="miModalRetiro" class="modal">
-        <div class="modal-content-retiro">
-            <span class="cerrar" id="cerrarModalRetiro">&times;</span>
-            <h2>Realizar Retiro</h2>
-
-            <div class="retiro-container">
-                <label for="efectivoRetiro">Efectivo:</label>
-                <input type="number" id="efectivoRetiro" value="0" /><br>
-                <label for="chequeRetiro">Transferencias:</label>
-                <input type="number" id="chequeRetiro" value="0" /><br>
-                <label for="valesRetiro">PayPal:</label>
-                <input type="number" id="valesRetiro" value="0" /><br>
-                <label for="totalRetiro">Total:</label>
-                <input type="number" id="totalRetiro" value="0" /><br>
-
-                <button id="guardarRetiro">Realizar Retiro</button>
+                <div class="contenedor">
+                <button id="btnRealizarCorte" class="btnRealizar">Realizar Corte</button>
+                <button id="btnCalcularCorte" class="btnRealizar">Calcular Corte</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/corteCaja.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filtrarVentas.js') }}"></script>
+
 </main>
 {% endblock %}

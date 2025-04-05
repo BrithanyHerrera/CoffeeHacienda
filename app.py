@@ -12,6 +12,7 @@ from models.modelsProductos import (obtener_productos, obtener_categorias, obten
                                    obtener_variantes_por_producto, actualizar_variante_producto,
                                    eliminar_variantes_producto)
 from models.modelsProductosMenu import obtener_productos_menu
+from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja)
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -398,15 +399,159 @@ def eliminar_usuario_route(id):
 def propinas():
     return render_template('propinas.html')
 
-@app.route('/corteCaja')
-@login_required  # Ruta protegida
+@app.route('/filtrarVentas', methods=['POST'])
+def filtrar_ventas_route():
+    return filtrar_ventas()
+
+@app.route('/corteCaja', methods=['GET', 'POST'])
+@login_required  # Ruta protegida para asegurar que solo los usuarios logueados puedan acceder
 def corte():
-    return render_template('corteCaja.html')
+    if request.method == 'POST':
+        try:
+            # Obtener los datos del formulario (no JSON)
+            fecha_inicio = request.form.get('fecha_hora_inicio')
+            fecha_cierre = request.form.get('fecha_hora_cierre')
+            total_ventas = float(request.form.get('total_ventas', 0))
+            total_efectivo = float(request.form.get('total_efectivo', 0))
+            total_transferencias = float(request.form.get('total_transferencias', 0))
+            total_paypal = float(request.form.get('total_paypal', 0))
+            total_contado = float(request.form.get('total_contado', 0))
+            pagos_realizados = float(request.form.get('pagos_realizados', 0))
+
+            # Obtener el ID del vendedor desde la sesión
+            vendedor_id = session.get('usuario_id')
+
+            # Llamar a la función de modelo para guardar el corte de caja en la base de datos
+            resultado, error = guardar_corte_caja(
+                vendedor_id, fecha_inicio, fecha_cierre,
+                total_ventas, total_efectivo,
+                total_transferencias, total_paypal,
+                total_contado, pagos_realizados
+            )
+
+            if resultado:
+                return jsonify({"success": True})
+            else:
+                return jsonify({"success": False, "error": error})
+
+        except Exception as e:
+            return jsonify({"success": False, "error": f"Error al guardar el corte: {str(e)}"}), 500
+
+    # Si es un GET, simplemente mostrar la página de corte
+    totales = filtrar_ventas()  # Obtener los totales de las venta
+
+    conexion = Conexion_BD()
+    with conexion.cursor() as cursor:
+        cursor.execute("""
+            SELECT fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados
+            FROM TCortesCaja
+            ORDER BY fecha_hora_cierre DESC
+        """)
+        cortes = cursor.fetchall()
+
+    return render_template('corteCaja.html', totales=totales, cortes=cortes)
+
+@app.route('/guardarCorteCaja', methods=['POST'])
+@login_required
+def guardar_corte():
+    try:
+        data = request.get_json()  # o request.json si lo mandas en formato JSON
+        print("Datos recibidos:", data)
+
+        vendedor_id = session.get('usuario_id')  # o session['nombre_usuario'] si usas el nombre
+
+        # Recolectar los datos enviados desde el formulario o JS
+        fecha_inicio = data.get('fecha_hora_inicio')
+        fecha_cierre = data.get('fecha_hora_cierre')
+        total_ventas = float(data.get('total_ventas', 0))
+        total_efectivo = float(data.get('total_efectivo', 0))
+        total_transferencias = float(data.get('total_transferencias', 0))
+        total_paypal = float(data.get('total_paypal', 0))
+        total_contado = float(data.get('total_contado', 0))
+        pagos_realizados = float(data.get('pagos_realizados', 0))
+        fondo = float(data.get('fondo', 0))
+
+        # Guardar el corte en la base de datos
+        exito = guardar_corte_caja(
+            vendedor_id, fecha_inicio, fecha_cierre,
+            total_ventas, total_efectivo,
+            total_transferencias, total_paypal, total_contado,
+            pagos_realizados, fondo
+        )
+
+        # Obtener el corte_id
+        corte_id = obtener_corte_id(fecha_inicio, fecha_cierre)
+        print(f"corte_id encontrado: {corte_id}")
+
+        if corte_id:  # Verificar si se encontró el corte_id
+            # **Cálculo de Ganancia o Pérdida**
+            if pagos_realizados < total_ventas:
+                ganancia_o_perdida = total_ventas - pagos_realizados  # Ganancia
+            else:
+                ganancia_o_perdida = pagos_realizados - total_ventas  # Pérdida
+                if ganancia_o_perdida > fondo:
+                    ganancia_o_perdida = fondo  # No puede superar el fondo disponible
+
+            print(f"Ganancia o pérdida calculada: {ganancia_o_perdida}")
+
+            # Guardar la ganancia o pérdida en la tabla TReportes
+            conexion = Conexion_BD()
+            query_ganancia = """
+            INSERT INTO TReportes (corte_id, ganancia_o_perdida)
+            VALUES (%s, %s)
+            """
+            params_ganancia = (corte_id, ganancia_o_perdida)
+            print(f"Ejecutando consulta: {query_ganancia}, con parámetros: {params_ganancia}")
+            conexion.execute_query(query_ganancia, params_ganancia)
+
+            # Confirmar el éxito de la operación
+            return jsonify({"success": True, "ganancia_o_perdida": ganancia_o_perdida})
+
+
+        if exito:
+            return jsonify({"success": True})
+        else:
+            return jsonify({"success": False, "error": "Error al guardar el corte"}), 500
+
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Error en la ruta /guardarCorteCaja: {str(e)}"}), 500
+    
+def obtener_corte_id(fecha_inicio, fecha_cierre):
+    # Esta función obtiene el corte_id de la base de datos basándose en los datos del corte (fecha_inicio, fecha_cierre)
+    conexion = Conexion_BD()
+    try:
+        query = """
+        SELECT id FROM TCortesCaja
+        WHERE fecha_hora_inicio = %s AND fecha_hora_cierre = %s
+        """
+        params = (fecha_inicio, fecha_cierre)
+        conexion.execute_query(query, params)
+        corte_id = conexion.fetchone()
+        if corte_id:
+            return corte_id[0]  # Devuelve el id si lo encuentra
+        else:
+            return None  # Si no lo encuentra, devuelve None
+    except Exception as e:
+        print(f"Error al obtener corte_id: {str(e)}")
+        return None
+    finally:
+        conexion.close()
+
 
 @app.route('/reporteFinanciero')
 @login_required  # Ruta protegida
 def reporte():
-    return render_template('reportesFinancieros.html')
+    conexion = Conexion_BD()
+    with conexion.cursor() as cursor:
+        cursor.execute("""
+            SELECT fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados
+            FROM TCortesCaja
+            ORDER BY fecha_hora_cierre DESC
+        """)
+        cortes = cursor.fetchall()
+
+
+    return render_template('reportesFinancieros.html', cortes=cortes)
 
 # Agregar rutas API para obtener categorías y tamaños
 @app.route('/api/categorias', methods=['GET'])
