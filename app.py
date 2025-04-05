@@ -479,35 +479,6 @@ def guardar_corte():
             pagos_realizados, fondo
         )
 
-        # Obtener el corte_id
-        corte_id = obtener_corte_id(fecha_inicio, fecha_cierre)
-        print(f"corte_id encontrado: {corte_id}")
-
-        if corte_id:  # Verificar si se encontró el corte_id
-            # **Cálculo de Ganancia o Pérdida**
-            if pagos_realizados < total_ventas:
-                ganancia_o_perdida = total_ventas - pagos_realizados  # Ganancia
-            else:
-                ganancia_o_perdida = pagos_realizados - total_ventas  # Pérdida
-                if ganancia_o_perdida > fondo:
-                    ganancia_o_perdida = fondo  # No puede superar el fondo disponible
-
-            print(f"Ganancia o pérdida calculada: {ganancia_o_perdida}")
-
-            # Guardar la ganancia o pérdida en la tabla TReportes
-            conexion = Conexion_BD()
-            query_ganancia = """
-            INSERT INTO TReportes (corte_id, ganancia_o_perdida)
-            VALUES (%s, %s)
-            """
-            params_ganancia = (corte_id, ganancia_o_perdida)
-            print(f"Ejecutando consulta: {query_ganancia}, con parámetros: {params_ganancia}")
-            conexion.execute_query(query_ganancia, params_ganancia)
-
-            # Confirmar el éxito de la operación
-            return jsonify({"success": True, "ganancia_o_perdida": ganancia_o_perdida})
-
-
         if exito:
             return jsonify({"success": True})
         else:
@@ -515,27 +486,6 @@ def guardar_corte():
 
     except Exception as e:
         return jsonify({"success": False, "error": f"Error en la ruta /guardarCorteCaja: {str(e)}"}), 500
-    
-def obtener_corte_id(fecha_inicio, fecha_cierre):
-    # Esta función obtiene el corte_id de la base de datos basándose en los datos del corte (fecha_inicio, fecha_cierre)
-    conexion = Conexion_BD()
-    try:
-        query = """
-        SELECT id FROM TCortesCaja
-        WHERE fecha_hora_inicio = %s AND fecha_hora_cierre = %s
-        """
-        params = (fecha_inicio, fecha_cierre)
-        conexion.execute_query(query, params)
-        corte_id = conexion.fetchone()
-        if corte_id:
-            return corte_id[0]  # Devuelve el id si lo encuentra
-        else:
-            return None  # Si no lo encuentra, devuelve None
-    except Exception as e:
-        print(f"Error al obtener corte_id: {str(e)}")
-        return None
-    finally:
-        conexion.close()
 
 
 @app.route('/reporteFinanciero')
@@ -544,7 +494,7 @@ def reporte():
     conexion = Conexion_BD()
     with conexion.cursor() as cursor:
         cursor.execute("""
-            SELECT fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados
+            SELECT fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados, ganancia_o_perdida
             FROM TCortesCaja
             ORDER BY fecha_hora_cierre DESC
         """)
