@@ -725,7 +725,16 @@ form {
     padding: 5px 10px;
     border: none;
     cursor: pointer;
-    background: #E74C3C;
+    background: #ef887d;
+    color: white;
+    border-radius: 5px;
+}
+
+.btnProcesarOrden {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    background: #b8b017;
     color: white;
     border-radius: 5px;
 }
