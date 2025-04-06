@@ -777,6 +777,26 @@ form {
     background-color: #f2f2f2;
 }
 
+.tabla-productos {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-productos th, .tabla-productos td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.tabla-productos th {
+    background-color: #f2f2f2;
+}
+
+.total-row {
+    font-weight: bold;
+    background-color: #e0e0e0;
+}
+
 /* HISTORIAL DE VENTAS */
 
 
