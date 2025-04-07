@@ -12,7 +12,7 @@
     <section class="buscador">
         <section id="formBuscador">
             <form method="get" action="{{ url_for('historial_ventas') }}">
-                <input type="text" id="buscarCliente" name="cliente" placeholder="Buscar por nombre" value="{{ request.args.get('cliente', '') }}">
+                <input type="text" id="buscarCliente" name="cliente" placeholder="Buscar por nombre del cliente" value="{{ request.args.get('cliente', '') }}">
                 <label for="fechaInicio">Desde:</label>
                 <input type="date" id="fechaInicio" name="fechaInicio" value="{{ request.args.get('fechaInicio', '') }}">
                 <label for="fechaFin">Hasta:</label>
