@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarOrdenes();
 });
 
+// Cargar órdenes al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    cargarOrdenes();
+});
+
 function cargarOrdenes() {
     fetch('/api/ordenes')
         .then(response => response.json())
@@ -21,41 +26,32 @@ function cargarOrdenes() {
                 }
 
                 data.ordenes.forEach(orden => {
-                    // Formatear la fecha
+                    // Formatear la fecha correctamente con la zona horaria
                     const fecha = new Date(orden.fecha_hora);
-                    const fechaFormateada = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+                    fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset());
+                    const opcionesFecha = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                    const opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                    const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha) + ' ' + fecha.toLocaleTimeString('es-ES', opcionesHora);
                     
                     // Determinar la clase CSS para el estado
                     let estadoClase = '';
-                    if (orden.estado === 'Pendiente') {
-                        estadoClase = 'Pendiente'; // This should match the CSS class
-                    } else if (orden.estado === 'En proceso') {
-                        estadoClase = 'EnProceso'; // This should match the CSS class
-                    } else if (orden.estado === 'Completado') {
-                        estadoClase = 'Completada'; // This should match the CSS class
-                    } else if (orden.estado === 'Cancelado') {
-                        estadoClase = 'Cancelada'; // This should match the CSS class
-                    }
+                    if (orden.estado === 'Pendiente') estadoClase = 'Pendiente';
+                    else if (orden.estado === 'En proceso') estadoClase = 'EnProceso';
+                    else if (orden.estado === 'Completado') estadoClase = 'Completada';
+                    else if (orden.estado === 'Cancelado') estadoClase = 'Cancelada';
                     
                     // Determinar qué botones mostrar según el estado
                     let botonesHTML = '';
-                    
-                    // Botón Ver siempre está disponible (columna 1)
                     botonesHTML += `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️ Ver</button>`;
                     
-                    // Mostrar botones según el estado actual
                     if (orden.estado === 'Pendiente') {
-                        // Desde Pendiente solo se puede pasar a En proceso (columna 2) o Cancelado (columna 4)
                         botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">⏳ Procesando</button>`;
                         botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
                     } else if (orden.estado === 'En proceso') {
-                        // Desde En proceso solo se puede pasar a Completado (columna 3) o Cancelado (columna 4)
                         botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">✔️ Lista</button>`;
                         botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
                     }
-                    // Para estados Completado o Cancelado no se muestran botones adicionales
                     
-                    // Crear la fila de la tabla
                     let fila = `
                         <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}">
                             <td>${orden.cliente}</td>
