@@ -1026,7 +1026,7 @@ Coffee Hacienda'''
                 
             return redirect(url_for('verificar_codigo'))
         else:
-            flash('Si el correo está registrado, recibirás un código de verificación', 'info')
+            flash('El correo electrónico no está registrado en nuestro sistema. Por favor, verifica el correo.', 'danger')
     
     return render_template('recuperar_contrasena.html')
 
@@ -1051,7 +1051,6 @@ def verificar_codigo():
 
 @app.route('/actualizar-contrasena', methods=['GET', 'POST'])
 def actualizar_contrasena():
-    # Check if user completed the code verification
     if 'reset_email' not in session:
         return redirect(url_for('recuperar_contrasena'))
         
@@ -1059,13 +1058,18 @@ def actualizar_contrasena():
         nueva_contrasena = request.form['nueva_contrasena']
         confirmar_contrasena = request.form['confirmar_contrasena']
         
+        usuario = obtener_usuario_por_correo(session['reset_email'])
+        
+        # Verificar si la nueva contraseña es igual a la actual
+        if usuario and usuario['contrasena'] == nueva_contrasena:
+            flash('La nueva contraseña no puede ser igual a la anterior', 'danger')
+            return render_template('actualizar_contrasena.html')
+        
         if nueva_contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden', 'danger')
             return render_template('actualizar_contrasena.html')
             
-        usuario = obtener_usuario_por_correo(session['reset_email'])
         if usuario and actualizar_contrasena_por_codigo(usuario['Id'], nueva_contrasena):
-            # Clear the reset email from session
             session.pop('reset_email', None)
             flash('Tu contraseña ha sido actualizada correctamente', 'success')
             return redirect(url_for('login'))

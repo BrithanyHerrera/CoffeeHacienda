@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificar Código - Coffee Hacienda</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recuperacion_contrasena.css') }}">
 </head>
 <body>
     <div class="container">
-        <img src="{{ url_for('static', filename='images/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
+        <img src="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
         <h2>Verificar Código</h2>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
