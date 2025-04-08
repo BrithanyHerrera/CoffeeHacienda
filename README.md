@@ -50,5 +50,6 @@ WARNING: Advertencias sobre algo que podría ser problemático en el futuro.
 ERROR: Errores que impiden que una operación se realice correctamente.
 CRITICAL: Errores muy graves, típicamente hacen que la aplicación se detenga.
 
-
+INSTALAR 
+pip install Flask-Login
 

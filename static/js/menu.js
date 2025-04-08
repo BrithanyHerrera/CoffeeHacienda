@@ -354,8 +354,8 @@ function generarPDF() {
     // Obtener información del pedido
     const fechaHora = new Date().toLocaleString();
     const nombreCliente = document.getElementById('nombreCliente').value.trim() || "No especificado";
-    const direccionSucursal = "Calle Ejemplo 123, Ciudad";
-    const nombreVendedor = "Administrador"; // Puedes cambiar esto si el vendedor varía
+    const direccionSucursal = "Haciendas de San Vicente, 63737 San Vicente, Nay.";
+    const nombreVendedor = nombreUsuario || "No especificado"; 
 
     // Configurar fuente compatible
     doc.setFont("times", "normal");
@@ -432,6 +432,7 @@ function generarPDF() {
     // Guardar el PDF
     doc.save(`Recibo_${nombreCliente}.pdf`);
 }
+
 
 // Agregar esta función para manejar la respuesta cuando no hay suficiente stock
 function procesarVenta() {

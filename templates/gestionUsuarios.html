@@ -6,7 +6,9 @@
 <main class="contenidoGeneral">
     <div class="contenedorTitulo">
         <h1>Gestión de Usuarios</h1>
+        {% if rol == 'Administrador' %}
         <button class="btnAgregarUsuario" onclick="abrirEAModal()">➕ Agregar Usuario</button>
+        {% endif %}
     </div>
 
     <section class="buscador">
