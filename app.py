@@ -92,10 +92,13 @@ def login():
         usuario = request.form['usuario']
         contrasena = request.form['contrasena']
         
+        if not usuario or not contrasena:
+            flash('Por favor, ingrese usuario y contraseña', 'danger')
+            return render_template('login.html')
+        
         usuario_valido, rol_id = verificar_usuario(usuario, contrasena)
         
         if usuario_valido:
-            # Obtener el nombre del rol a partir del rol_id
             conn = Conexion_BD()
             cursor = conn.cursor()
             cursor.execute("SELECT rol FROM troles WHERE Id = %s", (rol_id,))
@@ -105,17 +108,19 @@ def login():
             
             if rol_resultado:
                 session['usuario'] = usuario
-                session['rol'] = rol_resultado['rol']  # Almacenar el nombre del rol en la sesión
+                session['rol'] = rol_resultado['rol']
                 session['last_activity'] = datetime.now().isoformat()
+                flash('¡Bienvenido!', 'success')
                 return redirect(url_for('bienvenida'))
             else:
-                flash('Rol no encontrado', 'danger')
-                return redirect(url_for('login'))
+                flash('Error al obtener rol de usuario', 'danger')
+                return render_template('login.html')
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
-            return redirect(url_for('login'))
+            return render_template('login.html')
     
     return render_template('login.html')
+
 
 def admin_required(f):
     @wraps(f)
