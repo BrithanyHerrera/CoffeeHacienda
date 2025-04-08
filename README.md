@@ -37,12 +37,6 @@ COMANDO PARA VER QUIEN HA HECHO MÁS COMMITS (PONGANSE A CHAMBEAR)
     1. git shortlog -s -n --all
 
 
-Para la BD y librerias
-
-pip install pymysql
-pip install python-dotenv
-pip install flask_sqlalchemy
-
 Advertencias en el cmd
 DEBUG: Detalles de bajo nivel, útiles para depurar.
 INFO: Información general sobre el funcionamiento de la aplicación.
@@ -51,5 +45,12 @@ ERROR: Errores que impiden que una operación se realice correctamente.
 CRITICAL: Errores muy graves, típicamente hacen que la aplicación se detenga.
 
 INSTALAR 
+
+Para la BD y librerias
+pip install pymysql
+pip install python-dotenv
+pip install flask_sqlalchemy
+
 pip install Flask-Login
+pip install Flask-Mail
 
