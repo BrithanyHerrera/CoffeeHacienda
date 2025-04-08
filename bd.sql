@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 08-04-2025 a las 01:22:09
+-- Tiempo de generación: 08-04-2025 a las 09:46:43
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -64,6 +64,20 @@ CREATE TABLE `tclientes` (
 
 INSERT INTO `tclientes` (`Id`, `nombre`) VALUES
 (36, 'Juan');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tcodigosrecuperacion`
+--
+
+CREATE TABLE `tcodigosrecuperacion` (
+  `Id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `codigo` varchar(10) NOT NULL,
+  `fecha_expiracion` datetime NOT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -380,8 +394,8 @@ CREATE TABLE `tusuarios` (
 
 INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `correo`, `rol_id`, `creado_en`) VALUES
 (6, 'Isma', '123', 'ismaelcm18182@gmail.com', 1, '2025-03-10 23:19:36'),
-(13, 'Isma2', '123', 'ismaelcm181821@gmail.com', 2, '2025-03-15 17:16:44'),
-(14, 'Bri', '25052023', 'brithanymil@gmail.com', 1, '2025-04-07 01:06:17'),
+(13, 'Isma2', '123', 'ismaelcm1818@gmail.com', 2, '2025-03-15 17:16:44'),
+(14, 'Bri', '123', 'brithanymil@gmail.com', 1, '2025-04-07 01:06:17'),
 (15, 'Ana', '1234', 'anakarenglz@gmail.com', 1, '2025-04-07 18:58:00');
 
 -- --------------------------------------------------------
@@ -424,6 +438,13 @@ ALTER TABLE `tcategorias`
 --
 ALTER TABLE `tclientes`
   ADD PRIMARY KEY (`Id`);
+
+--
+-- Indices de la tabla `tcodigosrecuperacion`
+--
+ALTER TABLE `tcodigosrecuperacion`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `usuario_id` (`usuario_id`);
 
 --
 -- Indices de la tabla `tcortescaja`
@@ -560,6 +581,12 @@ ALTER TABLE `tclientes`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
+-- AUTO_INCREMENT de la tabla `tcodigosrecuperacion`
+--
+ALTER TABLE `tcodigosrecuperacion`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
 -- AUTO_INCREMENT de la tabla `tcortescaja`
 --
 ALTER TABLE `tcortescaja`
@@ -616,6 +643,12 @@ ALTER TABLE `tventas`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `tcodigosrecuperacion`
+--
+ALTER TABLE `tcodigosrecuperacion`
+  ADD CONSTRAINT `tcodigosrecuperacion_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `tusuarios` (`Id`);
 
 --
 -- Filtros para la tabla `tcortescaja`
