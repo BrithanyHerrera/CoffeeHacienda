@@ -4,10 +4,11 @@
 
 {% block content %}
 
+<form id="formCorteCaja">
 <main class="contenidoGeneral">
     <div class="contenedorTitulo">
         <h1>Corte de Caja</h1>
-        <button id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
+        <button type="button" id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
     </div>
 
     <section class="buscador">
@@ -29,7 +30,7 @@
                 <th>Fondo</th>
                 <th>Contado</th>
                 <th>Calculado</th>
-                <th>Pagos realizados</th>
+                <th>Pagos realizados</th>   
             </tr>
         </thead>
         <tbody>
@@ -39,7 +40,7 @@
                 <td>${{ corte.fondo }}</td>
                 <td>${{ corte.total_contado }}</td>
                 <td>${{ corte.total_ventas }}</td>
-                <td>${{ corte.pagos_realizados }}</td>
+                <td>${{ corte.pagos_realizados }}</td>         
             </tr>
             {% else %}
             <tr>
@@ -66,7 +67,7 @@
                         <label for="fechaHasta">Hasta</label>
                         <input type="datetime-local" id="fechaHasta">
                     </div>
-                    <button id="btnFiltrarFechas" class="btnFiltrar">Filtrar Fechas</button>
+                    <button type="button" id="btnFiltrarFechas" class="btnFiltrar">Filtrar Fechas</button>
                 </div>
 
                 <table class="table">
@@ -89,7 +90,7 @@
                         <td><input type="number" class="input-field" id="diferenciaCheque" value="0" readonly></td>
                     </tr>
                     <tr>
-                        <td>PayPal</td>
+                        <td>Tarjeta</td>
                         <td><input type="number" class="input-field" id="vales" value="0"></td>
                         <td><input type="number" class="input-field" id="calculadoVales" value="{{ totales['paypal'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="diferenciaVales" value="0" readonly></td>
@@ -112,15 +113,66 @@
                     </tr>
                 </table>
                 <div class="contenedor">
-                <button id="btnRealizarCorte" class="btnRealizar">Realizar Corte</button>
-                <button id="btnCalcularCorte" class="btnRealizar">Calcular Corte</button>
+                <button type="button" onclick="generarCorteCajaPDF()" id="btnRealizarCorte" class="btnRealizar">Realizar Corte</button>
+                
+                <button type="button" id="btnCalcularCorte" class="btnRealizar">Calcular Corte</button>
+
                 </div>
+                <div id="alertaDiferencia" style="display:none; margin-top: 10px; padding: 10px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
+                    No puedes guardar el corte porque hay diferencias negativas.
+                </div>
+                
             </div>
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/corteCaja.js') }}"></script>
+    <div class="modal fade" id="modalDetallesCorte" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content p-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles del Corte de Caja</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="verIdCorte">---</span></p>
+                    <p><strong>Fecha inicio:</strong> <span id="detalleFechaInicio">---</span></p>
+                    <p><strong>Fecha cierre:</strong> <span id="detalleFechaCierre">---</span></p>
+                    <p><strong>Fondo:</strong> $<span id="detalleFondo">0.00</span></p>
+                    <p><strong>Total contado:</strong> $<span id="detalleContado">0.00</span></p>
+                    <p><strong>Total calculado:</strong> $<span id="detalleCalculado">0.00</span></p>
+                    <p><strong>Total efectivo:</strong> $<span id="detalleEfectivo">0.00</span></p>
+                    <p><strong>Total transferencias:</strong> $<span id="detalleTransferencias">0.00</span></p>
+                    <p><strong>Total PayPal:</strong> $<span id="detallePaypal">0.00</span></p>
+                    <p><strong>Pagos realizados:</strong> $<span id="detallePagosRealizados">0.00</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+         
+  
     <script src="{{ url_for('static', filename='js/filtrarVentas.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/corteCaja.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 </main>
+</form>
+
+<script>
+    document.querySelectorAll('input[type="number"]')
+    .forEach(input => {
+        input.addEventListener('focus', function () {
+            if (this.value === "0") {
+                this.value = "";
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            if (this.value === "") {
+                this.value = "0";
+            }
+        });
+    });
+</script>
 {% endblock %}
+  

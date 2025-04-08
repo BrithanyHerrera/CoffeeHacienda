@@ -12,7 +12,7 @@ from models.modelsProductos import (obtener_productos, obtener_categorias, obten
                                    obtener_variantes_por_producto, actualizar_variante_producto,
                                    eliminar_variantes_producto)
 from models.modelsProductosMenu import obtener_productos_menu
-from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja)
+from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja, obtener_corte_por_id)
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -451,6 +451,27 @@ def corte():
 
     return render_template('corteCaja.html', totales=totales, cortes=cortes)
 
+@app.route('/api/corteCaja/<int:id>', methods=['GET'])
+@login_required
+def get_corte_caja(id):
+    try:
+        corte = obtener_corte_por_id(id)
+        if corte:
+            return jsonify({
+                'success': True,
+                'corte': corte
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Corte de caja no encontrado'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }), 500
+
 @app.route('/guardarCorteCaja', methods=['POST'])
 @login_required
 def guardar_corte():
@@ -485,7 +506,8 @@ def guardar_corte():
             return jsonify({"success": False, "error": "Error al guardar el corte"}), 500
 
     except Exception as e:
-        return jsonify({"success": False, "error": f"Error en la ruta /guardarCorteCaja: {str(e)}"}), 500
+        return jsonify({"success": False, "error": f"Error en la ruta /guardarCorteCaja: {str(e)}"}), 500 
+
 
 
 @app.route('/reporteFinanciero')
