@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_mail import Mail, Message
 from models.modelsLogin import verificar_usuario
-from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario
+from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario , obtener_usuario_por_correo
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
@@ -10,7 +11,7 @@ from models.modelsProductos import (obtener_productos, obtener_categorias, obten
                                    agregar_producto, actualizar_producto, eliminar_producto,
                                    obtener_producto_por_id, agregar_variante_producto,
                                    obtener_variantes_por_producto, actualizar_variante_producto,
-                                   eliminar_variantes_producto)
+                                eliminar_variantes_producto)
 from models.modelsProductosMenu import obtener_productos_menu
 from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja, obtener_corte_por_id)
 from werkzeug.utils import secure_filename
@@ -24,11 +25,22 @@ from models.modelsVentas import (crear_venta, obtener_cliente_por_nombre,
                                 obtener_ordenes_pendientes, actualizar_estado_orden,
                                 obtener_detalle_orden)
 from bd import Conexion_BD
+from models.modelsRecuperacion import guardar_codigo_recuperacion, verificar_codigo_recuperacion, actualizar_contrasena_por_codigo, generar_codigo_recuperacion
 
 
 app = Flask(__name__)
 
-app.secret_key = 'mi_clave_secreta'  # Cambia esto por una clave segura
+app.secret_key = 'mi_clave_secreta'
+
+# Configuración del correo electrónico
+# ... existing code ...
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'sanvicente.coffeehacienda@gmail.com'
+app.config['MAIL_PASSWORD'] = 'v f e v k x u z m r x n f b h e'
+mail = Mail(app)
+
 
 # Configuración para subida de imágenes
 UPLOAD_FOLDER = 'static/images/productos'
@@ -973,6 +985,93 @@ def procesar_venta():
             'success': False,
             'message': f'Error al registrar la venta: {str(e)}'
         })
+        
+        
+@app.route('/recuperar-contrasena', methods=['GET', 'POST'])
+def recuperar_contrasena():
+    if request.method == 'POST':
+        correo = request.form['correo']
+        usuario = obtener_usuario_por_correo(correo)
+        
+        if usuario:
+            codigo = generar_codigo_recuperacion()
+            expiracion = datetime.now() + timedelta(minutes=30)
+            guardar_codigo_recuperacion(usuario['Id'], codigo, expiracion)
+            
+            # Store email in session
+            session['reset_email'] = correo
+            
+            try:
+                msg = Message('Recuperación de Contraseña - Coffee Hacienda',
+                            sender=app.config['MAIL_USERNAME'],
+                            recipients=[correo])
+                msg.body = f'''Para recuperar tu contraseña, utiliza el siguiente código:
+                
+{codigo}
+
+Este código expirará en 30 minutos.
+
+Si no solicitaste recuperar tu contraseña, ignora este mensaje.
+
+Saludos,
+Coffee Hacienda'''
+                
+                mail.send(msg)
+                flash('Se ha enviado un código de verificación a tu correo', 'success')
+            except Exception as e:
+                print(f"Error al enviar correo: {e}")
+                flash('Error al enviar el correo. Por favor, intenta más tarde.', 'danger')
+                return render_template('recuperar_contrasena.html')
+                
+            return redirect(url_for('verificar_codigo'))
+        else:
+            flash('Si el correo está registrado, recibirás un código de verificación', 'info')
+    
+    return render_template('recuperar_contrasena.html')
+
+@app.route('/verificar-codigo', methods=['GET', 'POST'])
+def verificar_codigo():
+    # Check if email is in session
+    if 'reset_email' not in session:
+        flash('Por favor, inicie el proceso de recuperación nuevamente', 'danger')
+        return redirect(url_for('recuperar_contrasena'))
+        
+    if request.method == 'POST':
+        codigo = request.form['codigo']
+        correo = session['reset_email']
+        
+        usuario = obtener_usuario_por_correo(correo)
+        if usuario and verificar_codigo_recuperacion(usuario['Id'], codigo):
+            return redirect(url_for('actualizar_contrasena'))
+        else:
+            flash('Código inválido o expirado', 'danger')
+    
+    return render_template('verificar_codigo.html')
+
+@app.route('/actualizar-contrasena', methods=['GET', 'POST'])
+def actualizar_contrasena():
+    # Check if user completed the code verification
+    if 'reset_email' not in session:
+        return redirect(url_for('recuperar_contrasena'))
+        
+    if request.method == 'POST':
+        nueva_contrasena = request.form['nueva_contrasena']
+        confirmar_contrasena = request.form['confirmar_contrasena']
+        
+        if nueva_contrasena != confirmar_contrasena:
+            flash('Las contraseñas no coinciden', 'danger')
+            return render_template('actualizar_contrasena.html')
+            
+        usuario = obtener_usuario_por_correo(session['reset_email'])
+        if usuario and actualizar_contrasena_por_codigo(usuario['Id'], nueva_contrasena):
+            # Clear the reset email from session
+            session.pop('reset_email', None)
+            flash('Tu contraseña ha sido actualizada correctamente', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Error al actualizar la contraseña', 'danger')
+    
+    return render_template('actualizar_contrasena.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
