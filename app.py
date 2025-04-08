@@ -74,24 +74,57 @@ def login_required(f):
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    # Limpiar cualquier sesión existente
-    session.clear()
+    session.clear()  # Limpiar cualquier sesión existente
     
     if request.method == 'POST':
         usuario = request.form['usuario']
         contrasena = request.form['contrasena']
         
-        usuario_valido = verificar_usuario(usuario, contrasena)
+        usuario_valido, rol_id = verificar_usuario(usuario, contrasena)
         
         if usuario_valido:
-            session['usuario'] = usuario
-            session['last_activity'] = datetime.now().isoformat()
-            return redirect(url_for('bienvenida'))
+            # Obtener el nombre del rol a partir del rol_id
+            conn = Conexion_BD()
+            cursor = conn.cursor()
+            cursor.execute("SELECT rol FROM troles WHERE Id = %s", (rol_id,))
+            rol_resultado = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            
+            if rol_resultado:
+                session['usuario'] = usuario
+                session['rol'] = rol_resultado['rol']  # Almacenar el nombre del rol en la sesión
+                session['last_activity'] = datetime.now().isoformat()
+                return redirect(url_for('bienvenida'))
+            else:
+                flash('Rol no encontrado', 'danger')
+                return redirect(url_for('login'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
             return redirect(url_for('login'))
     
     return render_template('login.html')
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'rol' not in session or session['rol'] != 'Administrador':
+            flash('No tienes permiso para acceder a esta página.', 'danger')
+            return redirect(url_for('bienvenida'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def verificar_usuario(usuario, contrasena):
+    conn = Conexion_BD()
+    cursor = conn.cursor()
+    cursor.execute("SELECT rol_id FROM tusuarios WHERE usuario = %s AND contrasena = %s", (usuario, contrasena))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if resultado:
+        return True, resultado['rol_id']  # Devuelve True y el rol_id
+    return False, None  # Devuelve False si no es válido
 
 @app.route('/salir')
 def salir():
@@ -139,6 +172,7 @@ def finalizarOrden():
 
 @app.route('/gestionProductos')
 @login_required
+@admin_required
 def gestion_productos():
     productos = obtener_productos()
     categorias = obtener_categorias()
@@ -347,7 +381,7 @@ def historial():
 def gestionUsuarios():
     usuarios = obtener_usuarios()
     roles = obtener_roles()
-    return render_template('gestionUsuarios.html', usuarios=usuarios, roles=roles)
+    return render_template('gestionUsuarios.html', usuarios=usuarios, roles=roles, rol=session.get('rol'))
 
 # Agregar nuevas rutas para manejar solicitudes AJAX
 @app.route('/api/usuarios/guardar', methods=['POST'])
