@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actualizar Contraseña - Coffee Hacienda</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recuperacion_contrasena.css') }}">
 </head>
 <body>
     <div class="container">
-        <img src="{{ url_for('static', filename='images/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
+        <img src="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
         <h2>Actualizar Contraseña</h2>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -20,18 +22,19 @@
         <form method="POST">
             <div class="form-group">
                 <label for="nueva_contrasena">Nueva Contraseña</label>
-                <input type="password" id="nueva_contrasena" name="nueva_contrasena" required>
+                <input type="password" id="nueva_contrasena" name="nueva_contrasena" required
+                       placeholder="Ingrese su nueva contraseña">
             </div>
             
             <div class="form-group">
                 <label for="confirmar_contrasena">Confirmar Contraseña</label>
-                <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" required>
+                <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" required
+                       placeholder="Confirme su nueva contraseña">
             </div>
             
-            <button type="submit">Cambiar Contraseña</button>
+            <button type="submit">Actualizar Contraseña</button>
+            <a href="{{ url_for('login') }}" class="link">Volver al inicio de sesión</a>
         </form>
-        
-        <a href="{{ url_for('login') }}" class="link">Volver al inicio de sesión</a>
     </div>
 </body>
 </html>

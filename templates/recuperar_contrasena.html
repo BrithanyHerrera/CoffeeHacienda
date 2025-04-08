@@ -4,41 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña - Coffee Hacienda</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/notificaciones.css') }}">
-    <script src="{{ url_for('static', filename='js/notificaciones.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recuperacion_contrasena.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo Coffee Hacienda">
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
+        <h2>Recuperar Contraseña</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="correo">Correo Electrónico</label>
+                <input type="email" id="correo" name="correo" required 
+                       placeholder="Ingrese su correo electrónico">
             </div>
-            <h2>Recuperar Contraseña</h2>
             
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            <form method="POST" action="{{ url_for('recuperar_contrasena') }}">
-                <div class="form-group">
-                    <label for="correo">Correo Electrónico</label>
-                    <input type="email" id="correo" name="correo" required>
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn-login">Enviar Código</button>
-                </div>
-                
-                <div class="links">
-                    <a href="{{ url_for('login') }}">Volver al inicio de sesión</a>
-                </div>
-            </form>
-        </div>
+            <button type="submit">Enviar Código</button>
+            <a href="{{ url_for('login') }}" class="link">Volver al inicio de sesión</a>
+        </form>
     </div>
 </body>
 </html>
