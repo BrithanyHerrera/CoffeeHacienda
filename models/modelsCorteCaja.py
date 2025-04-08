@@ -70,8 +70,7 @@ def guardar_corte_caja(
         else:
             # Hay pérdida
             if pagos_realizados > total_ventas:
-                ganancia_o_perdida = (total_ventas + fondo) - pagos_realizados
-                ganancia_o_perdida *= -1
+                ganancia_o_perdida = (total_ventas - pagos_realizados)
             else:
                 ganancia_o_perdida = 0  # No hay ni ganancia ni pérdida
 
@@ -101,4 +100,36 @@ def guardar_corte_caja(
         print(f"Error al guardar corte de caja: {e}")
 
     return resultado
+
+def obtener_corte_por_id(id):
+    connection = Conexion_BD()
+    try:
+        with connection.cursor(dictionary=True) as cursor:
+            sql = """
+                SELECT 
+                    c.id,
+                    c.vendedor_id,
+                    u.nombre_usuario AS nombre_vendedor,
+                    c.fecha_hora_inicio,
+                    c.fecha_hora_cierre,
+                    c.total_ventas,
+                    c.total_efectivo,
+                    c.total_transferencias,
+                    c.total_paypal,
+                    c.total_contado,
+                    c.pagos_realizados,
+                    c.fondo,
+                    c.ganancia_o_perdida
+                FROM tcortescaja c
+                JOIN tusuarios u ON c.vendedor_id = u.Id
+                WHERE c.id = %s
+            """
+            cursor.execute(sql, (id,))
+            return cursor.fetchone()
+    except Exception as e:
+        print(f"Error al obtener corte de caja por ID: {e}")
+        return None
+    finally:
+        connection.close()
+
 

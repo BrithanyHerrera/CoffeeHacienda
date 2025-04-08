@@ -28,37 +28,84 @@ document.getElementById('btnFiltrarFechas').addEventListener('click', function (
     .catch(error => console.error('Error al obtener las ventas:', error));
 
 })
-// Botón para calcular los totales cuando se hace clic en "Calcular Corte"
+
 document.getElementById('btnCalcularCorte').addEventListener('click', function () {
-    // Calcular la diferencia
-    document.getElementById('diferencia').value = 
-        parseFloat(document.getElementById('contado').value) - parseFloat(document.getElementById('calculado').value);
-    document.getElementById('diferenciaCheque').value = 
-        parseFloat(document.getElementById('cheque').value) - parseFloat(document.getElementById('calculadoCheque').value);
-    document.getElementById('diferenciaVales').value = 
-        parseFloat(document.getElementById('vales').value) - parseFloat(document.getElementById('calculadoVales').value);
+    // Obtener elementos
+    const contado = parseFloat(document.getElementById('contado').value) || 0;
+    const cheque = parseFloat(document.getElementById('cheque').value) || 0;
+    const vales = parseFloat(document.getElementById('vales').value) || 0;
+
+    const calculado = parseFloat(document.getElementById('calculado').value) || 0;
+    const calculadoCheque = parseFloat(document.getElementById('calculadoCheque').value) || 0;
+    const calculadoVales = parseFloat(document.getElementById('calculadoVales').value) || 0;
+
+    // Diferencias
+    const diferencia = contado - calculado;
+    const diferenciaCheque = cheque - calculadoCheque;
+    const diferenciaVales = vales - calculadoVales;
+
+    // Actualizar diferencias
+    const diffInput = document.getElementById('diferencia');
+    const diffChequeInput = document.getElementById('diferenciaCheque');
+    const diffValesInput = document.getElementById('diferenciaVales');
+
+    diffInput.value = diferencia;
+    diffChequeInput.value = diferenciaCheque;
+    diffValesInput.value = diferenciaVales;
+
+    // Resetear estilos
+    [diffInput, diffChequeInput, diffValesInput].forEach(input => {
+        input.style.color = 'black';
+        input.style.backgroundColor = '';
+    });
+
+    let diferenciasNegativas = false;
+
+    // Aplicar estilo rojo si es negativo
+    if (diferencia < 0) {
+        diffInput.style.color = 'white';
+        diffInput.style.backgroundColor = '#e74c3c'; // rojo
+        diferenciasNegativas = true;
+    }
+
+    if (diferenciaCheque < 0) {
+        diffChequeInput.style.color = 'white';
+        diffChequeInput.style.backgroundColor = '#e74c3c';
+        diferenciasNegativas = true;
+    }
+
+    if (diferenciaVales < 0) {
+        diffValesInput.style.color = 'white';
+        diffValesInput.style.backgroundColor = '#e74c3c';
+        diferenciasNegativas = true;
+    }
 
     // Calcular totales
-    let totalContado = parseFloat(document.getElementById('contado').value) + 
-                       parseFloat(document.getElementById('cheque').value) + 
-                       parseFloat(document.getElementById('vales').value); // Incluir tarjeta si es necesario
+    const totalContado = contado + cheque + vales;
+    const totalCalculado = calculado + calculadoCheque + calculadoVales;
+    const totalDiferencia = totalContado - totalCalculado;
 
-    // Calcular el total
-    let totalCalculado = parseFloat(document.getElementById('calculado').value) + 
-                         parseFloat(document.getElementById('calculadoCheque').value) + 
-                         parseFloat(document.getElementById('calculadoVales').value);
-
-    let totalDiferencia = totalContado - totalCalculado;
-
-    // Actualizar la fila del total
+    // Mostrar totales
     document.getElementById('total').value = totalContado;
     document.getElementById('total2').value = totalCalculado;
     document.getElementById('totalDiferencia').value = totalDiferencia;
+
+    // Mostrar u ocultar la advertencia
+    const alerta = document.getElementById('alertaDiferencia');
+    const btnGuardar = document.getElementById('btnRealizarCorte');
+
+    if (diferenciasNegativas) {
+        alerta.style.display = 'block';
+        btnGuardar.disabled = true;
+    } else {
+        alerta.style.display = 'none';
+        btnGuardar.disabled = false;
+    }
 });
 
-// Función para guardar el corte de caja
+
 document.getElementById('btnRealizarCorte').addEventListener('click', function (event) {
-    event.preventDefault();
+    event.preventDefault();  // Prevenir el comportamiento predeterminado (como redirección o descarga)
 
     // Obtener los valores de los campos
     const fechaDesde = document.getElementById('fechaDesde').value;
@@ -71,19 +118,32 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     const pagosRealizados = parseFloat(document.getElementById('pagos_realizados').value);
     const fondo = parseFloat(document.getElementById('fondo').value);
 
-    // Verificar que las fechas estén presentes
+    // Validaciones de campos
     if (!fechaDesde || !fechaHasta) {
         alert("Por favor, selecciona las fechas de inicio y cierre.");
-        return;  // Evita continuar si las fechas no están completas
+        return;
     }
 
-    // Verificar que los valores sean válidos
-    if (isNaN(totalVentas) || isNaN(totalContado) || isNaN(totalEfectivo) || isNaN(totalTransferencias) || isNaN(totalPaypal) || isNaN(pagosRealizados) || isNaN(fondo)) {
+    if (
+        isNaN(totalVentas) || isNaN(totalContado) || isNaN(totalEfectivo) ||
+        isNaN(totalTransferencias) || isNaN(totalPaypal) ||
+        isNaN(pagosRealizados) || isNaN(fondo)
+    ) {
         alert("Por favor, asegúrate de que todos los campos numéricos estén completos y sean válidos.");
         return;
     }
 
-    // Log de los datos que se van a enviar
+    // Verificación de que los pagos no exceden el fondo disponible
+    const totalDisponible = totalVentas + fondo;
+    if (pagosRealizados > totalDisponible) {
+        alert(`❌ No se puede realizar el corte.\nLos pagos realizados (${pagosRealizados}) superan el total disponible (${totalDisponible}).`);
+        
+        // Detenemos el evento y evitamos la descarga
+        event.stopImmediatePropagation();  // Detener la propagación del evento de click
+        return;  // Terminar la función sin continuar con la descarga o envío
+    }
+
+    // Si los pagos realizados no superan el total disponible, continuar con la lógica de guardado
     console.log("Enviando datos al servidor: ");
     console.log({
         fecha_hora_inicio: fechaDesde,
@@ -97,7 +157,7 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         fondo: fondo
     });
 
-    // Realizamos la solicitud con fetch
+    // Lógica para enviar los datos y generar el PDF (solo si los pagos son válidos)
     fetch('/guardarCorteCaja', {
         method: 'POST',
         headers: {
@@ -115,19 +175,137 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
             fondo: fondo
         })
     })
-    .then(response => {
-        console.log(response);  // Muestra la respuesta completa
-        return response.json(); // Intenta convertir a JSON
-    })
+    .then(response => response.json())  // Manejo de respuesta JSON
     .then(data => {
-        console.log(data); // Muestra el JSON recibido
         if (data.success) {
-            alert("Corte de caja guardado exitosamente.");
+            // Si el corte fue exitoso, proceder con la lógica de generación del PDF (o lo que corresponda)
+            alert("Corte realizado correctamente.");
+            location.reload();  // Recargar la página
         } else {
-            alert("Hubo un problema al guardar el corte: " + data.error);
+            alert("Error al realizar el corte: " + data.error);
         }
-    })    
+    })
     .catch(error => {
         alert('Error al guardar el corte de caja: ' + error);
     });
 });
+
+function generarCorteCajaPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Verificar si autoTable está cargado correctamente
+    if (!doc.autoTable) {
+        console.error("autoTable no está cargado correctamente.");
+        alert("Error al generar el PDF. Asegúrate de incluir la librería jsPDF.");
+        return;
+    }
+
+    const margenIzquierdo = 10;
+    let posicionY = 10;
+
+    const fechaHora = new Date().toLocaleString();
+    const nombreVendedor = "Administrador"; // Puedes hacerlo dinámico si tienes login
+
+    doc.setFont("times", "normal");
+
+    doc.setFontSize(16);
+    doc.text("CORTE DE CAJA", 105, posicionY, { align: "center" });
+    posicionY += 10;
+
+    doc.setLineWidth(0.5);
+    doc.line(margenIzquierdo, posicionY, 200, posicionY);
+    posicionY += 10;
+
+    doc.setFontSize(12);
+    doc.text(`Fecha y Hora: ${fechaHora}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    doc.text(`Vendedor: ${nombreVendedor}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+
+    doc.setLineWidth(0.5);
+    doc.line(margenIzquierdo, posicionY, 200, posicionY);
+    posicionY += 10;
+
+    // Obtener los valores de los pagos y datos
+    const efectivo = document.getElementById('contado').value;
+    const calculadoEfectivo = document.getElementById('calculado').value;
+    const diferenciaEfectivo = document.getElementById('diferencia').value;
+
+    const transferencia = document.getElementById('cheque').value;
+    const calculadoTransf = document.getElementById('calculadoCheque').value;
+    const diferenciaTransf = document.getElementById('diferenciaCheque').value;
+
+    const paypal = document.getElementById('vales').value;
+    const calculadoPaypal = document.getElementById('calculadoVales').value;
+    const diferenciaPaypal = document.getElementById('diferenciaVales').value;
+
+    const total = document.getElementById('total').value;
+    const total2 = document.getElementById('total2').value;
+    const totalDiferencia = document.getElementById('totalDiferencia').value;
+
+    const fondo = document.getElementById('fondo') ? document.getElementById('fondo').value : '0';
+    const pagosRealizados = document.getElementById('pagos_realizados').value;
+
+    // Crear la tabla de corte de caja
+    const columnas = ["Método", "Contado", "Calculado", "Diferencia"];
+    const filas = [
+        ["Efectivo", `$${efectivo}`, `$${calculadoEfectivo}`, `$${diferenciaEfectivo}`],
+        ["Transferencias", `$${transferencia}`, `$${calculadoTransf}`, `$${diferenciaTransf}`],
+        ["Tarjeta", `$${paypal}`, `$${calculadoPaypal}`, `$${diferenciaPaypal}`],
+        ["TOTAL", `$${total}`, `$${total2}`, `$${totalDiferencia}`],
+        ["", "", "", ""],
+        ["FONDO", `$${fondo}`, "", ""],
+        ["PAGOS REALIZADOS", `$${pagosRealizados}`, "", ""]
+    ];
+
+    // Crear la tabla en el PDF
+    doc.autoTable({
+        startY: posicionY,
+        head: [columnas],
+        body: filas,
+        styles: {
+            halign: 'center',
+        },
+        headStyles: {
+            fillColor: [189, 215, 238], // Azul claro
+            textColor: 0,
+            fontStyle: 'bold'
+        }
+    });
+
+    // Guardar el PDF
+    doc.save("corte_de_caja.pdf");
+}
+
+function verDetallesCorte(id) {
+    fetch(`/api/corteCaja/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const corte = data.corte;
+
+                // Rellenar los campos del modal con la información del corte
+                document.getElementById('verIdCorte').textContent = corte.Id;
+                document.getElementById('detalleFechaInicio').textContent = corte.fecha_hora_inicio || '---';
+                document.getElementById('detalleFechaCierre').textContent = corte.fecha_hora_cierre || '---';
+                document.getElementById('detalleFondo').textContent = corte.fondo.toFixed(2);
+                document.getElementById('detalleContado').textContent = corte.total_contado.toFixed(2);
+                document.getElementById('detalleCalculado').textContent = corte.total_ventas.toFixed(2);
+                document.getElementById('detalleEfectivo').textContent = corte.total_efectivo.toFixed(2);
+                document.getElementById('detalleTransferencias').textContent = corte.total_transferencias.toFixed(2);
+                document.getElementById('detallePaypal').textContent = corte.total_paypal.toFixed(2);
+                document.getElementById('detallePagosRealizados').textContent = corte.pagos_realizados.toFixed(2);
+
+                // Mostrar el modal con Bootstrap
+                const modal = new bootstrap.Modal(document.getElementById('modalDetallesCorte'));
+                modal.show();
+            } else {
+                alert("No se pudo obtener la información del corte.");
+            }
+        })
+        .catch(error => {
+            console.error('Error al obtener los detalles del corte:', error);
+            alert("Ocurrió un error.");
+        });
+}
