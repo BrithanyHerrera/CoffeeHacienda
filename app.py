@@ -86,7 +86,15 @@ def login_required(f):
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
+     # Guardar la bandera antes de limpiar la sesión
+    password_reset = 'password_reset' in session
+    
     session.clear()  # Limpiar cualquier sesión existente
+    
+    # Verificar si venía de un restablecimiento de contraseña
+    if password_reset:
+        flash('Contraseña actualizada correctamente.', 'success')
+    
     
     if request.method == 'POST':
         usuario = request.form['usuario']
@@ -1065,7 +1073,6 @@ def actualizar_contrasena():
         
         usuario = obtener_usuario_por_correo(session['reset_email'])
         
-        # Verificar si la nueva contraseña es igual a la actual
         if usuario and usuario['contrasena'] == nueva_contrasena:
             flash('La nueva contraseña no puede ser igual a la anterior', 'danger')
             return render_template('actualizar_contrasena.html')
@@ -1076,12 +1083,15 @@ def actualizar_contrasena():
             
         if usuario and actualizar_contrasena_por_codigo(usuario['Id'], nueva_contrasena):
             session.pop('reset_email', None)
-            flash('Tu contraseña ha sido actualizada correctamente', 'success')
+            # Establecer la bandera para mostrar mensaje en login
+            session['password_reset'] = True
+            # No mostrar flash aquí, se mostrará en la página de login
             return redirect(url_for('login'))
         else:
             flash('Error al actualizar la contraseña', 'danger')
     
     return render_template('actualizar_contrasena.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

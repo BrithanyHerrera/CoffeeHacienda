@@ -265,7 +265,7 @@ form {
     justify-content: center;
     gap: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    animation: slideDown 0.3s ease-out, fadeOut 0.5s ease-out 3s forwards;
+    animation: slideDown 0.3s ease-out, fadeOut 0.5s ease-out 8s forwards;
 }
 
 .alert-danger {
@@ -295,13 +295,14 @@ form {
 }
 
 .alert-danger::before {
-    content: '\ed83';
+    content: '✗';
     color: #ff4d4f;
 }
 
 .alert-success::before {
-    content: '\e9da';
+    content: '✓';  
     color: #52c41a;
+    font-size: 1.2rem;
 }
 
 @keyframes slideDown {
