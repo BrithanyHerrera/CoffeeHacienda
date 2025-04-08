@@ -21,49 +21,48 @@ function cargarOrdenes() {
                 }
 
                 data.ordenes.forEach(orden => {
-                    // Formatear la fecha
-                    const fecha = new Date(orden.fecha_hora);
-                    const fechaFormateada = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+                    // Convertir la fecha correctamente a la zona horaria local
+                    const fechaUTC = new Date(orden.fecha_hora);
+                    const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
                     
+                    // Formatear fecha y hora en formato 24 horas
+                    const dia = fechaLocal.getDate().toString().padStart(2, '0');
+                    const mes = (fechaLocal.getMonth() + 1).toString().padStart(2, '0');
+                    const anio = fechaLocal.getFullYear();
+                    const horas = fechaLocal.getHours().toString().padStart(2, '0');
+                    const minutos = fechaLocal.getMinutes().toString().padStart(2, '0');
+                    const segundos = fechaLocal.getSeconds().toString().padStart(2, '0');
+
+                    const fechaFormateada = `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
+
+                    console.log("Fecha API:", orden.fecha_hora, "→ Convertida:", fechaFormateada);
+
                     // Determinar la clase CSS para el estado
-                    let estadoClase = '';
-                    if (orden.estado === 'Pendiente') {
-                        estadoClase = 'Pendiente'; // This should match the CSS class
-                    } else if (orden.estado === 'En proceso') {
-                        estadoClase = 'EnProceso'; // This should match the CSS class
-                    } else if (orden.estado === 'Completado') {
-                        estadoClase = 'Completada'; // This should match the CSS class
-                    } else if (orden.estado === 'Cancelado') {
-                        estadoClase = 'Cancelada'; // This should match the CSS class
-                    }
-                    
+                    let estadoClase = {
+                        'Pendiente': 'Pendiente',
+                        'En proceso': 'EnProceso',
+                        'Completado': 'Completada',
+                        'Cancelado': 'Cancelada'
+                    }[orden.estado] || '';
+
                     // Determinar qué botones mostrar según el estado
-                    let botonesHTML = '';
-                    
-                    // Botón Ver siempre está disponible (columna 1)
-                    botonesHTML += `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️ Ver</button>`;
-                    
-                    // Mostrar botones según el estado actual
+                    let botonesHTML = `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️ Ver</button>`;
+
                     if (orden.estado === 'Pendiente') {
-                        // Desde Pendiente solo se puede pasar a En proceso (columna 2) o Cancelado (columna 4)
                         botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">⏳ Procesando</button>`;
                         botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
                     } else if (orden.estado === 'En proceso') {
-                        // Desde En proceso solo se puede pasar a Completado (columna 3) o Cancelado (columna 4)
                         botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">✔️ Lista</button>`;
                         botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
                     }
-                    // Para estados Completado o Cancelado no se muestran botones adicionales
-                    
+
                     // Crear la fila de la tabla
                     let fila = `
                         <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}">
                             <td>${orden.cliente}</td>
                             <td>${fechaFormateada}</td>
                             <td><span class="estadoOrden ${estadoClase}">${orden.estado}</span></td>
-                            <td>
-                                ${botonesHTML}
-                            </td>
+                            <td>${botonesHTML}</td>
                         </tr>
                     `;
                     
@@ -73,18 +72,15 @@ function cargarOrdenes() {
                 console.error('Error al cargar órdenes:', data.message);
             }
         })
-        .catch(error => {
-            console.error('Error en la solicitud:', error);
-        });
+        .catch(error => console.error('Error en la solicitud:', error));
 }
 
+
 function verDetallesOrden(id) {
-    // Obtener los detalles de la orden desde la API
     fetch(`/api/ordenes/${id}/detalles`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Obtener información de la orden desde la fila de la tabla
                 const fila = document.querySelector(`tr[data-id="${id}"]`);
                 const cliente = fila.getAttribute('data-cliente');
                 const fecha = fila.getAttribute('data-fecha');
@@ -102,7 +98,6 @@ function verDetallesOrden(id) {
                                 <span class="estado-badge">Activa</span>
                             </div>
                         </div>
-                        
                         <div class="orden-cliente-info">
                             <div class="info-grupo">
                                 <span class="info-label">Cliente:</span>
@@ -112,14 +107,9 @@ function verDetallesOrden(id) {
                                 <span class="info-label">Fecha:</span>
                                 <span class="info-value">${fecha}</span>
                             </div>
-                            ${mesa ? `
-                            <div class="info-grupo">
-                                <span class="info-label">Mesa:</span>
-                                <span class="info-value">${mesa}</span>
-                            </div>` : ''}
+                            ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${mesa}</span></div>` : ''}
                         </div>
                     </div>
-                    
                     <div class="productosOrden">
                         <h4 class="productos-titulo">Detalle de Productos</h4>
                         <div class="tabla-responsive">
@@ -133,7 +123,7 @@ function verDetallesOrden(id) {
                                     </tr>
                                 </thead>
                                 <tbody>`;
-                
+
                 let subtotal = 0;
                 data.detalles.forEach(detalle => {
                     const precioFormateado = parseFloat(detalle.precio).toFixed(2);
@@ -148,7 +138,7 @@ function verDetallesOrden(id) {
                             <td class="subtotal-producto">$${subtotalItem}</td>
                         </tr>`;
                 });
-                
+
                 detallesHTML += `
                                 </tbody>
                                 <tfoot>
@@ -186,15 +176,13 @@ function cambiarEstadoOrden(id, nuevoEstado) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            estado: nuevoEstado
-        })
+        body: JSON.stringify({ estado: nuevoEstado })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             alert(data.message);
-            cargarOrdenes(); // Recargar la lista de órdenes
+            cargarOrdenes();
         } else {
             alert('Error: ' + data.message);
         }
@@ -204,20 +192,14 @@ function cambiarEstadoOrden(id, nuevoEstado) {
     });
 }
 
-function buscarOrdenes() {
+function buscarVentas() {
     const busqueda = document.getElementById('buscarCliente').value.toLowerCase();
-    const filas = document.querySelectorAll('#tablaOrdenes tr');
-    
-    filas.forEach(fila => {
-        const cliente = fila.querySelector('td:first-child').textContent.toLowerCase();
-        if (cliente.includes(busqueda)) {
-            fila.style.display = '';
-        } else {
-            fila.style.display = 'none';
-        }
+    document.querySelectorAll('#tablaOrdenes tr').forEach(fila => {
+        fila.style.display = fila.querySelector('td:first-child').textContent.toLowerCase().includes(busqueda) ? '' : 'none';
     });
 }
 
 function reestablecerFiltros() {
     document.getElementById('buscarCliente').value = '';
-    cargarOrdenes();}
+    cargarOrdenes();
+}
