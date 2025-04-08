@@ -452,6 +452,7 @@ def filtrar_ventas_route():
 @app.route('/corteCaja', methods=['GET', 'POST'])
 @login_required  # Ruta protegida para asegurar que solo los usuarios logueados puedan acceder
 def corte():
+    nombre_usuario = session['usuario']
     if request.method == 'POST':
         try:
             # Obtener los datos del formulario (no JSON)
@@ -495,7 +496,7 @@ def corte():
         """)
         cortes = cursor.fetchall()
 
-    return render_template('corteCaja.html', totales=totales, cortes=cortes)
+    return render_template('corteCaja.html', totales=totales, cortes=cortes, nombre_usuario=nombre_usuario)
 
 @app.route('/api/corteCaja/<int:id>', methods=['GET'])
 @login_required
