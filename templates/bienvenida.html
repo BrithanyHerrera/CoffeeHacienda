@@ -21,7 +21,9 @@
                         Hay {{ alertas_normales }} producto{% if alertas_normales > 1 %}s{% endif %} en estado de alerta.
                     {% endif %}
                 </p>
+                {% if session['rol'] == 'Administrador' %}
                 <a href="/inventario" class="btnVerInventario">Ver Inventario</a>
+                {% endif %}
             </div>
             <button class="cerrarAlerta" onclick="this.parentElement.style.display='none'">×</button>
         </div>
