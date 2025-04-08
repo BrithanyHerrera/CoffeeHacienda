@@ -37,28 +37,43 @@ window.onclick = function(event) {
 }
 
 function buscarUsuario() {
-    const nombreUsuario = document.getElementById('buscarUsuario').value.toLowerCase();
+    const nombreUsuario = document.getElementById('buscarUsuario').value.trim().toLowerCase();
     const fechaInicio = document.getElementById('fechaInicio').value;
     const fechaFin = document.getElementById('fechaFin').value;
 
-    console.log("Nombre buscado:", nombreUsuario);
-    console.log("Fecha inicio:", fechaInicio, "Fecha fin:", fechaFin);
+    console.log("🔍 BUSCANDO...");
+    console.log("Nombre ingresado:", nombreUsuario);
+    console.log("Fecha inicio:", fechaInicio);
+    console.log("Fecha fin:", fechaFin);
 
-    // Selecciona las filas de la tabla principal
+    // Obtiene todas las filas de la tabla
     const filas = document.querySelectorAll('.table tbody tr');
+    console.log(`Total de filas encontradas: ${filas.length}`);
+
     filas.forEach(fila => {
-        const usuarioNombre = fila.querySelector('td:nth-child(7)').textContent.toLowerCase();
-        const fechaRegistro = fila.querySelector('td:nth-child(1)').textContent;
+        const usuarioNombreCell = fila.querySelector('td:nth-child(1)'); // Usuario está en la primera columna
+        const fechaRegistroCell = fila.querySelector('td:nth-child(2)'); // Fecha está en la segunda columna
 
-        console.log("Usuario actual:", usuarioNombre, "Fecha registro:", fechaRegistro);
+        if (!usuarioNombreCell || !fechaRegistroCell) {
+            console.warn("⚠️ Fila sin datos de usuario o fecha, saltando...");
+            return;
+        }
 
-        const coincideNombre = !nombreUsuario || usuarioNombre.includes(nombreUsuario);
+        const usuarioNombre = usuarioNombreCell.textContent.trim().toLowerCase();
+        const fechaRegistro = fechaRegistroCell.textContent.trim();
+
+        console.log(`Fila actual -> Usuario: ${usuarioNombre}, Fecha: ${fechaRegistro}`);
+
+        // Verifica si el usuario coincide con la búsqueda
+        const coincideNombre = nombreUsuario === "" || usuarioNombre.includes(nombreUsuario);
         const coincideFechaInicio = !fechaInicio || new Date(fechaRegistro) >= new Date(fechaInicio);
         const coincideFechaFin = !fechaFin || new Date(fechaRegistro) <= new Date(fechaFin);
 
         if (coincideNombre && coincideFechaInicio && coincideFechaFin) {
+            console.log("✅ Coincidencia encontrada, mostrando fila.");
             fila.style.display = ''; // Muestra la fila
         } else {
+            console.log("❌ No coincide, ocultando fila.");
             fila.style.display = 'none'; // Oculta la fila
         }
     });
@@ -74,4 +89,8 @@ function reestablecerFiltros() {
     filas.forEach(fila => {
         fila.style.display = ''; // Muestra todas las filas
     });
+
+    console.log("🔄 Filtros restablecidos. Se muestran todas las filas.");
 }
+
+
