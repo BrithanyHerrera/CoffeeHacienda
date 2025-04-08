@@ -11,6 +11,7 @@
         <button type="button" id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
     </div>
 
+    <!--
     <section class="buscador">
         <section id="formBuscador">
             <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" oninput="buscarUsuario()">
@@ -21,11 +22,13 @@
             <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
         </section>
     </section>
+    -->
 
     <!-- Tabla Principal -->
     <table class="table">
         <thead>
             <tr>
+                <th>Usuario</th>
                 <th>Fecha</th>
                 <th>Fondo</th>
                 <th>Contado</th>
@@ -36,6 +39,7 @@
         <tbody>
             {% for corte in cortes %}
             <tr>
+                <td>{{ nombre_usuario }}</td>
                 <td>{{ corte.fecha_hora_cierre.strftime('%Y-%m-%d') }}</td>
                 <td>${{ corte.fondo }}</td>
                 <td>${{ corte.total_contado }}</td>
@@ -149,6 +153,10 @@
         </div>
     </div>
          
+
+    <script>
+        var nombreUsuario = "{{ nombre_usuario | default('No especificado') }}";
+    </script>
   
     <script src="{{ url_for('static', filename='js/filtrarVentas.js') }}"></script>
     <script src="{{ url_for('static', filename='js/corteCaja.js') }}"></script>
