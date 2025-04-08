@@ -151,3 +151,21 @@ def obtener_roles():
         return []
     finally:
         connection.close()
+
+def obtener_usuario_por_correo(correo):
+    connection = Conexion_BD()
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+                SELECT u.*, r.rol
+                FROM tusuarios u 
+                JOIN troles r ON u.rol_id = r.Id 
+                WHERE u.correo = %s
+            """
+            cursor.execute(sql, (correo,))
+            return cursor.fetchone()
+    except Exception as e:
+        print(f"Error al obtener usuario por correo: {e}")
+        return None
+    finally:
+        connection.close()
