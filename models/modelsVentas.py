@@ -108,7 +108,7 @@ def obtener_ordenes_pendientes():
         
         query = """
         SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente,
-               v.numero_mesa, e.estado, m.tipo_de_pago AS metodo_pago
+                v.numero_mesa, e.estado, m.tipo_de_pago AS metodo_pago
         FROM tventas v
         JOIN tusuarios u ON v.vendedor_id = u.id
         JOIN tclientes c ON v.cliente_id = c.id
