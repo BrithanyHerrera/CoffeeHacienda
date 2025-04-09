@@ -860,28 +860,25 @@ def api_detalle_venta(id):
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 # Ruta para procesar ventas desde el menú
-# Modificación en la ruta de procesar venta para verificar stock
 @app.route('/api/ventas/crear', methods=['POST'])
 @login_required
 def procesar_venta():
     try:
         data = request.json
-        print("Datos recibidos:", data)  # Agregar log para depuración
+        print("Datos recibidos:", data)
         
         nombre_cliente = data.get('cliente', 'Cliente General')
-        numero_mesa = data.get('mesa', '')  # Obtener el número de mesa
+        numero_mesa = data.get('mesa', '')
         productos = data.get('productos', [])
         total = data.get('total', 0)
-        metodo_pago_id = data.get('metodo_pago', 1)  # Default: Efectivo
+        metodo_pago_id = data.get('metodo_pago', 1)
         
-        # Verificar datos recibidos
         if not productos:
             return jsonify({
                 'success': False,
                 'message': 'No se proporcionaron productos'
             })
             
-        # Verificar que los productos existan en la base de datos y tengan stock suficiente
         conn = Conexion_BD()
         cursor = conn.cursor()
         
@@ -893,26 +890,31 @@ def procesar_venta():
             producto_id = int(producto['id'])
             cantidad_solicitada = int(producto['cantidad'])
             
-            # Verificar que el producto exista y obtener su stock actual
-            cursor.execute("SELECT Id, nombre_producto, stock FROM tproductos WHERE Id = %s", (producto_id,))
+            # Verificar producto y su categoría
+            cursor.execute("""
+                SELECT p.Id, p.nombre_producto, p.stock, c.requiere_inventario, c.categoria
+                FROM tproductos p
+                JOIN tcategorias c ON p.categoria_id = c.id
+                WHERE p.Id = %s
+            """, (producto_id,))
             resultado = cursor.fetchone()
             
             if resultado:
-                stock_actual = resultado['stock']
+                # Solo verificar stock si requiere inventario o es Postre/Snack
+                requiere_stock = resultado['requiere_inventario'] == 1 or resultado['categoria'] in ['Postre', 'Snack']
                 
-                # Verificar si hay suficiente stock
-                if stock_actual >= cantidad_solicitada:
+                if requiere_stock and resultado['stock'] < cantidad_solicitada:
+                    productos_sin_stock.append({
+                        'id': producto_id,
+                        'nombre': resultado['nombre_producto'],
+                        'stock_actual': resultado['stock'],
+                        'cantidad_solicitada': cantidad_solicitada
+                    })
+                else:
                     productos_validos.append({
                         'id': producto_id,
                         'cantidad': cantidad_solicitada,
                         'precio': float(producto['precio'])
-                    })
-                else:
-                    productos_sin_stock.append({
-                        'id': producto_id,
-                        'nombre': resultado['nombre_producto'],
-                        'stock_actual': stock_actual,
-                        'cantidad_solicitada': cantidad_solicitada
                     })
             else:
                 productos_invalidos.append(producto_id)
@@ -921,7 +923,6 @@ def procesar_venta():
         cursor.close()
         conn.close()
         
-        # Si hay productos sin stock suficiente, rechazar la venta
         if productos_sin_stock:
             mensaje_error = "No hay suficiente stock para los siguientes productos:\n"
             for p in productos_sin_stock:
@@ -939,13 +940,10 @@ def procesar_venta():
                 'message': f'Los siguientes productos no existen en la base de datos: {productos_invalidos}'
             })
             
-        # Obtener el ID del cliente (o crear uno nuevo)
+        # Resto del código para procesar la venta...
         cliente_id = obtener_cliente_por_nombre(nombre_cliente)
-        
-        # Obtener el ID del vendedor (usuario actual)
         usuario_actual = session.get('usuario', '')
         
-        # Obtener el ID del usuario desde la base de datos
         conn = Conexion_BD()
         cursor = conn.cursor()
         cursor.execute("SELECT Id FROM tusuarios WHERE usuario = %s", (usuario_actual,))
@@ -953,16 +951,9 @@ def procesar_venta():
         cursor.close()
         conn.close()
         
-        if usuario_db:
-            vendedor_id = usuario_db['Id']
-        else:
-            # Si no se encuentra el usuario, usar un ID por defecto
-            vendedor_id = 1
+        vendedor_id = usuario_db['Id'] if usuario_db else 1
         
-        # Crear la venta solo con productos válidos
         if productos_validos:
-            # Pasar el número de mesa a la función crear_venta
-            # Verificar qué estados existen en la tabla testadosventa
             conn = Conexion_BD()
             cursor = conn.cursor()
             cursor.execute("SELECT Id FROM testadosventa LIMIT 1")
@@ -970,10 +961,9 @@ def procesar_venta():
             cursor.close()
             conn.close()
             
-            # Usar el primer estado disponible o el valor 4 como respaldo
             estado_id = estado_result['Id'] if estado_result else 4
             
-            print(f"Usando estado_id: {estado_id}")  # Depuración
+            print(f"Usando estado_id: {estado_id}")
             
             exito, venta_id = crear_venta(cliente_id, vendedor_id, total, productos_validos, metodo_pago_id, numero_mesa, estado_id)
             
@@ -999,7 +989,6 @@ def procesar_venta():
             'success': False,
             'message': f'Error al registrar la venta: {str(e)}'
         })
-        
         
 @app.route('/recuperar-contrasena', methods=['GET', 'POST'])
 def recuperar_contrasena():

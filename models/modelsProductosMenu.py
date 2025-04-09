@@ -8,13 +8,13 @@ def obtener_productos_menu():
         connection = Conexion_BD()
         if not connection:
             print("No se pudo conectar a la base de datos")
-            return productos  # Retorna una lista vacía si no hay conexión
+            return productos
         
         with connection.cursor(DictCursor) as cursor:
             query = """
-            SELECT p.id, p.nombre_producto, p.descripcion, p.precio, p.stock, 
+            SELECT p.id, p.nombre_producto, p.descripcion, p.precio, p.stock,
                    p.stock_minimo, p.stock_maximo, p.categoria_id, p.ruta_imagen, 
-                   c.categoria
+                   c.categoria, c.requiere_inventario
             FROM tproductos p 
             LEFT JOIN tcategorias c ON p.categoria_id = c.id
             ORDER BY p.nombre_producto
@@ -28,10 +28,8 @@ def obtener_productos_menu():
 
         connection.close()
         
-        print("Productos obtenidos de la BD:", productos)  # Depuración
-        
     except Exception as e:
-        print(f"Error al obtener productos: {e}")  # Depuración
+        print(f"Error al obtener productos: {e}")
     
     return productos
 
