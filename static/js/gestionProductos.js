@@ -223,13 +223,34 @@ function manejarCambioCategoria() {
     const categoriaSelect = document.getElementById('categoriaProducto');
     const tamanoSelect = document.getElementById('tamanoProducto');
     const categoriaId = categoriaSelect.value;
+    const categoriaText = categoriaSelect.options[categoriaSelect.selectedIndex]?.text.trim().toLowerCase();
     
     if (!categoriaId) {
         // Si no hay categoría seleccionada, no hacer nada
         return;
     }
     
-    // Obtener información de la categoría para saber si requiere inventario
+    // Verificar si la categoría es "Postre" o "Snack" directamente
+    const esInventariable = categoriaText === 'postre' || 
+                           categoriaText === 'postres' || 
+                           categoriaText === 'snack' || 
+                           categoriaText === 'snacks';
+    
+    if (esInventariable) {
+        // Mostrar campos de stock para categorías inventariables
+        mostrarOcultarCamposStock(true);
+        
+        // Buscar el valor de "No Aplica" en las opciones de tamaño
+        for (let i = 0; i < tamanoSelect.options.length; i++) {
+            if (tamanoSelect.options[i].text === 'No Aplica') {
+                tamanoSelect.value = tamanoSelect.options[i].value;
+                break;
+            }
+        }
+        return;
+    }
+    
+    // Para otras categorías, obtener información para saber si requiere inventario
     fetch(`/api/categorias/${categoriaId}`)
         .then(response => response.json())
         .then(data => {
@@ -273,22 +294,25 @@ function manejarCambioTamano() {
     
     console.log("Tamaño seleccionado:", tamanoText); // Para depuración
     
-    // Si se selecciona "No Aplica", buscar y seleccionar la categoría "Postre"
+    // Si se selecciona "No Aplica", buscar y seleccionar la categoría "Postre" o "Snack"
     if (tamanoText === 'No Aplica') {
-        console.log("Buscando categoría Postre..."); // Para depuración
+        console.log("Buscando categoría Postre o Snack..."); // Para depuración
         
-        // Buscar la categoría "Postre" en las opciones
-        let postreEncontrado = false;
+        // Buscar la categoría "Postre" o "Snack" en las opciones
+        let categoriaEncontrada = false;
         for (let i = 0; i < categoriaSelect.options.length; i++) {
             console.log(`Opción ${i}:`, categoriaSelect.options[i].text); // Para depuración
             
-            if (categoriaSelect.options[i].text.trim() === 'Postre' || 
-                categoriaSelect.options[i].text.trim() === 'Postres') {
-                console.log("¡Categoría Postre encontrada!"); // Para depuración
+            const categoriaTexto = categoriaSelect.options[i].text.trim().toLowerCase();
+            if (categoriaTexto === 'postre' || 
+                categoriaTexto === 'postres' || 
+                categoriaTexto === 'snack' || 
+                categoriaTexto === 'snacks') {
+                console.log("¡Categoría inventariable encontrada!"); // Para depuración
                 categoriaSelect.value = categoriaSelect.options[i].value;
-                postreEncontrado = true;
+                categoriaEncontrada = true;
                 
-                // Activar los campos de stock ya que Postre requiere inventario
+                // Activar los campos de stock ya que estas categorías requieren inventario
                 mostrarOcultarCamposStock(true);
                 
                 // Disparar el evento change para activar cualquier lógica adicional
@@ -298,19 +322,22 @@ function manejarCambioTamano() {
             }
         }
         
-        if (!postreEncontrado) {
-            console.error("No se encontró la categoría Postre"); // Para depuración
+        if (!categoriaEncontrada) {
+            console.error("No se encontró una categoría inventariable"); // Para depuración
         }
     } 
-    // Si se selecciona un tamaño que no es "No Aplica" y la categoría es "Postre",
+    // Si se selecciona un tamaño que no es "No Aplica" y la categoría es "Postre" o "Snack",
     // resetear la categoría
     else if (tamanoText && tamanoText !== 'No Aplica') {
         const categoriaId = categoriaSelect.value;
-        const categoriaText = categoriaSelect.options[categoriaSelect.selectedIndex]?.text;
+        const categoriaText = categoriaSelect.options[categoriaSelect.selectedIndex]?.text.trim().toLowerCase();
         
         console.log("Categoría actual:", categoriaText); // Para depuración
         
-        if (categoriaText === 'Postre' || categoriaText === 'Postres') {
+        if (categoriaText === 'postre' || 
+            categoriaText === 'postres' || 
+            categoriaText === 'snack' || 
+            categoriaText === 'snacks') {
             console.log("Reseteando categoría porque se cambió de No Aplica"); // Para depuración
             categoriaSelect.value = '';
             mostrarOcultarCamposStock(false);
