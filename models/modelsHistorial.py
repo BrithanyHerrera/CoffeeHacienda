@@ -52,9 +52,11 @@ def obtener_detalle_venta(venta_id):
     
     query = """
     SELECT d.id, d.venta_id, d.producto_id, p.nombre_producto, d.cantidad, d.precio,
-           (d.cantidad * d.precio) AS subtotal
+           (d.cantidad * d.precio) AS subtotal, t.tamano
     FROM tdetalleventas d
     JOIN tproductos p ON d.producto_id = p.id
+    LEFT JOIN tproductos_variantes pv ON p.id = pv.producto_id
+    LEFT JOIN ttamanos t ON pv.tamano_id = t.id
     WHERE d.venta_id = %s
     """
     
