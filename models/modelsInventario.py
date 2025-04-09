@@ -44,12 +44,12 @@ def obtener_productos_bajo_stock():
         # Consulta para obtener productos con stock bajo o crítico
         query = """
         SELECT p.Id, p.nombre_producto, p.stock, p.stock_minimo, p.stock_maximo,
-               CASE 
-                   WHEN p.stock <= p.stock_minimo THEN 'critico'
-                   WHEN p.stock <= p.stock_minimo + 5 THEN 'critico'
-                   WHEN p.stock <= p.stock_minimo + 10 THEN 'alerta'
-                   ELSE 'normal'
-               END as nivel_stock
+            CASE 
+                WHEN p.stock <= p.stock_minimo THEN 'critico'
+                WHEN p.stock <= p.stock_minimo + 5 THEN 'critico'
+                WHEN p.stock <= p.stock_minimo + 10 THEN 'alerta'
+                ELSE 'normal'
+            END as nivel_stock
         FROM tproductos p
         INNER JOIN tcategorias c ON p.categoria_id = c.Id
         WHERE (c.requiere_inventario = 1 OR c.categoria IN ('Postre', 'Snack'))
