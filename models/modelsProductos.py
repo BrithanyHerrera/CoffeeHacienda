@@ -5,24 +5,20 @@ import pymysql
 
 def obtener_productos():
     productos = []
-    
     try:
         connection = Conexion_BD()
         with connection.cursor() as cursor:
-            query = """
-            SELECT p.*, c.categoria, c.Id as id_categoria, t.tamano, pv.tamano_id as id_tamano 
-            FROM tproductos p 
-            LEFT JOIN tcategorias c ON p.categoria_id = c.Id
-            LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
-            LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
-            ORDER BY p.nombre_producto
-            """
-            cursor.execute(query)
+            cursor.execute("""
+                SELECT p.*, c.categoria 
+                FROM tproductos p 
+                JOIN tcategorias c ON p.categoria_id = c.id 
+                WHERE p.activo = 1
+                ORDER BY p.Id DESC
+            """)
             productos = cursor.fetchall()
         connection.close()
     except Exception as e:
         print(f"Error al obtener productos: {e}")
-    
     return productos
 
 def obtener_categorias():
@@ -188,7 +184,26 @@ def actualizar_producto(id, nombre, descripcion, precio, stock, stock_min, stock
     
     return resultado
 
-def eliminar_producto(id):
+def eliminar_producto(id_producto):
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # En lugar de DELETE, hacemos un UPDATE para marcar como inactivo
+        cursor.execute("""
+            UPDATE tproductos 
+            SET activo = 0 
+            WHERE Id = %s
+        """, (id_producto,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Error al marcar producto como eliminado: {str(e)}")
+        return False
+    
     resultado = False
     
     try:
@@ -205,21 +220,22 @@ def eliminar_producto(id):
     return resultado
 
 def obtener_producto_por_id(id):
-    producto = None
-    
     try:
         connection = Conexion_BD()
         with connection.cursor() as cursor:
-            query = """
-            SELECT p.*, c.categoria, c.Id as id_categoria
-            FROM tproductos p 
-            LEFT JOIN tcategorias c ON p.categoria_id = c.Id
-            WHERE p.Id = %s
-            """
-            cursor.execute(query, (id,))
-            producto = cursor.fetchone()
-        connection.close()
+            cursor.execute("""
+                SELECT 
+                    p.*,
+                    c.categoria,
+                    COALESCE(t.Id, 0) as id_tamano,
+                    COALESCE(t.tamano, 'No Aplica') as tamano,
+                    COALESCE(pv.precio, p.precio) as precio_final
+                FROM tproductos p 
+                JOIN tcategorias c ON p.categoria_id = c.id 
+                LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
+                LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
+                WHERE p.Id = %s AND p.activo = 1
+            """, (id,))
+            return cursor.fetchone()
     except Exception as e:
-        print(f"Error al obtener producto: {e}")
-    
-    return producto
+        print(f"Error al obtener producto por ID: {e}")

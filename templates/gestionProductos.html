@@ -56,11 +56,9 @@
                         <td>{{ producto.nombre_producto }}</td>
 
                         <td class="tamanoProducto" data-producto-id="{{ producto.Id }}">
-                            {% if producto.id_tamano %}
-                                {% for tamano in tamanos %}
-                                    {% if tamano.Id == producto.id_tamano %}
-                                        {{ tamano.tamano }}
-                                    {% endif %}
+                            {% if producto.variantes and producto.variantes|length > 0 %}
+                                {% for variante in producto.variantes %}
+                                    {{ variante.tamano }}{% if not loop.last %}, {% endif %}
                                 {% endfor %}
                             {% else %}
                                 No Aplica
