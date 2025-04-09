@@ -14,7 +14,7 @@ def obtener_productos_inventario():
         SELECT p.Id, p.nombre_producto, p.stock, p.stock_minimo, p.stock_maximo
         FROM tproductos p
         INNER JOIN tcategorias c ON p.categoria_id = c.Id
-        WHERE c.requiere_inventario = 1
+        WHERE c.requiere_inventario = 1 OR c.categoria IN ('Postre', 'Snack')
         ORDER BY p.nombre_producto
         """
         
@@ -48,7 +48,7 @@ def obtener_productos_bajo_stock():
                END as nivel_stock
         FROM tproductos p
         INNER JOIN tcategorias c ON p.categoria_id = c.Id
-        WHERE c.requiere_inventario = 1
+        WHERE (c.requiere_inventario = 1 OR c.categoria IN ('Postre', 'Snack'))
         AND (p.stock <= p.stock_minimo + 10)
         ORDER BY nivel_stock, p.nombre_producto
         """

@@ -98,16 +98,19 @@
             </select>
         </div>
 
-        <button class="checkout" onclick="realizarPedido(); generarPDF();">Realizar la orden</button>
+        <button class="checkout" onclick="realizarPedido()">Realizar la orden</button>
        
     
         <script>
             var nombreUsuario = "{{ nombre_usuario | default('No especificado') }}";
         </script>
         
-    <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+        <!-- Add the CSS link for alerts -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
+        
+        <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </main>
 {% endblock %}
