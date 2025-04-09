@@ -1,30 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mail import Mail, Message
-from models.modelsLogin import verificar_usuario
-from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario , obtener_usuario_por_correo
-import logging
+from bd import Conexion_BD
 from functools import wraps
 from datetime import datetime, timedelta
 from flask import jsonify
-# Importar las funciones necesarias de modelsProductos
-from models.modelsProductos import (obtener_productos, obtener_categorias, obtener_tamanos,
-                                   agregar_producto, actualizar_producto, eliminar_producto,
-                                   obtener_producto_por_id, agregar_variante_producto,
-                                   obtener_variantes_por_producto, actualizar_variante_producto,
-                                eliminar_variantes_producto)
-from models.modelsProductosMenu import obtener_productos_menu
-from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja, obtener_corte_por_id)
 from werkzeug.utils import secure_filename
 import os
 import time
-# Importar las funciones del modelo de inventario
+
+# Importar models
+from models.modelsLogin import verificar_usuario
+from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario , obtener_usuario_por_correo
+from models.modelsProductos import (obtener_productos, obtener_categorias, obtener_tamanos,
+                                agregar_producto, actualizar_producto, eliminar_producto,
+                                obtener_producto_por_id, agregar_variante_producto,
+                                obtener_variantes_por_producto, actualizar_variante_producto,
+                                eliminar_variantes_producto)
+from models.modelsProductosMenu import obtener_productos_menu
+from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja, obtener_corte_por_id)
 from models.modelsInventario import obtener_productos_inventario, actualizar_stock_producto
 from models.modelsHistorial import obtener_historial_ventas, obtener_detalle_venta
-# Importar las funciones del modelo de ventas
 from models.modelsVentas import (crear_venta, obtener_cliente_por_nombre, 
                                 obtener_ordenes_pendientes, actualizar_estado_orden,
                                 obtener_detalle_orden)
-from bd import Conexion_BD
 from models.modelsRecuperacion import guardar_codigo_recuperacion, verificar_codigo_recuperacion, actualizar_contrasena_por_codigo, generar_codigo_recuperacion
 
 
