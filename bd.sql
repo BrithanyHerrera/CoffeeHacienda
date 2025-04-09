@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 08-04-2025 a las 09:46:43
+-- Tiempo de generación: 09-04-2025 a las 09:01:39
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -42,10 +42,10 @@ CREATE TABLE `tcategorias` (
 INSERT INTO `tcategorias` (`Id`, `categoria`, `creado_en`, `actualizado_en`, `requiere_inventario`) VALUES
 (1, 'Bebidas Calientes', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
 (2, 'Bebidas Frías', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
-(3, 'Snacks', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
+(3, 'Snacks', '2025-03-09 00:44:07', '2025-04-09 01:50:56', 1),
 (4, 'Postres', '2025-03-09 00:44:07', '2025-03-15 19:24:32', 1),
 (5, 'Todos', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0),
-(6, 'Otras Bebidas', '2025-03-09 00:44:07', '2025-03-09 00:44:07', 0);
+(6, 'Otras Bebidas', '2025-03-09 00:44:07', '2025-04-09 02:42:11', 0);
 
 -- --------------------------------------------------------
 
@@ -63,7 +63,13 @@ CREATE TABLE `tclientes` (
 --
 
 INSERT INTO `tclientes` (`Id`, `nombre`) VALUES
-(36, 'Juan');
+(36, 'Juan'),
+(37, 'Isma'),
+(38, 'a'),
+(39, 'j'),
+(40, 'qaq'),
+(41, 'asa'),
+(42, 'wasa');
 
 -- --------------------------------------------------------
 
@@ -128,7 +134,18 @@ CREATE TABLE `tdetalleventas` (
 --
 
 INSERT INTO `tdetalleventas` (`Id`, `venta_id`, `producto_id`, `cantidad`, `precio`, `creado_en`) VALUES
-(37, 41, 24, 1, '10.00', '2025-04-07 19:19:54');
+(37, 41, 24, 1, '10.00', '2025-04-07 19:19:54'),
+(38, 42, 24, 4, '10.00', '2025-04-08 23:31:37'),
+(39, 43, 24, 1, '10.00', '2025-04-09 00:08:21'),
+(40, 44, 24, 1, '10.00', '2025-04-09 01:38:21'),
+(41, 45, 24, 1, '10.00', '2025-04-09 01:42:01'),
+(42, 46, 23, 1, '80.00', '2025-04-09 02:12:40'),
+(43, 47, 23, 1, '80.00', '2025-04-09 02:40:36'),
+(44, 48, 24, 1, '10.00', '2025-04-09 02:40:59'),
+(45, 48, 23, 1, '80.00', '2025-04-09 02:40:59'),
+(46, 49, 24, 1, '10.00', '2025-04-09 02:41:07'),
+(47, 49, 23, 1, '80.00', '2025-04-09 02:41:07'),
+(48, 50, 28, 1, '2000.00', '2025-04-09 02:47:22');
 
 -- --------------------------------------------------------
 
@@ -256,16 +273,19 @@ CREATE TABLE `tproductos` (
   `categoria_id` int(11) DEFAULT NULL,
   `ruta_imagen` varchar(255) DEFAULT NULL,
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
-  `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `actualizado_en` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `activo` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `tproductos`
 --
 
-INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`) VALUES
-(23, 'Cappuccino', 'Delicia colombiana.', '80.00', 0, 0, 0, 1, '/static/images/productos/20250407191644.png', '2025-04-07 19:16:44', '2025-04-07 19:16:44'),
-(24, 'Galleta', 'Delicia crujiente con chispas de chocolate.', '10.00', 9, 10, 100, 4, '/static/images/productos/20250407191934.jpg', '2025-04-07 19:19:34', '2025-04-07 19:19:54');
+INSERT INTO `tproductos` (`Id`, `nombre_producto`, `descripcion`, `precio`, `stock`, `stock_minimo`, `stock_maximo`, `categoria_id`, `ruta_imagen`, `creado_en`, `actualizado_en`, `activo`) VALUES
+(23, 'Cappuccino', 'Delicia colombiana.', '80.00', 0, 0, 0, 1, '/static/images/productos/20250407191644.png', '2025-04-07 19:16:44', '2025-04-07 19:16:44', 1),
+(24, 'Galleta', 'Delicia crujiente con chispas de chocolate.', '10.00', 0, 10, 100, 4, '/static/images/productos/20250407191934.jpg', '2025-04-07 19:19:34', '2025-04-09 02:41:07', 1),
+(28, 'UwU', 'áwa', '2000.00', 0, 0, 0, 1, '/static/images/productos/20250409024712.png', '2025-04-09 02:47:12', '2025-04-09 02:50:04', 0),
+(29, 'Caffe Verde', 'awa', '2.00', 0, 0, 0, 2, '/static/images/productos/20250409025911.png', '2025-04-09 02:59:11', '2025-04-09 02:59:11', 1);
 
 -- --------------------------------------------------------
 
@@ -288,7 +308,8 @@ CREATE TABLE `tproductos_variantes` (
 
 INSERT INTO `tproductos_variantes` (`Id`, `producto_id`, `tamano_id`, `precio`, `creado_en`, `actualizado_en`) VALUES
 (23, 23, 2, '80.00', '2025-04-07 19:16:44', '2025-04-07 19:16:44'),
-(24, 24, 4, '10.00', '2025-04-07 19:19:34', '2025-04-07 19:19:34');
+(24, 24, 4, '10.00', '2025-04-07 19:19:34', '2025-04-07 19:19:34'),
+(29, 29, 1, '2.00', '2025-04-09 02:59:11', '2025-04-09 02:59:11');
 
 -- --------------------------------------------------------
 
@@ -421,7 +442,16 @@ CREATE TABLE `tventas` (
 --
 
 INSERT INTO `tventas` (`Id`, `cliente_id`, `total`, `fecha_hora`, `vendedor_id`, `metodo_pago_id`, `estado_id`, `numero_mesa`, `creado_en`) VALUES
-(41, 36, '10.00', '2025-04-07 19:19:54', 13, 1, 4, '13', '2025-04-07 19:19:54');
+(41, 36, '10.00', '2025-04-07 19:19:54', 13, 1, 4, '13', '2025-04-07 19:19:54'),
+(42, 37, '40.00', '2025-04-08 23:31:37', 6, 1, 4, '', '2025-04-08 23:31:37'),
+(43, 38, '10.00', '2025-04-09 00:08:21', 6, 1, 3, '', '2025-04-09 00:08:21'),
+(44, 39, '10.00', '2025-04-09 01:38:21', 6, 1, 3, '', '2025-04-09 01:38:21'),
+(45, 37, '10.00', '2025-04-09 01:42:01', 6, 1, 3, '', '2025-04-09 01:42:01'),
+(46, 40, '80.00', '2025-04-09 02:12:40', 6, 1, 3, '', '2025-04-09 02:12:40'),
+(47, 37, '80.00', '2025-04-09 02:40:36', 6, 1, 3, '', '2025-04-09 02:40:36'),
+(48, 41, '90.00', '2025-04-09 02:40:59', 6, 1, 3, '20', '2025-04-09 02:40:59'),
+(49, 42, '90.00', '2025-04-09 02:41:07', 6, 1, 4, '', '2025-04-09 02:41:07'),
+(50, 38, '2000.00', '2025-04-09 02:47:22', 6, 1, 4, '', '2025-04-09 02:47:22');
 
 --
 -- Índices para tablas volcadas
@@ -578,13 +608,13 @@ ALTER TABLE `tcategorias`
 -- AUTO_INCREMENT de la tabla `tclientes`
 --
 ALTER TABLE `tclientes`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `tcodigosrecuperacion`
 --
 ALTER TABLE `tcodigosrecuperacion`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `tcortescaja`
@@ -596,7 +626,7 @@ ALTER TABLE `tcortescaja`
 -- AUTO_INCREMENT de la tabla `tdetalleventas`
 --
 ALTER TABLE `tdetalleventas`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT de la tabla `testadosventa`
@@ -608,13 +638,13 @@ ALTER TABLE `testadosventa`
 -- AUTO_INCREMENT de la tabla `tproductos`
 --
 ALTER TABLE `tproductos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `tproductos_variantes`
 --
 ALTER TABLE `tproductos_variantes`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `troles`
@@ -638,7 +668,7 @@ ALTER TABLE `tusuarios`
 -- AUTO_INCREMENT de la tabla `tventas`
 --
 ALTER TABLE `tventas`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- Restricciones para tablas volcadas
