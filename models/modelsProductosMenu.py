@@ -17,6 +17,7 @@ def obtener_productos_menu():
                    c.categoria, c.requiere_inventario
             FROM tproductos p 
             LEFT JOIN tcategorias c ON p.categoria_id = c.id
+            WHERE p.activo = 1
             ORDER BY p.nombre_producto
             """
             cursor.execute(query)

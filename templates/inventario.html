@@ -23,8 +23,9 @@
                 <thead>
                     <tr>
                         <th>Nombre</th>
+                        <th>Tamaño</th>
                         <th>Stock</th>
-                        <th>Stock Mínimo</th>
+  ME TODO                      <th>Stock Mínimo</th>
                         <th>Stock Máximo</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -50,8 +51,14 @@
                             {% set estado_class = "estado-aceptable" %}
                         {% endif %}
                         
-                        <tr data-id="{{ producto.Id }}" data-nombre="{{ producto.nombre_producto }}" data-stock="{{ producto.stock }}" data-stock-min="{{ producto.stock_minimo }}" data-stock-max="{{ producto.stock_maximo }}">
+                        <tr data-id="{{ producto.Id }}" 
+                            data-nombre="{{ producto.nombre_producto }}" 
+                            data-tamano="{{ producto.tamano }}"
+                            data-stock="{{ producto.stock }}" 
+                            data-stock-min="{{ producto.stock_minimo }}" 
+                            data-stock-max="{{ producto.stock_maximo }}">
                             <td>{{ producto.nombre_producto }}</td>
+                            <td>{{ producto.tamano if producto.tamano else 'No Aplica' }}</td>
                             <td class="stockProducto">{{ producto.stock }}</td>
                             <td class="stockMinProducto">{{ producto.stock_minimo }}</td>
                             <td class="stockMaxProducto">{{ producto.stock_maximo }}</td>
@@ -63,7 +70,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6" class="text-center">No hay productos que requieran inventario</td>
+                            <td colspan="7" class="text-center">No hay productos que requieran inventario</td>
                         </tr>
                     {% endif %}
                 </tbody>

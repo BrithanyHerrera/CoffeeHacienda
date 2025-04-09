@@ -197,12 +197,19 @@ def finalizarOrden():
 
 @app.route('/gestionProductos')
 @login_required
-@admin_required
 def gestion_productos():
     productos = obtener_productos()
+    # Obtener variantes para cada producto
+    for producto in productos:
+        producto['variantes'] = obtener_variantes_por_producto(producto['Id'])
+    
     categorias = obtener_categorias()
     tamanos = obtener_tamanos()
-    return render_template('gestionProductos.html', productos=productos, categorias=categorias, tamanos=tamanos)
+    
+    return render_template('gestionProductos.html', 
+                         productos=productos,
+                         categorias=categorias,
+                         tamanos=tamanos)
 
 @app.route('/inventario')
 @login_required

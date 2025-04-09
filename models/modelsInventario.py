@@ -2,32 +2,34 @@ import pymysql
 from bd import Conexion_BD
 
 def obtener_productos_inventario():
-    """
-    Obtiene los productos que requieren inventario (requiere_inventario = 1)
-    """
+    productos = []
     try:
         conn = Conexion_BD()
         cursor = conn.cursor()
         
-        # Consulta para obtener productos que requieren inventario
         query = """
-        SELECT p.Id, p.nombre_producto, p.stock, p.stock_minimo, p.stock_maximo
+        SELECT 
+            p.Id,
+            p.nombre_producto,
+            p.stock,
+            p.stock_minimo,
+            p.stock_maximo,
+            COALESCE(t.tamano, 'No Aplica') as tamano
         FROM tproductos p
-        INNER JOIN tcategorias c ON p.categoria_id = c.Id
-        WHERE c.requiere_inventario = 1 OR c.categoria IN ('Postre', 'Snack')
+        LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
+        LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
+        WHERE p.activo = 1
         ORDER BY p.nombre_producto
         """
         
         cursor.execute(query)
         productos = cursor.fetchall()
-        
         cursor.close()
         conn.close()
         
-        return productos
     except Exception as e:
-        print(f"Error al obtener productos de inventario: {e}")
-        return []
+        print(f"Error al obtener productos para inventario: {e}")
+    return productos
 
 def obtener_productos_bajo_stock():
     """

@@ -127,46 +127,23 @@ function actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoSt
 }
 
 // Función para abrir el modal con los datos del producto seleccionado
-function editarInventario(boton) {
-    const fila = boton.closest("tr");
+function editarInventario(btn) {
+    const fila = btn.closest('tr');
+    const id = fila.dataset.id;
+    const nombre = fila.dataset.nombre;
+    const tamano = fila.dataset.tamano;
+    const stock = fila.dataset.stock;
+    const stockMin = fila.dataset.stockMin;
+    const stockMax = fila.dataset.stockMax;
 
-    const idProducto = fila.getAttribute("data-id");
-    const nombreProducto = fila.getAttribute("data-nombre");
-    const stockActual = parseInt(fila.getAttribute("data-stock"));
-    const stockMin = parseInt(fila.getAttribute("data-stock-min"));
-    const stockMax = parseInt(fila.getAttribute("data-stock-max"));
+    document.getElementById('idProducto').value = id;
+    document.getElementById('verNombreProducto').textContent = nombre;
+    document.getElementById('verTamanoProducto').textContent = tamano;
+    document.getElementById('editarStockInventario').value = stock;
+    document.getElementById('editarStockMinInventario').value = stockMin;
+    document.getElementById('editarStockMaxInventario').value = stockMax;
 
-    document.getElementById("idProducto").value = idProducto;
-    document.getElementById("verNombreProducto").textContent = nombreProducto;
-    
-    const stockInput = document.getElementById("editarStockInventario");
-    stockInput.value = stockActual;
-    
-    // Limpiar clases y estilos anteriores
-    stockInput.classList.remove("texto-critico", "texto-alerta");
-    stockInput.style.backgroundColor = "";
-    
-    // Add visual indicator for stock level in the modal
-    if (stockActual <= stockMin) {
-        stockInput.classList.add("texto-critico");
-        stockInput.style.backgroundColor = "rgba(255, 200, 200, 0.3)";
-    } else if (stockActual <= stockMin + 5) {
-        stockInput.classList.add("texto-critico");
-        stockInput.style.backgroundColor = "rgba(255, 200, 200, 0.3)";
-    } else if (stockActual <= stockMin + 10) {
-        stockInput.classList.add("texto-alerta");
-        stockInput.style.backgroundColor = "rgba(255, 243, 205, 0.3)";
-    }
-    
-    document.getElementById("editarStockMinInventario").value = stockMin;
-    document.getElementById("editarStockMaxInventario").value = stockMax;
-    
-    // Reset adjustment fields to empty
-    document.getElementById("agregarStockInventario").value = "";
-    document.getElementById("agregarStockMinimoInventario").value = "";
-    document.getElementById("agregarStockMaximoInventario").value = "";
-
-    document.getElementById("editarInventarioModal").style.display = "flex";
+    document.getElementById('editarInventarioModal').style.display = 'block';
 }
 
 // Función para cerrar el modal de edición
