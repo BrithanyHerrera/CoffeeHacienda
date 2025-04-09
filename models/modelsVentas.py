@@ -180,9 +180,12 @@ def obtener_detalle_orden(orden_id):
         cursor = conn.cursor()
         
         query = """
-        SELECT d.producto_id, p.nombre_producto, d.cantidad, d.precio, (d.cantidad * d.precio) as subtotal
+        SELECT d.producto_id, p.nombre_producto, d.cantidad, d.precio, 
+               (d.cantidad * d.precio) as subtotal, t.tamano
         FROM tdetalleventas d
         JOIN tproductos p ON d.producto_id = p.Id
+        LEFT JOIN tproductos_variantes pv ON p.id = pv.producto_id
+        LEFT JOIN ttamanos t ON pv.tamano_id = t.id
         WHERE d.venta_id = %s
         """
         

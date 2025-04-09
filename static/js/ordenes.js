@@ -117,6 +117,7 @@ function verDetallesOrden(id) {
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
+                                        <th>Tamaño</th>
                                         <th>Precio Unit.</th>
                                         <th>Cant.</th>
                                         <th>Subtotal</th>
@@ -129,10 +130,12 @@ function verDetallesOrden(id) {
                     const precioFormateado = parseFloat(detalle.precio).toFixed(2);
                     const subtotalItem = parseFloat(detalle.subtotal).toFixed(2);
                     subtotal += parseFloat(subtotalItem);
+                    const tamano = detalle.tamano || 'No aplica';
                     
                     detallesHTML += `
                         <tr>
                             <td class="producto-nombre">${detalle.nombre_producto}</td>
+                            <td class="producto-tamano">${tamano}</td>
                             <td class="precio-unitario">$${precioFormateado}</td>
                             <td class="cantidad-producto">${detalle.cantidad}</td>
                             <td class="subtotal-producto">$${subtotalItem}</td>
@@ -143,7 +146,7 @@ function verDetallesOrden(id) {
                                 </tbody>
                                 <tfoot>
                                     <tr class="total-row">
-                                        <td colspan="3" class="total-label">Total</td>
+                                        <td colspan="4" class="total-label">Total</td>
                                         <td class="total-value">$${parseFloat(total).toFixed(2)}</td>
                                     </tr>
                                 </tfoot>

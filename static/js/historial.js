@@ -118,6 +118,7 @@ function verDetallesVenta(id) {
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
+                                        <th>Tamaño</th>
                                         <th>Precio Unit.</th>
                                         <th>Cant.</th>
                                         <th>Subtotal</th>
@@ -126,17 +127,19 @@ function verDetallesVenta(id) {
                                 <tbody>`;
 
                 if (data.detalles.length === 0) {
-                    detallesHTML += `<tr><td colspan="4" class="no-productos">No hay productos en esta venta</td></tr>`;
+                    detallesHTML += `<tr><td colspan="5" class="no-productos">No hay productos en esta venta</td></tr>`;
                 } else {
                     let subtotal = 0;
                     data.detalles.forEach(producto => {
                         const precioFormateado = parseFloat(producto.precio).toFixed(2);
                         const subtotalItem = parseFloat(producto.subtotal).toFixed(2);
                         subtotal += parseFloat(subtotalItem);
+                        const tamano = producto.tamano || 'No aplica';
 
                         detallesHTML += `
                             <tr>
                                 <td class="producto-nombre">${producto.nombre_producto}</td>
+                                <td class="producto-tamano">${tamano}</td>
                                 <td class="precio-unitario">$${precioFormateado}</td>
                                 <td class="cantidad-producto">${producto.cantidad}</td>
                                 <td class="subtotal-producto">$${subtotalItem}</td>
@@ -148,7 +151,7 @@ function verDetallesVenta(id) {
                                 </tbody>
                                 <tfoot>
                                     <tr class="total-row">
-                                        <td colspan="3" class="total-label">Total</td>
+                                        <td colspan="4" class="total-label">Total</td>
                                         <td class="total-value">$${parseFloat(ventaInfo.total || 0).toFixed(2)}</td>
                                     </tr>
                                 </tfoot>
