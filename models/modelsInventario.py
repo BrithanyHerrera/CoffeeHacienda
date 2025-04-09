@@ -18,7 +18,9 @@ def obtener_productos_inventario():
         FROM tproductos p
         LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
         LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
+        INNER JOIN tcategorias c ON p.categoria_id = c.Id
         WHERE p.activo = 1
+        AND (c.requiere_inventario = 1)
         ORDER BY p.nombre_producto
         """
         
