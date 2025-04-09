@@ -27,18 +27,15 @@ from models.modelsRecuperacion import guardar_codigo_recuperacion, verificar_cod
 
 
 app = Flask(__name__)
-
 app.secret_key = 'mi_clave_secreta'
 
 # Configuración del correo electrónico
-# ... existing code ...
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'sanvicente.coffeehacienda@gmail.com'
 app.config['MAIL_PASSWORD'] = 'v f e v k x u z m r x n f b h e'
 mail = Mail(app)
-
 
 # Configuración para subida de imágenes
 UPLOAD_FOLDER = 'static/images/productos'
@@ -177,9 +174,9 @@ def bienvenida():
     alertas_inventario = alertas_criticas + alertas_normales
     
     return render_template('bienvenida.html', 
-                          alertas_inventario=alertas_inventario,
-                          alertas_criticas=alertas_criticas,
-                          alertas_normales=alertas_normales)
+                        alertas_inventario=alertas_inventario,
+                        alertas_criticas=alertas_criticas,
+                        alertas_normales=alertas_normales)
 
 @app.route('/menu')
 @login_required  # Ruta protegida
@@ -205,9 +202,9 @@ def gestion_productos():
     tamanos = obtener_tamanos()
     
     return render_template('gestionProductos.html', 
-                         productos=productos,
-                         categorias=categorias,
-                         tamanos=tamanos)
+                        productos=productos,
+                        categorias=categorias,
+                        tamanos=tamanos)
 
 @app.route('/inventario')
 @login_required
@@ -366,7 +363,7 @@ def api_actualizar_estado_orden(id):
             
             # Obtener nombres de estados válidos
             estados_validos = [next((nombre for nombre, id in estados.items() if id == estado_id), "Desconocido") 
-                              for estado_id in transiciones_validas[estado_actual_id]]
+                            for estado_id in transiciones_validas[estado_actual_id]]
             
             mensaje_estados = ", ".join(estados_validos) if estados_validos else "ninguno"
             
