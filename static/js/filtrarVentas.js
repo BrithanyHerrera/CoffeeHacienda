@@ -176,10 +176,11 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     .then(response => response.json())  // Manejo de respuesta JSON
     .then(data => {
         if (data.success) {
-            // Si el corte fue exitoso, proceder con la lógica de generación del PDF (o lo que corresponda)
-            alert("Corte realizado correctamente.");
-
+           // Mostrar mensaje de éxito
+           mostrarNotificacion('Venta registrada exitosamente', 'success');
             
+           // Generar PDF solo si la venta fue exitosa
+           generarCorteCajaPDF();
             location.reload();  // Recargar la página
         } else {
             alert("Error al realizar el corte: " + data.error);
@@ -309,3 +310,103 @@ function verDetallesCorte(id) {
             alert("Ocurrió un error.");
         });
 }
+
+// Función para mostrar notificaciones con duración personalizable
+function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
+    // Crear el contenedor principal si no existe
+    let contenedorAlertas = document.querySelector('.contenedorAlertas');
+    if (!contenedorAlertas) {
+        contenedorAlertas = document.createElement('div');
+        contenedorAlertas.className = 'contenedorAlertas';
+        document.body.appendChild(contenedorAlertas);
+    }
+    
+    // Crear la alerta
+    const alerta = document.createElement('div');
+    alerta.className = `alertaInventario ${tipo === 'error' ? 'alerta-critica' : 'alerta-normal'}`;
+    
+    // Crear el icono
+    const icono = document.createElement('div');
+    icono.className = 'iconoAlerta';
+    icono.innerHTML = tipo === 'error' ? '⚠️' : '✅';
+    
+    // Crear el mensaje
+    const mensajeDiv = document.createElement('div');
+    mensajeDiv.className = 'mensajeAlerta';
+    
+    const titulo = document.createElement('h3');
+    titulo.textContent = tipo === 'error' ? 'Error' : 'Éxito';
+    
+    const parrafo = document.createElement('p');
+    parrafo.textContent = mensaje;
+    
+    mensajeDiv.appendChild(titulo);
+    mensajeDiv.appendChild(parrafo);
+    
+    // Crear el botón de cerrar
+    const btnCerrar = document.createElement('button');
+    btnCerrar.className = 'cerrarAlerta';
+    btnCerrar.innerHTML = '&times;';
+    btnCerrar.onclick = function() {
+        contenedorAlertas.removeChild(alerta);
+    };
+    
+    // Ensamblar la alerta
+    alerta.appendChild(icono);
+    alerta.appendChild(mensajeDiv);
+    alerta.appendChild(btnCerrar);
+    
+    // Añadir la alerta al contenedor
+    contenedorAlertas.appendChild(alerta);
+    
+    // Eliminar automáticamente después de la duración especificada
+    setTimeout(() => {
+        if (alerta.parentNode === contenedorAlertas) {
+            contenedorAlertas.removeChild(alerta);
+        }
+        
+        // Si no quedan más alertas, eliminar el contenedor
+        if (contenedorAlertas.children.length === 0) {
+            document.body.removeChild(contenedorAlertas);
+        }
+    }, duracion);
+}
+
+// Función para mostrar/ocultar el campo de número de mesa
+function toggleMesaField() {
+    const paraLlevar = document.getElementById('paraLlevar').checked;
+    const mesaContainer = document.getElementById('mesaContainer');
+    
+    if (paraLlevar) {
+        mesaContainer.style.display = 'none';
+        document.getElementById('numeroMesa').value = ''; // Limpiar el valor
+    } else {
+        mesaContainer.style.display = 'block';
+    }
+}
+
+// Asegurarse de que la función se ejecute cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar estilos al contenedor del checkbox
+    const opcionLlevar = document.querySelector('.opcionLlevar');
+    if (opcionLlevar) {
+        opcionLlevar.style.display = 'flex';
+        opcionLlevar.style.alignItems = 'center';
+        opcionLlevar.style.marginBottom = '15px';
+        opcionLlevar.style.marginTop = '5px';
+    }
+    
+    // Estilizar el checkbox y su etiqueta
+    const checkboxParaLlevar = document.getElementById('paraLlevar');
+    if (checkboxParaLlevar) {
+        checkboxParaLlevar.style.marginRight = '8px';
+        
+        // Ejecutar la función una vez al cargar para establecer el estado inicial
+        toggleMesaField();
+        
+        // Agregar el evento change si no se agregó mediante el atributo HTML
+        if (!checkboxParaLlevar.hasAttribute('onchange')) {
+            checkboxParaLlevar.addEventListener('change', toggleMesaField);
+        }
+    }
+});
