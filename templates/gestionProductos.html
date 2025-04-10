@@ -39,7 +39,16 @@
         </section>
     </section>
     
-    
+    <!-- Modal de Confirmación -->
+    <section class="modalConf" id="confirmacionModal" style="display: none;">
+        <section class="contenedorModalConf">
+            <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
+            <h3>Confirmación</h3>
+            <p id="mensajeConfirmacion"></p>
+            <button id="btnConfirmar" onclick="confirmarEliminacion()">Sí</button>
+            <button onclick="cerrarConfirmacionModal()">No</button>
+        </section>
+    </section>
 
     <div class="contenedorGestionProductos">
         <section class="listaProductos">
@@ -178,6 +187,8 @@
         </section>
     </div>
     
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/gestionProductos.js') }}"></script>
 </main>
 {% endblock %}
