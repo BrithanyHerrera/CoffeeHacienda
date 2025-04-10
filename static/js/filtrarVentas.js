@@ -3,7 +3,7 @@ document.getElementById('btnFiltrarFechas').addEventListener('click', function (
     const fechaHasta = document.getElementById('fechaHasta').value;
 
     if (!fechaDesde || !fechaHasta) {
-        alert("Selecciona un rango de fechas válido.");
+        mostrarAlerta("Selecciona un rango de fechas válido.", 'ErrorG');
         return;
     }
 
@@ -120,7 +120,7 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
 
     // Validaciones de campos
     if (!fechaDesde || !fechaHasta) {
-        alert("Por favor, selecciona las fechas de inicio y cierre.");
+        mostrarAlerta("Por favor, selecciona las fechas de inicio y cierre", 'ErrorG');
         return;
     }
 
@@ -129,14 +129,14 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         isNaN(totalTransferencias) || isNaN(totalPaypal) ||
         isNaN(pagosRealizados) || isNaN(fondo)
     ) {
-        alert("Por favor, asegúrate de que todos los campos numéricos estén completos y sean válidos.");
+        mostrarAlerta("Por favor, asegúrate de que todos los campos numéricos estén completos y sean válidos.", 'ErrorG');
         return;
     }
 
     // Verificación de que los pagos no exceden el fondo disponible
     const totalDisponible = totalVentas + fondo;
     if (pagosRealizados > totalDisponible) {
-        alert(`❌ No se puede realizar el corte.\nLos pagos realizados (${pagosRealizados}) superan el total disponible (${totalDisponible}).`);
+        mostrarAlerta("No se puede realizar el corte.\nLos pagos realizados superan el total disponible.", 'ErrorG');
         
         return;  // Terminar la función sin continuar con la descarga o envío
     }
@@ -177,17 +177,17 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     .then(data => {
         if (data.success) {
            // Mostrar mensaje de éxito
-           mostrarNotificacion('Venta registrada exitosamente', 'success');
+           mostrarAlerta("Corte realizado exitosamente.", 'ExitoG');
             
            // Generar PDF solo si la venta fue exitosa
            generarCorteCajaPDF();
             location.reload();  // Recargar la página
         } else {
-            alert("Error al realizar el corte: " + data.error);
+            mostrarAlerta("Error al realizar el corte de caja.", 'ErrorG');
         }
     })
     .catch(error => {
-        alert('Error al guardar el corte de caja: ' + error);
+        mostrarAlerta("Error al realizar el corte de caja: ", 'ErrorG' + error);
     });
 });
 
@@ -279,36 +279,42 @@ function generarCorteCajaPDF() {
     doc.save("corte_de_caja.pdf");
 }
 
-function verDetallesCorte(id) {
-    fetch(`/api/corteCaja/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const corte = data.corte;
+function mostrarAlerta(mensaje, tipo = 'ExitoG') {
+    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
 
-                // Rellenar los campos del modal con la información del corte
-                document.getElementById('verIdCorte').textContent = corte.Id;
-                document.getElementById('detalleFechaInicio').textContent = corte.fecha_hora_inicio || '---';
-                document.getElementById('detalleFechaCierre').textContent = corte.fecha_hora_cierre || '---';
-                document.getElementById('detalleFondo').textContent = corte.fondo.toFixed(2);
-                document.getElementById('detalleContado').textContent = corte.total_contado.toFixed(2);
-                document.getElementById('detalleCalculado').textContent = corte.total_ventas.toFixed(2);
-                document.getElementById('detalleEfectivo').textContent = corte.total_efectivo.toFixed(2);
-                document.getElementById('detalleTransferencias').textContent = corte.total_transferencias.toFixed(2);
-                document.getElementById('detallePaypal').textContent = corte.total_paypal.toFixed(2);
-                document.getElementById('detallePagosRealizados').textContent = corte.pagos_realizados.toFixed(2);
+    const alerta = document.createElement('div');
+    alerta.className = `alertaGeneral alerta-${tipo}`;
 
-                // Mostrar el modal con Bootstrap
-                const modal = new bootstrap.Modal(document.getElementById('modalDetallesCorte'));
-                modal.show();
-            } else {
-                alert("No se pudo obtener la información del corte.");
-            }
-        })
-        .catch(error => {
-            console.error('Error al obtener los detalles del corte:', error);
-            alert("Ocurrió un error.");
-        });
+    // Configurar icono y título según el tipo de alerta
+    let icono, titulo;
+    if (tipo === 'ErrorG') {
+        icono = '⚠️';
+        titulo = '¡Atención!';
+    } else {
+        icono = '✅';
+        titulo = '¡Éxito!';
+    }
+
+    alerta.innerHTML = `
+        <span class="iconoAlertaG">${icono}</span>
+        <div class="mensajeAlertaG">
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+        </div>
+        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(alerta);
+
+    setTimeout(() => alerta.remove(), 5000); // Eliminar después de 5s
+}
+
+
+function crearContenedorAlertas() {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'contenedorAlertas';
+    document.body.appendChild(contenedor);
+    return contenedor;
 }
 
 // Función para mostrar notificaciones con duración personalizable
@@ -385,28 +391,3 @@ function toggleMesaField() {
     }
 }
 
-// Asegurarse de que la función se ejecute cuando la página cargue
-document.addEventListener('DOMContentLoaded', function() {
-    // Aplicar estilos al contenedor del checkbox
-    const opcionLlevar = document.querySelector('.opcionLlevar');
-    if (opcionLlevar) {
-        opcionLlevar.style.display = 'flex';
-        opcionLlevar.style.alignItems = 'center';
-        opcionLlevar.style.marginBottom = '15px';
-        opcionLlevar.style.marginTop = '5px';
-    }
-    
-    // Estilizar el checkbox y su etiqueta
-    const checkboxParaLlevar = document.getElementById('paraLlevar');
-    if (checkboxParaLlevar) {
-        checkboxParaLlevar.style.marginRight = '8px';
-        
-        // Ejecutar la función una vez al cargar para establecer el estado inicial
-        toggleMesaField();
-        
-        // Agregar el evento change si no se agregó mediante el atributo HTML
-        if (!checkboxParaLlevar.hasAttribute('onchange')) {
-            checkboxParaLlevar.addEventListener('change', toggleMesaField);
-        }
-    }
-});
