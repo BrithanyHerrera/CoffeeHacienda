@@ -69,10 +69,10 @@ function cargarOrdenes() {
                     tablaOrdenes.innerHTML += fila;
                 });
             } else {
-                console.error('Error al cargar órdenes:', data.message);
+                console.error('Error al cargar órdenes:', data.message, 'ErrorG');
             }
         })
-        .catch(error => console.error('Error en la solicitud:', error));
+        .catch(error => console.error('Error en la solicitud:', error, 'ErrorG'));
 }
 
 
@@ -157,11 +157,11 @@ function verDetallesOrden(id) {
                 document.getElementById('detallesOrden').innerHTML = detallesHTML;
                 document.getElementById('ordenModal').style.display = 'flex';
             } else {
-                alert('Error al cargar detalles: ' + data.message);
+                alert('Error al cargar detalles: ' + data.message, 'ErrorG');
             }
         })
         .catch(error => {
-            console.error('Error en la solicitud:', error);
+            console.error('Error en la solicitud:', error, 'ErrorG');
         });
 }
 
@@ -169,30 +169,43 @@ function cerrarDetallesOrden() {
     document.getElementById('ordenModal').style.display = 'none';
 }
 
+let idOrdenAActualizar = null; // Variable global para almacenar el ID de la orden a actualizar
+let nuevoEstadoAActualizar = null; // Variable global para almacenar el nuevo estado
+
 function cambiarEstadoOrden(id, nuevoEstado) {
-    if (!confirm(`¿Estás seguro de cambiar esta orden a estado "${nuevoEstado}"?`)) {
-        return;
-    }
-    
-    fetch(`/api/ordenes/${id}/estado`, {
+    idOrdenAActualizar = id; // Almacenar el ID de la orden a actualizar
+    nuevoEstadoAActualizar = nuevoEstado; // Almacenar el nuevo estado
+    document.getElementById('mensajeConfirmacion').textContent = `¿Estás seguro de cambiar esta orden a estado "${nuevoEstado}"?`;
+    document.getElementById('confirmacionModal').style.display = 'flex'; // Mostrar el modal de confirmación
+}
+
+function confirmarCambioEstado() {
+    fetch(`/api/ordenes/${idOrdenAActualizar}/estado`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ estado: nuevoEstado })
+        body: JSON.stringify({ estado: nuevoEstadoAActualizar })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
-            cargarOrdenes();
+            mostrarAlerta(data.message); // Mostrar mensaje de éxito
+            cargarOrdenes(); // Recargar las órdenes
         } else {
-            alert('Error: ' + data.message);
+            mostrarAlerta('Error: ' + data.message, 'ErrorG'); // Mostrar mensaje de error
         }
     })
     .catch(error => {
-        console.error('Error en la solicitud:', error);
+        console.error('Error en la solicitud:', error, 'ErrorG');
+        mostrarAlerta('Error en la solicitud: ' + error, 'ErrorG'); // Mostrar mensaje de error
     });
+
+    cerrarConfirmacionModal(); // Cerrar el modal de confirmación
+}
+
+function cerrarConfirmacionModal() {
+    document.getElementById('confirmacionModal').style.display = 'none'; // Ocultar el modal de confirmación
 }
 
 function buscarVentas() {
@@ -205,4 +218,43 @@ function buscarVentas() {
 function reestablecerFiltros() {
     document.getElementById('buscarCliente').value = '';
     cargarOrdenes();
+}
+
+function mostrarAlerta(mensaje, tipo = 'ExitoG') {
+    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
+
+    const alerta = document.createElement('div');
+    alerta.className = `alertaGeneral alerta-${tipo}`;
+
+    // Configurar icono y título según el tipo de alerta
+    let icono, titulo;
+    if (tipo === 'ErrorG') {
+        icono = '⚠️';
+        titulo = '¡Atención!';
+    } else {
+        icono = '✅';
+        titulo = '¡Éxito!';
+    }
+
+    alerta.innerHTML = `
+        <span class="iconoAlertaG">${icono}</span>
+        <div class="mensajeAlertaG">
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+        </div>
+        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(alerta);
+
+    // Aumentar el tiempo de espera a 10 segundos
+    setTimeout(() => alerta.remove(), 3000); // Eliminar después de 10s
+}
+
+
+function crearContenedorAlertas() {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'contenedorAlertas';
+    document.body.appendChild(contenedor);
+    return contenedor;
 }

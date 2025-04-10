@@ -33,6 +33,17 @@
     </section>
 </main>
 
+<!-- Modal de Confirmación -->
+<section class="modalConf" id="confirmacionModal" style="display: none;">
+    <section class="contenedorModalConf">
+        <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
+        <h3>Confirmación</h3>
+        <p id="mensajeConfirmacion"></p>
+        <button id="btnConfirmar" onclick="confirmarCambioEstado()">Sí</button>
+        <button onclick="cerrarConfirmacionModal()">No</button>
+    </section>
+</section>
+
 <!-- Modal para ver detalles de la orden -->
 <div class="modal" id="ordenModal">
     <div class="contenedorModal">
@@ -44,6 +55,8 @@
     </div>
 </div>
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
 <script src="{{ url_for('static', filename='js/ordenes.js') }}"></script>
 
 {% endblock %}
