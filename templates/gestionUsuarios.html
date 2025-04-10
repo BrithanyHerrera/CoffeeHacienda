@@ -11,6 +11,17 @@
         {% endif %}
     </div>
 
+    <!-- Modal de Confirmación -->
+    <section class="modalConf" id="confirmacionModal" style="display: none;">
+        <section class="contenedorModalConf">
+            <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
+            <h3>Confirmación</h3>
+            <p id="mensajeConfirmacion">¿Estás seguro de que deseas eliminar este usuario?</p>
+            <button id="btnConfirmar" onclick="confirmarEliminacion()">Sí</button>
+            <button onclick="cerrarConfirmacionModal()">No</button>
+        </section>
+    </section>
+
     <section class="buscador">
         <section id="formBuscador">
             <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" oninput="buscarUsuario()">
@@ -104,14 +115,8 @@
             </section>
         </section>
     </section>
-    
-    <script>
-    function confirmarEliminar(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-            window.location.href = '/gestionUsuarios/eliminar/' + id;
-        }
-    }
-    </script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/gestionUsuarios.js') }}"></script>
 </main>

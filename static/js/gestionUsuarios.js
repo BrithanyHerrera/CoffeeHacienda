@@ -19,12 +19,12 @@ function abrirEAModal(id = null, nombre = '', correo = '', tipoPrivilegio = '') 
                     // Mostrar el modal de agregar/editar usuario
                     document.getElementById('usuarioModal').style.display = 'flex';
                 } else {
-                    alert('Error al obtener los datos del usuario');
+                    mostrarAlerta('Error al obtener los datos del usuario', 'ErrorG');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al obtener los datos del usuario');
+                mostrarAlerta('Error al obtener los datos del usuario', 'ErrorG');
             });
     } else {
         // Si es agregar nuevo usuario, simplemente mostrar el modal con campos vacíos
@@ -76,17 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    mostrarAlerta(data.mensaje, 'ExitoG', 3000);
+                    mostrarAlerta('Operación exitosa.', data.mensaje, 'ExitoG', 3000);
                     setTimeout(() => {
                         window.location.reload();
-                    }, 1000); // recargar después de 3 segundos
+                    }, 3000); // recargar después de 3 segundos
                 } else {
                     mostrarNotificacion(data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar el usuario');
+                mostrarAlerta('Error al guardar el usuario', 'ErrorG');
             });
             
             // No cerramos el modal inmediatamente para permitir ver los errores
@@ -94,6 +94,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+let idUsuarioAEliminar = null; // Variable global para almacenar el ID del usuario a eliminar
+
+function confirmarEliminar(id) {
+    idUsuarioAEliminar = id; // Almacenar el ID del usuario a eliminar
+    document.getElementById('confirmacionModal').style.display = 'flex'; // Mostrar el modal de confirmación
+}
+
+function confirmarEliminacion() {
+    fetch(`/gestionUsuarios/eliminar/${idUsuarioAEliminar}`, { // Asegúrate de incluir el ID en la URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            mostrarAlerta(data.message, 'ExitoG'); // Mostrar mensaje de éxito
+            setTimeout(() => {
+                location.reload();  // Recargar la página después de 3 segundos
+            }, 3000); // Esperar 3 segundos antes de recargar
+        } else {
+            mostrarAlerta('Error al eliminar el usuario: ' + data.message, 'ErrorG'); // Mostrar mensaje de error
+        }
+    })
+    .catch(error => {
+        mostrarAlerta('Error al eliminar el usuario: ' + error.message, 'ErrorG'); // Mostrar mensaje de error
+    });
+
+    cerrarConfirmacionModal(); // Cerrar el modal de confirmación
+}
+
+function cerrarConfirmacionModal() {
+    document.getElementById('confirmacionModal').style.display = 'none'; // Ocultar el modal de confirmación
+}
 
 // Función para abrir el modal de ver usuario.
 function abrirVerUsuario(id, nombre, correo, tipoPrivilegio, fechaRegistro) {
@@ -113,12 +154,12 @@ function abrirVerUsuario(id, nombre, correo, tipoPrivilegio, fechaRegistro) {
                 // Mostrar el modal de ver usuario
                 document.getElementById('verModalUsuario').style.display = 'flex';
             } else {
-                alert('Error al obtener los datos del usuario');
+                mostrarAlerta('Error al obtener los datos del usuario', 'ErrorG');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al obtener los datos del usuario');
+            mostrarAlerta('Error al obtener los datos del usuario', 'ErrorG');
         });
 }
 
