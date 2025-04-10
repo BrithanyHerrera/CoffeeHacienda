@@ -24,37 +24,35 @@ document.addEventListener("DOMContentLoaded", function () {
     if (formProducto) {
         formProducto.addEventListener("submit", function (event) {
             event.preventDefault();
-
+        
             const idProducto = document.getElementById("idProducto").value;
             const stockActual = parseInt(document.getElementById("editarStockInventario").value) || 0;
             const stockMinActual = parseInt(document.getElementById("editarStockMinInventario").value) || 0;
             const stockMaxActual = parseInt(document.getElementById("editarStockMaxInventario").value) || 0;
-            
-            // Get values from input fields, defaulting to 0 if empty
+        
             const ajusteStock = document.getElementById("agregarStockInventario").value === "" ? 0 : 
-                               parseInt(document.getElementById("agregarStockInventario").value) || 0;
+                                parseInt(document.getElementById("agregarStockInventario").value) || 0;
             const nuevoStockMin = document.getElementById("agregarStockMinimoInventario").value === "" ? 
-                                 stockMinActual : parseInt(document.getElementById("agregarStockMinimoInventario").value) || 0;
+                                  stockMinActual : parseInt(document.getElementById("agregarStockMinimoInventario").value) || 0;
             const nuevoStockMax = document.getElementById("agregarStockMaximoInventario").value === "" ? 
-                                 stockMaxActual : parseInt(document.getElementById("agregarStockMaximoInventario").value) || 0;
-            
-            // Calculate new stock value
+                                  stockMaxActual : parseInt(document.getElementById("agregarStockMaximoInventario").value) || 0;
+        
             const nuevoStock = stockActual + ajusteStock;
-            
-            // Validate that the new stock is not negative
+        
+            // Validar que el nuevo stock no sea negativo
             if (nuevoStock < 0) {
-                alert("El stock no puede ser negativo. Ajuste el valor.");
+                mostrarAlerta("El stock no puede ser negativo. Ajuste el valor.", 'ErrorG');
                 return;
             }
-
-            // Check if there are any changes
+        
+            // Verificar si hay cambios
             if (ajusteStock === 0 && nuevoStockMin === stockMinActual && nuevoStockMax === stockMaxActual) {
-                alert("No se realizaron cambios en el inventario");
+                mostrarAlerta("No se realizaron cambios en el inventario", 'ErrorG');
                 cerrarEditarInventario();
                 return;
             }
-
-            // Send data to server
+        
+            // Enviar datos al servidor
             fetch('/api/inventario/actualizar', {
                 method: 'POST',
                 headers: {
@@ -70,18 +68,16 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Usar la función para actualizar la fila con las clases correctas
                     actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoStockMax);
-                    
-                    alert(data.message);
+                    mostrarAlerta(data.message); // Mostrar mensaje de éxito
                     cerrarEditarInventario();
                 } else {
-                    alert("Error al actualizar inventario: " + data.message);
+                    mostrarAlerta("Error al actualizar inventario: " + data.message, 'ErrorG'); // Mostrar mensaje de error
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert("Error al comunicarse con el servidor");
+                mostrarAlerta("Error al comunicarse con el servidor", 'ErrorG'); // Mostrar mensaje de error
             });
         });
     }
@@ -189,4 +185,43 @@ function filtrarInventario() {
 function reestablecerFiltrosInventario() {
     document.getElementById("buscarNombre").value = "";
     filtrarInventario();
+}
+
+function mostrarAlerta(mensaje, tipo = 'ExitoG') {
+    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
+
+    const alerta = document.createElement('div');
+    alerta.className = `alertaGeneral alerta-${tipo}`;
+
+    // Configurar icono y título según el tipo de alerta
+    let icono, titulo;
+    if (tipo === 'ErrorG') {
+        icono = '⚠️';
+        titulo = '¡Atención!';
+    } else {
+        icono = '✅';
+        titulo = '¡Éxito!';
+    }
+
+    alerta.innerHTML = `
+        <span class="iconoAlertaG">${icono}</span>
+        <div class="mensajeAlertaG">
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+        </div>
+        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(alerta);
+
+    // Aumentar el tiempo de espera a 10 segundos
+    setTimeout(() => alerta.remove(), 3000); // Eliminar después de 10s
+}
+
+
+function crearContenedorAlertas() {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'contenedorAlertas';
+    document.body.appendChild(contenedor);
+    return contenedor;
 }
