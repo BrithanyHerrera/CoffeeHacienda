@@ -629,7 +629,7 @@ def get_tamanos():
             'message': f'Error: {str(e)}'
         })
 
-# Ruta para guardar productos
+
 @app.route('/api/productos/guardar', methods=['POST'])
 @login_required
 def guardar_producto():
@@ -672,38 +672,28 @@ def guardar_producto():
             if not ruta_imagen and producto_actual and producto_actual.get('ruta_imagen'):
                 ruta_imagen = producto_actual['ruta_imagen']
             
-            # Verificar si hay cambios en el producto
-            if (producto_actual and 
-                str(producto_actual['nombre_producto']) == str(nombre) and
-                str(producto_actual.get('descripcion', '')) == str(descripcion or '') and
-                float(producto_actual['precio']) == float(precio) and
-                int(producto_actual['stock']) == int(stock) and
-                int(producto_actual.get('stock_minimo', 0)) == int(stock_min) and
-                int(producto_actual.get('stock_maximo', 0)) == int(stock_max) and
-                int(producto_actual['categoria_id']) == int(categoria_id) and
-                producto_actual.get('ruta_imagen') == ruta_imagen):
-                # No hay cambios, devolver mensaje informativo
-                return jsonify({
-                    'success': True,
-                    'message': 'No se realizaron cambios en el producto'
-                })
-            
-            # Actualizar el producto principal
+            # Actualizar el producto principal sin verificar cambios
             resultado = actualizar_producto(id_producto, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
-            mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
             
             # Manejar la variante del tamaño si se especificó
             if tamano_id and tamano_id != '4':  # 4 es "No Aplica"
                 variantes = obtener_variantes_por_producto(id_producto)
                 if variantes:
-                    # Actualizar la primera variante (asumimos que solo hay una)
-                    actualizar_variante_producto(
-                        variantes[0]['Id'],  # ID de la variante
-                        precio
-                    )
+                    # Eliminar todas las variantes existentes primero
+                    eliminar_variantes_producto(id_producto)
+                    # Crear nueva variante con el tamaño seleccionado
+                    agregar_variante_producto(id_producto, tamano_id, precio)
                 else:
                     # Crear nueva variante si no existe
                     agregar_variante_producto(id_producto, tamano_id, precio)
+            elif tamano_id == '4':  # Si seleccionó "No Aplica"
+                eliminar_variantes_producto(id_producto)
+            
+            # Verificar si la actualización fue exitosa
+            if resultado:
+                mensaje = 'Producto actualizado exitosamente'
+            else:
+                mensaje = 'Error al actualizar producto'
         else:  # Crear nuevo producto
             resultado = agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
             mensaje = 'Producto creado exitosamente' if resultado else 'Error al crear producto'
@@ -722,10 +712,8 @@ def guardar_producto():
         print(f"Error en guardar_producto: {str(e)}")
         return jsonify({
             'success': False,
-            'message': f'No se realizaron cambios en el producto. Detalles: {str(e)}'
+            'message': f'Error: {str(e)}'
         })
-
-
 
 @app.route('/api/productos/eliminar', methods=['POST'])
 @login_required
@@ -886,6 +874,8 @@ def api_detalle_venta(id):
     except Exception as e:
         print(f"Error al obtener detalles de venta: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+
 
 # Ruta para procesar ventas desde el menú
 @app.route('/api/ventas/crear', methods=['POST'])

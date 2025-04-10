@@ -408,7 +408,7 @@ function guardarProducto(event) {
     .then(data => {
         if (data.success) {
             mostrarAlerta(data.message);
-            cerrarEAModal();
+            cerrarEAModal();  // Cerrar el modal si la actualización fue exitosa
             setTimeout(() => location.reload(), 2000);
         } else {
             mostrarAlerta(data.message || 'Error al guardar el producto', 'ErrorG');
