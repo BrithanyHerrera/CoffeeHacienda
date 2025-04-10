@@ -666,14 +666,13 @@ def guardar_producto():
                 ruta_imagen = f'/static/images/productos/{filename}'
         
         if id_producto:  # Editar producto existente
+            producto_actual = obtener_producto_por_id(id_producto)
+            
             # Si no se proporcionó una nueva imagen, mantener la imagen actual
-            if not ruta_imagen:
-                producto_actual = obtener_producto_por_id(id_producto)
-                if producto_actual and producto_actual.get('ruta_imagen'):
-                    ruta_imagen = producto_actual['ruta_imagen']
+            if not ruta_imagen and producto_actual and producto_actual.get('ruta_imagen'):
+                ruta_imagen = producto_actual['ruta_imagen']
             
             # Verificar si hay cambios en el producto
-            producto_actual = obtener_producto_por_id(id_producto)
             if (producto_actual and 
                 str(producto_actual['nombre_producto']) == str(nombre) and
                 str(producto_actual.get('descripcion', '')) == str(descripcion or '') and
@@ -688,15 +687,29 @@ def guardar_producto():
                     'success': True,
                     'message': 'No se realizaron cambios en el producto'
                 })
-                    
+            
+            # Actualizar el producto principal
             resultado = actualizar_producto(id_producto, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
             mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
+            
+            # Manejar la variante del tamaño si se especificó
+            if tamano_id and tamano_id != '4':  # 4 es "No Aplica"
+                variantes = obtener_variantes_por_producto(id_producto)
+                if variantes:
+                    # Actualizar la primera variante (asumimos que solo hay una)
+                    actualizar_variante_producto(
+                        variantes[0]['Id'],  # ID de la variante
+                        precio
+                    )
+                else:
+                    # Crear nueva variante si no existe
+                    agregar_variante_producto(id_producto, tamano_id, precio)
         else:  # Crear nuevo producto
             resultado = agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
             mensaje = 'Producto creado exitosamente' if resultado else 'Error al crear producto'
             
             # Si se agregó el producto y se especificó un tamaño, agregar la variante
-            if resultado and tamano_id:
+            if resultado and tamano_id and tamano_id != '4':  # 4 es "No Aplica"
                 # Obtener el ID del producto recién insertado
                 nuevo_producto = obtener_productos()[-1]  # Último producto agregado
                 agregar_variante_producto(nuevo_producto['Id'], tamano_id, precio)
@@ -711,6 +724,8 @@ def guardar_producto():
             'success': False,
             'message': f'No se realizaron cambios en el producto. Detalles: {str(e)}'
         })
+
+
 
 @app.route('/api/productos/eliminar', methods=['POST'])
 @login_required
