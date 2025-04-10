@@ -38,12 +38,23 @@
                         <p>{{ producto.descripcion }}</p>
                         
                         <div class="tamaños">
-                            {% for variante in producto.variantes %}
-                                <p class="tamaño" preciosDatos="{{ variante.precio }}">
-                                    {{ variante.tamano }} - ${{ variante.precio }}
+                            {% if producto.variantes %}
+                                {% for variante in producto.variantes %}
+                                    <p class="tamaño" preciosDatos="{{ variante.precio }}">
+                                        {% if variante.tamano == "No aplica" %}
+                                            ${{ variante.precio }}
+                                        {% else %}
+                                            {{ variante.tamano }} - ${{ variante.precio }}
+                                        {% endif %}
+                                    </p>
+                                {% endfor %}
+                            {% else %}
+                                <p class="tamaño" preciosDatos="{{ producto.precio }}">
+                                    ${{ producto.precio }}
                                 </p>
-                            {% endfor %}
+                            {% endif %}
                         </div>
+                        
 
                         <button class="añadirCarrito">Añadir a la orden</button>
                     </div>
