@@ -70,7 +70,7 @@ def guardar_corte_caja(
         else:
             # Hay pérdida
             if pagos_realizados > total_ventas:
-                ganancia_o_perdida = (total_ventas - pagos_realizados)
+                ganancia_o_perdida = total_ventas - pagos_realizados
             else:
                 ganancia_o_perdida = 0  # No hay ni ganancia ni pérdida
 

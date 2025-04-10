@@ -138,8 +138,6 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     if (pagosRealizados > totalDisponible) {
         alert(`❌ No se puede realizar el corte.\nLos pagos realizados (${pagosRealizados}) superan el total disponible (${totalDisponible}).`);
         
-        // Detenemos el evento y evitamos la descarga
-        event.stopImmediatePropagation();  // Detener la propagación del evento de click
         return;  // Terminar la función sin continuar con la descarga o envío
     }
 
@@ -180,6 +178,8 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         if (data.success) {
             // Si el corte fue exitoso, proceder con la lógica de generación del PDF (o lo que corresponda)
             alert("Corte realizado correctamente.");
+
+            
             location.reload();  // Recargar la página
         } else {
             alert("Error al realizar el corte: " + data.error);
@@ -205,7 +205,7 @@ function generarCorteCajaPDF() {
     let posicionY = 10;
 
     const fechaHora = new Date().toLocaleString();
-    const nombreVendedor = nombreUsuario || "No especificado"; 
+    const nombreVendedor = "Administrador"; // Puedes hacerlo dinámico si tienes login
 
     doc.setFont("times", "normal");
 
