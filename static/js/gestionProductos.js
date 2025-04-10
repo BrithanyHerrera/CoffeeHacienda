@@ -1,6 +1,6 @@
 // Función para abrir el modal de Edición y Agregar Producto
 function abrirEAModal(id = null, nombre = '', descripcion = '', precio = '', stock = '', 
-                      stockMin = '', stockMax = '', categoriaId = null, imagen = '') {
+                     stockMin = '', stockMax = '', categoriaId = null, imagen = '', variantes = []) {
     document.getElementById('idProducto').value = id || '';
     document.getElementById('nombreProducto').value = nombre;
     document.getElementById('descripcionProducto').value = descripcion || '';
@@ -20,6 +20,11 @@ function abrirEAModal(id = null, nombre = '', descripcion = '', precio = '', sto
     }
 
     document.getElementById('productoModal').style.display = 'flex';
+    
+    // Cargar tamaño si hay variantes
+    if (id && variantes.length > 0) {
+        document.getElementById('tamanoProducto').value = variantes[0].tamano_id;
+    }
 }
 
 
@@ -387,50 +392,14 @@ function mostrarOcultarCamposStock(mostrar) {
 function guardarProducto(event) {
     event.preventDefault();
     
-    // Obtener los valores de los campos
-    const nombreProducto = document.getElementById('nombreProducto').value;
-    const precioProducto = document.getElementById('precioProducto').value;
-    const stockProducto = document.getElementById('stockProducto').value;
-    const categoriaProducto = document.getElementById('categoriaProducto').value;
-    const tamanoProducto = document.getElementById('tamanoProducto').value;
     const idProducto = document.getElementById('idProducto').value;
-    const imagenInput = document.getElementById('imagenProducto');
-
-    // Verificar si los campos obligatorios están vacíos
-    if (!nombreProducto || !precioProducto || !categoriaProducto || !tamanoProducto) {
-        mostrarAlerta("Por favor, complete todos los campos requeridos.", 'ErrorG');
-        return;  // Evita el envío del formulario
-    }
-
-    // Si es edición y no se seleccionó una nueva imagen, no debería ser requerida
-    if (idProducto && imagenInput.files.length === 0) {
-        // Verificar si ya tiene una imagen (comprobando si se muestra la imagen actual)
-        const imagenActual = document.getElementById('imagenActual');
-        if (imagenActual.style.display === 'block') {
-            // Ya tiene una imagen, no es necesario seleccionar otra
-            imagenInput.required = false;
-        }
-    }
-
-    // Validar que el stock esté dentro de los límites
-    const stockMin = parseInt(document.getElementById('stockMinProducto').value);
-    const stockMax = parseInt(document.getElementById('stockMaxProducto').value);
-    const stock = parseInt(stockProducto);
-    
-    if (stockMin > stockMax) {
-        mostrarAlerta("El stock mínimo no puede ser mayor que el stock máximo.", 'ErrorG');
-        return;
-    }
-
-    // Si todo está correcto, se crea un objeto FormData
     const formData = new FormData(document.getElementById('formProducto'));
     
-    // Si es edición, agregar un campo para indicar si se cambió la imagen
+    // Si es edición, agregar flag para manejar variantes
     if (idProducto) {
-        formData.append('imagen_modificada', imagenInput.files.length > 0 ? 'true' : 'false');
+        formData.append('es_edicion', 'true');
     }
 
-    // Realizamos la solicitud con fetch
     fetch('/api/productos/guardar', {
         method: 'POST',
         body: formData
@@ -438,21 +407,16 @@ function guardarProducto(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            mostrarAlerta(data.message); // Cambiado a mostrarAlerta
-            if (data.message !== 'No se realizaron cambios en el producto') {
-                setTimeout(() => {
-                    location.reload();  // Recargar la página después de 1 segundo
-                }, 1000);
-            } else {
-                // Si no hay cambios, solo cerrar el modal
-                cerrarEAModal();
-            }
+            mostrarAlerta(data.message);
+            cerrarEAModal();
+            setTimeout(() => location.reload(), 2000);
         } else {
-            mostrarAlerta(data.message, 'ErrorG'); // Cambiado a mostrarAlerta
+            mostrarAlerta(data.message || 'Error al guardar el producto', 'ErrorG');
         }
     })
     .catch(error => {
-        mostrarAlerta('Error al guardar el producto: ' + error, 'ErrorG'); // Cambiado a mostrarAlerta
+        console.error('Error:', error);
+        mostrarAlerta('Error al guardar el producto', 'ErrorG');
     });
 }
 
