@@ -395,10 +395,12 @@ function guardarProducto(event) {
     const idProducto = document.getElementById('idProducto').value;
     const formData = new FormData(document.getElementById('formProducto'));
     
-    // Si es edición, agregar flag para manejar variantes
-    if (idProducto) {
-        formData.append('es_edicion', 'true');
-    }
+    // Agregar el tamaño y precio como datos adicionales
+    const tamanoId = document.getElementById('tamanoProducto').value;
+    const precio = document.getElementById('precioProducto').value;
+    
+    formData.append('tamano_id', tamanoId);
+    formData.append('precio_variante', precio);
 
     fetch('/api/productos/guardar', {
         method: 'POST',
@@ -406,14 +408,17 @@ function guardarProducto(event) {
     })
     .then(response => response.json())
     .then(data => {
-        // Forzar el mensaje de éxito independientemente del resultado
-        mostrarAlerta('Producto actualizado exitosamente');
-        cerrarEAModal();  // Cerrar el modal si la actualización fue exitosa
-        setTimeout(() => location.reload(), 2000);
+        if (data.success) {
+            mostrarAlerta(data.message);
+            cerrarEAModal();
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            mostrarAlerta(data.message, 'ErrorG');
+        }
     })
     .catch(error => {
         console.error('Error:', error);
-        mostrarAlerta('Producto actualizado exitosamente'); // Forzar el mensaje de éxito
+        mostrarAlerta('Error al guardar el producto', 'ErrorG');
     });
 }
 

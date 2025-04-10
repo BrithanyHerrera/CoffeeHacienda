@@ -629,7 +629,6 @@ def get_tamanos():
             'message': f'Error: {str(e)}'
         })
 
-
 @app.route('/api/productos/guardar', methods=['POST'])
 @login_required
 def guardar_producto():
@@ -641,68 +640,59 @@ def guardar_producto():
         id_producto = request.form.get('id')
         nombre = request.form.get('nombreProducto')
         descripcion = request.form.get('descripcionProducto')
-        precio = request.form.get('precioProducto')
-        stock = request.form.get('stockProducto')
-        stock_min = request.form.get('stockMinProducto')
-        stock_max = request.form.get('stockMaxProducto')
-        categoria_id = request.form.get('categoriaProducto')
-        tamano_id = request.form.get('tamanoProducto')
+        precio = float(request.form.get('precioProducto'))
+        stock = int(request.form.get('stockProducto') or 0)
+        stock_min = int(request.form.get('stockMinProducto') or 0)
+        stock_max = int(request.form.get('stockMaxProducto') or 0)
+        categoria_id = int(request.form.get('categoriaProducto'))
+        tamano_id = int(request.form.get('tamano_id'))
         
         # Manejar la imagen
         ruta_imagen = None
         if 'imagenProducto' in request.files:
             archivo = request.files['imagenProducto']
             if archivo and archivo.filename and allowed_file(archivo.filename):
-                # Crear nombre único para el archivo
                 timestamp = time.strftime("%Y%m%d%H%M%S")
                 filename = secure_filename(timestamp + '.' + archivo.filename.rsplit('.', 1)[1].lower())
                 
-                # Asegurar que el directorio existe
                 if not os.path.exists(app.config['UPLOAD_FOLDER']):
                     os.makedirs(app.config['UPLOAD_FOLDER'])
                 
-                # Guardar el archivo
                 archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 ruta_imagen = f'/static/images/productos/{filename}'
         
         if id_producto:  # Editar producto existente
             producto_actual = obtener_producto_por_id(id_producto)
             
-            # Si no se proporcionó una nueva imagen, mantener la imagen actual
             if not ruta_imagen and producto_actual and producto_actual.get('ruta_imagen'):
                 ruta_imagen = producto_actual['ruta_imagen']
             
-            # Actualizar el producto principal sin verificar cambios
-            resultado = actualizar_producto(id_producto, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
+            # Actualizar el producto principal
+            resultado = actualizar_producto(
+                id_producto, nombre, descripcion, precio, 
+                stock, stock_min, stock_max, categoria_id, ruta_imagen
+            )
             
-            # Manejar la variante del tamaño si se especificó
-            if tamano_id and tamano_id != '4':  # 4 es "No Aplica"
-                variantes = obtener_variantes_por_producto(id_producto)
-                if variantes:
-                    # Eliminar todas las variantes existentes primero
-                    eliminar_variantes_producto(id_producto)
-                    # Crear nueva variante con el tamaño seleccionado
-                    agregar_variante_producto(id_producto, tamano_id, precio)
-                else:
-                    # Crear nueva variante si no existe
-                    agregar_variante_producto(id_producto, tamano_id, precio)
-            elif tamano_id == '4':  # Si seleccionó "No Aplica"
+            # Manejar la variante del tamaño
+            if tamano_id and tamano_id != 4:  # 4 es "No Aplica"
+                # Eliminar todas las variantes existentes primero
                 eliminar_variantes_producto(id_producto)
-            
-            # Verificar si la actualización fue exitosa
-            if resultado:
-                mensaje = 'Producto actualizado exitosamente'
-            else:
-                mensaje = 'Error al actualizar producto'
+                # Crear nueva variante con el tamaño seleccionado
+                agregar_variante_producto(id_producto, tamano_id, precio)
+            elif tamano_id == 4:  # Si seleccionó "No Aplica"
+                eliminar_variantes_producto(id_producto)
+                
+            mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
         else:  # Crear nuevo producto
-            resultado = agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
-            mensaje = 'Producto creado exitosamente' if resultado else 'Error al crear producto'
+            resultado, nuevo_id = agregar_producto(
+                nombre, descripcion, precio, stock, 
+                stock_min, stock_max, categoria_id, ruta_imagen
+            )
             
-            # Si se agregó el producto y se especificó un tamaño, agregar la variante
-            if resultado and tamano_id and tamano_id != '4':  # 4 es "No Aplica"
-                # Obtener el ID del producto recién insertado
-                nuevo_producto = obtener_productos()[-1]  # Último producto agregado
-                agregar_variante_producto(nuevo_producto['Id'], tamano_id, precio)
+            if resultado and tamano_id and tamano_id != 4:
+                agregar_variante_producto(nuevo_id, tamano_id, precio)
+                
+            mensaje = 'Producto creado exitosamente' if resultado else 'Error al crear producto'
         
         return jsonify({
             'success': resultado,
