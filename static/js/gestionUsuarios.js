@@ -76,10 +76,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
-                    window.location.reload();
+                    mostrarAlerta(data.mensaje, 'ExitoG', 3000);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000); // recargar después de 3 segundos
                 } else {
-                    alert('Error: ' + data.message);
+                    mostrarNotificacion(data.message, 'error');
                 }
             })
             .catch(error => {
@@ -175,3 +177,117 @@ function reestablecerFiltros() {
         fila.style.display = ''; // Muestra todas las filas
     });
 }
+
+function mostrarAlerta(mensaje, tipo = 'ExitoG') {
+    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
+
+    const alerta = document.createElement('div');
+    alerta.className = `alertaGeneral alerta-${tipo}`;
+
+    // Configurar icono y título según el tipo de alerta
+    let icono, titulo;
+    if (tipo === 'ErrorG') {
+        icono = '⚠️';
+        titulo = '¡Atención!';
+    } else {
+        icono = '✅';
+        titulo = '¡Éxito!';
+    }
+
+    alerta.innerHTML = `
+        <span class="iconoAlertaG">${icono}</span>
+        <div class="mensajeAlertaG">
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+        </div>
+        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(alerta);
+
+    setTimeout(() => alerta.remove(), 5000); // Eliminar después de 5s
+}
+
+
+function crearContenedorAlertas() {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'contenedorAlertas';
+    document.body.appendChild(contenedor);
+    return contenedor;
+}
+
+// Función para mostrar notificaciones con duración personalizable
+function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
+    // Crear el contenedor principal si no existe
+    let contenedorAlertas = document.querySelector('.contenedorAlertas');
+    if (!contenedorAlertas) {
+        contenedorAlertas = document.createElement('div');
+        contenedorAlertas.className = 'contenedorAlertas';
+        document.body.appendChild(contenedorAlertas);
+    }
+    
+    // Crear la alerta
+    const alerta = document.createElement('div');
+    alerta.className = `alertaInventario ${tipo === 'error' ? 'alerta-critica' : 'alerta-normal'}`;
+    
+    // Crear el icono
+    const icono = document.createElement('div');
+    icono.className = 'iconoAlerta';
+    icono.innerHTML = tipo === 'error' ? '⚠️' : '✅';
+    
+    // Crear el mensaje
+    const mensajeDiv = document.createElement('div');
+    mensajeDiv.className = 'mensajeAlerta';
+    
+    const titulo = document.createElement('h3');
+    titulo.textContent = tipo === 'error' ? 'Error' : 'Éxito';
+    
+    const parrafo = document.createElement('p');
+    parrafo.textContent = mensaje;
+    
+    mensajeDiv.appendChild(titulo);
+    mensajeDiv.appendChild(parrafo);
+    
+    // Crear el botón de cerrar
+    const btnCerrar = document.createElement('button');
+    btnCerrar.className = 'cerrarAlerta';
+    btnCerrar.innerHTML = '&times;';
+    btnCerrar.onclick = function() {
+        contenedorAlertas.removeChild(alerta);
+    };
+    
+    // Ensamblar la alerta
+    alerta.appendChild(icono);
+    alerta.appendChild(mensajeDiv);
+    alerta.appendChild(btnCerrar);
+    
+    // Añadir la alerta al contenedor
+    contenedorAlertas.appendChild(alerta);
+    
+    // Eliminar automáticamente después de la duración especificada
+    setTimeout(() => {
+        if (alerta.parentNode === contenedorAlertas) {
+            contenedorAlertas.removeChild(alerta);
+        }
+        
+        // Si no quedan más alertas, eliminar el contenedor
+        if (contenedorAlertas.children.length === 0) {
+            document.body.removeChild(contenedorAlertas);
+        }
+    }, duracion);
+}
+
+// Función para mostrar/ocultar el campo de número de mesa
+function toggleMesaField() {
+    const paraLlevar = document.getElementById('paraLlevar').checked;
+    const mesaContainer = document.getElementById('mesaContainer');
+    
+    if (paraLlevar) {
+        mesaContainer.style.display = 'none';
+        document.getElementById('numeroMesa').value = ''; // Limpiar el valor
+    } else {
+        mesaContainer.style.display = 'block';
+    }
+}
+
+
