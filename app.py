@@ -449,11 +449,22 @@ def guardar_usuario():
 @app.route('/gestionUsuarios/eliminar/<int:id>')
 @login_required
 def eliminar_usuario_route(id):
-    if eliminar_usuario(id):
-        flash('Usuario eliminado exitosamente', 'success')
-    else:
-        flash('Error al eliminar usuario', 'danger')
-    return redirect(url_for('gestionUsuarios'))
+    try:
+        if eliminar_usuario(id):
+            return jsonify({
+                'success': True,
+                'message': 'Usuario eliminado exitosamente'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error al eliminar usuario'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
 
 @app.route('/propinas')
 @login_required  # Ruta protegida

@@ -103,33 +103,24 @@ function confirmarEliminar(id) {
 }
 
 function confirmarEliminacion() {
-    fetch(`/gestionUsuarios/eliminar/${idUsuarioAEliminar}`, { // Asegúrate de incluir el ID en la URL
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            mostrarAlerta(data.message, 'ExitoG'); // Mostrar mensaje de éxito
-            setTimeout(() => {
-                location.reload();  // Recargar la página después de 3 segundos
-            }, 3000); // Esperar 3 segundos antes de recargar
-        } else {
-            mostrarAlerta('Error al eliminar el usuario: ' + data.message, 'ErrorG'); // Mostrar mensaje de error
-        }
-    })
-    .catch(error => {
-        mostrarAlerta('Error al eliminar el usuario: ' + error.message, 'ErrorG'); // Mostrar mensaje de error
-    });
+    fetch(`/gestionUsuarios/eliminar/${idUsuarioAEliminar}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarAlerta('Usuario eliminado exitosamente', 'ExitoG');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            } else {
+                mostrarAlerta(data.message, 'ErrorG');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al eliminar el usuario', 'ErrorG');
+        });
 
-    cerrarConfirmacionModal(); // Cerrar el modal de confirmación
+    cerrarConfirmacionModal();
 }
 
 function cerrarConfirmacionModal() {
