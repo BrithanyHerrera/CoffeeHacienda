@@ -131,6 +131,7 @@ def eliminar_variantes_producto(producto_id):
 
 def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen):
     resultado = False
+    producto_id = None
     
     try:
         connection = Conexion_BD()
@@ -142,13 +143,15 @@ def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, c
             """
             valores = (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen)
             cursor.execute(query, valores)
+            # Obtenemos el ID del producto recién insertado
+            producto_id = cursor.lastrowid
         connection.commit()
         resultado = True
         connection.close()
     except Exception as e:
         print(f"Error al agregar producto: {e}")
     
-    return resultado
+    return resultado, producto_id  # Devolvemos tanto el resultado como el ID
 
 def actualizar_producto(id, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen=None):
     resultado = False
@@ -226,16 +229,28 @@ def obtener_producto_por_id(id):
             cursor.execute("""
                 SELECT 
                     p.*,
-                    c.categoria,
-                    COALESCE(t.Id, 0) as id_tamano,
-                    COALESCE(t.tamano, 'No Aplica') as tamano,
-                    COALESCE(pv.precio, p.precio) as precio_final
+                    c.categoria
                 FROM tproductos p 
                 JOIN tcategorias c ON p.categoria_id = c.id 
-                LEFT JOIN tproductos_variantes pv ON p.Id = pv.producto_id
-                LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
                 WHERE p.Id = %s AND p.activo = 1
             """, (id,))
-            return cursor.fetchone()
+            producto = cursor.fetchone()
+            
+            if producto:
+                # Obtener las variantes por separado
+                cursor.execute("""
+                    SELECT 
+                        pv.Id,
+                        pv.producto_id,
+                        pv.tamano_id,
+                        pv.precio,
+                        t.tamano
+                    FROM tproductos_variantes pv
+                    JOIN ttamanos t ON pv.tamano_id = t.Id
+                    WHERE pv.producto_id = %s
+                """, (id,))
+                producto['variantes'] = cursor.fetchall()
+            
+            return producto
     except Exception as e:
         print(f"Error al obtener producto por ID: {e}")
