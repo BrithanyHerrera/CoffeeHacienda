@@ -111,45 +111,76 @@ function eliminarDelCarrito(nombre, tamaño) {
     actualizarCarrito();
 }
 
+function mostrarAlerta(mensaje, tipo = 'ExitoG') {
+    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
+
+    const alerta = document.createElement('div');
+    alerta.className = `alertaGeneral alerta-${tipo}`;
+
+    // Configurar icono y título según el tipo de alerta
+    let icono, titulo;
+    if (tipo === 'ErrorG') {
+        icono = '⚠️';
+        titulo = '¡Atención!';
+    } else {
+        icono = '✅';
+        titulo = '¡Éxito!';
+    }
+
+    alerta.innerHTML = `
+        <span class="iconoAlertaG">${icono}</span>
+        <div class="mensajeAlertaG">
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+        </div>
+        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(alerta);
+
+    setTimeout(() => alerta.remove(), 5000); // Eliminar después de 5s
+}
+
+
+function crearContenedorAlertas() {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'contenedorAlertas';
+    document.body.appendChild(contenedor);
+    return contenedor;
+}
+
 function realizarPedido() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim();
     const paraLlevar = document.getElementById('paraLlevar').checked;
     const numeroMesa = paraLlevar ? '' : document.getElementById('numeroMesa').value.trim();
     const metodoPago = document.querySelector('select[name="metodoPago"]').value;
 
-    // Validaciones
-    if (carrito.length === 0) {
-        mostrarNotificacion('El carrito está vacío. Agregue productos antes de realizar la orden.', 'error');
-        return;
-    }
-
     if (nombreCliente === '') {
-        mostrarNotificacion('Por favor, ingrese el nombre del cliente.', 'error');
+        mostrarAlerta('Por favor, ingrese el nombre del cliente.', 'ErrorG');
         return;
     }
 
     if (!paraLlevar && numeroMesa === '') {
-        mostrarNotificacion('Por favor, ingrese el número de mesa o marque la opción "Para llevar".', 'error');
+        mostrarAlerta('Ingrese el número de mesa o marque "Para llevar".', 'ErrorG');
         return;
     }
 
-    // Preparar los datos para enviar al servidor
+    if (carrito.length === 0) {
+        mostrarAlerta('El carrito está vacío. Agregue productos antes de realizar la orden.', 'ErrorG');
+        return;
+    }
+
     const productos = carrito.map(item => ({
         id: item.id,
         cantidad: item.cantidad,
-        precio: item.precio,
-        tamano: item.tamaño
+        precio: item.precio
     }));
 
-    // Calcular el total
-    const total = calcularTotal();
+    const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
-    // Enviar los datos al servidor
     fetch('/api/ventas/crear', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             cliente: nombreCliente,
             mesa: numeroMesa,
@@ -161,45 +192,29 @@ function realizarPedido() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Mostrar mensaje de éxito
-            mostrarNotificacion('Venta registrada exitosamente', 'success');
-            
-            // Generar PDF solo si la venta fue exitosa
+            mostrarAlerta('Venta registrada exitosamente.', 'ExitoG');
             generarPDF();
-            
-            // Vaciar el carrito
             carrito = [];
             actualizarCarrito();
-            
-            // Limpiar campos del formulario
             document.getElementById('nombreCliente').value = '';
-            document.getElementById('numeroMesa').value = '';
-            document.getElementById('paraLlevar').checked = false;
-            
-            // Mostrar el campo de mesa nuevamente si estaba oculto
-            const mesaContainer = document.getElementById('mesaContainer');
-            if (mesaContainer) {
-                mesaContainer.style.display = 'block';
-            }
         } else {
-            // Verificar si hay productos sin stock suficiente
             if (data.productos_sin_stock) {
-                let mensaje = "No se puede completar la venta:\n\n";
+                let mensaje = "Stock insuficiente:\n";
                 data.productos_sin_stock.forEach(p => {
-                    mensaje += `- ${p.nombre}: Stock disponible: ${p.stock_actual}, Solicitado: ${p.cantidad_solicitada}\n`;
+                    mensaje += `- ${p.nombre} (Disponible: ${p.stock_actual}, Solicitado: ${p.cantidad_solicitada})\n`;
                 });
-                mostrarNotificacion(mensaje, 'error', 10000); // Mostrar por más tiempo
+                mostrarAlerta(mensaje, 'ErrorG');
             } else {
-                // Mostrar mensaje de error
-                mostrarNotificacion('Error al registrar la venta: ' + data.message, 'error');
+                mostrarAlerta('Error al registrar la venta: ' + data.message, 'ErrorG');
             }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        mostrarNotificacion('Error al procesar la venta', 'error');
+        mostrarAlerta('Error al procesar la venta.', 'ErrorG');
     });
 }
+
 
 // Add a helper function to calculate total if it doesn't exist
 function calcularTotal() {

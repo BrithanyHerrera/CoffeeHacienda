@@ -11,6 +11,69 @@
     z-index: 100;
 }
 
+.alertaGeneral {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.5s ease-out;
+}
+
+.alerta-ErrorG {
+    background-color: rgb(210, 97, 108);
+    border-left: 5px solid #dc3545;
+}
+
+.alerta-ExitoG {
+    background-color: rgb(59, 142, 57);
+    border-left: 5px solid #007c0c;
+}
+
+.iconoAlertaG {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.mensajeAlertaG {
+    flex-grow: 1;
+}
+
+.mensajeAlertaG h3 {
+    margin: 0 0 5px 0;
+    color: #ffffff;
+}
+
+.mensajeAlertaG p {
+    margin: 0;
+    color: #dbdbdb;
+}
+
+.cerrarAlertaG {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #ffdcdc;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+
+
+
+/* Estilos para las alertas de inventario */
+
 .alertaInventario {
     display: flex;
     align-items: center;
@@ -72,13 +135,3 @@
     color: #777;
 }
 
-@keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
