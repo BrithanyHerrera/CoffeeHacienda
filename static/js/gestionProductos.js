@@ -144,6 +144,10 @@ function confirmarEliminacion() {
     cerrarConfirmacionModal(); // Cerrar el modal de confirmación
 }
 
+function cerrarConfirmacionModal() {
+    document.getElementById('confirmacionModal').style.display = 'none'; // Ocultar el modal de confirmación
+}
+
 // Función para cargar las categorías en el select
 function cargarCategorias() {
     fetch('/api/categorias')
