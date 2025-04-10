@@ -77,6 +77,7 @@ function abrirVerProducto(id) {
                     })
                     .catch(error => {
                         console.error('Error al obtener información de la categoría:', error);
+                        mostrarAlerta('Error al obtener información de la categoría', 'ErrorG'); // Cambiado a mostrarAlerta
                     });
                 
                 document.getElementById('verCategoriaProducto').textContent = producto.categoria || 'Sin categoría';
@@ -95,44 +96,56 @@ function abrirVerProducto(id) {
                 // Mostrar el modal de ver producto
                 document.getElementById('verModalProducto').style.display = 'flex';
             } else {
-                alert('Error al obtener los datos del producto');
+                mostrarAlerta('Error al obtener los datos del producto', 'ErrorG'); // Cambiado a mostrarAlerta
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al obtener los datos del producto');
+            mostrarAlerta('Error al obtener los datos del producto', 'ErrorG'); // Cambiado a mostrarAlerta
         });
 }
-
 
 // Cerrar el modal de ver producto
 function cerrarVerProducto() {
     document.getElementById('verModalProducto').style.display = 'none';
 }
 
+let idProductoAEliminar = null; // Variable global para almacenar el ID del producto a eliminar
+
 function eliminarProducto(id) {
-    const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este producto? Esta acción no puede deshacerse.');
-    if (confirmDelete) {
-        fetch('/api/productos/eliminar', {
-            method: 'POST',
-            body: JSON.stringify({ id: id }),
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();  // Recargar la página para actualizar la lista de productos
-            } else {
-                alert('Error al eliminar el producto: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('Error al eliminar el producto: ' + error);
-        });
-    }
+    idProductoAEliminar = id; // Almacenar el ID del producto a eliminar
+    document.getElementById('mensajeConfirmacion').textContent = '¿Estás seguro de que deseas eliminar este producto? Esta acción no puede deshacerse.';
+    document.getElementById('confirmacionModal').style.display = 'flex'; // Mostrar el modal de confirmación
+}
+
+function confirmarEliminacion() {
+    fetch('/api/productos/eliminar', {
+        method: 'POST',
+        body: JSON.stringify({ id: idProductoAEliminar }),
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarAlerta(data.message); // Mostrar mensaje de éxito
+            setTimeout(() => {
+                location.reload();  // Recargar la página después de 3 segundos
+            }, 3000); // Esperar 3 segundos antes de recargar
+        } else {
+            mostrarAlerta('Error al eliminar el producto: ' + data.message, 'ErrorG'); // Mostrar mensaje de error
+        }
+    })
+    .catch(error => {
+        mostrarAlerta('Error al eliminar el producto: ' + error, 'ErrorG'); // Mostrar mensaje de error
+    });
+
+    cerrarConfirmacionModal(); // Cerrar el modal de confirmación
+}
+
+function cerrarConfirmacionModal() {
+    document.getElementById('confirmacionModal').style.display = 'none'; // Ocultar el modal de confirmación
 }
 
 // Función para cargar las categorías en el select
@@ -157,7 +170,7 @@ function cargarCategorias() {
             }
         })
         .catch(error => {
-            console.error('Error al cargar categorías:', error);
+            console.error('Error al cargar categorías:', error, 'ErrorG');
         });
 }
 
@@ -179,11 +192,11 @@ function cargarTamanos() {
                     selectTamano.appendChild(option);
                 });
             } else {
-                console.error('Error al cargar tamaños:', data.message);
+                console.error('Error al cargar tamaños:', data.message, 'ErrorG');
             }
         })
         .catch(error => {
-            console.error('Error al cargar tamaños:', error);
+            console.error('Error al cargar tamaños:', error, 'ErrorG');
         });
 }
 
@@ -281,7 +294,7 @@ function manejarCambioCategoria() {
             }
         })
         .catch(error => {
-            console.error('Error al obtener información de la categoría:', error);
+            console.error('Error al obtener información de la categoría:', error, 'ErrorG');
         });
 }
 
@@ -383,7 +396,7 @@ function guardarProducto(event) {
 
     // Verificar si los campos obligatorios están vacíos
     if (!nombreProducto || !precioProducto || !stockProducto || !categoriaProducto) {
-        alert("Por favor, complete todos los campos requeridos.");
+        mostrarAlerta("Por favor, complete todos los campos requeridos.", 'ErrorG');
         return;  // Evita el envío del formulario
     }
 
@@ -393,32 +406,12 @@ function guardarProducto(event) {
     const stock = parseInt(stockProducto);
     
     if (stockMin > stockMax) {
-        alert("El stock mínimo no puede ser mayor que el stock máximo.");
+        mostrarAlerta("El stock mínimo no puede ser mayor que el stock máximo.", 'ErrorG');
         return;
-    }
-
-    // Verificar si se está editando y no se seleccionó una nueva imagen
-    const imagenInput = document.getElementById('imagenProducto');
-    if (idProducto && (!imagenInput.files || !imagenInput.files[0]) && document.getElementById('imagenActual').style.display !== 'none') {
-        // Si estamos editando y no se seleccionó una nueva imagen, no es necesario validar el campo de imagen
-        imagenInput.required = false;
-    } else if (!idProducto) {
-        // Si es un nuevo producto, la imagen es requerida
-        imagenInput.required = true;
     }
 
     // Si todo está correcto, se crea un objeto FormData
     const formData = new FormData(document.getElementById('formProducto'));
-    
-    // Asegurarse de que los nombres de los campos coincidan con lo que espera el servidor
-    formData.set('nombreProducto', nombreProducto);
-    formData.set('descripcionProducto', document.getElementById('descripcionProducto').value);
-    formData.set('precioProducto', precioProducto);
-    formData.set('stockProducto', stockProducto);
-    formData.set('stockMinProducto', stockMin);
-    formData.set('stockMaxProducto', stockMax);
-    formData.set('categoriaProducto', categoriaProducto);
-    formData.set('tamanoProducto', document.getElementById('tamanoProducto').value);
 
     // Realizamos la solicitud con fetch
     fetch('/api/productos/guardar', {
@@ -428,14 +421,16 @@ function guardarProducto(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
-            location.reload();  // Recargar la página para actualizar la lista de productos
+            mostrarAlerta(data.message); // Cambiado a mostrarAlerta
+            setTimeout(() => {
+                location.reload();  // Recargar la página después de 3 segundos
+            }, 1000); // Esperar 3 segundos antes de recargar
         } else {
-            alert(data.message);
+            mostrarAlerta(data.message, 'ErrorG'); // Cambiado a mostrarAlerta
         }
     })
     .catch(error => {
-        alert('Error al guardar el producto: ' + error);
+        mostrarAlerta('Error al guardar el producto: ' + error, 'ErrorG'); // Cambiado a mostrarAlerta
     });
 }
 
@@ -530,12 +525,12 @@ function abrirEAModal(id = null) {
                     
                     document.getElementById('tituloModal').innerText = 'Editar Producto';
                 } else {
-                    alert('Error al obtener los datos del producto');
+                    mostrarAlerta('Error al obtener los datos del producto', 'ErrorG'); // Cambiado a mostrarAlerta
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al obtener los datos del producto');
+                mostrarAlerta('Error al obtener los datos del producto', 'ErrorG'); // Cambiado a mostrarAlerta
             });
     } else {
         // Si es un nuevo producto, limpiar el formulario
@@ -602,4 +597,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function mostrarAlerta(mensaje, tipo = 'ExitoG') {
+    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
 
+    const alerta = document.createElement('div');
+    alerta.className = `alertaGeneral alerta-${tipo}`;
+
+    // Configurar icono y título según el tipo de alerta
+    let icono, titulo;
+    if (tipo === 'ErrorG') {
+        icono = '⚠️';
+        titulo = '¡Atención!';
+    } else {
+        icono = '✅';
+        titulo = '¡Éxito!';
+    }
+
+    alerta.innerHTML = `
+        <span class="iconoAlertaG">${icono}</span>
+        <div class="mensajeAlertaG">
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+        </div>
+        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(alerta);
+
+    // Aumentar el tiempo de espera a 10 segundos
+    setTimeout(() => alerta.remove(), 3000); // Eliminar después de 10s
+}
+
+
+function crearContenedorAlertas() {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'contenedorAlertas';
+    document.body.appendChild(contenedor);
+    return contenedor;
+}
