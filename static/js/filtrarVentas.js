@@ -206,7 +206,7 @@ function generarCorteCajaPDF() {
     let posicionY = 10;
 
     const fechaHora = new Date().toLocaleString();
-    const nombreVendedor = "Administrador"; // Puedes hacerlo dinámico si tienes login
+    const nombreVendedor = nombreUsuario || "No especificado"; 
 
     doc.setFont("times", "normal");
 

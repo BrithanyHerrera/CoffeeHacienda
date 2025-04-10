@@ -28,7 +28,6 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Usuario</th>
                 <th>Fecha</th>
                 <th>Fondo</th>
                 <th>Contado</th>
@@ -39,7 +38,6 @@
         <tbody>
             {% for corte in cortes %}
             <tr>
-                <td>{{ nombre_usuario }}</td>
                 <td>{{ corte.fecha_hora_cierre.strftime('%Y-%m-%d') }}</td>
                 <td>${{ corte.fondo }}</td>
                 <td>${{ corte.total_contado }}</td>
