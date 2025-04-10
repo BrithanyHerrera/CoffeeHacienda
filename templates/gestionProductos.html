@@ -15,21 +15,25 @@
             <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarProductos()">
             
             <!-- Filtro por tamaño -->
-            <select id="buscarTamano" name="tamano" onchange="filtrarProductos()">
-                <option value="">Todos los tamaños</option>
-                {% for tamano in tamanos %}
-                <option value="{{ tamano.tamano }}">{{ tamano.tamano }}</option>
-                {% endfor %}
-            </select>
-    
-            <!-- Filtro por categoría -->
-            <select id="buscarCategoria" name="categoria" onchange="filtrarProductos()">
-                <option value="">Todas las categorías</option>
-                {% for categoria in categorias %}
-                <option value="{{ categoria.categoria }}">{{ categoria.categoria }}</option>
-                {% endfor %}
-            </select>
-            
+            <div class="filtroSelect">
+                <select id="buscarTamano" name="tamano" onchange="filtrarProductos()">
+                    <option value="">Todos los tamaños</option>
+                    {% for tamano in tamanos %}
+                    <option value="{{ tamano.tamano }}">{{ tamano.tamano }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filtroSelect">
+                <!-- Filtro por categoría -->
+                <select id="buscarCategoria" name="categoria" onchange="filtrarProductos()">
+                    <option value="">Todas las categorías</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.categoria }}">{{ categoria.categoria }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- Botón para restablecer los filtros -->
             <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
         </section>

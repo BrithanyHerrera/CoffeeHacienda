@@ -19,6 +19,26 @@ body {
 
 
 /* GENERALES */
+.filtroSelect select {
+    background-color: #f0f0f0; 
+    color: #333; 
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    width: 100%; 
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.filtroSelect select:hover {
+    border-color: #888; 
+}
+
+.filtroSelect select:focus {
+    outline: none;
+    border-color: #3f51b5; 
+}
 
 h1 {
     font-size: 25px;
@@ -430,27 +450,6 @@ input {
 .metodosPago select:focus {
     outline: none;
     border-color: #3f51b5; 
-}
-
-.metodosPago select {
-    background-color: #f0f0f0; 
-    color: #333; 
-    border: 1px solid #ccc;
-    padding: 8px;
-    font-size: 16px;
-    border-radius: 5px;
-    width: 100%;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-}
-
-.metodosPago select:hover {
-    border-color: #888;
-}
-
-.metodosPago select:focus {
-    outline: none;
-    border-color: #3f51b5;
 }
 
 .eliminarItemCarrito {
@@ -905,6 +904,15 @@ form {
 
 .btnReestablecer:hover {
     background: #e67e22;
+}
+
+#formBuscador {
+    display: flex;
+    align-items: center; /* Alinea verticalmente */
+    gap: 10px; /* Espaciado entre elementos */
+    flex-wrap: wrap; /* Evita que los elementos se desborden */
+    width: 100%;
+    justify-content: space-between; /* Distribuye los elementos uniformemente */
 }
 
 
