@@ -392,12 +392,24 @@ function guardarProducto(event) {
     const precioProducto = document.getElementById('precioProducto').value;
     const stockProducto = document.getElementById('stockProducto').value;
     const categoriaProducto = document.getElementById('categoriaProducto').value;
+    const tamanoProducto = document.getElementById('tamanoProducto').value;
     const idProducto = document.getElementById('idProducto').value;
+    const imagenInput = document.getElementById('imagenProducto');
 
     // Verificar si los campos obligatorios están vacíos
-    if (!nombreProducto || !precioProducto || !stockProducto || !categoriaProducto) {
+    if (!nombreProducto || !precioProducto || !categoriaProducto || !tamanoProducto) {
         mostrarAlerta("Por favor, complete todos los campos requeridos.", 'ErrorG');
         return;  // Evita el envío del formulario
+    }
+
+    // Si es edición y no se seleccionó una nueva imagen, no debería ser requerida
+    if (idProducto && imagenInput.files.length === 0) {
+        // Verificar si ya tiene una imagen (comprobando si se muestra la imagen actual)
+        const imagenActual = document.getElementById('imagenActual');
+        if (imagenActual.style.display === 'block') {
+            // Ya tiene una imagen, no es necesario seleccionar otra
+            imagenInput.required = false;
+        }
     }
 
     // Validar que el stock esté dentro de los límites
@@ -412,6 +424,11 @@ function guardarProducto(event) {
 
     // Si todo está correcto, se crea un objeto FormData
     const formData = new FormData(document.getElementById('formProducto'));
+    
+    // Si es edición, agregar un campo para indicar si se cambió la imagen
+    if (idProducto) {
+        formData.append('imagen_modificada', imagenInput.files.length > 0 ? 'true' : 'false');
+    }
 
     // Realizamos la solicitud con fetch
     fetch('/api/productos/guardar', {
@@ -422,9 +439,14 @@ function guardarProducto(event) {
     .then(data => {
         if (data.success) {
             mostrarAlerta(data.message); // Cambiado a mostrarAlerta
-            setTimeout(() => {
-                location.reload();  // Recargar la página después de 3 segundos
-            }, 1000); // Esperar 3 segundos antes de recargar
+            if (data.message !== 'No se realizaron cambios en el producto') {
+                setTimeout(() => {
+                    location.reload();  // Recargar la página después de 1 segundo
+                }, 1000);
+            } else {
+                // Si no hay cambios, solo cerrar el modal
+                cerrarEAModal();
+            }
         } else {
             mostrarAlerta(data.message, 'ErrorG'); // Cambiado a mostrarAlerta
         }
@@ -510,27 +532,42 @@ function abrirEAModal(id = null) {
                             });
                     }
                     
-                    // Si hay variantes, seleccionar el tamaño
+                    // Si hay variantes, seleccionar el tamaño correctamente
                     if (data.variantes && data.variantes.length > 0) {
+                        // Seleccionar el tamaño de la primera variante
                         document.getElementById('tamanoProducto').value = data.variantes[0].tamano_id;
+                        console.log("Tamaño seleccionado:", data.variantes[0].tamano_id);
+                    } else {
+                        // Buscar la opción "No Aplica" en el select de tamaños
+                        const selectTamano = document.getElementById('tamanoProducto');
+                        for (let i = 0; i < selectTamano.options.length; i++) {
+                            if (selectTamano.options[i].text === 'No Aplica') {
+                                selectTamano.value = selectTamano.options[i].value;
+                                console.log("Seleccionando No Aplica:", selectTamano.options[i].value);
+                                break;
+                            }
+                        }
                     }
                     
                     // Mostrar la imagen actual si existe
                     if (producto.ruta_imagen) {
                         document.getElementById('imagenActual').src = producto.ruta_imagen;
                         document.getElementById('imagenActual').style.display = 'block';
+                        
+                        // Quitar el required del input de imagen cuando ya existe una
+                        document.getElementById('imagenProducto').removeAttribute('required');
                     } else {
                         document.getElementById('imagenActual').style.display = 'none';
                     }
                     
                     document.getElementById('tituloModal').innerText = 'Editar Producto';
                 } else {
-                    mostrarAlerta('Error al obtener los datos del producto', 'ErrorG'); // Cambiado a mostrarAlerta
+                    mostrarAlerta('Error al obtener los datos del producto', 'ErrorG');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                mostrarAlerta('Error al obtener los datos del producto', 'ErrorG'); // Cambiado a mostrarAlerta
+                mostrarAlerta('Error al obtener los datos del producto', 'ErrorG');
             });
     } else {
         // Si es un nuevo producto, limpiar el formulario
@@ -545,6 +582,9 @@ function abrirEAModal(id = null) {
         document.getElementById('tamanoProducto').value = '';
         document.getElementById('imagenActual').style.display = 'none';
         document.getElementById('tituloModal').innerText = 'Agregar Producto';
+        
+        // Para nuevo producto, la imagen es requerida
+        document.getElementById('imagenProducto').setAttribute('required', 'required');
         
         // Por defecto, ocultar los campos de stock
         mostrarOcultarCamposStock(false);

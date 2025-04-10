@@ -115,7 +115,7 @@
                         <textarea id="descripcionProducto" name="descripcionProducto" rows="3"></textarea>
 
                         <label for="tamanoProducto">Tamaño:</label>
-                        <select id="tamanoProducto" name="tamanoProducto">
+                        <select id="tamanoProducto" name="tamanoProducto" required>
                             <option value="">Seleccione un tamaño</option>
                             {% for tamano in tamanos %}
                             <option value="{{ tamano.Id }}">{{ tamano.tamano }}</option>
@@ -146,7 +146,7 @@
                         </select>
 
                         <label for="imagenProducto">Imagen:</label>
-                        <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*">
+                        <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*" required>
                         <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
 
                         <button class="guardarBtn" type="submit">Guardar</button>
