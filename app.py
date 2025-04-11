@@ -690,7 +690,7 @@ def guardar_producto():
                 ruta_imagen = producto_actual['ruta_imagen']
             
             # Actualizar el producto principal
-            resultado = actualizar_producto(
+            resultado, mensaje = actualizar_producto(
                 id_producto, nombre, descripcion, precio, 
                 stock, stock_min, stock_max, categoria_id, ruta_imagen
             )
@@ -703,8 +703,6 @@ def guardar_producto():
                 agregar_variante_producto(id_producto, tamano_id, precio)
             elif tamano_id == 4:  # Si seleccionó "No Aplica"
                 eliminar_variantes_producto(id_producto)
-                
-            mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
         else:  # Crear nuevo producto
             resultado, nuevo_id = agregar_producto(
                 nombre, descripcion, precio, stock, 
@@ -726,6 +724,7 @@ def guardar_producto():
             'success': False,
             'message': f'Error: {str(e)}'
         })
+
 
 @app.route('/api/productos/eliminar', methods=['POST'])
 @login_required

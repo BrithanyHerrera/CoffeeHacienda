@@ -155,6 +155,7 @@ def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, c
 
 def actualizar_producto(id, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen=None):
     resultado = False
+    mensaje = "No se realizaron cambios en el producto"
     
     try:
         connection = Conexion_BD()
@@ -180,12 +181,15 @@ def actualizar_producto(id, nombre, descripcion, precio, stock, stock_min, stock
                 
             cursor.execute(query, valores)
         connection.commit()
-        resultado = cursor.rowcount > 0
+        if cursor.rowcount > 0:
+            resultado = True
+            mensaje = "Producto actualizado correctamente"
         connection.close()
     except Exception as e:
         print(f"Error al actualizar producto: {e}")
+        mensaje = f"Error al actualizar producto: {e}"
     
-    return resultado
+    return resultado, mensaje
 
 def eliminar_producto(id_producto):
     try:
