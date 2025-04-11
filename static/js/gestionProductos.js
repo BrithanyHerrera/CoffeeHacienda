@@ -413,7 +413,13 @@ function guardarProducto(event) {
             cerrarEAModal();
             setTimeout(() => location.reload(), 2000);
         } else {
-            mostrarAlerta(data.message, 'ErrorG');
+            // Verificar si el mensaje indica que no hubo cambios
+            if (data.message && data.message.includes("No se realizaron cambios")) {
+                mostrarAlerta("No se realizaron cambios en el producto", "ExitoG");
+                cerrarEAModal();
+            } else {
+                mostrarAlerta(data.message, 'ErrorG');
+            }
         }
     })
     .catch(error => {
