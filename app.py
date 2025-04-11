@@ -372,19 +372,41 @@ def api_actualizar_estado_orden(id):
                 'message': f'Transición no válida. Desde "{estado_actual_nombre}" solo puede cambiar a: {mensaje_estados}'
             })
         
-        resultado = actualizar_estado_orden(id, estados[nuevo_estado])
-        
-        if resultado:
+        # Si el nuevo estado es "Cancelado", eliminar la orden y sus detalles
+        if nuevo_estado == 'Cancelado':
+            conn = Conexion_BD()
+            cursor = conn.cursor()
+            
+            # Primero eliminar los detalles de la venta (debido a la restricción de clave foránea)
+            cursor.execute("DELETE FROM tdetalleventas WHERE venta_id = %s", (id,))
+            
+            # Luego eliminar la venta
+            cursor.execute("DELETE FROM tventas WHERE Id = %s", (id,))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
             return jsonify({
                 'success': True,
-                'message': f'Estado actualizado a {nuevo_estado}'
+                'message': 'Orden cancelada y eliminada del sistema'
             })
         else:
-            return jsonify({
-                'success': False,
-                'message': 'Error al actualizar estado'
-            })
+            # Si no es cancelación, actualizar el estado normalmente
+            resultado = actualizar_estado_orden(id, estados[nuevo_estado])
+            
+            if resultado:
+                return jsonify({
+                    'success': True,
+                    'message': f'Estado actualizado a {nuevo_estado}'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Error al actualizar estado'
+                })
     except Exception as e:
+        print(f"Error al actualizar estado de orden: {e}")
         return jsonify({
             'success': False,
             'message': f'Error: {str(e)}'
