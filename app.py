@@ -213,7 +213,7 @@ def inventario():
     productos = obtener_productos_inventario()
     return render_template('inventario.html', productos=productos)
 
-# Agregar ruta API para actualizar el stock
+
 @app.route('/api/inventario/actualizar', methods=['POST'])
 @login_required
 def actualizar_inventario():
@@ -223,6 +223,40 @@ def actualizar_inventario():
         nuevo_stock = data.get('stock')
         nuevo_stock_min = data.get('stock_min')
         nuevo_stock_max = data.get('stock_max')
+        
+        # Validar que los valores no sean cero
+        if nuevo_stock_min == 0:
+            return jsonify({
+                'success': False,
+                'message': 'El stock mínimo no puede ser cero'
+            })
+            
+        if nuevo_stock_max == 0:
+            return jsonify({
+                'success': False,
+                'message': 'El stock máximo no puede ser cero'
+            })
+            
+        # Validar que el stock mínimo y máximo no sean iguales
+        if nuevo_stock_min == nuevo_stock_max:
+            return jsonify({
+                'success': False,
+                'message': 'El stock mínimo y máximo no pueden ser iguales'
+            })
+        
+        # Validar que el stock mínimo no sea mayor que el stock máximo
+        if nuevo_stock_min > nuevo_stock_max:
+            return jsonify({
+                'success': False,
+                'message': 'El stock mínimo no puede ser mayor que el stock máximo'
+            })
+            
+        # Validar que el stock máximo no sea menor que el stock mínimo
+        if nuevo_stock_max < nuevo_stock_min:
+            return jsonify({
+                'success': False,
+                'message': 'El stock máximo no puede ser menor que el stock mínimo'
+            })
         
         # Obtener valores actuales para comparar
         productos = obtener_productos_inventario()
@@ -264,6 +298,7 @@ def actualizar_inventario():
             'success': False,
             'message': f'Error: {str(e)}'
         })
+        
 
 @app.route('/ordenes')
 @login_required  # Ruta protegida
