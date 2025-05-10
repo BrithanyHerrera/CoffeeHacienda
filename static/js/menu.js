@@ -317,6 +317,7 @@ function generarPDF() {
     const nombreVendedor = nombreUsuario || "No especificado"; 
     const dineroRecibido = document.getElementById('inputDineroRecibido').value || "0.00";
     const cambio = document.getElementById('inputCambio').value || "0.00";
+    const metodoPago = document.getElementById('metodoPago').value || "No especificado";
 
     // Configurar fuente compatible
     doc.setFont("times", "normal");
@@ -340,6 +341,8 @@ function generarPDF() {
     doc.text(`Dirección: ${direccionSucursal}`, margenIzquierdo, posicionY);
     posicionY += 6;
     doc.text(`Cliente: ${nombreCliente}`, margenIzquierdo, posicionY);
+    posicionY += 10;
+    doc.text(`Método de Pago: ${metodoPago}`, margenIzquierdo, posicionY); // Aquí agregas el método de pago
     posicionY += 10;
 
     // Línea separadora
