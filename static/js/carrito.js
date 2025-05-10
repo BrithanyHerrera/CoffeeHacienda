@@ -13,6 +13,16 @@ function irAFinalizarOrden() {
         return;
     }
     
+    // Verificar que se haya ingresado el dinero recibido para método de pago en efectivo
+    const metodoPago = document.querySelector('select[name="metodoPago"]').value;
+    const dineroRecibido = parseFloat(document.getElementById('inputDineroRecibido').value) || 0;
+    const total = parseFloat(document.getElementById('total').textContent.replace('$', '')) || 0;
+    
+    if (metodoPago === 'efectivo' && dineroRecibido < total) {
+        mostrarNotificacion('El dinero recibido debe ser igual o mayor al total');
+        return;
+    }
+    
     // Preparar los datos para enviar al servidor
     const productos = carrito.map(item => ({
         id: item.id,
@@ -29,7 +39,9 @@ function irAFinalizarOrden() {
         body: JSON.stringify({
             cliente: nombreCliente,
             productos: productos,
-            total: total
+            total: total,
+            dineroRecibido: dineroRecibido,
+            cambio: parseFloat(document.getElementById('inputCambio').value) || 0
         })
     })
     .then(response => response.json())
