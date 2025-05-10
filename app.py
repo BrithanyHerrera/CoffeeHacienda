@@ -1088,13 +1088,13 @@ Coffee Hacienda'''
             except Exception as e:
                 print(f"Error al enviar correo: {e}")
                 flash('Error al enviar el correo. Por favor, intenta más tarde.', 'danger')
-                return render_template('recuperar_contrasena.html')
+                return render_template('recuperarContrasena.html')
                 
             return redirect(url_for('verificar_codigo'))
         else:
             flash('El correo electrónico no está registrado en nuestro sistema. Por favor, verifica el correo.', 'danger')
     
-    return render_template('recuperar_contrasena.html')
+    return render_template('recuperarContrasena.html')
 
 @app.route('/verificar-codigo', methods=['GET', 'POST'])
 def verificar_codigo():
@@ -1113,7 +1113,7 @@ def verificar_codigo():
         else:
             flash('Código inválido o expirado', 'danger')
     
-    return render_template('verificar_codigo.html')
+    return render_template('verificarCodigo.html')
 
 @app.route('/actualizar-contrasena', methods=['GET', 'POST'])
 def actualizar_contrasena():
@@ -1128,11 +1128,11 @@ def actualizar_contrasena():
         
         if usuario and usuario['contrasena'] == nueva_contrasena:
             flash('La nueva contraseña no puede ser igual a la anterior', 'danger')
-            return render_template('actualizar_contrasena.html')
+            return render_template('actualizarContrasena.html')
         
         if nueva_contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden', 'danger')
-            return render_template('actualizar_contrasena.html')
+            return render_template('actualizarContrasena.html')
             
         if usuario and actualizar_contrasena_por_codigo(usuario['Id'], nueva_contrasena):
             session.pop('reset_email', None)
@@ -1143,7 +1143,7 @@ def actualizar_contrasena():
         else:
             flash('Error al actualizar la contraseña', 'danger')
     
-    return render_template('actualizar_contrasena.html')
+    return render_template('actualizarContrasena.html')
 
 
 if __name__ == '__main__':
