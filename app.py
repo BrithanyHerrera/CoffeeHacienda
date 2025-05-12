@@ -912,15 +912,60 @@ def api_historial_ventas():
 @login_required
 def api_detalle_venta(id):
     try:
-        detalles = obtener_detalle_venta(id)
-        if detalles:
-            return jsonify({'success': True, 'detalles': detalles})
-        else:
-            return jsonify({'success': False, 'message': 'Venta no encontrada o sin detalles'})
+        # Obtener detalles básicos de la venta
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Consulta para obtener información principal de la venta
+        cursor.execute("""
+            SELECT 
+                v.Id, 
+                v.total, 
+                v.fecha_hora, 
+                v.numero_mesa,
+                c.nombre AS cliente,
+                u.usuario AS vendedor,
+                mp.tipo_de_pago AS metodo_pago,
+                v.total AS dinero_recibido,
+                v.total AS cambio  -- Aquí deberías ajustar según tu lógica de negocio
+            FROM tventas v
+            LEFT JOIN tclientes c ON v.cliente_id = c.Id
+            LEFT JOIN tusuarios u ON v.vendedor_id = u.Id
+            LEFT JOIN tmetodospago mp ON v.metodo_pago_id = mp.Id
+            WHERE v.Id = %s
+        """, (id,))
+        venta = cursor.fetchone()
+        
+        if not venta:
+            return jsonify({'success': False, 'message': 'Venta no encontrada'})
+        
+        # Obtener detalles de los productos vendidos
+        cursor.execute("""
+            SELECT 
+                p.nombre_producto,
+                pv.precio,
+                t.tamano,
+                dv.cantidad,
+                (dv.precio * dv.cantidad) AS subtotal
+            FROM tdetalleventas dv
+            JOIN tproductos p ON dv.producto_id = p.Id
+            LEFT JOIN tproductos_variantes pv ON dv.producto_id = pv.producto_id
+            LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
+            WHERE dv.venta_id = %s
+        """, (id,))
+        detalles = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'venta': venta,
+            'detalles': detalles
+        })
     except Exception as e:
         print(f"Error al obtener detalles de venta: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
 
 
 # Ruta para procesar ventas desde el menú
