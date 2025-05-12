@@ -81,12 +81,13 @@ function reestablecerFiltros() {
 function verDetallesVenta(id) {
     console.log("Obteniendo detalles de la venta con ID:", id);
 
-    let ventaInfo = obtenerInfoVentaDesdeTabla(id);
-
     fetch(`/api/historial-ventas/${id}`)
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.detalles) {
+            if (data.success && data.venta && data.detalles) {
+                const venta = data.venta;
+                const detalles = data.detalles;
+                
                 let detallesHTML = `
                     <div class="venta-header">
                         <div class="venta-id">
@@ -94,20 +95,40 @@ function verDetallesVenta(id) {
                             <span class="venta-value">${id}</span>
                         </div>
                         <div class="venta-fecha">
-                            <span class="fecha-value">${ventaInfo.fecha || 'Sin fecha'}</span>
+                            <span class="fecha-value">${formatearFecha(venta.fecha_hora)}</span>
                         </div>
                     </div>
                     
                     <div class="venta-info-container">
                         <div class="venta-info-grupo">
-                            <span class="info-label">Cliente:</span>
-                            <span class="info-value">${ventaInfo.cliente || 'No disponible'}</span>
+                            <span class="info-label">Vendedor:</span>
+                            <span class="info-value">${venta.vendedor || 'No disponible'}</span>
                         </div>
                         
-                        ${ventaInfo.mesa && ventaInfo.mesa !== "Sin mesa" ? `
+                        <div class="venta-info-grupo">
+                            <span class="info-label">Cliente:</span>
+                            <span class="info-value">${venta.cliente || 'No disponible'}</span>
+                        </div>
+                        
+                        <div class="venta-info-grupo">
+                            <span class="info-label">Método de pago:</span>
+                            <span class="info-value">${venta.metodo_pago || 'No especificado'}</span>
+                        </div>
+                        
+                        <div class="venta-info-grupo">
+                            <span class="info-label">Dinero recibido:</span>
+                            <span class="info-value">$${parseFloat(venta.dinero_recibido || 0).toFixed(2)}</span>
+                        </div>
+                        
+                        <div class="venta-info-grupo">
+                            <span class="info-label">Cambio:</span>
+                            <span class="info-value">$${parseFloat(venta.cambio || 0).toFixed(2)}</span>
+                        </div>
+                        
+                        ${venta.numero_mesa ? `
                         <div class="venta-info-grupo">
                             <span class="info-label">Mesa:</span>
-                            <span class="info-value">${ventaInfo.mesa.replace('Mesa: ', '')}</span>
+                            <span class="info-value">${venta.numero_mesa}</span>
                         </div>` : ''}
                     </div>
                     
@@ -126,11 +147,11 @@ function verDetallesVenta(id) {
                                 </thead>
                                 <tbody>`;
 
-                if (data.detalles.length === 0) {
+                if (detalles.length === 0) {
                     detallesHTML += `<tr><td colspan="5" class="no-productos">No hay productos en esta venta</td></tr>`;
                 } else {
                     let subtotal = 0;
-                    data.detalles.forEach(producto => {
+                    detalles.forEach(producto => {
                         const precioFormateado = parseFloat(producto.precio).toFixed(2);
                         const subtotalItem = parseFloat(producto.subtotal).toFixed(2);
                         subtotal += parseFloat(subtotalItem);
@@ -152,7 +173,7 @@ function verDetallesVenta(id) {
                                 <tfoot>
                                     <tr class="total-row">
                                         <td colspan="4" class="total-label">Total</td>
-                                        <td class="total-value">$${parseFloat(ventaInfo.total || 0).toFixed(2)}</td>
+                                        <td class="total-value">$${parseFloat(venta.total || 0).toFixed(2)}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -174,12 +195,19 @@ function verDetallesVenta(id) {
 
 function obtenerInfoVentaDesdeTabla(id) {
     const filas = document.querySelectorAll("#tablaHistorialVentas tr");
-    let ventaInfo = { cliente: '', fecha: '', total: '', mesa: '' };
+    let ventaInfo = { 
+        vendedor: '', 
+        cliente: '', 
+        fecha: '', 
+        total: '', 
+        mesa: '' 
+    };
 
     for (let fila of filas) {
         const boton = fila.querySelector(`button[onclick="verDetallesVenta(${id})"]`);
         if (boton) {
             const celdas = fila.querySelectorAll("td");
+            ventaInfo.vendedor = celdas[0].textContent.trim();
             ventaInfo.cliente = celdas[1].textContent.trim();
             ventaInfo.fecha = celdas[2].textContent.trim();
             ventaInfo.total = celdas[3].textContent.trim().replace('$', '');
