@@ -86,7 +86,11 @@ def login_required(f):
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
-     # Guardar la bandera antes de limpiar la sesión
+    # Limpiar registros expirados
+    limpiar_validaciones_expiradas()
+    limpiar_codigos_recuperacion_expirados()
+    
+    # Guardar la bandera antes de limpiar la sesión
     password_reset = 'password_reset' in session
     
     session.clear()  # Limpiar cualquier sesión existente
