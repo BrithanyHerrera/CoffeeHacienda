@@ -10,7 +10,11 @@ import time
 
 # Importar models
 from models.modelsLogin import verificar_usuario
-from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario , obtener_usuario_por_correo
+from models.modelsUsuarios import (obtener_usuarios, crear_usuario, actualizar_usuario, 
+                                eliminar_usuario, obtener_usuario_por_id, obtener_roles, 
+                                actualizar_usuario, obtener_usuario_por_correo,
+                                guardar_usuario_pendiente, validar_codigo_usuario,
+                                reenviar_codigo_validacion)
 from models.modelsProductos import (obtener_productos, obtener_categorias, obtener_tamanos,
                                 agregar_producto, actualizar_producto, eliminar_producto,
                                 obtener_producto_por_id, agregar_variante_producto,
@@ -24,6 +28,7 @@ from models.modelsVentas import (crear_venta, obtener_cliente_por_nombre,
                                 obtener_ordenes_pendientes, actualizar_estado_orden,
                                 obtener_detalle_orden)
 from models.modelsRecuperacion import guardar_codigo_recuperacion, verificar_codigo_recuperacion, actualizar_contrasena_por_codigo, generar_codigo_recuperacion
+from models.modelsLimpieza import limpiar_validaciones_expiradas, limpiar_codigos_recuperacion_expirados
 
 
 app = Flask(__name__)
@@ -479,6 +484,13 @@ def guardar_usuario():
         correo = data.get('correo')
         rol_id = data.get('tipoPrivilegio')
         
+        # Validar datos
+        if not usuario or not correo or not rol_id:
+            return jsonify({
+                'success': False,
+                'message': 'Faltan datos obligatorios'
+            })
+        
         if id_usuario:  # Editar usuario existente
             # Si no se proporciona nueva contraseña, mantener la actual
             if not contrasena:
@@ -491,11 +503,57 @@ def guardar_usuario():
                 'message': mensaje
             })
         else:  # Crear nuevo usuario
-            resultado, mensaje = crear_usuario(usuario, contrasena, correo, rol_id)
-            return jsonify({
-                'success': resultado,
-                'message': mensaje
-            })
+            # En lugar de crear directamente, guardar pendiente de validación
+            if not contrasena:
+                return jsonify({
+                    'success': False,
+                    'message': 'La contraseña es obligatoria para nuevos usuarios'
+                })
+                
+            resultado, mensaje, datos = guardar_usuario_pendiente(usuario, contrasena, correo, rol_id)
+            
+            if resultado:
+                # Enviar correo con código de validación
+                try:
+                    msg = Message('Validación de cuenta - Coffee Hacienda', 
+                                sender=app.config['MAIL_USERNAME'],
+                                recipients=[correo])
+                    
+                    msg.body = f"""
+                    Hola {usuario},
+                    
+                    Gracias por registrarte en Coffee Hacienda. Para completar tu registro, 
+                    por favor ingresa el siguiente código de validación:
+                    
+                    {datos['codigo']}
+                    
+                    Este código expirará en 30 minutos.
+                    
+                    Si no solicitaste esta cuenta, puedes ignorar este correo.
+                    
+                    Saludos,
+                    El equipo de Coffee Hacienda
+                    """
+                    
+                    mail.send(msg)
+                    
+                    return jsonify({
+                        'success': True,
+                        'message': 'Se ha enviado un código de validación a tu correo electrónico',
+                        'require_validation': True,
+                        'email': correo
+                    })
+                except Exception as e:
+                    print(f"Error al enviar correo: {e}")
+                    return jsonify({
+                        'success': False,
+                        'message': f'Error al enviar correo de validación: {str(e)}'
+                    })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': mensaje
+                })
     except Exception as e:
         return jsonify({
             'success': False,
@@ -1190,6 +1248,197 @@ def actualizar_contrasena():
     
     return render_template('actualizarContrasena.html')
 
+
+@app.route('/validar-usuario')
+def validar_usuario_view():
+    correo = request.args.get('email', '')
+    return render_template('validar_usuario.html', correo=correo)
+
+@app.route('/api/usuarios/validar', methods=['POST'])
+def validar_usuario_api():
+    try:
+        data = request.json
+        correo = data.get('correo')
+        codigo = data.get('codigo')
+        
+        if not correo or not codigo:
+            return jsonify({
+                'success': False,
+                'message': 'Faltan datos obligatorios'
+            })
+        
+        resultado, mensaje = validar_codigo_usuario(correo, codigo)
+        
+        return jsonify({
+            'success': resultado,
+            'message': mensaje
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/usuarios/reenviar-codigo', methods=['POST'])
+def reenviar_codigo_api():
+    try:
+        data = request.json
+        correo = data.get('correo')
+        
+        if not correo:
+            return jsonify({
+                'success': False,
+                'message': 'El correo electrónico es obligatorio'
+            })
+        
+        resultado, mensaje, codigo = reenviar_codigo_validacion(correo)
+        
+        if resultado:
+            # Enviar correo con el nuevo código
+            try:
+                msg = Message('Nuevo código de validación - Coffee Hacienda', 
+                            sender=app.config['MAIL_USERNAME'],
+                            recipients=[correo])
+                
+                msg.body = f"""
+                Hola,
+                
+                Has solicitado un nuevo código de validación para tu cuenta en Coffee Hacienda.
+                
+                Tu nuevo código es:
+                
+                {codigo}
+                
+                Este código expirará en 24 horas.
+                
+                Si no solicitaste este código, puedes ignorar este correo.
+                
+                Saludos,
+                El equipo de Coffee Hacienda
+                """
+                
+                mail.send(msg)
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Se ha enviado un nuevo código de validación a tu correo electrónico'
+                })
+            except Exception as e:
+                print(f"Error al enviar correo: {e}")
+                return jsonify({
+                    'success': False,
+                    'message': f'Error al enviar correo de validación: {str(e)}'
+                })
+        else:
+            return jsonify({
+                'success': False,
+                'message': mensaje
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/usuarios/actualizar-correo', methods=['POST'])
+def actualizar_correo_validacion():
+    try:
+        data = request.json
+        correo_anterior = data.get('correo_anterior')
+        correo_nuevo = data.get('correo_nuevo')
+        
+        if not correo_anterior or not correo_nuevo:
+            return jsonify({
+                'success': False,
+                'message': 'Faltan datos obligatorios'
+            })
+        
+        # Verificar si el nuevo correo ya existe en usuarios
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT Id FROM tusuarios WHERE correo = %s", (correo_nuevo,))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Ya existe un usuario con ese correo electrónico'
+            })
+        
+        # Verificar si el correo anterior existe en la tabla de validación
+        cursor.execute("""
+            SELECT id, usuario, contrasena, rol_id
+            FROM tvalidacion_usuarios
+            WHERE correo = %s AND validado = FALSE
+        """, (correo_anterior,))
+        
+        validacion = cursor.fetchone()
+        
+        if not validacion:
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'No se encontró una solicitud pendiente para este correo'
+            })
+        
+        # Generar nuevo código
+        nuevo_codigo = generar_codigo_recuperacion()
+        
+        # Actualizar el correo y el código
+        cursor.execute("""
+            UPDATE tvalidacion_usuarios
+            SET correo = %s, codigo = %s, fecha_creacion = %s
+            WHERE id = %s
+        """, (correo_nuevo, nuevo_codigo, datetime.now(), validacion['id']))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        # Enviar correo con el nuevo código
+        try:
+            msg = Message('Nuevo código de validación - Coffee Hacienda', 
+                        sender=app.config['MAIL_USERNAME'],
+                        recipients=[correo_nuevo])
+            
+            msg.body = f"""
+            Hola,
+            
+            Has actualizado tu correo electrónico para tu cuenta en Coffee Hacienda.
+            
+            Tu nuevo código de validación es:
+            
+            {nuevo_codigo}
+            
+            Este código expirará en 24 horas.
+            
+            Si no solicitaste este cambio, puedes ignorar este correo.
+            
+            Saludos,
+            El equipo de Coffee Hacienda
+            """
+            
+            mail.send(msg)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Correo actualizado correctamente. Se ha enviado un nuevo código de validación.'
+            })
+        except Exception as e:
+            print(f"Error al enviar correo: {e}")
+            return jsonify({
+                'success': False,
+                'message': f'Error al enviar correo de validación: {str(e)}'
+            })
+        
+    except Exception as e:
+        print(f"Error al actualizar correo: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)

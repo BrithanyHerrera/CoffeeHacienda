@@ -76,12 +76,21 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    mostrarAlerta('Operación exitosa.', data.mensaje, 'ExitoG', 3000);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 3000); // recargar después de 3 segundos
+                    if (data.require_validation) {
+                        // Si requiere validación, mostrar mensaje y redirigir
+                        mostrarAlerta(data.message, 'ExitoG');
+                        setTimeout(() => {
+                            window.location.href = `/validar-usuario?email=${encodeURIComponent(data.email)}`;
+                        }, 1500);
+                    } else {
+                        // Si no requiere validación, mostrar mensaje y recargar
+                        mostrarAlerta(data.message, 'ExitoG');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
                 } else {
-                    mostrarNotificacion(data.message, 'error');
+                    mostrarAlerta(data.message, 'ErrorG');
                 }
             })
             .catch(error => {
@@ -320,6 +329,68 @@ function toggleMesaField() {
     } else {
         mesaContainer.style.display = 'block';
     }
+}
+
+
+// Función para guardar usuario
+function guardarUsuario() {
+    // Obtener datos del formulario
+    const id = document.getElementById('idUsuario').value;
+    const nombre = document.getElementById('nombreUsuario').value;
+    const contrasena = document.getElementById('contrasenaUsuario').value;
+    const correo = document.getElementById('correoUsuario').value;
+    const tipoPrivilegio = document.getElementById('tipoPrivilegio').value;
+    
+    // Validar campos obligatorios
+    if (!nombre || !correo || !tipoPrivilegio) {
+        mostrarAlerta('Por favor, complete todos los campos obligatorios', 'danger');
+        return;
+    }
+    
+    // Si es un nuevo usuario, la contraseña es obligatoria
+    if (!id && !contrasena) {
+        mostrarAlerta('La contraseña es obligatoria para nuevos usuarios', 'danger');
+        return;
+    }
+    
+    // Enviar datos al servidor
+    fetch('/api/usuarios/guardar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id,
+            nombre: nombre,
+            contrasena: contrasena,
+            correo: correo,
+            tipoPrivilegio: tipoPrivilegio
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.require_validation) {
+                // Si requiere validación, mostrar mensaje y redirigir
+                mostrarAlerta(data.message, 'success');
+                setTimeout(() => {
+                    window.location.href = `/validar-usuario?email=${encodeURIComponent(data.email)}`;
+                }, 1500);
+            } else {
+                // Si no requiere validación, mostrar mensaje y recargar
+                mostrarAlerta(data.message, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        } else {
+            mostrarAlerta(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarAlerta('Error al guardar usuario', 'danger');
+    });
 }
 
 

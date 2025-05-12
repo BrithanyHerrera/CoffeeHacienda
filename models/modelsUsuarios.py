@@ -1,3 +1,6 @@
+import random
+import string
+from datetime import datetime, timedelta
 from bd import Conexion_BD
 
 def verificar_usuario_existente(usuario):
@@ -169,3 +172,159 @@ def obtener_usuario_por_correo(correo):
         return None
     finally:
         connection.close()
+
+
+def generar_codigo_validacion():
+    """Genera un código aleatorio de 6 dígitos"""
+    return ''.join(random.choices(string.digits, k=6))
+
+def guardar_usuario_pendiente(usuario, contrasena, correo, rol_id):
+    """Guarda un usuario pendiente de validación y genera un código"""
+    try:
+        # Verificar si ya existe un usuario con ese correo
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Verificar en la tabla de usuarios
+        cursor.execute("SELECT Id FROM tusuarios WHERE correo = %s", (correo,))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return False, "Ya existe un usuario con ese correo electrónico", None
+        
+        # Verificar en la tabla de validación
+        cursor.execute("SELECT id FROM tvalidacion_usuarios WHERE correo = %s AND validado = FALSE", (correo,))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return False, "Ya existe una solicitud pendiente para este correo", None
+        
+        # Generar código de validación
+        codigo = generar_codigo_validacion()
+        
+        # Guardar en la tabla de validación
+        cursor.execute("""
+            INSERT INTO tvalidacion_usuarios 
+            (usuario, contrasena, correo, rol_id, codigo, fecha_creacion)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (usuario, contrasena, correo, rol_id, codigo, datetime.now()))
+        
+        conn.commit()
+        id_validacion = cursor.lastrowid
+        cursor.close()
+        conn.close()
+        
+        return True, "Usuario pendiente de validación", {"id": id_validacion, "codigo": codigo}
+    except Exception as e:
+        print(f"Error al guardar usuario pendiente: {e}")
+        return False, f"Error: {str(e)}", None
+
+def validar_codigo_usuario(correo, codigo):
+    """Valida el código de un usuario pendiente"""
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Buscar el registro de validación
+        cursor.execute("""
+            SELECT id, usuario, contrasena, correo, rol_id, fecha_creacion
+            FROM tvalidacion_usuarios
+            WHERE correo = %s AND codigo = %s AND validado = FALSE
+        """, (correo, codigo))
+        
+        validacion = cursor.fetchone()
+        
+        if not validacion:
+            cursor.close()
+            conn.close()
+            return False, "Código de validación incorrecto o expirado"
+        
+        # Verificar si el código ha expirado (30 minutos)
+        fecha_creacion = validacion['fecha_creacion']
+        if datetime.now() - fecha_creacion > timedelta(minutes=30):
+            cursor.close()
+            conn.close()
+            return False, "El código de validación ha expirado"
+        
+        # Crear el usuario en la tabla de usuarios
+        cursor.execute("""
+            INSERT INTO tusuarios (usuario, contrasena, correo, rol_id)
+            VALUES (%s, %s, %s, %s)
+        """, (validacion['usuario'], validacion['contrasena'], validacion['correo'], validacion['rol_id']))
+        
+        # Eliminar el registro de validación en lugar de marcarlo como validado
+        cursor.execute("""
+            DELETE FROM tvalidacion_usuarios
+            WHERE id = %s
+        """, (validacion['id'],))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return True, "Usuario validado correctamente"
+    except Exception as e:
+        print(f"Error al validar código: {e}")
+        return False, f"Error: {str(e)}"
+
+def reenviar_codigo_validacion(correo):
+    """Regenera y devuelve un nuevo código de validación"""
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Buscar el registro de validación
+        cursor.execute("""
+            SELECT id
+            FROM tvalidacion_usuarios
+            WHERE correo = %s AND validado = FALSE
+        """, (correo,))
+        
+        validacion = cursor.fetchone()
+        
+        if not validacion:
+            cursor.close()
+            conn.close()
+            return False, "No se encontró una solicitud pendiente para este correo", None
+        
+        # Generar nuevo código
+        nuevo_codigo = generar_codigo_validacion()
+        
+        # Actualizar el código y la fecha
+        cursor.execute("""
+            UPDATE tvalidacion_usuarios
+            SET codigo = %s, fecha_creacion = %s
+            WHERE id = %s
+        """, (nuevo_codigo, datetime.now(), validacion['id']))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return True, "Código regenerado correctamente", nuevo_codigo
+    except Exception as e:
+        print(f"Error al reenviar código: {e}")
+        return False, f"Error: {str(e)}", None
+
+def limpiar_validaciones_expiradas():
+    """Elimina las validaciones que han expirado (más de 30 minutos)"""
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Eliminar registros expirados (más de 30 minutos)
+        cursor.execute("""
+            DELETE FROM tvalidacion_usuarios
+            WHERE validado = FALSE AND fecha_creacion < %s
+        """, (datetime.now() - timedelta(minutes=30),))
+        
+        registros_eliminados = cursor.rowcount
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return registros_eliminados
+    except Exception as e:
+        print(f"Error al limpiar validaciones expiradas: {e}")
+        return 0
