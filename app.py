@@ -10,7 +10,11 @@ import time
 
 # Importar models
 from models.modelsLogin import verificar_usuario
-from models.modelsUsuarios import obtener_usuarios, crear_usuario, actualizar_usuario, eliminar_usuario, obtener_usuario_por_id, obtener_roles ,actualizar_usuario , obtener_usuario_por_correo
+from models.modelsUsuarios import (obtener_usuarios, crear_usuario, actualizar_usuario, 
+                                eliminar_usuario, obtener_usuario_por_id, obtener_roles, 
+                                actualizar_usuario, obtener_usuario_por_correo,
+                                guardar_usuario_pendiente, validar_codigo_usuario,
+                                reenviar_codigo_validacion)
 from models.modelsProductos import (obtener_productos, obtener_categorias, obtener_tamanos,
                                 agregar_producto, actualizar_producto, eliminar_producto,
                                 obtener_producto_por_id, agregar_variante_producto,
@@ -24,6 +28,7 @@ from models.modelsVentas import (crear_venta, obtener_cliente_por_nombre,
                                 obtener_ordenes_pendientes, actualizar_estado_orden,
                                 obtener_detalle_orden)
 from models.modelsRecuperacion import guardar_codigo_recuperacion, verificar_codigo_recuperacion, actualizar_contrasena_por_codigo, generar_codigo_recuperacion
+from models.modelsLimpieza import limpiar_validaciones_expiradas, limpiar_codigos_recuperacion_expirados
 
 
 app = Flask(__name__)
@@ -81,7 +86,11 @@ def login_required(f):
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
-     # Guardar la bandera antes de limpiar la sesión
+    # Limpiar registros expirados
+    limpiar_validaciones_expiradas()
+    limpiar_codigos_recuperacion_expirados()
+    
+    # Guardar la bandera antes de limpiar la sesión
     password_reset = 'password_reset' in session
     
     session.clear()  # Limpiar cualquier sesión existente
@@ -213,7 +222,7 @@ def inventario():
     productos = obtener_productos_inventario()
     return render_template('inventario.html', productos=productos)
 
-# Agregar ruta API para actualizar el stock
+
 @app.route('/api/inventario/actualizar', methods=['POST'])
 @login_required
 def actualizar_inventario():
@@ -223,6 +232,40 @@ def actualizar_inventario():
         nuevo_stock = data.get('stock')
         nuevo_stock_min = data.get('stock_min')
         nuevo_stock_max = data.get('stock_max')
+        
+        # Validar que los valores no sean cero
+        if nuevo_stock_min == 0:
+            return jsonify({
+                'success': False,
+                'message': 'El stock mínimo no puede ser cero'
+            })
+            
+        if nuevo_stock_max == 0:
+            return jsonify({
+                'success': False,
+                'message': 'El stock máximo no puede ser cero'
+            })
+            
+        # Validar que el stock mínimo y máximo no sean iguales
+        if nuevo_stock_min == nuevo_stock_max:
+            return jsonify({
+                'success': False,
+                'message': 'El stock mínimo y máximo no pueden ser iguales'
+            })
+        
+        # Validar que el stock mínimo no sea mayor que el stock máximo
+        if nuevo_stock_min > nuevo_stock_max:
+            return jsonify({
+                'success': False,
+                'message': 'El stock mínimo no puede ser mayor que el stock máximo'
+            })
+            
+        # Validar que el stock máximo no sea menor que el stock mínimo
+        if nuevo_stock_max < nuevo_stock_min:
+            return jsonify({
+                'success': False,
+                'message': 'El stock máximo no puede ser menor que el stock mínimo'
+            })
         
         # Obtener valores actuales para comparar
         productos = obtener_productos_inventario()
@@ -264,6 +307,7 @@ def actualizar_inventario():
             'success': False,
             'message': f'Error: {str(e)}'
         })
+        
 
 @app.route('/ordenes')
 @login_required  # Ruta protegida
@@ -372,19 +416,41 @@ def api_actualizar_estado_orden(id):
                 'message': f'Transición no válida. Desde "{estado_actual_nombre}" solo puede cambiar a: {mensaje_estados}'
             })
         
-        resultado = actualizar_estado_orden(id, estados[nuevo_estado])
-        
-        if resultado:
+        # Si el nuevo estado es "Cancelado", eliminar la orden y sus detalles
+        if nuevo_estado == 'Cancelado':
+            conn = Conexion_BD()
+            cursor = conn.cursor()
+            
+            # Primero eliminar los detalles de la venta (debido a la restricción de clave foránea)
+            cursor.execute("DELETE FROM tdetalleventas WHERE venta_id = %s", (id,))
+            
+            # Luego eliminar la venta
+            cursor.execute("DELETE FROM tventas WHERE Id = %s", (id,))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
             return jsonify({
                 'success': True,
-                'message': f'Estado actualizado a {nuevo_estado}'
+                'message': 'Orden cancelada y eliminada del sistema'
             })
         else:
-            return jsonify({
-                'success': False,
-                'message': 'Error al actualizar estado'
-            })
+            # Si no es cancelación, actualizar el estado normalmente
+            resultado = actualizar_estado_orden(id, estados[nuevo_estado])
+            
+            if resultado:
+                return jsonify({
+                    'success': True,
+                    'message': f'Estado actualizado a {nuevo_estado}'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Error al actualizar estado'
+                })
     except Exception as e:
+        print(f"Error al actualizar estado de orden: {e}")
         return jsonify({
             'success': False,
             'message': f'Error: {str(e)}'
@@ -422,6 +488,13 @@ def guardar_usuario():
         correo = data.get('correo')
         rol_id = data.get('tipoPrivilegio')
         
+        # Validar datos
+        if not usuario or not correo or not rol_id:
+            return jsonify({
+                'success': False,
+                'message': 'Faltan datos obligatorios'
+            })
+        
         if id_usuario:  # Editar usuario existente
             # Si no se proporciona nueva contraseña, mantener la actual
             if not contrasena:
@@ -434,11 +507,57 @@ def guardar_usuario():
                 'message': mensaje
             })
         else:  # Crear nuevo usuario
-            resultado, mensaje = crear_usuario(usuario, contrasena, correo, rol_id)
-            return jsonify({
-                'success': resultado,
-                'message': mensaje
-            })
+            # En lugar de crear directamente, guardar pendiente de validación
+            if not contrasena:
+                return jsonify({
+                    'success': False,
+                    'message': 'La contraseña es obligatoria para nuevos usuarios'
+                })
+                
+            resultado, mensaje, datos = guardar_usuario_pendiente(usuario, contrasena, correo, rol_id)
+            
+            if resultado:
+                # Enviar correo con código de validación
+                try:
+                    msg = Message('Validación de cuenta - Coffee Hacienda', 
+                                sender=app.config['MAIL_USERNAME'],
+                                recipients=[correo])
+                    
+                    msg.body = f"""
+                    Hola {usuario},
+                    
+                    Gracias por registrarte en Coffee Hacienda. Para completar tu registro, 
+                    por favor ingresa el siguiente código de validación:
+                    
+                    {datos['codigo']}
+                    
+                    Este código expirará en 30 minutos.
+                    
+                    Si no solicitaste esta cuenta, puedes ignorar este correo.
+                    
+                    Saludos,
+                    El equipo de Coffee Hacienda
+                    """
+                    
+                    mail.send(msg)
+                    
+                    return jsonify({
+                        'success': True,
+                        'message': 'Se ha enviado un código de validación a tu correo electrónico',
+                        'require_validation': True,
+                        'email': correo
+                    })
+                except Exception as e:
+                    print(f"Error al enviar correo: {e}")
+                    return jsonify({
+                        'success': False,
+                        'message': f'Error al enviar correo de validación: {str(e)}'
+                    })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': mensaje
+                })
     except Exception as e:
         return jsonify({
             'success': False,
@@ -668,7 +787,7 @@ def guardar_producto():
                 ruta_imagen = producto_actual['ruta_imagen']
             
             # Actualizar el producto principal
-            resultado = actualizar_producto(
+            resultado, mensaje = actualizar_producto(
                 id_producto, nombre, descripcion, precio, 
                 stock, stock_min, stock_max, categoria_id, ruta_imagen
             )
@@ -681,8 +800,6 @@ def guardar_producto():
                 agregar_variante_producto(id_producto, tamano_id, precio)
             elif tamano_id == 4:  # Si seleccionó "No Aplica"
                 eliminar_variantes_producto(id_producto)
-                
-            mensaje = 'Producto actualizado exitosamente' if resultado else 'Error al actualizar producto'
         else:  # Crear nuevo producto
             resultado, nuevo_id = agregar_producto(
                 nombre, descripcion, precio, stock, 
@@ -704,6 +821,7 @@ def guardar_producto():
             'success': False,
             'message': f'Error: {str(e)}'
         })
+
 
 @app.route('/api/productos/eliminar', methods=['POST'])
 @login_required
@@ -856,15 +974,60 @@ def api_historial_ventas():
 @login_required
 def api_detalle_venta(id):
     try:
-        detalles = obtener_detalle_venta(id)
-        if detalles:
-            return jsonify({'success': True, 'detalles': detalles})
-        else:
-            return jsonify({'success': False, 'message': 'Venta no encontrada o sin detalles'})
+        # Obtener detalles básicos de la venta
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Consulta para obtener información principal de la venta
+        cursor.execute("""
+            SELECT 
+                v.Id, 
+                v.total, 
+                v.fecha_hora, 
+                v.numero_mesa,
+                c.nombre AS cliente,
+                u.usuario AS vendedor,
+                mp.tipo_de_pago AS metodo_pago,
+                v.total AS dinero_recibido,
+                v.total AS cambio  -- Aquí deberías ajustar según tu lógica de negocio
+            FROM tventas v
+            LEFT JOIN tclientes c ON v.cliente_id = c.Id
+            LEFT JOIN tusuarios u ON v.vendedor_id = u.Id
+            LEFT JOIN tmetodospago mp ON v.metodo_pago_id = mp.Id
+            WHERE v.Id = %s
+        """, (id,))
+        venta = cursor.fetchone()
+        
+        if not venta:
+            return jsonify({'success': False, 'message': 'Venta no encontrada'})
+        
+        # Obtener detalles de los productos vendidos
+        cursor.execute("""
+            SELECT 
+                p.nombre_producto,
+                pv.precio,
+                t.tamano,
+                dv.cantidad,
+                (dv.precio * dv.cantidad) AS subtotal
+            FROM tdetalleventas dv
+            JOIN tproductos p ON dv.producto_id = p.Id
+            LEFT JOIN tproductos_variantes pv ON dv.producto_id = pv.producto_id
+            LEFT JOIN ttamanos t ON pv.tamano_id = t.Id
+            WHERE dv.venta_id = %s
+        """, (id,))
+        detalles = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'venta': venta,
+            'detalles': detalles
+        })
     except Exception as e:
         print(f"Error al obtener detalles de venta: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
 
 
 # Ruta para procesar ventas desde el menú
@@ -1032,13 +1195,13 @@ Coffee Hacienda'''
             except Exception as e:
                 print(f"Error al enviar correo: {e}")
                 flash('Error al enviar el correo. Por favor, intenta más tarde.', 'danger')
-                return render_template('recuperar_contrasena.html')
+                return render_template('recuperarContrasena.html')
                 
             return redirect(url_for('verificar_codigo'))
         else:
             flash('El correo electrónico no está registrado en nuestro sistema. Por favor, verifica el correo.', 'danger')
     
-    return render_template('recuperar_contrasena.html')
+    return render_template('recuperarContrasena.html')
 
 @app.route('/verificar-codigo', methods=['GET', 'POST'])
 def verificar_codigo():
@@ -1057,7 +1220,7 @@ def verificar_codigo():
         else:
             flash('Código inválido o expirado', 'danger')
     
-    return render_template('verificar_codigo.html')
+    return render_template('verificarCodigo.html')
 
 @app.route('/actualizar-contrasena', methods=['GET', 'POST'])
 def actualizar_contrasena():
@@ -1072,11 +1235,11 @@ def actualizar_contrasena():
         
         if usuario and usuario['contrasena'] == nueva_contrasena:
             flash('La nueva contraseña no puede ser igual a la anterior', 'danger')
-            return render_template('actualizar_contrasena.html')
+            return render_template('actualizarContrasena.html')
         
         if nueva_contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden', 'danger')
-            return render_template('actualizar_contrasena.html')
+            return render_template('actualizarContrasena.html')
             
         if usuario and actualizar_contrasena_por_codigo(usuario['Id'], nueva_contrasena):
             session.pop('reset_email', None)
@@ -1087,8 +1250,199 @@ def actualizar_contrasena():
         else:
             flash('Error al actualizar la contraseña', 'danger')
     
-    return render_template('actualizar_contrasena.html')
+    return render_template('actualizarContrasena.html')
 
+
+@app.route('/validar-usuario')
+def validar_usuario_view():
+    correo = request.args.get('email', '')
+    return render_template('validar_usuario.html', correo=correo)
+
+@app.route('/api/usuarios/validar', methods=['POST'])
+def validar_usuario_api():
+    try:
+        data = request.json
+        correo = data.get('correo')
+        codigo = data.get('codigo')
+        
+        if not correo or not codigo:
+            return jsonify({
+                'success': False,
+                'message': 'Faltan datos obligatorios'
+            })
+        
+        resultado, mensaje = validar_codigo_usuario(correo, codigo)
+        
+        return jsonify({
+            'success': resultado,
+            'message': mensaje
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/usuarios/reenviar-codigo', methods=['POST'])
+def reenviar_codigo_api():
+    try:
+        data = request.json
+        correo = data.get('correo')
+        
+        if not correo:
+            return jsonify({
+                'success': False,
+                'message': 'El correo electrónico es obligatorio'
+            })
+        
+        resultado, mensaje, codigo = reenviar_codigo_validacion(correo)
+        
+        if resultado:
+            # Enviar correo con el nuevo código
+            try:
+                msg = Message('Nuevo código de validación - Coffee Hacienda', 
+                            sender=app.config['MAIL_USERNAME'],
+                            recipients=[correo])
+                
+                msg.body = f"""
+                Hola,
+                
+                Has solicitado un nuevo código de validación para tu cuenta en Coffee Hacienda.
+                
+                Tu nuevo código es:
+                
+                {codigo}
+                
+                Este código expirará en 24 horas.
+                
+                Si no solicitaste este código, puedes ignorar este correo.
+                
+                Saludos,
+                El equipo de Coffee Hacienda
+                """
+                
+                mail.send(msg)
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Se ha enviado un nuevo código de validación a tu correo electrónico'
+                })
+            except Exception as e:
+                print(f"Error al enviar correo: {e}")
+                return jsonify({
+                    'success': False,
+                    'message': f'Error al enviar correo de validación: {str(e)}'
+                })
+        else:
+            return jsonify({
+                'success': False,
+                'message': mensaje
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
+
+@app.route('/api/usuarios/actualizar-correo', methods=['POST'])
+def actualizar_correo_validacion():
+    try:
+        data = request.json
+        correo_anterior = data.get('correo_anterior')
+        correo_nuevo = data.get('correo_nuevo')
+        
+        if not correo_anterior or not correo_nuevo:
+            return jsonify({
+                'success': False,
+                'message': 'Faltan datos obligatorios'
+            })
+        
+        # Verificar si el nuevo correo ya existe en usuarios
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT Id FROM tusuarios WHERE correo = %s", (correo_nuevo,))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Ya existe un usuario con ese correo electrónico'
+            })
+        
+        # Verificar si el correo anterior existe en la tabla de validación
+        cursor.execute("""
+            SELECT id, usuario, contrasena, rol_id
+            FROM tvalidacion_usuarios
+            WHERE correo = %s AND validado = FALSE
+        """, (correo_anterior,))
+        
+        validacion = cursor.fetchone()
+        
+        if not validacion:
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'No se encontró una solicitud pendiente para este correo'
+            })
+        
+        # Generar nuevo código
+        nuevo_codigo = generar_codigo_recuperacion()
+        
+        # Actualizar el correo y el código
+        cursor.execute("""
+            UPDATE tvalidacion_usuarios
+            SET correo = %s, codigo = %s, fecha_creacion = %s
+            WHERE id = %s
+        """, (correo_nuevo, nuevo_codigo, datetime.now(), validacion['id']))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        # Enviar correo con el nuevo código
+        try:
+            msg = Message('Nuevo código de validación - Coffee Hacienda', 
+                        sender=app.config['MAIL_USERNAME'],
+                        recipients=[correo_nuevo])
+            
+            msg.body = f"""
+            Hola,
+            
+            Has actualizado tu correo electrónico para tu cuenta en Coffee Hacienda.
+            
+            Tu nuevo código de validación es:
+            
+            {nuevo_codigo}
+            
+            Este código expirará en 24 horas.
+            
+            Si no solicitaste este cambio, puedes ignorar este correo.
+            
+            Saludos,
+            El equipo de Coffee Hacienda
+            """
+            
+            mail.send(msg)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Correo actualizado correctamente. Se ha enviado un nuevo código de validación.'
+            })
+        except Exception as e:
+            print(f"Error al enviar correo: {e}")
+            return jsonify({
+                'success': False,
+                'message': f'Error al enviar correo de validación: {str(e)}'
+            })
+        
+    except Exception as e:
+        print(f"Error al actualizar correo: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)

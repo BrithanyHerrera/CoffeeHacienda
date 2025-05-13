@@ -73,6 +73,26 @@ def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_s
     Actualiza el stock y los límites de stock de un producto
     """
     try:
+        # Validar que los valores no sean cero
+        if nuevo_stock_min == 0 or nuevo_stock_max == 0:
+            print("Error: Los valores de stock mínimo y máximo no pueden ser cero")
+            return False
+            
+        # Validar que el stock mínimo y máximo no sean iguales
+        if nuevo_stock_min == nuevo_stock_max:
+            print("Error: El stock mínimo y máximo no pueden ser iguales")
+            return False
+            
+        # Validar que el stock mínimo no sea mayor que el stock máximo
+        if nuevo_stock_min > nuevo_stock_max:
+            print(f"Error: El stock mínimo ({nuevo_stock_min}) no puede ser mayor que el stock máximo ({nuevo_stock_max})")
+            return False
+            
+        # Validar que el stock máximo no sea menor que el stock mínimo
+        if nuevo_stock_max < nuevo_stock_min:
+            print(f"Error: El stock máximo ({nuevo_stock_max}) no puede ser menor que el stock mínimo ({nuevo_stock_min})")
+            return False
+            
         conn = Conexion_BD()
         cursor = conn.cursor()
         
