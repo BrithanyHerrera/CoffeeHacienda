@@ -315,6 +315,9 @@ function generarPDF() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim() || "No especificado";
     const direccionSucursal = "Haciendas de San Vicente, 63737 San Vicente, Nay.";
     const nombreVendedor = nombreUsuario || "No especificado"; 
+    const dineroRecibido = document.getElementById('inputDineroRecibido').value || "0.00";
+    const cambio = document.getElementById('inputCambio').value || "0.00";
+    const metodoPago = document.getElementById('metodoPago').value || "No especificado";
 
     // Configurar fuente compatible
     doc.setFont("times", "normal");
@@ -338,6 +341,8 @@ function generarPDF() {
     doc.text(`Dirección: ${direccionSucursal}`, margenIzquierdo, posicionY);
     posicionY += 6;
     doc.text(`Cliente: ${nombreCliente}`, margenIzquierdo, posicionY);
+    posicionY += 10;
+    doc.text(`Método de Pago: ${metodoPago}`, margenIzquierdo, posicionY); // Aquí agregas el método de pago
     posicionY += 10;
 
     // Línea separadora
@@ -387,6 +392,12 @@ function generarPDF() {
 
     doc.setFont("times", "bold");
     doc.text(`TOTAL: $${total.toFixed(2)}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    
+    // Añadir información de dinero recibido y cambio
+    doc.text(`Dinero Recibido: $${dineroRecibido}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    doc.text(`Cambio: $${cambio}`, margenIzquierdo, posicionY);
 
     // Guardar el PDF
     doc.save(`Recibo_${nombreCliente}.pdf`);
@@ -558,5 +569,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+
+// Función para calcular el cambio
+function calcularCambio() {
+    const dineroRecibido = parseFloat(document.getElementById('inputDineroRecibido').value) || 0;
+    const totalVenta = parseFloat(document.getElementById('total').textContent.replace('$', '')) || 0;
+    
+    let cambio = 0;
+    if (dineroRecibido >= totalVenta) {
+        cambio = dineroRecibido - totalVenta;
+    }
+    
+    document.getElementById('inputCambio').value = cambio.toFixed(2);
+}
+
+// Actualizar la función actualizarTotal para que también actualice el cambio
+function actualizarTotal() {
+    total = 0;
+    carrito.forEach(item => {
+        total += item.precio * item.cantidad;
+    });
+    
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+    
+    // Actualizar el cambio si hay un valor en dinero recibido
+    calcularCambio();
+}
 
 

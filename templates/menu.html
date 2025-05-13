@@ -99,15 +99,26 @@
             <p id="total">$0</p> <!-- Este valor será actualizado dinámicamente -->
         </div>
 
+        <!-- Campos para Dinero Recibido y Cambio -->
+        <div class="dineroRecibido">
+            <label for="inputDineroRecibido">Dinero Recibido:</label>
+            <input type="number" id="inputDineroRecibido" min="0" step="0.01" placeholder="0.00" oninput="calcularCambio()">
+        </div>
+        <div class="cambio">
+            <label for="inputCambio">Cambio:</label>
+            <input type="number" id="inputCambio" readonly value="0.00">
+        </div>
+
         <!-- Métodos de Pago -->
         <div class="metodosPago">
             <h3>Método de Pago</h3>
-            <select name="metodoPago">
-                <option value="efectivo">Efectivo</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="transferencia">Transferencia Bancaria</option>
+            <select id="metodoPago" name="metodoPago">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta">Tarjeta</option>
+                <option value="Transferencia">Transferencia Bancaria</option>
             </select>
         </div>
+
 
         <button class="checkout" onclick="realizarPedido()">Realizar la orden</button>
        

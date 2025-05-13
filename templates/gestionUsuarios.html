@@ -82,7 +82,7 @@
                     <section class="contenedorDerecho">
                         <label for="contrasenaUsuario">Contraseña:</label>
                         <div class="inputContrasena">
-                            <input type="password" id="contrasenaUsuario" name="contrasena" required>
+                            <input type="password" id="contrasenaUsuario" name="contrasena" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$" title="La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y al menos un símbolo." required>
                             <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
                         </div>
                 

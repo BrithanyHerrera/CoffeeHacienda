@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validar Usuario - Coffee Hacienda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recuperacion_contrasena.css') }}">
+    <style>
+        .edit-email-container {
+            display: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .edit-email-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .edit-email-container button {
+            background-color: #FF7F50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .edit-email-container button:hover {
+            background-color: #FF6347;
+        }
+        
+        .edit-email-container button.cancel {
+            background-color: #ccc;
+        }
+        
+        .edit-email-container button.cancel:hover {
+            background-color: #bbb;
+        }
+        
+        .email-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .edit-email-link {
+            margin-left: 10px;
+            color: #FF7F50;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
+        <h2>Validar Usuario</h2>
+        
+        <div id="alertContainer">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <div class="form-group">
+            <label for="correo">Correo Electrónico</label>
+            <div class="email-container">
+                <input type="email" id="correo" value="{{ correo }}" readonly>
+                <span class="edit-email-link" id="editEmailLink">Editar</span>
+            </div>
+        </div>
+        
+        <div class="edit-email-container" id="editEmailContainer">
+            <input type="email" id="nuevoCorreo" placeholder="Ingrese el correo correcto">
+            <div>
+                <button id="guardarCorreo">Guardar</button>
+                <button class="cancel" id="cancelarEdicion">Cancelar</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="codigo">Código de Validación</label>
+            <input type="text" id="codigo" placeholder="Ingrese el código de 6 dígitos" maxlength="6">
+        </div>
+        
+        <button id="btnValidar">Validar Cuenta</button>
+        
+        <p class="text-center">
+            ¿No recibiste el código? <a href="#" id="reenviarCodigo" class="link">Reenviar código</a>
+        </p>
+        
+        <a href="{{ url_for('gestionUsuarios') }}" class="link">Volver</a>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnValidar = document.getElementById('btnValidar');
+            const reenviarCodigo = document.getElementById('reenviarCodigo');
+            const correoInput = document.getElementById('correo');
+            const codigoInput = document.getElementById('codigo');
+            const alertContainer = document.getElementById('alertContainer');
+            const editEmailLink = document.getElementById('editEmailLink');
+            const editEmailContainer = document.getElementById('editEmailContainer');
+            const nuevoCorreoInput = document.getElementById('nuevoCorreo');
+            const guardarCorreoBtn = document.getElementById('guardarCorreo');
+            const cancelarEdicionBtn = document.getElementById('cancelarEdicion');
+            
+            // Función para mostrar alertas
+            function mostrarAlerta(mensaje, tipo) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-${tipo}">
+                        ${mensaje}
+                    </div>
+                `;
+            }
+            
+            // Mostrar/ocultar formulario de edición de correo
+            editEmailLink.addEventListener('click', function() {
+                nuevoCorreoInput.value = correoInput.value;
+                editEmailContainer.style.display = 'block';
+            });
+            
+            cancelarEdicionBtn.addEventListener('click', function() {
+                editEmailContainer.style.display = 'none';
+            });
+            
+            // Guardar nuevo correo
+            guardarCorreoBtn.addEventListener('click', function() {
+                const nuevoCorreo = nuevoCorreoInput.value.trim();
+                
+                if (!nuevoCorreo) {
+                    mostrarAlerta('Por favor, ingrese un correo electrónico', 'danger');
+                    return;
+                }
+                
+                // Validar formato de correo
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(nuevoCorreo)) {
+                    mostrarAlerta('Por favor, ingrese un correo electrónico válido', 'danger');
+                    return;
+                }
+                
+                // Actualizar correo y solicitar nuevo código
+                fetch('/api/usuarios/actualizar-correo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        correo_anterior: correoInput.value,
+                        correo_nuevo: nuevoCorreo
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        correoInput.value = nuevoCorreo;
+                        editEmailContainer.style.display = 'none';
+                        mostrarAlerta('Correo actualizado correctamente. Se ha enviado un nuevo código de validación.', 'success');
+                    } else {
+                        mostrarAlerta(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlerta('Error al actualizar el correo', 'danger');
+                });
+            });
+            
+            // Validar código
+            btnValidar.addEventListener('click', function() {
+                const correo = correoInput.value.trim();
+                const codigo = codigoInput.value.trim();
+                
+                if (!correo) {
+                    mostrarAlerta('El correo electrónico es obligatorio', 'danger');
+                    return;
+                }
+                
+                if (!codigo) {
+                    mostrarAlerta('El código de validación es obligatorio', 'danger');
+                    return;
+                }
+                
+                // Enviar solicitud al servidor
+                fetch('/api/usuarios/validar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        correo: correo,
+                        codigo: codigo
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarAlerta(data.message, 'success');
+                        // Redirigir al login después de 2 segundos
+                        setTimeout(function() {
+                            window.location.href = '/';
+                        }, 2000);
+                    } else {
+                        mostrarAlerta(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlerta('Error al validar el código', 'danger');
+                });
+            });
+            
+            // Reenviar código
+            reenviarCodigo.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const correo = correoInput.value.trim();
+                
+                if (!correo) {
+                    mostrarAlerta('El correo electrónico es obligatorio', 'danger');
+                    return;
+                }
+                
+                // Enviar solicitud al servidor
+                fetch('/api/usuarios/reenviar-codigo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        correo: correo
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarAlerta(data.message, 'success');
+                    } else {
+                        mostrarAlerta(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlerta('Error al reenviar el código', 'danger');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

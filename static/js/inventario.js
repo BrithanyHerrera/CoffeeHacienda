@@ -44,6 +44,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 mostrarAlerta("El stock no puede ser negativo. Ajuste el valor.", 'ErrorG');
                 return;
             }
+            
+            // Validar que el stock mínimo no sea mayor que el stock máximo
+            if (nuevoStockMin > nuevoStockMax) {
+                mostrarAlerta("El stock mínimo no puede ser mayor que el stock máximo.", 'ErrorG');
+                return;
+            }
+            
+            // Validar que el stock máximo no sea menor que el stock mínimo
+            if (nuevoStockMax < nuevoStockMin) {
+                mostrarAlerta("El stock máximo no puede ser menor que el stock mínimo.", 'ErrorG');
+                return;
+            }
         
             // Verificar si hay cambios
             if (ajusteStock === 0 && nuevoStockMin === stockMinActual && nuevoStockMax === stockMaxActual) {
