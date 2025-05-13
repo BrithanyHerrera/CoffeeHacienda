@@ -87,13 +87,13 @@
                     </tr>
                     <tr>
                         <td>Transferencias</td>
-                        <td><input type="number" class="input-field" id="cheque" value="0"></td>
+                        <td><input type="number" class="input-field" id="cheque" value="{{ totales['transferencia'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="calculadoCheque" value="{{ totales['transferencia'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="diferenciaCheque" value="0" readonly></td>
                     </tr>
                     <tr>
                         <td>Tarjeta</td>
-                        <td><input type="number" class="input-field" id="vales" value="0"></td>
+                        <td><input type="number" class="input-field" id="vales" value="{{ totales['paypal'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="calculadoVales" value="{{ totales['paypal'] }}" readonly></td>
                         <td><input type="number" class="input-field" id="diferenciaVales" value="0" readonly></td>
                     </tr>

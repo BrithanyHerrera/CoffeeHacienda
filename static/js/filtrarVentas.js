@@ -21,7 +21,9 @@ document.getElementById('btnFiltrarFechas').addEventListener('click', function (
     .then(data => {
         // Actualizar los campos con los valores calculados
         document.getElementById('calculado').value = data.efectivo;
+        document.getElementById('cheque').value = data.transferencias;
         document.getElementById('calculadoCheque').value = data.transferencias;
+        document.getElementById('vales').value = data.paypal;
         document.getElementById('calculadoVales').value = data.paypal; // Asignar valor 0 por defecto si es necesario
 
     })
@@ -118,6 +120,11 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     const pagosRealizados = parseFloat(document.getElementById('pagos_realizados').value);
     const fondo = parseFloat(document.getElementById('fondo').value);
 
+    // Nuevos campos de comparación
+    const contadoEfectivo = parseFloat(document.getElementById('contado').value);
+    const contadoCheque = parseFloat(document.getElementById('cheque').value);
+    const contadoVales = parseFloat(document.getElementById('vales').value);
+
     // Validaciones de campos
     if (!fechaDesde || !fechaHasta) {
         mostrarAlerta("Por favor, selecciona las fechas de inicio y cierre", 'ErrorG');
@@ -127,9 +134,30 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     if (
         isNaN(totalVentas) || isNaN(totalContado) || isNaN(totalEfectivo) ||
         isNaN(totalTransferencias) || isNaN(totalPaypal) ||
-        isNaN(pagosRealizados) || isNaN(fondo)
+        isNaN(pagosRealizados) || isNaN(fondo) ||
+        isNaN(contadoEfectivo) || isNaN(contadoCheque) || isNaN(contadoVales)
     ) {
         mostrarAlerta("Por favor, asegúrate de que todos los campos numéricos estén completos y sean válidos.", 'ErrorG');
+        return;
+    }
+
+    // Validación de que si hay valores en "calculado", no puede haber 0 en "contado"
+    if (totalEfectivo > 0 && contadoEfectivo === 0) {
+        mostrarAlerta("El campo de Efectivo no puede ser 0 si hay un valor calculado", 'ErrorG');
+        return;
+    }
+    if (totalTransferencias > 0 && contadoCheque === 0) {
+        mostrarAlerta("El campo de Transferencias' no puede ser 0 si hay un valor calculado.", 'ErrorG');
+        return;
+    }
+    if (totalPaypal > 0 && contadoVales === 0) {
+        mostrarAlerta("El campo Tarjeta no puede ser 0 si hay un valor calculado.", 'ErrorG');
+        return;
+    }
+
+    // Validar que total, fondo y pagos_realizados no estén en 0 si hay valores en calculado
+    if ((totalEfectivo > 0 || totalTransferencias > 0 || totalPaypal > 0) && (totalContado === 0 || fondo === 0)) {
+        mostrarAlerta("Los campos totales y el fondo no pueden ser 0.", 'ErrorG');
         return;
     }
 
@@ -177,11 +205,14 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
     .then(data => {
         if (data.success) {
            // Mostrar mensaje de éxito
-           mostrarAlerta("Corte realizado exitosamente.", 'ExitoG');
+           mostrarAlerta("Corte realizado exitosamente.", 'ExitoG', 3000);
+           setTimeout(() => {
+            window.location.reload();
+        }, 3000);
             
            // Generar PDF solo si la venta fue exitosa
            generarCorteCajaPDF();
-            location.reload();  // Recargar la página
+            //location.reload();  // Recargar la página
         } else {
             mostrarAlerta("Error al realizar el corte de caja.", 'ErrorG');
         }
