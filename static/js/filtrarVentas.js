@@ -69,19 +69,34 @@ document.getElementById('btnCalcularCorte').addEventListener('click', function (
         diffInput.style.backgroundColor = '#e74c3c'; // rojo
         diferenciasNegativas = true;
     }
+    else if (diferencia > 0) {
+        diffInput.style.color = 'white';
+        diffInput.style.backgroundColor = '#e74c3c'; 
+        diferenciasNegativas = true; 
+    }
 
     if (diferenciaCheque < 0) {
         diffChequeInput.style.color = 'white';
         diffChequeInput.style.backgroundColor = '#e74c3c';
         diferenciasNegativas = true;
     }
+    else if (diferenciaCheque > 0) {
+        diffChequeInput.style.color = 'white';
+        diffChequeInput.style.backgroundColor = '#e74c3c';
+        diferenciasNegativas = true;
+    }
+
 
     if (diferenciaVales < 0) {
         diffValesInput.style.color = 'white';
         diffValesInput.style.backgroundColor = '#e74c3c';
         diferenciasNegativas = true;
     }
-
+    else if (diferenciaVales > 0) {
+        diffValesInput.style.color = 'white';
+        diffValesInput.style.backgroundColor = '#e74c3c';
+        diferenciasNegativas = true;
+    }
     // Calcular totales
     const totalContado = contado + cheque + vales;
     const totalCalculado = calculado + calculadoCheque + calculadoVales;
