@@ -201,6 +201,7 @@ def finalizarOrden():
 
 @app.route('/gestionProductos')
 @login_required
+@admin_required
 def gestion_productos():
     productos = obtener_productos()
     # Obtener variantes para cada producto
@@ -217,6 +218,8 @@ def gestion_productos():
 
 @app.route('/inventario')
 @login_required
+@admin_required 
+
 def inventario():
     # Obtener productos que requieren inventario
     productos = obtener_productos_inventario()
@@ -225,6 +228,7 @@ def inventario():
 
 @app.route('/api/inventario/actualizar', methods=['POST'])
 @login_required
+@admin_required
 def actualizar_inventario():
     try:
         data = request.json
@@ -471,6 +475,7 @@ def historial():
 
 @app.route('/gestionUsuarios')
 @login_required
+@admin_required
 def gestionUsuarios():
     usuarios = obtener_usuarios()
     roles = obtener_roles()
@@ -479,6 +484,7 @@ def gestionUsuarios():
 # Agregar nuevas rutas para manejar solicitudes AJAX
 @app.route('/api/usuarios/guardar', methods=['POST'])
 @login_required
+@admin_required 
 def guardar_usuario():
     try:
         data = request.json
@@ -595,7 +601,8 @@ def filtrar_ventas_route():
     return filtrar_ventas()
 
 @app.route('/corteCaja', methods=['GET', 'POST'])
-@login_required  # Ruta protegida para asegurar que solo los usuarios logueados puedan acceder
+@login_required 
+@admin_required 
 def corte():
     nombre_usuario = session['usuario']
     if request.method == 'POST':
@@ -750,6 +757,7 @@ def get_tamanos():
 
 @app.route('/api/productos/guardar', methods=['POST'])
 @login_required
+@admin_required
 def guardar_producto():
     try:
         # Print form data for debugging
@@ -953,6 +961,7 @@ def get_categoria(id):
 
 @app.route('/historial-ventas')
 @login_required
+@admin_required
 def historial_ventas():
     return render_template('historial.html')
 
