@@ -571,25 +571,73 @@ def guardar_usuario():
         }) 
 
 
-@app.route('/gestionUsuarios/eliminar/<int:id>')
+@app.route('/gestionUsuarios/eliminar/<int:id>', methods=['POST'])  # Cambiado a POST
 @login_required
+@admin_required  # Asegurar que solo administradores puedan desactivar usuarios
 def eliminar_usuario_route(id):
     try:
-        if eliminar_usuario(id):
-            return jsonify({
-                'success': True,
-                'message': 'Usuario eliminado exitosamente'
-            })
-        else:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Verificar si el usuario existe
+        cursor.execute("SELECT Id FROM tusuarios WHERE Id = %s", (id,))
+        if not cursor.fetchone():
             return jsonify({
                 'success': False,
-                'message': 'Error al eliminar usuario'
+                'message': 'Usuario no encontrado'
             })
+        
+        # Actualizar el campo activo a False (0) en lugar de eliminar
+        cursor.execute("UPDATE tusuarios SET activo = 0 WHERE Id = %s", (id,))
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Usuario desactivado exitosamente'
+        })
     except Exception as e:
+        conn.rollback()
         return jsonify({
             'success': False,
-            'message': f'Error: {str(e)}'
+            'message': f'Error al desactivar usuario: {str(e)}'
         })
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/gestionUsuarios/activar/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def activar_usuario_route(id):
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Verificar si el usuario existe
+        cursor.execute("SELECT Id FROM tusuarios WHERE Id = %s", (id,))
+        if not cursor.fetchone():
+            return jsonify({
+                'success': False,
+                'message': 'Usuario no encontrado'
+            })
+        
+        # Actualizar el campo activo a True (1)
+        cursor.execute("UPDATE tusuarios SET activo = 1 WHERE Id = %s", (id,))
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Usuario reactivado exitosamente'
+        })
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'Error al reactivar usuario: {str(e)}'
+        })
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/propinas')
 @login_required  # Ruta protegida
