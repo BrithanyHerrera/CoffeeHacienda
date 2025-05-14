@@ -1,21 +1,19 @@
 from bd import Conexion_BD
 
 def verificar_usuario(usuario, contrasena):
-    connection = Conexion_BD()  # Establecer la conexión
-    try:
-        with connection.cursor() as cursor:
-            # Consulta para obtener el usuario desde la base de datos
-            sql = "SELECT * FROM tusuarios WHERE usuario = %s"
-            cursor.execute(sql, (usuario,))  # Ejecutar la consulta
-            user = cursor.fetchone()  # Obtener el primer resultado
-            
-            # Verificar si se encontró el usuario y si las contraseñas coinciden
-            if user and user['contrasena'] == contrasena:
-                return True  # Usuario encontrado y contraseña correcta
-            else:
-                return False  # Usuario no encontrado o contraseña incorrecta
-    except Exception as e:
-        print(f"Error al verificar usuario: {e}")
-        return False
-    finally:
-        connection.close()  # Cerrar la conexión
+    conn = Conexion_BD()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT rol_id 
+        FROM tusuarios 
+        WHERE usuario = %s 
+        AND contrasena = %s
+        AND activo = 1  # Solo usuarios activos
+    """, (usuario, contrasena))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if resultado:
+        return True, resultado['rol_id']  # Devuelve True y el rol_id
+    return False, None  # Devuelve False si no es válido o está inactivo
