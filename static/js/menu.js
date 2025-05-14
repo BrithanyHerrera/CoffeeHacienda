@@ -196,7 +196,14 @@ function realizarPedido() {
             generarPDF();
             carrito = [];
             actualizarCarrito();
+            // Limpiar todos los campos del formulario
             document.getElementById('nombreCliente').value = '';
+            document.getElementById('numeroMesa').value = '';
+            document.getElementById('inputDineroRecibido').value = '';
+            document.getElementById('inputCambio').value = '0';
+            document.getElementById('metodoPago').selectedIndex = 0;
+            document.getElementById('paraLlevar').checked = false;
+            toggleMesaField(); // Para ocultar el campo de mesa si es necesario
         } else {
             if (data.productos_sin_stock) {
                 let mensaje = "Stock insuficiente:\n";
