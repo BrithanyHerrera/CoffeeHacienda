@@ -154,11 +154,10 @@ function realizarPedido() {
     const paraLlevar = document.getElementById('paraLlevar').checked;
     const numeroMesa = paraLlevar ? '' : document.getElementById('numeroMesa').value.trim();
     const metodoPago = document.querySelector('select[name="metodoPago"]').value;
-
-    // Obtener el valor de dinero recibido y el total
     const dineroRecibido = parseFloat(document.getElementById('inputDineroRecibido').value) || 0;
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
+    // Validaciones básicas
     if (nombreCliente === '') {
         mostrarAlerta('Por favor, ingrese el nombre del cliente.', 'ErrorG');
         return;
@@ -174,8 +173,8 @@ function realizarPedido() {
         return;
     }
 
-    // Validación de dinero recibido
-    if (dineroRecibido < total) {
+    // Validación de dinero recibido SOLO para pagos en efectivo
+    if (metodoPago.toLowerCase() === 'efectivo' && dineroRecibido < total) {
         mostrarAlerta('El monto recibido es menor al total de la compra. No se puede realizar la venta.', 'ErrorG');
         return;
     }
@@ -241,16 +240,14 @@ function calcularTotal() {
 
 // Función para obtener el ID del método de pago
 function obtenerIdMetodoPago(metodoPago) {
-    switch(metodoPago) {
-        case 'efectivo':
-            return 1;
-        case 'tarjeta':
-            return 2;
-        case 'transferencia':
-            return 3;
-        default:
-            return 1;
-    }
+    // Convertir a minúsculas para hacer la comparación insensible a mayúsculas
+    const metodo = metodoPago.toLowerCase();
+    
+    if (metodo.includes('efectivo')) return 1;
+    if (metodo.includes('tarjeta')) return 2;
+    if (metodo.includes('transferencia')) return 3;
+    
+    return 1; // Por defecto, usar efectivo
 }
 
 // Función para eliminar un producto del carrito
@@ -630,6 +627,12 @@ function toggleCamposPago() {
         document.getElementById('inputCambio').value = '';
     }
 }
+
+// Añadir evento al cambiar el método de pago
+document.getElementById('metodoPago').addEventListener('change', toggleCamposPago);
+
+// Ejecutar al cargar la página para establecer el estado inicial
+document.addEventListener('DOMContentLoaded', toggleCamposPago);
 
 // Asegurarse de que la función se ejecute cuando cambie el método de pago
 document.addEventListener('DOMContentLoaded', function() {
