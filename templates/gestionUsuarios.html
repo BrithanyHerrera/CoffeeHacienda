@@ -4,6 +4,7 @@
 
 {% block content %}
 <main class="contenidoGeneral">
+    <!-- Encabezado y botón de agregar -->
     <div class="contenedorTitulo">
         <h1>Gestión de Usuarios</h1>
         {% if rol == 'Administrador' %}
@@ -11,7 +12,7 @@
         {% endif %}
     </div>
 
-    <!-- Modal de Confirmación -->
+    <!-- Modal de Confirmación para eliminar -->
     <section class="modalConf" id="confirmacionModal" style="display: none;">
         <section class="contenedorModalConf">
             <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
@@ -22,6 +23,7 @@
         </section>
     </section>
 
+    <!-- Sección de búsqueda y filtros -->
     <section class="buscador">
         <section id="formBuscador">
             <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" oninput="buscarUsuario()">
@@ -33,8 +35,16 @@
         </section>
     </section>
     
+    <!-- Contenedor principal de usuarios -->
     <div class="contenedorGestionUsuarios">
-        <section class="listaUsuarios">
+        <!-- Pestañas para usuarios activos/inactivos -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mostrarTab('usuarios-activos')">Usuarios Activos</button>
+            <button class="tab-btn" onclick="mostrarTab('usuarios-inactivos')">Usuarios Inactivos</button>
+        </div>
+
+        <!-- Tabla de usuarios activos -->
+        <section class="listaUsuarios tab-content active" id="usuarios-activos">
             <table>
                 <thead>
                     <tr>
@@ -46,7 +56,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for usuario in usuarios %}
+                    {% for usuario in usuarios_activos %}
                     <tr>
                         <td>{{ usuario.usuario }}</td>
                         <td>{{ usuario.correo }}</td>
@@ -62,8 +72,48 @@
                 </tbody>
             </table>
         </section>
+
+        <!-- Tabla de usuarios inactivos -->
+        <section class="listaUsuarios tab-content" id="usuarios-inactivos">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Fecha de Desactivación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios_inactivos %}
+                    <tr>
+                        <td>{{ usuario.usuario }}</td>
+                        <td>{{ usuario.correo }}</td>
+                        <td>{{ usuario.rol }}</td>
+                        <td>{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}</td>
+                        <td>
+                            <button class="btnVerUsuario" onclick="abrirVerUsuario('{{ usuario.Id }}', '{{ usuario.usuario }}', '{{ usuario.correo }}', '{{ usuario.rol }}', '{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}')">👁️</button>
+                            <button class="btnActivarUsuario" onclick="confirmarActivar({{ usuario.Id }})">✅ Activar</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
     </div>
     
+    <!-- Modal de confirmación para activar usuario -->
+    <section class="modalConf" id="activacionModal" style="display: none;">
+        <section class="contenedorModalConf">
+            <span class="cerrar" onclick="cerrarActivacionModal()">&times;</span>
+            <h3>Confirmación</h3>
+            <p id="mensajeActivacion">¿Estás seguro de que deseas activar este usuario?</p>
+            <button id="btnConfirmarActivacion" onclick="confirmarActivacion()">Sí, Activar</button>
+            <button onclick="cerrarActivacionModal()">Cancelar</button>
+        </section>
+    </section>
+
     <!-- Modal de agregar/editar usuario -->
     <section class="modal" id="usuarioModal">
         <section class="contenedorModal">
@@ -71,31 +121,30 @@
             <h3 class="tituloModal" id="tituloModal"></h3>
             <form id="formUsuario" method="POST">
                 <input type="hidden" id="idUsuario" name="id">
-                    <section class="contenedorIzquierdo">
-                        <label for="nombreUsuario">Nombre de Usuario:</label>
-                        <input type="text" id="nombreUsuario" name="nombre" required>
-                    
-                        <label for="correoUsuario">Correo:</label>
-                        <input type="email" id="correoUsuario" name="correo" required>
-                    </section>
-
-                    <section class="contenedorDerecho">
-                        <label for="contrasenaUsuario">Contraseña:</label>
-                        <div class="inputContrasena">
-                            <input type="password" id="contrasenaUsuario" name="contrasena" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$" title="La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y al menos un símbolo." required>
-                            <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
-                        </div>
+                <section class="contenedorIzquierdo">
+                    <label for="nombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="nombreUsuario" name="nombre" required>
                 
-                        <label for="tipoPrivilegio">Tipo de Privilegio:</label>
-                        <select id="tipoPrivilegio" name="tipoPrivilegio" required>
-                            {% for rol in roles %}
-                            <option value="{{ rol.Id }}">{{ rol.rol }}</option>
-                            {% endfor %}
-                        </select>
-                        <br>
-                        <br>
-                        <button class="guardarBtn" type="submit">Guardar</button>
-                    </section>
+                    <label for="correoUsuario">Correo:</label>
+                    <input type="email" id="correoUsuario" name="correo" required>
+                </section>
+
+                <section class="contenedorDerecho">
+                    <label for="contrasenaUsuario">Contraseña:</label>
+                    <div class="inputContrasena">
+                        <input type="password" id="contrasenaUsuario" name="contrasena" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$" title="La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y al menos un símbolo." required>
+                        <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
+                    </div>
+            
+                    <label for="tipoPrivilegio">Tipo de Privilegio:</label>
+                    <select id="tipoPrivilegio" name="tipoPrivilegio" required>
+                        {% for rol in roles %}
+                        <option value="{{ rol.Id }}">{{ rol.rol }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    <button class="guardarBtn" type="submit">Guardar</button>
+                </section>
             </form>
         </section>
     </section>
@@ -116,8 +165,114 @@
         </section>
     </section>
 
+    <!-- Enlaces a CSS y JS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/gestionUsuarios.js') }}"></script>
+
+    <!-- Scripts adicionales -->
+    <script>
+        // Variables globales
+        let idUsuarioAActivar = null;
+
+        // Mostrar/ocultar pestañas
+        function mostrarTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Funciones para activar usuario
+        function confirmarActivar(id) {
+            idUsuarioAActivar = id;
+            document.getElementById('mensajeActivacion').textContent = '¿Estás seguro de que deseas activar este usuario?';
+            document.getElementById('activacionModal').style.display = 'flex';
+        }
+
+        function cerrarActivacionModal() {
+            document.getElementById('activacionModal').style.display = 'none';
+        }
+
+        function confirmarActivacion() {
+            if (!idUsuarioAActivar) return;
+            
+            fetch(`/gestionUsuarios/activar/${idUsuarioAActivar}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarAlerta('Usuario activado exitosamente', 'ExitoG');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    mostrarAlerta(data.message, 'ErrorG');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarAlerta('Error al activar el usuario', 'ErrorG');
+            });
+
+            cerrarActivacionModal();
+        }
+    </script>
+
+    <!-- Estilos adicionales -->
+    <style>
+        /* Estilos para las pestañas */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn.active {
+            border-bottom: 3px solid #4CAF50;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Estilo para botón de activar */
+        .btnActivarUsuario {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        .btnActivarUsuario:hover {
+            background-color: #45a049;
+        }
+    </style>
 </main>
 {% endblock %}

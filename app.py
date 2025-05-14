@@ -501,9 +501,40 @@ def historial():
 @login_required
 @admin_required
 def gestionUsuarios():
-    usuarios = obtener_usuarios()
+    # Obtener usuarios activos
+    conn = Conexion_BD()
+    cursor = conn.cursor()
+    
+    # Usuarios activos (activo = 1)
+    cursor.execute("""
+        SELECT u.Id, u.usuario, u.correo, r.rol, r.Id as rol_id, u.creado_en 
+        FROM tusuarios u 
+        JOIN troles r ON u.rol_id = r.Id
+        WHERE u.activo = 1
+        ORDER BY u.usuario
+    """)
+    usuarios_activos = cursor.fetchall()
+    
+    # Usuarios inactivos (activo = 0)
+    cursor.execute("""
+        SELECT u.Id, u.usuario, u.correo, r.rol, r.Id as rol_id, 
+               u.creado_en, u.modificado_en
+        FROM tusuarios u 
+        JOIN troles r ON u.rol_id = r.Id
+        WHERE u.activo = 0
+        ORDER BY u.modificado_en DESC
+    """)
+    usuarios_inactivos = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
     roles = obtener_roles()
-    return render_template('gestionUsuarios.html', usuarios=usuarios, roles=roles, rol=session.get('rol'))
+    return render_template('gestionUsuarios.html', 
+                         usuarios_activos=usuarios_activos,
+                         usuarios_inactivos=usuarios_inactivos,
+                         roles=roles, 
+                         rol=session.get('rol'))
 
 # Agregar nuevas rutas para manejar solicitudes AJAX
 @app.route('/api/usuarios/guardar', methods=['POST'])
@@ -634,34 +665,44 @@ def eliminar_usuario_route(id):
 @admin_required
 def activar_usuario_route(id):
     try:
-        conn = Conexion_BD()
-        cursor = conn.cursor()
-        
-        # Verificar si el usuario existe
-        cursor.execute("SELECT Id FROM tusuarios WHERE Id = %s", (id,))
-        if not cursor.fetchone():
+        resultado = reactivar_usuario(id)
+        if resultado:
+            return jsonify({
+                'success': True,
+                'message': 'Usuario reactivado exitosamente'
+            })
+        else:
             return jsonify({
                 'success': False,
-                'message': 'Usuario no encontrado'
+                'message': 'Error al reactivar usuario'
             })
-        
-        # Actualizar el campo activo a True (1)
-        cursor.execute("UPDATE tusuarios SET activo = 1 WHERE Id = %s", (id,))
-        conn.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Usuario reactivado exitosamente'
-        })
     except Exception as e:
-        conn.rollback()
         return jsonify({
             'success': False,
-            'message': f'Error al reactivar usuario: {str(e)}'
+            'message': f'Error: {str(e)}'
         })
+
+def reactivar_usuario(id):
+    connection = Conexion_BD()
+    try:
+        with connection.cursor() as cursor:
+            # Actualizamos el campo activo a 1 (True) y la fecha de modificación
+            sql = """
+                UPDATE tusuarios 
+                SET activo = 1, 
+                    modificado_en = NOW() 
+                WHERE Id = %s
+            """
+            cursor.execute(sql, (id,))
+            
+        connection.commit()
+        return True
+    except Exception as e:
+        connection.rollback()
+        print(f"Error al reactivar usuario: {e}")
+        return False
     finally:
-        cursor.close()
-        conn.close()
+        connection.close()
 
 @app.route('/propinas')
 @login_required  # Ruta protegida
