@@ -67,7 +67,24 @@ def login_required(f):
         if 'usuario' not in session:
             return redirect(url_for('login'))
         
-        # Verificar el tiempo de la última actividad
+        # Verificar si el usuario sigue activo en la base de datos
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT activo 
+            FROM tusuarios 
+            WHERE usuario = %s
+        """, (session['usuario'],))
+        usuario_info = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if not usuario_info or not usuario_info['activo']:
+            session.clear()
+            flash('Tu cuenta ha sido desactivada', 'danger')
+            return redirect(url_for('login'))
+        
+        # Resto de la verificación...
         if 'last_activity' not in session:
             session.clear()
             return redirect(url_for('login'))
@@ -90,16 +107,6 @@ def login():
     limpiar_validaciones_expiradas()
     limpiar_codigos_recuperacion_expirados()
     
-    # Guardar la bandera antes de limpiar la sesión
-    password_reset = 'password_reset' in session
-    
-    session.clear()  # Limpiar cualquier sesión existente
-    
-    # Verificar si venía de un restablecimiento de contraseña
-    if password_reset:
-        flash('Contraseña actualizada correctamente.', 'success')
-    
-    
     if request.method == 'POST':
         usuario = request.form['usuario']
         contrasena = request.form['contrasena']
@@ -108,6 +115,23 @@ def login():
             flash('Por favor, ingrese usuario y contraseña', 'danger')
             return render_template('login.html')
         
+        # Primero verificar si el usuario existe pero está inactivo
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT Id, activo 
+            FROM tusuarios 
+            WHERE usuario = %s
+        """, (usuario,))
+        usuario_info = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if usuario_info and not usuario_info['activo']:
+            flash('Esta cuenta está desactivada. Contacta al administrador.', 'danger')
+            return render_template('login.html')
+        
+        # Si no está inactivo, proceder con la verificación normal
         usuario_valido, rol_id = verificar_usuario(usuario, contrasena)
         
         if usuario_valido:
