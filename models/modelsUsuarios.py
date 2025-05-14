@@ -7,7 +7,7 @@ def verificar_usuario_existente(usuario):
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE usuario = %s"
+            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE usuario = %s AND activo = 1"
             cursor.execute(sql, (usuario,))
             resultado = cursor.fetchone()
             return resultado['count'] > 0
@@ -21,7 +21,7 @@ def verificar_correo_existente(correo):
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE correo = %s"
+            sql = "SELECT COUNT(*) as count FROM tusuarios WHERE correo = %s AND activo = 1"
             cursor.execute(sql, (correo,))
             resultado = cursor.fetchone()
             return resultado['count'] > 0
@@ -63,6 +63,7 @@ def obtener_usuarios():
                 SELECT u.Id, u.usuario, u.contrasena, u.correo, r.rol, r.Id as rol_id, u.creado_en 
                 FROM tusuarios u 
                 JOIN troles r ON u.rol_id = r.Id
+                WHERE u.activo = 1  -- Solo usuarios activos
             """
             cursor.execute(sql)
             return cursor.fetchall()
@@ -112,14 +113,15 @@ def eliminar_usuario(id):
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
-            # Delete user directly
-            sql = "DELETE FROM tusuarios WHERE Id=%s"
+            # En lugar de eliminar, actualizamos el campo activo a 0 (False)
+            sql = "UPDATE tusuarios SET activo = 0 WHERE Id = %s"
             cursor.execute(sql, (id,))
             
         connection.commit()
         return True
     except Exception as e:
-        print(f"Error al eliminar usuario: {e}")
+        connection.rollback()
+        print(f"Error al desactivar usuario: {e}")
         return False
     finally:
         connection.close()
@@ -132,7 +134,8 @@ def obtener_usuario_por_id(id):
                 SELECT u.*, r.rol
                 FROM tusuarios u 
                 JOIN troles r ON u.rol_id = r.Id 
-                WHERE u.Id=%s
+                WHERE u.Id = %s
+                AND u.activo = 1  -- Solo si está activo
             """
             cursor.execute(sql, (id,))
             return cursor.fetchone()
@@ -328,3 +331,20 @@ def limpiar_validaciones_expiradas():
     except Exception as e:
         print(f"Error al limpiar validaciones expiradas: {e}")
         return 0
+    
+def reactivar_usuario(id):
+    connection = Conexion_BD()
+    try:
+        with connection.cursor() as cursor:
+            # Actualizamos el campo activo a 1 (True)
+            sql = "UPDATE tusuarios SET activo = 1 WHERE Id = %s"
+            cursor.execute(sql, (id,))
+            
+        connection.commit()
+        return True
+    except Exception as e:
+        connection.rollback()
+        print(f"Error al reactivar usuario: {e}")
+        return False
+    finally:
+        connection.close()

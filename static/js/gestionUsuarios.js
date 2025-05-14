@@ -107,27 +107,33 @@ document.addEventListener('DOMContentLoaded', function() {
 let idUsuarioAEliminar = null; // Variable global para almacenar el ID del usuario a eliminar
 
 function confirmarEliminar(id) {
-    idUsuarioAEliminar = id; // Almacenar el ID del usuario a eliminar
-    document.getElementById('confirmacionModal').style.display = 'flex'; // Mostrar el modal de confirmación
+    idUsuarioAEliminar = id;
+    document.getElementById('mensajeConfirmacion').textContent = '¿Estás seguro de que deseas desactivar este usuario?';
+    document.getElementById('confirmacionModal').style.display = 'flex';
 }
 
 function confirmarEliminacion() {
-    fetch(`/gestionUsuarios/eliminar/${idUsuarioAEliminar}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarAlerta('Usuario eliminado exitosamente', 'ExitoG');
-                setTimeout(() => {
-                    location.reload();
-                }, 3000);
-            } else {
-                mostrarAlerta(data.message, 'ErrorG');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarAlerta('Error al eliminar el usuario', 'ErrorG');
-        });
+    fetch(`/gestionUsuarios/eliminar/${idUsuarioAEliminar}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarAlerta('Usuario desactivado exitosamente', 'ExitoG');
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        } else {
+            mostrarAlerta(data.message, 'ErrorG');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarAlerta('Error al desactivar el usuario', 'ErrorG');
+    });
 
     cerrarConfirmacionModal();
 }

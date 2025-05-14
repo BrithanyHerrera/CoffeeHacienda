@@ -21,6 +21,7 @@ function cargarOrdenes() {
                 }
 
                 data.ordenes.forEach(orden => {
+                    const vendedor = orden.vendedor || 'No disponible';
                     // Convertir la fecha correctamente a la zona horaria local
                     const fechaUTC = new Date(orden.fecha_hora);
                     const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
@@ -56,16 +57,17 @@ function cargarOrdenes() {
                         botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
                     }
 
-                    // Crear la fila de la tabla
+
+                    // Crear la fila de la tabla con la nueva columna
                     let fila = `
-                        <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}">
+                        <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}" data-vendedor="${vendedor}">
                             <td>${orden.cliente}</td>
                             <td>${fechaFormateada}</td>
+                            <td>${vendedor}</td> <!-- Nueva columna -->
                             <td><span class="estadoOrden ${estadoClase}">${orden.estado}</span></td>
                             <td>${botonesHTML}</td>
                         </tr>
                     `;
-                    
                     tablaOrdenes.innerHTML += fila;
                 });
             } else {
@@ -84,6 +86,7 @@ function verDetallesOrden(id) {
                 const fila = document.querySelector(`tr[data-id="${id}"]`);
                 const cliente = fila.getAttribute('data-cliente');
                 const fecha = fila.getAttribute('data-fecha');
+                const vendedor = fila.getAttribute('data-vendedor') || 'No disponible';
                 const total = fila.getAttribute('data-total');
                 const mesa = fila.getAttribute('data-mesa');
                 
@@ -102,6 +105,10 @@ function verDetallesOrden(id) {
                             <div class="info-grupo">
                                 <span class="info-label">Cliente:</span>
                                 <span class="info-value">${cliente}</span>
+                            </div>
+                            <div class="info-grupo">
+                                <span class="info-label">Vendedor:</span>
+                                <span class="info-value">${vendedor}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Fecha:</span>
