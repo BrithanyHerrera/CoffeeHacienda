@@ -613,3 +613,31 @@ function actualizarTotal() {
 }
 
 
+// Función para mostrar/ocultar los campos de dinero recibido y cambio
+function toggleCamposPago() {
+    const metodoPago = document.getElementById('metodoPago').value.toLowerCase();
+    const dineroRecibidoDiv = document.querySelector('.dineroRecibido');
+    const cambioDiv = document.querySelector('.cambio');
+
+    if (metodoPago === 'efectivo') {
+        dineroRecibidoDiv.style.display = 'block';
+        cambioDiv.style.display = 'block';
+    } else {
+        dineroRecibidoDiv.style.display = 'none';
+        cambioDiv.style.display = 'none';
+        // Limpiar los valores si se ocultan
+        document.getElementById('inputDineroRecibido').value = '';
+        document.getElementById('inputCambio').value = '';
+    }
+}
+
+// Asegurarse de que la función se ejecute cuando cambie el método de pago
+document.addEventListener('DOMContentLoaded', function() {
+    const metodoPagoSelect = document.getElementById('metodoPago');
+    if (metodoPagoSelect) {
+        metodoPagoSelect.addEventListener('change', toggleCamposPago);
+        toggleCamposPago(); // Ejecutar al cargar la página
+    }
+});
+
+
