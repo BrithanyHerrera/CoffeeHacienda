@@ -155,6 +155,10 @@ function realizarPedido() {
     const numeroMesa = paraLlevar ? '' : document.getElementById('numeroMesa').value.trim();
     const metodoPago = document.querySelector('select[name="metodoPago"]').value;
 
+    // Obtener el valor de dinero recibido y el total
+    const dineroRecibido = parseFloat(document.getElementById('inputDineroRecibido').value) || 0;
+    const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+
     if (nombreCliente === '') {
         mostrarAlerta('Por favor, ingrese el nombre del cliente.', 'ErrorG');
         return;
@@ -170,13 +174,17 @@ function realizarPedido() {
         return;
     }
 
+    // Validación de dinero recibido
+    if (dineroRecibido < total) {
+        mostrarAlerta('El monto recibido es menor al total de la compra. No se puede realizar la venta.', 'ErrorG');
+        return;
+    }
+
     const productos = carrito.map(item => ({
         id: item.id,
         cantidad: item.cantidad,
         precio: item.precio
     }));
-
-    const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
     fetch('/api/ventas/crear', {
         method: 'POST',
