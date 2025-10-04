@@ -598,15 +598,15 @@ form {
 }
 
 .btnAgregarUsuario {
-    margin-right: 10px;
-    margin-top: 10px;
-    background: #FF7F50;
-    color: white;
+    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    width: 150px;
-    height: 50px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background-color: #FF7F50; /* gris claro para inactivo */
+    color: #ffffff;
 }
 
 .listaUsuarios th, .listaUsuarios td {
