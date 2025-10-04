@@ -7,9 +7,17 @@
     <!-- Encabezado y botón de agregar -->
     <div class="contenedorTitulo">
         <h1>Gestión de Usuarios</h1>
-        {% if rol == 'Administrador' %}
-        <button class="btnAgregarUsuario" onclick="abrirEAModal()">➕ Agregar Usuario</button>
-        {% endif %}
+        <div class="headerUsuarios">
+            {% if rol == 'Administrador' %}
+            <button class="btnAgregarUsuario" onclick="abrirEAModal()">➕ Agregar Usuario</button>
+            {% endif %}
+            
+            <!-- Pestañas para usuarios activos/inactivos -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mostrarTab('usuarios-activos')">Usuarios Activos</button>
+                <button class="tab-btn" onclick="mostrarTab('usuarios-inactivos')">Usuarios Inactivos</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Confirmación para eliminar -->
@@ -37,12 +45,6 @@
     
     <!-- Contenedor principal de usuarios -->
     <div class="contenedorGestionUsuarios">
-        <!-- Pestañas para usuarios activos/inactivos -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="mostrarTab('usuarios-activos')">Usuarios Activos</button>
-            <button class="tab-btn" onclick="mostrarTab('usuarios-inactivos')">Usuarios Inactivos</button>
-        </div>
-
         <!-- Tabla de usuarios activos -->
         <section class="listaUsuarios tab-content active" id="usuarios-activos">
             <table>
@@ -230,35 +232,60 @@
 
     <!-- Estilos adicionales -->
     <style>
-        /* Estilos para las pestañas */
-        .tabs {
+        .headerUsuarios {
             display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
         }
-        
+
+        .tabs {
+            margin-top: 10px;
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: none; /* quitamos la línea inferior */
+            gap: 10px;
+        }
+
         .tab-btn {
             padding: 10px 20px;
-            background: none;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            background-color: #f2f2f2; /* gris claro para inactivo */
+            color: #555;
         }
-        
+
+        .tab-btn:hover {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
         .tab-btn.active {
-            border-bottom: 3px solid #4CAF50;
+            background-color: #ff7b42; /* mismo naranja que el botón "Agregar Usuario" */
+            color: white;
             font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
         }
-        
+
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
-        
+
         .tab-content.active {
             display: block;
         }
-        
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Estilo para botón de activar */
         .btnActivarUsuario {
             background-color: #4CAF50;
@@ -267,7 +294,7 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            margin: 0 5px;
+            margin: 0;
         }
         
         .btnActivarUsuario:hover {
