@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3307
--- Tiempo de generación: 14-05-2025 a las 20:43:08
+-- Tiempo de generación: 06-10-2025 a las 21:52:10
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 8.3.1
 
@@ -465,7 +465,26 @@ INSERT INTO `tusuarios` (`Id`, `usuario`, `contrasena`, `correo`, `rol_id`, `cre
 (13, 'Isma2', 'abc123..', 'ismaelcm1818@gmail.com', 2, '2025-03-15 17:16:44', 1, '2025-05-14 20:18:33'),
 (14, 'Bri', '123', 'brithanymil@gmail.com', 1, '2025-04-07 01:06:17', 1, '2025-05-14 20:18:33'),
 (16, 'Bri2', '123', 'brithanyherrera04@gmail.com', 2, '2025-04-10 15:45:44', 0, '2025-05-14 20:22:34'),
-(19, 'Brithany', '1234.67a', 'brithany2mil4@gmail.com', 1, '2025-05-09 23:48:33', 1, '2025-05-14 20:18:33');
+(19, 'Brithany', '1234.67a', 'brithany2mil4@gmail.com', 1, '2025-05-09 23:48:33', 1, '2025-05-14 20:18:33'),
+(20, 'Isma2hgca', '12345678sf.', 'carmelacar12@gmail.com', 2, '2025-10-06 14:49:50', 1, '2025-10-06 20:49:50'),
+(21, 'Jaime', '12345678Jj.', 'jaimejes92@gmail.com', 2, '2025-10-06 15:32:48', 1, '2025-10-06 21:32:48');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tvalidacion_usuarios`
+--
+
+CREATE TABLE `tvalidacion_usuarios` (
+  `id` int(11) NOT NULL,
+  `usuario` varchar(255) NOT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `correo` varchar(100) NOT NULL,
+  `rol_id` int(11) NOT NULL,
+  `codigo` varchar(6) NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `validado` tinyint(1) DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -646,6 +665,13 @@ ALTER TABLE `tusuarios`
   ADD KEY `rol_id` (`rol_id`);
 
 --
+-- Indices de la tabla `tvalidacion_usuarios`
+--
+ALTER TABLE `tvalidacion_usuarios`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `rol_id` (`rol_id`);
+
+--
 -- Indices de la tabla `tventas`
 --
 ALTER TABLE `tventas`
@@ -723,7 +749,13 @@ ALTER TABLE `ttamanos`
 -- AUTO_INCREMENT de la tabla `tusuarios`
 --
 ALTER TABLE `tusuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT de la tabla `tvalidacion_usuarios`
+--
+ALTER TABLE `tvalidacion_usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tventas`
@@ -796,6 +828,12 @@ ALTER TABLE `tproductos_variantes`
 --
 ALTER TABLE `tusuarios`
   ADD CONSTRAINT `tusuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `troles` (`Id`);
+
+--
+-- Filtros para la tabla `tvalidacion_usuarios`
+--
+ALTER TABLE `tvalidacion_usuarios`
+  ADD CONSTRAINT `tvalidacion_usuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `troles` (`Id`);
 
 --
 -- Filtros para la tabla `tventas`
