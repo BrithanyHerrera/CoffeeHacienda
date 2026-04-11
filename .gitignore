@@ -1,0 +1,11 @@
+# Secretos (Lo más importante)
+bd.env
+.env
+
+# Basura de Python
+__pycache__/
+models/__pycache__/
+*.pyc
+
+# Configuración de VS Code
+.vscode/
