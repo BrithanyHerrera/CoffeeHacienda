@@ -104,7 +104,7 @@ def guardar_corte_caja(
 def obtener_corte_por_id(id):
     connection = Conexion_BD()
     try:
-        with connection.cursor(dictionary=True) as cursor:
+        with connection.cursor() as cursor:
             sql = """
                 SELECT 
                     c.id,

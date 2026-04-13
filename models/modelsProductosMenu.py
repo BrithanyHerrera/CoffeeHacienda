@@ -11,7 +11,8 @@ def obtener_productos_menu():
             return productos
         
         with connection.cursor(DictCursor) as cursor:
-            query = """
+            # Obtener productos
+            query_productos = """
             SELECT p.id, p.nombre_producto, p.descripcion, p.precio, p.stock,
                    p.stock_minimo, p.stock_maximo, p.categoria_id, p.ruta_imagen, 
                    c.categoria, c.requiere_inventario
@@ -20,12 +21,33 @@ def obtener_productos_menu():
             WHERE p.activo = 1
             ORDER BY p.nombre_producto
             """
-            cursor.execute(query)
+            cursor.execute(query_productos)
             productos = cursor.fetchall()
-
-        # Obtener variantes para cada producto
-        for producto in productos:
-            producto["variantes"] = obtener_variantes_menu(producto["id"])
+            
+            if productos:
+                # Obtener TODAS las variantes en una sola consulta
+                producto_ids = [p['id'] for p in productos]
+                placeholders = ', '.join(['%s'] * len(producto_ids))
+                query_variantes = f"""
+                SELECT pv.producto_id, t.tamano, pv.precio 
+                FROM tproductos_variantes pv
+                JOIN ttamanos t ON pv.tamano_id = t.id
+                WHERE pv.producto_id IN ({placeholders})
+                """
+                cursor.execute(query_variantes, producto_ids)
+                todas_variantes = cursor.fetchall()
+                
+                # Agrupar variantes por producto_id
+                variantes_por_producto = {}
+                for v in todas_variantes:
+                    pid = v['producto_id']
+                    if pid not in variantes_por_producto:
+                        variantes_por_producto[pid] = []
+                    variantes_por_producto[pid].append({'tamano': v['tamano'], 'precio': v['precio']})
+                
+                # Asignar variantes a cada producto
+                for producto in productos:
+                    producto["variantes"] = variantes_por_producto.get(producto["id"], [])
 
         connection.close()
         
@@ -34,28 +56,3 @@ def obtener_productos_menu():
     
     return productos
 
-def obtener_variantes_menu(producto_id):
-    variantes = []
-    
-    try:
-        connection = Conexion_BD()
-        if not connection:
-            print(f"No se pudo conectar a la base de datos para obtener variantes del producto {producto_id}")
-            return variantes
-        
-        with connection.cursor(DictCursor) as cursor:
-            query = """
-            SELECT t.tamano, pv.precio 
-            FROM tproductos_variantes pv
-            JOIN ttamanos t ON pv.tamano_id = t.id
-            WHERE pv.producto_id = %s
-            """
-            cursor.execute(query, (producto_id,))
-            variantes = cursor.fetchall()
-        
-        connection.close()
-        
-    except Exception as e:
-        print(f"Error al obtener variantes del producto {producto_id}: {e}")
-    
-    return variantes

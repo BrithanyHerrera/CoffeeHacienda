@@ -33,6 +33,46 @@ def obtener_productos_inventario():
         print(f"Error al obtener productos para inventario: {e}")
     return productos
 
+def contar_alertas_inventario():
+    """
+    Cuenta las alertas de inventario directamente en MySQL (sin traer toda la tabla).
+    Retorna un diccionario con 'criticas' y 'normales'.
+    """
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Contar alertas críticas (stock <= stock_minimo + 5)
+        cursor.execute("""
+            SELECT COUNT(*) as total
+            FROM tproductos p
+            INNER JOIN tcategorias c ON p.categoria_id = c.Id
+            WHERE p.activo = 1
+            AND c.requiere_inventario = 1
+            AND p.stock <= p.stock_minimo + 5
+        """)
+        criticas = cursor.fetchone()['total']
+        
+        # Contar alertas normales (stock entre stock_minimo + 5 y stock_minimo + 10)
+        cursor.execute("""
+            SELECT COUNT(*) as total
+            FROM tproductos p
+            INNER JOIN tcategorias c ON p.categoria_id = c.Id
+            WHERE p.activo = 1
+            AND c.requiere_inventario = 1
+            AND p.stock > p.stock_minimo + 5
+            AND p.stock <= p.stock_minimo + 10
+        """)
+        normales = cursor.fetchone()['total']
+        
+        cursor.close()
+        conn.close()
+        
+        return {'criticas': criticas, 'normales': normales}
+    except Exception as e:
+        print(f"Error al contar alertas de inventario: {e}")
+        return {'criticas': 0, 'normales': 0}
+
 def obtener_productos_bajo_stock():
     """
     Obtiene los productos que están en nivel crítico o de alerta de stock
@@ -96,6 +136,11 @@ def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_s
         conn = Conexion_BD()
         cursor = conn.cursor()
         
+        # Leer el stock anterior ANTES del UPDATE
+        cursor.execute("SELECT stock FROM tproductos WHERE Id = %s", (id_producto,))
+        fila_anterior = cursor.fetchone()
+        stock_anterior = fila_anterior['stock'] if fila_anterior else 0
+        
         query = """
         UPDATE tproductos 
         SET stock = %s, stock_minimo = %s, stock_maximo = %s
@@ -107,13 +152,9 @@ def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_s
         
         # Registrar el movimiento en la tabla de movimientos
         if cursor.rowcount > 0:
-            # Obtener el stock anterior
-            cursor.execute("SELECT stock FROM tproductos WHERE Id = %s", (id_producto,))
-            stock_anterior = cursor.fetchone()['stock']
-            
             # Determinar el tipo de movimiento (3 = Ajuste Positivo, 4 = Ajuste Negativo)
-            tipo_movimiento = 3 if nuevo_stock >= stock_anterior else 4
             cantidad = abs(nuevo_stock - stock_anterior)
+            tipo_movimiento = 3 if nuevo_stock >= stock_anterior else 4
             
             if cantidad > 0:  # Solo registrar si hubo cambio en el stock
                 query_movimiento = """

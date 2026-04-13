@@ -54,7 +54,7 @@
             <h2>¿Está seguro que desea cerrar sesión?</h2>
             <p>Se cerrará su sesión actual en Coffee Hacienda.</p>
             <div class="btn-container">
-                <a href="{{ url_for('confirmar_salir') }}" class="btn-confirmar">Sí, cerrar sesión</a>
+                <a href="{{ url_for('auth.salir') }}" class="btn-confirmar">Sí, cerrar sesión</a>
                 <a href="{{ url_for('bienvenida') }}" class="btn-cancelar">No, cancelar</a>
             </div>
         </div>
