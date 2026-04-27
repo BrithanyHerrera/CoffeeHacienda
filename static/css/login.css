@@ -1,10 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+/* =============================================
+   LOGIN — Coffee Hacienda
+   Uses design tokens from styles.css :root
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    /* Brand Colors (shared with styles.css) */
+    --color-primary: #FF7F50;
+    --color-primary-hover: #e86d40;
+    --color-bg: #F4EDE4;
+    --color-surface: #ffffff;
+    --color-border: #e8e0d8;
+    --color-text: #2d2418;
+    --color-text-secondary: #6b5e52;
+    --color-text-muted: #9a8e82;
+    --color-success: #2ECC71;
+    --color-success-bg: rgba(46, 204, 113, 0.1);
+    --color-danger: #E74C3C;
+    --color-danger-bg: rgba(231, 76, 60, 0.1);
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+    font-family: var(--font-family);
     text-decoration: none;
     list-style: none;
 }
@@ -14,14 +36,14 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background:  #F9E6D3; /* Gris Claro */
+    background: var(--color-bg);
 }
 
 .container {
     position: relative;
     width: 850px;
     height: 550px;
-    background: #FFFFFF; /* Blanco */
+    background: var(--color-surface);
     margin: 20px;
     border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, .2);
@@ -30,14 +52,59 @@ body {
 
 .container h1 {
     font-size: 36px;
+    font-weight: 700;
     margin: -10px 0;
-    color: #333333; /* Negro Suave */
+    color: var(--color-text);
 }
 
 .container p {
     font-size: 14.5px;
     margin: 15px 0;
-    color: #333333; /* Negro Suave */
+    color: var(--color-text-secondary);
+}
+
+/* Subtítulo del formulario */
+.form-subtitle {
+    font-size: 13px !important;
+    color: var(--color-text-muted) !important;
+    margin: 8px 0 5px !important;
+}
+
+/* Elementos del panel naranja */
+.panel-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.toggle-panel h1 {
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+    color: #fff !important;
+}
+
+.toggle-panel p {
+    font-size: 17px;
+    margin-top: 0;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.panel-divider {
+    width: 50px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    margin: 12px 0;
+    display: block;
+}
+
+.panel-tagline {
+    font-size: 14px !important;
+    opacity: 0.7 !important;
+    font-style: italic;
 }
 
 form {
@@ -49,10 +116,10 @@ form {
     right: 0;
     width: 50%;
     height: 100%;
-    background: #FFFFFF; /* Blanco */
+    background: var(--color-surface);
     display: flex;
     align-items: center;
-    color: #333333; /* Negro Suave */
+    color: var(--color-text);
     text-align: center;
     padding: 40px;
     z-index: 1;
@@ -78,48 +145,85 @@ form {
 .input-box input {
     width: 100%;
     padding: 13px 50px 13px 20px;
-    background: #dbdbdb; /* Gris Claro */
+    background: var(--color-bg);
     border-radius: 8px;
     border: none;
     outline: none;
     font-size: 16px;
     font-weight: 500;
+    color: var(--color-text);
 }
 
 .input-box input::placeholder {
-    color: #888;
+    color: var(--color-text-muted);
     font-weight: 400;
 }
 
-.input-box i {
+.input-box > i {
     position: absolute;
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
-    color: #333333; /* Negro Suave */
+    color: var(--color-text-secondary);
 }
 
-.forgot-link {
+/* Alternar contraseña (icono de ojo) */
+.input-box .toggle-password {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--color-text-muted);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.input-box .toggle-password:hover {
+    color: var(--color-primary);
+}
+
+.input-box .toggle-password i {
+    position: static;
+    transform: none;
+    font-size: 18px;
+    color: inherit;
+}
+
+.links {
     margin: -15px 0 15px;
 }
 
-.forgot-link a {
+.links a {
     font-size: 14.5px;
-    color: #333333; /* Negro Suave */
+    color: var(--color-text-secondary);
+    transition: color 0.2s;
+}
+
+.links a:hover {
+    color: var(--color-primary);
 }
 
 .btn {
     width: 100%;
     height: 48px;
-    background: #FF7F50; /* Naranja */
+    background: var(--color-primary);
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .1);
     border: none;
     cursor: pointer;
     font-size: 16px;
-    color: #FFFFFF; /* Blanco */
+    color: var(--color-surface);
     font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: var(--color-primary-hover);
 }
 
 .toggle-box {
@@ -134,7 +238,7 @@ form {
     left: -250%;
     width: 300%;
     height: 100%;
-    background: #FF7F50; /* Naranja */
+    background: linear-gradient(135deg, #FF7F50 0%, #ff6b3d 50%, #e8612e 100%);
     border-radius: 150px;
     z-index: 2;
 }
@@ -147,7 +251,7 @@ form {
     position: absolute;
     width: 50%;
     height: 100%;
-    color: #FFFFFF; /* Blanco */
+    color: var(--color-surface);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -179,9 +283,13 @@ form {
     width: 160px;
     height: 46px;
     background: transparent;
-    border: 2px solid #FFFFFF; /* Blanco */
+    border: 2px solid var(--color-surface);
     box-shadow: none;
 }
+
+/* =============================================
+   RESPONSIVO
+   ============================================= */
 
 @media screen and (max-width: 650px) {
     .container {
@@ -246,14 +354,17 @@ form {
     }
 }
 
-/* Alert styles */
+/* =============================================
+   ALERTAS (Página de login)
+   ============================================= */
+
 .alert {
     position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
     padding: 12px 24px;
-    background: #fff;
+    background: var(--color-surface);
     border-radius: 8px;
     z-index: 1000;
     text-align: center;
@@ -269,9 +380,9 @@ form {
 }
 
 .alert-danger {
-    background: #fff2f0;
-    color: #dc3545;
-    border-left: 4px solid #dc3545;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    border-left: 4px solid var(--color-danger);
 }
 
 .alert i {
@@ -279,13 +390,13 @@ form {
 }
 
 .alert-danger i {
-    color: #dc3545;
+    color: var(--color-danger);
 }
 
 .alert-success {
-    background: #f6ffed;
-    color: #389e0d;
-    border-left: 4px solid #52c41a;
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border-left: 4px solid var(--color-success);
 }
 
 .alert::before {
@@ -296,12 +407,12 @@ form {
 
 .alert-danger::before {
     content: '✗';
-    color: #ff4d4f;
+    color: var(--color-danger);
 }
 
 .alert-success::before {
-    content: '✓';  
-    color: #52c41a;
+    content: '✓';
+    color: var(--color-success);
     font-size: 1.2rem;
 }
 
@@ -317,11 +428,11 @@ form {
 }
 
 @keyframes fadeOut {
-    from { 
+    from {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
     }
-    to { 
+    to {
         opacity: 0;
         transform: translateX(-50%) translateY(-10px);
         visibility: hidden;
@@ -330,20 +441,4 @@ form {
 
 .alert.fade-out {
     animation: fadeOut 0.5s ease-out forwards;
-}
-
-/* Estilo para mostrar y ocultar la contraseña */
-.input-box .toggle-password {
-    position: absolute;
-    right: 20px; /* Posiciona el emoji al lado derecho */
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.input-box .toggle-password:hover {
-    color: #555; /* Cambia el color al pasar el cursor */
 }

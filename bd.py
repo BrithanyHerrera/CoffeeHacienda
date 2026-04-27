@@ -1,15 +1,18 @@
+# Pool de conexiones a MySQL — soporta entorno local y Aiven (nube)
 import os
+import logging
 import pymysql
 from dotenv import load_dotenv
 from dbutils.pooled_db import PooledDB
 
+logger = logging.getLogger(__name__)
+
 load_dotenv('bd.env') 
 
-# Variable global para el pool de conexiones
 _pool = None
 
 def _crear_pool():
-    """Crea el pool de conexiones según el ambiente configurado."""
+    """Crea el pool según APP_ENV (LOCAL o NUBE)."""
     global _pool
     
     env = os.getenv('APP_ENV', 'LOCAL')
@@ -20,7 +23,7 @@ def _crear_pool():
         password = os.getenv('DB_PASS_CLOUD')
         database = os.getenv('DB_NAME_CLOUD')
         port = int(os.getenv('DB_PORT_CLOUD'))
-        ssl_config = {'ssl': {}}  # Obligatorio para Aiven
+        ssl_config = {'ssl': {}}
     else:
         host = os.getenv('DB_HOST_LOCAL')
         user = os.getenv('DB_USER_LOCAL')
@@ -29,20 +32,19 @@ def _crear_pool():
         port = int(os.getenv('DB_PORT_LOCAL', 3307))
         ssl_config = None
 
-    # En nube (Aiven) no pre-crear conexiones SSL al arrancar (son lentas y costosas)
-    # En local las pre-creamos para una experiencia de dev más rápida
+    # En nube no pre-creamos conexiones SSL (lentas); en local sí para más agilidad
     mincached = 0 if env == 'NUBE' else 2
 
     pool_kwargs = dict(
         creator=pymysql,
-        maxconnections=10,      # Máximo de conexiones en el pool
-        mincached=mincached,    # 0 en nube = conexiones solo al ser necesarias
-        maxcached=5,            # Conexiones máximas en cache (idle)
-        maxshared=0,            # 0 = todas las conexiones son dedicadas
-        blocking=True,          # Esperar si no hay conexión disponible
-        maxusage=None,          # Reusar conexión sin límite de usos
-        setsession=[],          # Comandos SQL al iniciar sesión
-        ping=4,                 # Verificar conexión solo en cursor.execute()
+        maxconnections=10,
+        mincached=mincached,
+        maxcached=5,
+        maxshared=0,
+        blocking=True,
+        maxusage=None,
+        setsession=[],
+        ping=4,
         host=host,
         port=port,
         user=user,
@@ -56,17 +58,11 @@ def _crear_pool():
         pool_kwargs['ssl'] = ssl_config
     
     _pool = PooledDB(**pool_kwargs)
-    print(f"Pool de conexiones creado para {env} (mincached={mincached}, max={10})")
+    logger.info(f"Pool creado para {env} (mincached={mincached})")
 
 def Conexion_BD():
-    """
-    Obtiene una conexión del pool.
-    Cuando se llame conn.close(), la conexión regresa al pool
-    en lugar de cerrarse realmente.
-    """
+    """Devuelve una conexión del pool. Al hacer conn.close() regresa al pool."""
     global _pool
-    
     if _pool is None:
         _crear_pool()
-    
     return _pool.connection()

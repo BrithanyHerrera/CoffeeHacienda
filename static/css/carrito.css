@@ -1,11 +1,15 @@
-/* Estilos para el carrito */
+/* =============================================
+   CARRITO — Coffee Hacienda
+   Usa los tokens de diseño de styles.css :root
+   ============================================= */
+
 .carritoPanel {
     position: fixed;
     top: 0;
     right: -400px;
     width: 380px;
     height: 100vh;
-    background-color: white;
+    background-color: var(--color-surface);
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     transition: right 0.3s ease;
     z-index: 1000;
@@ -22,14 +26,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-surface);
 }
 
 .btnCerrarCarrito {
     background: none;
     border: none;
-    color: white;
+    color: var(--color-surface);
     font-size: 24px;
     cursor: pointer;
 }
@@ -45,7 +49,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .itemInfo {
@@ -66,7 +70,7 @@
 
 .btnRestar, .btnSumar, .btnEliminar {
     background: none;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-radius: 3px;
     cursor: pointer;
     padding: 2px 8px;
@@ -80,28 +84,35 @@
 
 .carritoFooter {
     padding: 15px;
-    background-color: #f9f9f9;
-    border-top: 1px solid #eee;
+    background-color: var(--color-surface-alt, #fafafa);
+    border-top: 1px solid var(--color-border);
 }
 
 .totalCarrito {
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
     margin-bottom: 10px;
+    color: var(--color-text);
 }
 
 .btnFinalizarOrden {
     width: 100%;
     padding: 10px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-surface);
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btnFinalizarOrden:hover:not(:disabled) {
+    background-color: var(--color-primary-hover, #e86d40);
 }
 
 .btnFinalizarOrden:disabled {
-    background-color: #cccccc;
+    background-color: var(--color-border);
     cursor: not-allowed;
 }
 
@@ -109,8 +120,8 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-surface);
     border: none;
     border-radius: 50%;
     width: 60px;
@@ -121,14 +132,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.btnVerCarrito:hover {
+    background-color: var(--color-primary-hover, #e86d40);
+    transform: scale(1.05);
 }
 
 .contadorCarrito {
     position: absolute;
     top: -5px;
     right: -5px;
-    background-color: red;
-    color: white;
+    background-color: var(--color-danger);
+    color: var(--color-surface);
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -136,12 +153,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-weight: 600;
 }
 
 .carritoVacio {
     text-align: center;
     padding: 20px;
-    color: #888;
+    color: var(--color-text-muted);
 }
 
 .notificacion {
@@ -149,12 +167,13 @@
     bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #333;
-    color: white;
+    background-color: var(--color-text);
+    color: var(--color-surface);
     padding: 10px 20px;
     border-radius: 5px;
     transition: bottom 0.3s ease;
     z-index: 1001;
+    font-weight: 500;
 }
 
 .notificacion.mostrar {
@@ -163,17 +182,20 @@
 
 .nombreClienteContainer {
     padding: 15px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-border);
 }
 
 .nombreClienteContainer label {
     display: block;
     margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--color-text);
 }
 
 .nombreClienteContainer input {
     width: 100%;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-radius: 4px;
+    color: var(--color-text);
 }

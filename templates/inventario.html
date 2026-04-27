@@ -22,7 +22,7 @@
     <!-- Buscador -->
     <section class="buscador">
         <section id="formBuscador">
-            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarInventario()">
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" maxlength="50" oninput="filtrarInventario()">
             <button type="button" class="btnReestablecer" onclick="reestablecerFiltrosInventario()">🔄 Reestablecer</button>
         </section>
     </section>
@@ -87,43 +87,55 @@
                 <span class="cerrar" onclick="cerrarEditarInventario()">&times;</span>
                 <h3 class="tituloModal">Editar Inventario</h3>
 
-                <form id="formProducto">
+                <form id="formProducto" class="form-inventario">
                     <input type="hidden" id="idProducto" name="id">
 
-                    <section class="contenedorIzquierdo">
-                        <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
+                    <div class="inventario-producto-header">
+                        <span class="inventario-producto-nombre" id="verNombreProducto"></span>
+                    </div>
 
-                        <label for="editarStockInventario">Stock Actual:</label>
-                        <input type="number" id="editarStockInventario" name="stock" disabled>
+                    <div class="inventario-columnas">
+                        <div class="inventario-col">
+                            <h4 class="inventario-col-titulo">📊 Valores Actuales</h4>
+                            <div class="inventario-stat">
+                                <span class="inventario-stat-label">Stock</span>
+                                <input type="number" id="editarStockInventario" name="stock" disabled class="inventario-stat-value">
+                            </div>
+                            <div class="inventario-stat">
+                                <span class="inventario-stat-label">Mínimo</span>
+                                <input type="number" id="editarStockMinInventario" name="stock_minimo" min="0" disabled class="inventario-stat-value">
+                            </div>
+                            <div class="inventario-stat">
+                                <span class="inventario-stat-label">Máximo</span>
+                                <input type="number" id="editarStockMaxInventario" name="stock_maximo" min="0" disabled class="inventario-stat-value">
+                            </div>
+                        </div>
 
-                        <label for="editarStockMinInventario">Stock Mínimo Actual:</label>
-                        <input type="number" id="editarStockMinInventario" name="stock_minimo" min="0" disabled>
+                        <div class="inventario-col">
+                            <h4 class="inventario-col-titulo">✏️ Nuevos Valores</h4>
+                            <label for="agregarStockInventario">Ajustar Stock (+/-):</label>
+                            <input type="number" id="agregarStockInventario" name="agregar_stock" placeholder="Ej: 10 o -5" max="9999" min="-9999"
+                                   onkeydown="if(['e','E','+'].includes(event.key)) event.preventDefault()"
+                                   oninput="if(this.value.length > 5) this.value = this.value.slice(0,5)">
 
-                        <label for="editarStockMaxInventario">Stock Máximo Actual:</label>
-                        <input type="number" id="editarStockMaxInventario" name="stock_maximo" min="0" disabled>
-                    </section>
+                            <label for="agregarStockMinimoInventario">Nuevo Mínimo:</label>
+                            <input type="number" id="agregarStockMinimoInventario" name="agregar_stock_min" min="0" max="999" placeholder="Nuevo mínimo"
+                                   onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                                   oninput="if(this.value.length > 3) this.value = this.value.slice(0,3)">
 
-                    <section class="contenedorDerecho">
-                        <br>
-                        <br>
-                        <br>
-                        <label for="agregarStockInventario">Ajustar Stock (+ / -):</label>
-                        <input type="number" id="agregarStockInventario" name="agregar_stock">
+                            <label for="agregarStockMaximoInventario">Nuevo Máximo:</label>
+                            <input type="number" id="agregarStockMaximoInventario" name="agregar_stock_max" min="0" max="9999" placeholder="Nuevo máximo"
+                                   onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                                   oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
+                        </div>
+                    </div>
 
-                        <label for="agregarStockMinimoInventario">Actualizar Stock Mínimo:</label>
-                        <input type="number" id="agregarStockMinimoInventario" name="agregar_stock_min" min="0">
-
-                        <label for="agregarStockMaximoInventario">Actualizar Stock Máximo:</label>
-                        <input type="number" id="agregarStockMaximoInventario" name="agregar_stock_max" min="0">
-
-                        <button class="guardarBtn" type="submit">Guardar</button>
-                    </section>
+                    <button class="guardarBtn" type="submit">Guardar Cambios</button>
                 </form>
             </section>
         </section>
     </div>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/inventario.js') }}"></script>
 </main>

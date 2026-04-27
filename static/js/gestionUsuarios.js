@@ -64,8 +64,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 tipoPrivilegio: document.getElementById('tipoPrivilegio').value
             };
             
-            console.log('Enviando datos:', userData);
-            
             fetch('/api/usuarios/guardar', {
                 method: 'POST',
                 headers: {
@@ -157,6 +155,10 @@ function abrirVerUsuario(id, nombre, correo, tipoPrivilegio, fechaRegistro) {
                 document.getElementById('verFechaRegistro').textContent = fechaRegistro;
                 document.getElementById('verContrasenaUsuario').textContent = data.usuario.contrasena;
                 
+                // Establecer inicial del avatar
+                const avatar = document.getElementById('avatarUsuario');
+                avatar.textContent = nombre.charAt(0).toUpperCase();
+                
                 // Mostrar el modal de ver usuario
                 document.getElementById('verModalUsuario').style.display = 'flex';
             } else {
@@ -176,14 +178,14 @@ function cerrarVerUsuario() {
 
 function toggleContrasena() {
     const contrasenaInput = document.getElementById('contrasenaUsuario');
-    const toggleIcon = document.querySelector('.toggleContrasena');
+    const toggleIcon = document.querySelector('.toggleContrasena i');
 
     if (contrasenaInput.type === 'password') {
         contrasenaInput.type = 'text';
-        toggleIcon.textContent = '🔒'; // Cambia el ícono a un "ojo cerrado"
+        toggleIcon.className = 'bx bx-hide';
     } else {
         contrasenaInput.type = 'password';
-        toggleIcon.textContent = '👁️'; // Cambia el ícono a un "ojo abierto"
+        toggleIcon.className = 'bx bx-show';
     }
 }
 

@@ -20,18 +20,6 @@ function realizarCorte() {
         return;
     }
 
-    // Log de los datos que se van a enviar
-    console.log("Enviando datos al servidor: ");
-    console.log({
-        fecha_hora_inicio: fechaDesde,
-        fecha_hora_cierre: fechaHasta,
-        total_ventas: totalVentas,
-        total_efectivo: totalEfectivo,
-        total_transferencias: totalTransferencias,
-        total_paypal: totalPaypal,
-        total_contado: totalContado,
-        pagos_realizados: pagosRealizados
-    });
 
     fetch('/guardarCorteCaja', {
         method: 'POST',
@@ -50,8 +38,6 @@ function realizarCorte() {
         })
     })
     .then(response => {
-        // Log para revisar el estado de la respuesta
-        console.log('Response status:', response.status);
 
         if (!response.ok) {
             return Promise.reject('No se pudo guardar el corte de caja');
@@ -59,8 +45,6 @@ function realizarCorte() {
         return response.json();
     })
     .then(data => {
-        // Log para revisar la respuesta JSON
-        console.log('Datos recibidos:', data);
 
         if (data.success) {
             alert("Corte de caja guardado exitosamente.");

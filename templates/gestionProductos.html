@@ -12,7 +12,7 @@
     <section class="buscador">
         <section id="formBuscador">
             <!-- Campo de búsqueda por nombre -->
-            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" oninput="filtrarProductos()">
+            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" maxlength="50" oninput="filtrarProductos()">
             
             <!-- Filtro por tamaño -->
             <div class="filtroSelect">
@@ -123,19 +123,27 @@
                         </select>
 
                         <label for="precioProducto">Precio:</label>
-                        <input type="number" id="precioProducto" name="precioProducto" step="1" min="0" max="999" required placeholder="Ingrese el precio" oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+                        <input type="number" id="precioProducto" name="precioProducto" step="1" min="0" max="999" required placeholder="Ingrese el precio"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
     
                         <label for="stockProducto">Stock:</label>
-                        <input type="number" id="stockProducto" name="stockProducto" min="0" max="999" required placeholder="Ingrese el stock" oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+                        <input type="number" id="stockProducto" name="stockProducto" min="0" max="999" required placeholder="Ingrese el stock"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
                     </section>
 
 
                     <section class="contenedorDerecho">
                         <label for="stockMinProducto">Stock Mínimo:</label>
-                        <input type="number" id="stockMinProducto" name="stockMinProducto" min="0" max="999" required placeholder="Ingrese el stock mínimo" oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+                        <input type="number" id="stockMinProducto" name="stockMinProducto" min="0" max="999" required placeholder="Ingrese el stock mínimo"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
 
                         <label for="stockMaxProducto">Stock Máximo:</label>
-                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" min="0" max="999" required placeholder="Ingrese el stock máximo" oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" min="0" max="999" required placeholder="Ingrese el stock máximo"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
 
                         <label for="categoriaProducto">Categoría:</label>
                         <select id="categoriaProducto" name="categoriaProducto" required>
@@ -147,7 +155,7 @@
 
                         <label for="imagenProducto">Imagen:</label>
                         <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*" required>
-                        <img id="imagenActual" class="imagenProducto" src="" alt="Imagen Actual" style="display: none; max-width: 200px; margin-top: 10px;">
+                        <img id="imagenActual" class="imagenProducto imagen-preview" src="" alt="Imagen Actual" style="display: none;">
 
                         <button class="guardarBtn" type="submit">Guardar</button>
                     </section>
@@ -159,20 +167,50 @@
         <section class="modal" id="verModalProducto">
             <section class="contenedorModal">
                 <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
-                <h3 id="verTituloModal">Ver Producto</h3>
+                <h3 class="tituloModal" id="verTituloModal">Ver Producto</h3>
                 
-                <section id="verDetallesProducto">
-                    <p><strong>ID:</strong> <span id="verIDProducto"></span></p>
-                    <p><strong>Nombre:</strong> <span id="verNombreProducto"></span></p>
-                    <p><strong>Descripción:</strong> <span id="verDescripcionProducto"></span></p>
-                    <p><strong>Precio:</strong> $<span id="verPrecioProducto"></span></p>
-                    <p><strong>Tamaño:</strong> <span id="verTamanoProducto"></span></p>
-                    <p id="verStockLabel"><strong>Stock:</strong> <span id="verStockProducto"></span></p>
-                    <p id="verStockMinLabel"><strong>Stock Mínimo:</strong> <span id="verStockMinProducto"></span></p>
-                    <p id="verStockMaxLabel"><strong>Stock Máximo:</strong> <span id="verStockMaxProducto"></span></p>
-                    <p><strong>Categoría:</strong> <span id="verCategoriaProducto"></span></p>
-                    <p><strong>Imagen:</strong></p>
-                    <img id="verImagenProducto" class="imagenProducto" alt="Imagen del Producto" style="max-width: 300px;">
+                <section id="verDetallesProducto" class="ver-producto-detalle">
+                    <div class="ver-producto-imagen">
+                        <img id="verImagenProducto" alt="Imagen del Producto">
+                    </div>
+                    <div class="ver-producto-info">
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">ID</span>
+                            <span class="ver-info-value" id="verIDProducto"></span>
+                        </div>
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">Nombre</span>
+                            <span class="ver-info-value" id="verNombreProducto"></span>
+                        </div>
+                        <div class="ver-info-row ver-info-full">
+                            <span class="ver-info-label">Descripción</span>
+                            <span class="ver-info-value" id="verDescripcionProducto"></span>
+                        </div>
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">Precio</span>
+                            <span class="ver-info-value ver-precio">$<span id="verPrecioProducto"></span></span>
+                        </div>
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">Tamaño</span>
+                            <span class="ver-info-value" id="verTamanoProducto"></span>
+                        </div>
+                        <div class="ver-info-row" id="verStockLabel">
+                            <span class="ver-info-label">Stock</span>
+                            <span class="ver-info-value" id="verStockProducto"></span>
+                        </div>
+                        <div class="ver-info-row" id="verStockMinLabel">
+                            <span class="ver-info-label">Stock Mínimo</span>
+                            <span class="ver-info-value" id="verStockMinProducto"></span>
+                        </div>
+                        <div class="ver-info-row" id="verStockMaxLabel">
+                            <span class="ver-info-label">Stock Máximo</span>
+                            <span class="ver-info-value" id="verStockMaxProducto"></span>
+                        </div>
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">Categoría</span>
+                            <span class="ver-info-value" id="verCategoriaProducto"></span>
+                        </div>
+                    </div>
                 </section>
             </section>
         </section>
@@ -189,7 +227,6 @@
         </section>
     </section>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/gestionProductos.js') }}"></script>
 </main>

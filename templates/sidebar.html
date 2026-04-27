@@ -4,34 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cafetería{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
+    <button class="btn-hamburguesa" onclick="toggleSidebar()">☰ Menú</button>
+    <div class="overlay-sidebar" id="overlaySidebar" onclick="toggleSidebar()"></div>
+    
     <div class="contenedorSidebar">
         <!-- Barra lateral -->
         <aside class="sidebar">
-            <h2>La Hacienda</h2>
+            <h2>☕ La Hacienda</h2>
             <nav>
                 <ul>
-                    <li><a href="/bienvenida">🏠 Página Principal</a></li>
-                    <li><a href="/menu">📋 Menú</a></li>
-                    <li><a href="/ordenes">🛒 Ordenes <!--<span class="badge">10</span> --> </a></li>
-                    <li><a href="/historial">📜 Historial</a></li>
+                    <li><a href="/bienvenida" class="{{ 'active' if request.path == '/bienvenida' }}">🏠 Página Principal</a></li>
+                    <li><a href="/menu" class="{{ 'active' if request.path == '/menu' }}">📋 Menú</a></li>
+                    <li><a href="/ordenes" class="{{ 'active' if request.path == '/ordenes' }}">🛒 Ordenes</a></li>
+                    <li><a href="/historial" class="{{ 'active' if request.path == '/historial' }}">📜 Historial</a></li>
 
                     {% if session['rol'] == 'Administrador' %}
-                    <li><a href="/gestionProductos">📝 Gestión Productos</a></li>
-                    <li><a href="/gestionUsuarios">🤝 Gestión Usuarios</a></li>
-                    <li><a href="/inventario">🏷️ Inventario</a></li>
-                    <li><a href="/corteCaja">💵 Corte de Caja</a></li>
-                    <li><a href="/reporteFinanciero">💰 Reportes de Ventas</a></li>
+                    <li><a href="/gestionProductos" class="{{ 'active' if request.path == '/gestionProductos' }}">📝 Gestión Productos</a></li>
+                    <li><a href="/gestionUsuarios" class="{{ 'active' if request.path == '/gestionUsuarios' }}">🤝 Gestión Usuarios</a></li>
+                    <li>
+                        <a href="/inventario" class="sidebar-link-alertable {{ 'active' if request.path == '/inventario' }}">
+                            🏷️ Inventario
+                            {% if sidebar_alertas_total > 0 %}
+                            <span class="sidebar-alerta-dot"></span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a href="/corteCaja" class="{{ 'active' if request.path == '/corteCaja' }}">💵 Corte de Caja</a></li>
+                    <li><a href="/reporteFinanciero" class="{{ 'active' if request.path == '/reporteFinanciero' }}">💰 Reportes de Ventas</a></li>
                     {% endif %}
 
-                    <li><a href="/">🚪 Salir</a></li>
+                    <li><a href="/confirmar-salir" class="{{ 'active' if request.path == '/confirmar-salir' }}">🚪 Salir</a></li>
                 </ul>
             </nav>
         </aside>
 
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('overlaySidebar').classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

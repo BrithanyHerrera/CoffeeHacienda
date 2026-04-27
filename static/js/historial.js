@@ -79,8 +79,6 @@ function reestablecerFiltros() {
 }
 
 function verDetallesVenta(id) {
-    console.log("Obteniendo detalles de la venta con ID:", id);
-
     fetch(`/api/historial-ventas/${id}`)
         .then(response => response.json())
         .then(data => {
@@ -152,8 +150,13 @@ function verDetallesVenta(id) {
                 } else {
                     let subtotal = 0;
                     detalles.forEach(producto => {
-                        const precioFormateado = parseFloat(producto.precio).toFixed(2);
-                        const subtotalItem = parseFloat(producto.subtotal).toFixed(2);
+                        // Manejar productos eliminados donde el precio puede ser nulo
+                        let precio = parseFloat(producto.precio);
+                        if (isNaN(precio) && producto.subtotal && producto.cantidad) {
+                            precio = parseFloat(producto.subtotal) / parseInt(producto.cantidad);
+                        }
+                        const precioFormateado = isNaN(precio) ? '0.00' : precio.toFixed(2);
+                        const subtotalItem = parseFloat(producto.subtotal || 0).toFixed(2);
                         subtotal += parseFloat(subtotalItem);
                         const tamano = producto.tamano || 'No aplica';
 

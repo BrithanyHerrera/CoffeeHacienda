@@ -1,7 +1,8 @@
+# Rutas de inventario — consulta y actualización de stock
 from flask import Blueprint, render_template, request, jsonify
-from bd import Conexion_BD
 from utils import login_required, admin_required
-from models.modelsInventario import obtener_productos_inventario, actualizar_stock_producto
+from models.modelsInventario import (obtener_productos_inventario, actualizar_stock_producto,
+                                      obtener_producto_inventario_por_id)
 
 inventario_bp = Blueprint('inventario', __name__)
 
@@ -9,7 +10,6 @@ inventario_bp = Blueprint('inventario', __name__)
 @login_required
 @admin_required 
 def inventario():
-    # Obtener productos que requieren inventario
     productos = obtener_productos_inventario()
     return render_template('inventario.html', productos=productos)
 
@@ -24,71 +24,31 @@ def actualizar_inventario():
         nuevo_stock_min = data.get('stock_min')
         nuevo_stock_max = data.get('stock_max')
         
-        # Validar que los valores no sean cero
         if nuevo_stock_min == 0:
-            return jsonify({
-                'success': False,
-                'message': 'El stock mínimo no puede ser cero'
-            })
+            return jsonify({'success': False, 'message': 'El stock mínimo no puede ser cero'})
             
         if nuevo_stock_max == 0:
-            return jsonify({
-                'success': False,
-                'message': 'El stock máximo no puede ser cero'
-            })
+            return jsonify({'success': False, 'message': 'El stock máximo no puede ser cero'})
             
-        # Validar que el stock mínimo y máximo no sean iguales
         if nuevo_stock_min == nuevo_stock_max:
-            return jsonify({
-                'success': False,
-                'message': 'El stock mínimo y máximo no pueden ser iguales'
-            })
+            return jsonify({'success': False, 'message': 'El stock mínimo y máximo no pueden ser iguales'})
         
-        # Validar que el stock mínimo no sea mayor que el stock máximo
         if nuevo_stock_min > nuevo_stock_max:
-            return jsonify({
-                'success': False,
-                'message': 'El stock mínimo no puede ser mayor que el stock máximo'
-            })
-            
-        # Validar que el stock máximo no sea menor que el stock mínimo
-        if nuevo_stock_max < nuevo_stock_min:
-            return jsonify({
-                'success': False,
-                'message': 'El stock máximo no puede ser menor que el stock mínimo'
-            })
+            return jsonify({'success': False, 'message': 'El stock mínimo no puede ser mayor que el stock máximo'})
         
-        # Obtener valores actuales del producto directamente (sin cargar todos)
-        conn_check = Conexion_BD()
-        cursor_check = conn_check.cursor()
-        cursor_check.execute("""
-            SELECT p.Id, p.stock, p.stock_minimo, p.stock_maximo
-            FROM tproductos p
-            INNER JOIN tcategorias c ON p.categoria_id = c.Id
-            WHERE p.Id = %s AND p.activo = 1 AND c.requiere_inventario = 1
-        """, (id_producto,))
-        producto_actual = cursor_check.fetchone()
-        cursor_check.close()
-        conn_check.close()
+        producto_actual = obtener_producto_inventario_por_id(id_producto)
 
         if not producto_actual:
-            return jsonify({
-                'success': False,
-                'message': 'Producto no encontrado'
-            })
+            return jsonify({'success': False, 'message': 'Producto no encontrado'})
         
-        # Verificar si hay cambios
+        # Si nada cambió, no hacer update
         if (producto_actual['stock'] == nuevo_stock and 
             producto_actual['stock_minimo'] == nuevo_stock_min and 
             producto_actual['stock_maximo'] == nuevo_stock_max):
-            return jsonify({
-                'success': True,
-                'message': 'No se realizaron cambios en el inventario'
-            })
+            return jsonify({'success': True, 'message': 'No se realizaron cambios en el inventario'})
         
         resultado = actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max)
         
-        # Determinar mensaje basado en qué cambió
         mensaje = 'Inventario actualizado correctamente'
         if resultado:
             if producto_actual['stock'] != nuevo_stock and producto_actual['stock_minimo'] == nuevo_stock_min and producto_actual['stock_maximo'] == nuevo_stock_max:
@@ -98,12 +58,6 @@ def actualizar_inventario():
         else:
             mensaje = 'Error al actualizar inventario'
         
-        return jsonify({
-            'success': resultado,
-            'message': mensaje
-        })
+        return jsonify({'success': resultado, 'message': mensaje})
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': f'Error: {str(e)}'
-        })
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
