@@ -1,14 +1,19 @@
-/* Estilos para las alertas */
+/* =============================================
+   ALERTAS — Coffee Hacienda
+   Usa los tokens de diseño de styles.css :root
+   ============================================= */
+
+/* Notificaciones tipo toast (esquina superior derecha) */
 .contenedorAlertas {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto 20px;
-    padding: 0 20px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed;
     top: 20px;
-    z-index: 100;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    width: auto;
 }
 
 .alertaGeneral {
@@ -16,18 +21,18 @@
     align-items: center;
     padding: 15px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    animation: slideIn 0.9s ease-out;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.2));
+    animation: slideInRight 0.4s ease-out;
 }
 
 .alerta-ErrorG {
-    background-color: rgb(210, 97, 108);
-    border-left: 5px solid #dc3545;
+    background-color: var(--color-danger, #E74C3C);
+    border-left: 5px solid #c0392b;
 }
 
 .alerta-ExitoG {
-    background-color: rgb(59, 142, 57);
-    border-left: 5px solid #007c0c;
+    background-color: var(--color-success, #2ECC71);
+    border-left: 5px solid #27ae60;
 }
 
 .iconoAlertaG {
@@ -41,12 +46,12 @@
 
 .mensajeAlertaG h3 {
     margin: 0 0 5px 0;
-    color: #ffffff;
+    color: var(--color-surface, #ffffff);
 }
 
 .mensajeAlertaG p {
     margin: 0;
-    color: #dbdbdb;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .cerrarAlertaG {
@@ -54,7 +59,12 @@
     border: none;
     font-size: 20px;
     cursor: pointer;
-    color: #ffdcdc;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s;
+}
+
+.cerrarAlertaG:hover {
+    color: var(--color-surface, #ffffff);
 }
 
 @keyframes slideIn {
@@ -68,29 +78,57 @@
     }
 }
 
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
 
+/* =============================================
+   ALERTAS DE INVENTARIO (en página)
+   ============================================= */
 
+.contenedorAlertasInventario {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    padding: 0;
+    position: relative;
+    z-index: 100;
+}
 
-
-/* Estilos para las alertas de inventario */
+/* En la página de bienvenida, la alerta flota sobre el contenido */
+.bienvenida-alerta-flotante.contenedorAlertasInventario {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    margin-bottom: 0;
+}
 
 .alertaInventario {
     display: flex;
     align-items: center;
     padding: 15px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm, 0 4px 8px rgba(0, 0, 0, 0.1));
     animation: slideIn 0.5s ease-out;
 }
 
 .alerta-critica {
-    background-color: rgba(220, 53, 69, 0.1);
-    border-left: 5px solid #dc3545;
+    background-color: var(--color-danger-bg, rgba(231, 76, 60, 0.1));
+    border-left: 5px solid var(--color-danger, #E74C3C);
 }
 
 .alerta-normal {
-    background-color: rgba(255, 152, 0, 0.1);
-    border-left: 5px solid #fd7e14;
+    background-color: var(--color-warning-bg, rgba(243, 156, 18, 0.1));
+    border-left: 5px solid var(--color-warning, #f39c12);
 }
 
 .iconoAlerta {
@@ -104,27 +142,29 @@
 
 .mensajeAlerta h3 {
     margin: 0 0 5px 0;
-    color: #333;
+    color: var(--color-text, #2d2418);
 }
 
 .mensajeAlerta p {
     margin: 0;
-    color: #555;
+    color: var(--color-text-secondary, #6b5e52);
 }
 
 .btnVerInventario {
     display: inline-block;
     margin-top: 10px;
     padding: 5px 15px;
-    background-color: #FF7F50;
-    color: white;
+    background-color: var(--color-primary, #FF7F50);
+    color: var(--color-surface, #ffffff);
     text-decoration: none;
     border-radius: 4px;
     font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
 .btnVerInventario:hover {
-    background-color: #ce6641;
+    background-color: var(--color-primary-hover, #e86d40);
 }
 
 .cerrarAlerta {
@@ -132,8 +172,17 @@
     border: none;
     font-size: 20px;
     cursor: pointer;
-    color: #777;
+    color: var(--color-text-muted, #9a8e82);
+    transition: color 0.2s;
 }
+
+.cerrarAlerta:hover {
+    color: var(--color-text, #2d2418);
+}
+
+/* =============================================
+   INPUTS DE DINERO (Página del menú)
+   ============================================= */
 
 .dineroRecibido,
 .cambio {
@@ -147,8 +196,9 @@
 
 .dineroRecibido label,
 .cambio label {
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 3px;
+    color: var(--color-text, #2d2418);
 }
 
 .dineroRecibido input,
@@ -157,14 +207,15 @@
     box-sizing: border-box;
     padding: 6px 10px;
     border-radius: 7px;
-    border: 1px solid #ddd;
-    background: #f5f5f5;
+    border: 1px solid var(--color-border, #e8e0d8);
+    background: var(--color-surface-alt, #fafafa);
     font-size: 1rem;
+    color: var(--color-text, #2d2418);
 }
 
 .dineroRecibido,
 .cambio {
-    min-height: 48px; /* Ajusta según el alto de tus inputs */
+    min-height: 48px;
 }
 
 .dineroRecibido[style*="display: none"],
@@ -176,4 +227,3 @@
     padding: 0;
     min-height: 0;
 }
-

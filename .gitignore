@@ -4,8 +4,21 @@ bd.env
 
 # Basura de Python
 __pycache__/
-models/__pycache__/
+*/__pycache__/
 *.pyc
 
-# Configuración de VS Code
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Configuración de IDEs
 .vscode/
+.idea/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Gemini
+.gemini/

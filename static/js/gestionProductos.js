@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarCategorias();
     cargarTamanos();
     
-    // Add event listener for the form
+    // Agregar evento al formulario
     const formProducto = document.getElementById('formProducto');
     if (formProducto) {
         formProducto.addEventListener('submit', function(event) {
@@ -310,23 +310,18 @@ function manejarCambioTamano() {
     const tamanoValue = tamanoSelect.value;
     const tamanoText = tamanoSelect.options[tamanoSelect.selectedIndex]?.text;
     
-    console.log("Tamaño seleccionado:", tamanoText); // Para depuración
-    
     // Si se selecciona "No Aplica", buscar y seleccionar la categoría "Postre" o "Snack"
     if (tamanoText === 'No Aplica') {
-        console.log("Buscando categoría Postre o Snack..."); // Para depuración
         
         // Buscar la categoría "Postre" o "Snack" en las opciones
         let categoriaEncontrada = false;
         for (let i = 0; i < categoriaSelect.options.length; i++) {
-            console.log(`Opción ${i}:`, categoriaSelect.options[i].text); // Para depuración
             
             const categoriaTexto = categoriaSelect.options[i].text.trim().toLowerCase();
             if (categoriaTexto === 'postre' || 
                 categoriaTexto === 'postres' || 
                 categoriaTexto === 'snack' || 
                 categoriaTexto === 'snacks') {
-                console.log("¡Categoría inventariable encontrada!"); // Para depuración
                 categoriaSelect.value = categoriaSelect.options[i].value;
                 categoriaEncontrada = true;
                 
@@ -341,7 +336,7 @@ function manejarCambioTamano() {
         }
         
         if (!categoriaEncontrada) {
-            console.error("No se encontró una categoría inventariable"); // Para depuración
+            // No se encontró una categoría inventariable
         }
     } 
     // Si se selecciona un tamaño que no es "No Aplica" y la categoría es "Postre" o "Snack",
@@ -350,13 +345,11 @@ function manejarCambioTamano() {
         const categoriaId = categoriaSelect.value;
         const categoriaText = categoriaSelect.options[categoriaSelect.selectedIndex]?.text.trim().toLowerCase();
         
-        console.log("Categoría actual:", categoriaText); // Para depuración
         
         if (categoriaText === 'postre' || 
             categoriaText === 'postres' || 
             categoriaText === 'snack' || 
             categoriaText === 'snacks') {
-            console.log("Reseteando categoría porque se cambió de No Aplica"); // Para depuración
             categoriaSelect.value = '';
             mostrarOcultarCamposStock(false);
         }
@@ -508,14 +501,12 @@ function abrirEAModal(id = null) {
                     if (data.variantes && data.variantes.length > 0) {
                         // Seleccionar el tamaño de la primera variante
                         document.getElementById('tamanoProducto').value = data.variantes[0].tamano_id;
-                        console.log("Tamaño seleccionado:", data.variantes[0].tamano_id);
                     } else {
                         // Buscar la opción "No Aplica" en el select de tamaños
                         const selectTamano = document.getElementById('tamanoProducto');
                         for (let i = 0; i < selectTamano.options.length; i++) {
                             if (selectTamano.options[i].text === 'No Aplica') {
                                 selectTamano.value = selectTamano.options[i].value;
-                                console.log("Seleccionando No Aplica:", selectTamano.options[i].value);
                                 break;
                             }
                         }

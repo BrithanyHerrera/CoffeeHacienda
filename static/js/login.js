@@ -1,5 +1,4 @@
 
-
 // Selecciona los elementos necesarios
 const togglePassword = document.querySelector('#togglePassword');
 const passwordInput = document.querySelector('#passwordInput');
@@ -10,7 +9,7 @@ togglePassword.addEventListener('click', () => {
     const isPassword = passwordInput.type === 'password';
     passwordInput.type = isPassword ? 'text' : 'password';
 
-    // Cambia el emoji según el estado
-    togglePassword.textContent = isPassword ? '🔒' : '👁️';
+    // Cambia el icono de Boxicons según el estado
+    const icon = togglePassword.querySelector('i');
+    icon.className = isPassword ? 'bx bx-hide' : 'bx bx-show';
 });
-

@@ -4,12 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actualizar Contraseña - Coffee Hacienda</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/recuperacion_contrasena.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
     <div class="container">
         <img src="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}" alt="Logo Coffee Hacienda" class="logo">
-        <h2>Actualizar Contraseña</h2>
+
+        <!-- Indicador de pasos -->
+        <div class="step-indicator">
+            <div class="step completed">
+                <div class="step-circle">✓</div>
+                <span>Correo</span>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="step completed">
+                <div class="step-circle">✓</div>
+                <span>Código</span>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="step active">
+                <div class="step-circle">3</div>
+                <span>Nueva clave</span>
+            </div>
+        </div>
+
+        <h2>🔐 Actualizar Contraseña</h2>
+        <p class="subtitle">Crea una contraseña segura con al menos 8 caracteres.</p>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -19,22 +41,102 @@
             {% endif %}
         {% endwith %}
         
-        <form method="POST">
+        <form method="POST" id="formActualizar">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="nueva_contrasena">Nueva Contraseña</label>
-                <input type="password" id="nueva_contrasena" name="nueva_contrasena" required
-                       placeholder="Ingrese su nueva contraseña">
+                <div class="input-password-wrapper">
+                    <input type="password" id="nueva_contrasena" name="nueva_contrasena" required maxlength="30"
+                           placeholder="Ingrese su nueva contraseña"
+                           oninput="validarContrasenas()">
+                    <span class="toggle-password" onclick="togglePassword('nueva_contrasena', this)"><i class='bx bx-show'></i></span>
+                </div>
             </div>
             
             <div class="form-group">
                 <label for="confirmar_contrasena">Confirmar Contraseña</label>
-                <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" required
-                       placeholder="Confirme su nueva contraseña">
+                <div class="input-password-wrapper">
+                    <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" required maxlength="30"
+                           placeholder="Confirme su nueva contraseña"
+                           oninput="validarContrasenas()">
+                    <span class="toggle-password" onclick="togglePassword('confirmar_contrasena', this)"><i class='bx bx-show'></i></span>
+                </div>
+                <div id="matchIndicator" class="match-indicator" style="display:none;"></div>
+            </div>
+
+            <!-- Requisitos de contraseña -->
+            <div class="password-rules" id="passwordRules">
+                <p class="rules-title">La contraseña debe tener:</p>
+                <ul>
+                    <li id="rule-length">✗ Mínimo 8 caracteres</li>
+                    <li id="rule-letter">✗ Al menos una letra</li>
+                    <li id="rule-number">✗ Al menos un número</li>
+                    <li id="rule-match">✗ Contraseñas coinciden</li>
+                </ul>
             </div>
             
-            <button type="submit">Actualizar Contraseña</button>
-            <a href="{{ url_for('auth.login') }}" class="link">Volver al inicio de sesión</a>
+            <button type="submit" id="btnActualizar" disabled>Actualizar Contraseña</button>
+            <a href="{{ url_for('auth.login') }}" class="link">← Volver al inicio de sesión</a>
         </form>
     </div>
+
+    <script>
+        function togglePassword(fieldId, toggleEl) {
+            const input = document.getElementById(fieldId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggleEl.querySelector('i').className = 'bx bx-hide';
+            } else {
+                input.type = 'password';
+                toggleEl.querySelector('i').className = 'bx bx-show';
+            }
+        }
+
+        function validarContrasenas() {
+            const pass = document.getElementById('nueva_contrasena').value;
+            const confirm = document.getElementById('confirmar_contrasena').value;
+            const btn = document.getElementById('btnActualizar');
+            const indicator = document.getElementById('matchIndicator');
+
+            // Check each rule
+            const hasLength = pass.length >= 8;
+            const hasLetter = /[A-Za-z]/.test(pass);
+            const hasNumber = /\d/.test(pass);
+            const doMatch = pass === confirm && pass.length > 0;
+
+            updateRule('rule-length', hasLength);
+            updateRule('rule-letter', hasLetter);
+            updateRule('rule-number', hasNumber);
+            updateRule('rule-match', doMatch);
+
+            // Show match indicator when confirming
+            if (confirm.length > 0) {
+                indicator.style.display = 'block';
+                if (doMatch) {
+                    indicator.textContent = '✓ Las contraseñas coinciden';
+                    indicator.className = 'match-indicator match-ok';
+                } else {
+                    indicator.textContent = '✗ Las contraseñas no coinciden';
+                    indicator.className = 'match-indicator match-error';
+                }
+            } else {
+                indicator.style.display = 'none';
+            }
+
+            // Enable/disable button
+            btn.disabled = !(hasLength && hasLetter && hasNumber && doMatch);
+        }
+
+        function updateRule(ruleId, isValid) {
+            const el = document.getElementById(ruleId);
+            if (isValid) {
+                el.className = 'rule-valid';
+                el.textContent = '✓ ' + el.textContent.substring(2);
+            } else {
+                el.className = '';
+                el.textContent = '✗ ' + el.textContent.substring(2);
+            }
+        }
+    </script>
 </body>
 </html>

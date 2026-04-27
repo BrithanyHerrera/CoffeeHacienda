@@ -184,20 +184,6 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         return;  // Terminar la función sin continuar con la descarga o envío
     }
 
-    // Si los pagos realizados no superan el total disponible, continuar con la lógica de guardado
-    console.log("Enviando datos al servidor: ");
-    console.log({
-        fecha_hora_inicio: fechaDesde,
-        fecha_hora_cierre: fechaHasta,
-        total_ventas: totalVentas,
-        total_efectivo: totalEfectivo,
-        total_transferencias: totalTransferencias,
-        total_paypal: totalPaypal,
-        total_contado: totalContado,
-        pagos_realizados: pagosRealizados,
-        fondo: fondo
-    });
-
     // Lógica para enviar los datos y generar el PDF (solo si los pagos son válidos)
     fetch('/guardarCorteCaja', {
         method: 'POST',
@@ -233,7 +219,7 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         }
     })
     .catch(error => {
-        mostrarAlerta("Error al realizar el corte de caja: ", 'ErrorG' + error);
+        mostrarAlerta("Error al realizar el corte de caja: " + error, 'ErrorG');
     });
 });
 

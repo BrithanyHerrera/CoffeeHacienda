@@ -4,10 +4,10 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
-<main class="contenidoGeneral">
-    <!-- Alertas de Inventario -->
+<main class="contenidoGeneral bienvenida-page">
+    <!-- Alertas de Inventario (floating, no afecta posición del mensaje) -->
     {% if alertas_inventario %}
-    <div class="contenedorAlertas">
+    <div class="contenedorAlertasInventario bienvenida-alerta-flotante">
         <div class="alertaInventario {% if alertas_criticas %}alerta-critica{% else %}alerta-normal{% endif %}">
             <div class="iconoAlerta">⚠️</div>
             <div class="mensajeAlerta">
@@ -25,7 +25,7 @@
                 <a href="/inventario" class="btnVerInventario">Ver Inventario</a>
                 {% endif %}
             </div>
-            <button class="cerrarAlerta" onclick="this.parentElement.style.display='none'">×</button>
+            <button class="cerrarAlerta" onclick="this.closest('.bienvenida-alerta-flotante').style.display='none'">×</button>
         </div>
     </div>
     {% endif %}

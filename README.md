@@ -1,56 +1,61 @@
-CLONAR REPOSITORIO A LAPTOP: :
+# Coffee Hacienda ☕
 
-    1. Ir a la direccion en la que quieres que se encuentre el repositorio.
-    2. Clocar en el cmd: git clone https://github.com/AnaGC10/veterinariaPPI2.git
+Sistema de punto de venta y gestión para cafetería.
 
-ANTES DE TIRAR CODIGO, PONER LO SIGUIENTE:
+## Tecnologías
 
-    1. git pull 
+- **Backend:** Python + Flask (Blueprints)
+- **Base de datos:** MySQL 8 (local y Aiven)
+- **Pool de conexiones:** DBUtils
+- **Frontend:** HTML5, CSS3, JavaScript
+- **Reportes:** jsPDF
 
-COMANDOS PARA SUBIR CAMBIOS A GITHUB:
+## Estructura
 
-    1. git add .
-    2. git commit -m "Cualquier comentario que quieras hacer"
-    3. git pull
-    4. git push
+```
+app.py              → Punto de entrada
+bd.py               → Pool de conexiones MySQL
+utils.py            → Decoradores y validaciones
+extensions.py       → Rate limiter y CSRF
+blueprints/         → Controladores (rutas HTTP)
+models/             → Acceso a base de datos
+templates/          → Vistas (Jinja2)
+static/css/         → Estilos
+static/js/          → Scripts del frontend
+static/images/      → Imágenes de productos
+```
 
-COMANDO PARA INSTALAR EL ENTORNO VIRTUAL:
+## Instalación
 
-    1. pip install pipenv
+```bash
+pip install -r requirements.txt
+```
 
-COMANDOS PARA INSTALAR DEPENDENCIAS:
+Crear un archivo `bd.env` con las credenciales (ver `bd.env.example`).
 
-    1. pipenv install
-    2. pipenv shell
+```bash
+python app.py
+```
 
-COMANDO PARA ACTIVAR EL ENTORNO VIRTUAL:
+Arranca en `http://localhost:5000`.
 
-    1. pipenv shell
+## Variables de entorno (`bd.env`)
 
-SI QUIEREN SABER PARA QUE FUNCIONAN EXACTAMENTE:
+```
+APP_ENV=LOCAL
 
-    1. Buscar en su buscador de su agrado
-    2. Preguntarle a chatgpt
+DB_HOST_LOCAL=localhost
+DB_PORT_LOCAL=3307
+DB_USER_LOCAL=root
+DB_PASS_LOCAL=
+DB_NAME_LOCAL=bd
 
-COMANDO PARA VER QUIEN HA HECHO MÁS COMMITS (PONGANSE A CHAMBEAR)
+SECRET_KEY=tu_clave_secreta
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=correo@gmail.com
+MAIL_PASSWORD=contraseña_de_app
+```
 
-    1. git shortlog -s -n --all
-
-
-Advertencias en el cmd
-DEBUG: Detalles de bajo nivel, útiles para depurar.
-INFO: Información general sobre el funcionamiento de la aplicación.
-WARNING: Advertencias sobre algo que podría ser problemático en el futuro.
-ERROR: Errores que impiden que una operación se realice correctamente.
-CRITICAL: Errores muy graves, típicamente hacen que la aplicación se detenga.
-
-INSTALAR 
-
-Para la BD y librerias
-pip install pymysql
-pip install python-dotenv
-pip install flask_sqlalchemy
-
-pip install Flask-Login
-pip install Flask-Mail
-
+---
+Coffee Hacienda 🤎

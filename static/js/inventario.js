@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const formProducto = document.getElementById("formProducto");
 
-    // Add CSS styles for inventory alerts
+    // Agregar estilos CSS para alertas de inventario
     const style = document.createElement('style');
     style.textContent = `
         .nivel-critico {
@@ -99,12 +99,12 @@ document.addEventListener("DOMContentLoaded", function () {
 function actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoStockMax) {
     const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
     
-    // Update row attributes
+    // Actualizar atributos de la fila
     fila.setAttribute("data-stock", nuevoStock);
     fila.setAttribute("data-stock-min", nuevoStockMin);
     fila.setAttribute("data-stock-max", nuevoStockMax);
 
-    // Update table cells
+    // Actualizar celdas de la tabla
     const stockCell = fila.querySelector(".stockProducto");
     stockCell.textContent = nuevoStock;
     fila.querySelector(".stockMinProducto").textContent = nuevoStockMin;
@@ -154,7 +154,7 @@ function editarInventario(boton) {
     stockInput.classList.remove("texto-critico", "texto-alerta");
     stockInput.style.backgroundColor = "";
     
-    // Add visual indicator for stock level in the modal
+    // Agregar indicador visual del nivel de stock en el modal
     if (stockActual <= stockMin) {
         stockInput.classList.add("texto-critico");
         stockInput.style.backgroundColor = "rgba(255, 200, 200, 0.3)";
@@ -169,7 +169,7 @@ function editarInventario(boton) {
     document.getElementById("editarStockMinInventario").value = stockMin;
     document.getElementById("editarStockMaxInventario").value = stockMax;
     
-    // Reset adjustment fields to empty
+    // Limpiar campos de ajuste
     document.getElementById("agregarStockInventario").value = "";
     document.getElementById("agregarStockMinimoInventario").value = "";
     document.getElementById("agregarStockMaximoInventario").value = "";

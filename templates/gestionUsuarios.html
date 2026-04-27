@@ -34,7 +34,7 @@
     <!-- Sección de búsqueda y filtros -->
     <section class="buscador">
         <section id="formBuscador">
-            <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" oninput="buscarUsuario()">
+            <input type="text" id="buscarUsuario" placeholder="Buscar por nombre" name="usuario" maxlength="30" oninput="buscarUsuario()">
             <label for="fechaInicio">Desde:</label>
             <input type="date" id="fechaInicio" name="fechaInicio" onchange="buscarUsuario()">
             <label for="fechaFin">Hasta:</label>
@@ -125,17 +125,19 @@
                 <input type="hidden" id="idUsuario" name="id">
                 <section class="contenedorIzquierdo">
                     <label for="nombreUsuario">Nombre de Usuario:</label>
-                    <input type="text" id="nombreUsuario" name="nombre" required>
+                    <input type="text" id="nombreUsuario" name="nombre" required maxlength="100">
                 
                     <label for="correoUsuario">Correo:</label>
-                    <input type="email" id="correoUsuario" name="correo" required>
+                    <input type="email" id="correoUsuario" name="correo" required maxlength="100">
                 </section>
 
                 <section class="contenedorDerecho">
                     <label for="contrasenaUsuario">Contraseña:</label>
                     <div class="inputContrasena">
-                        <input type="password" id="contrasenaUsuario" name="contrasena" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$" title="La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y al menos un símbolo." required>
-                        <span class="toggleContrasena" onclick="toggleContrasena()">👁️</span>
+                        <input type="password" id="contrasenaUsuario" name="contrasena" maxlength="30"
+                               pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$"
+                               title="La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y al menos un símbolo." required>
+                        <span class="toggleContrasena" onclick="toggleContrasena()"><i class='bx bx-show'></i></span>
                     </div>
             
                     <label for="tipoPrivilegio">Tipo de Privilegio:</label>
@@ -144,9 +146,9 @@
                         <option value="{{ rol.Id }}">{{ rol.rol }}</option>
                         {% endfor %}
                     </select>
-                    <br><br>
-                    <button class="guardarBtn" type="submit">Guardar</button>
                 </section>
+
+                <button class="guardarBtn" type="submit">Guardar</button>
             </form>
         </section>
     </section>
@@ -155,20 +157,37 @@
     <section class="modal" id="verModalUsuario">
         <section class="contenedorModal">
             <span class="cerrar" onclick="cerrarVerUsuario()">&times;</span>
-            <h3 id="verTituloModal">Ver Usuario</h3>
-            <section id="verDetallesUsuario">
-                <p><strong>ID:</strong> <span id="verIDUsuario"></span></p>
-                <p><strong>Nombre:</strong> <span id="verNombreUsuario"></span></p>
-                <p><strong>Correo:</strong> <span id="verCorreoUsuario"></span></p>
-                <p><strong>Tipo de Privilegio:</strong> <span id="verTipoPrivilegio"></span></p>
-                <p><strong>Fecha de Registro:</strong> <span id="verFechaRegistro"></span></p>
-                <p><strong>Contraseña:</strong> <span id="verContrasenaUsuario"></span></p>
+            <h3 class="tituloModal" id="verTituloModal">Ver Usuario</h3>
+            
+            <section id="verDetallesUsuario" class="ver-usuario-detalle">
+                <div class="ver-usuario-avatar">
+                    <div class="avatar-circle" id="avatarUsuario"></div>
+                    <span class="ver-usuario-nombre" id="verNombreUsuario"></span>
+                    <span class="ver-usuario-rol" id="verTipoPrivilegio"></span>
+                </div>
+                <div class="ver-usuario-info">
+                    <div class="ver-info-row">
+                        <span class="ver-info-label">ID</span>
+                        <span class="ver-info-value" id="verIDUsuario"></span>
+                    </div>
+                    <div class="ver-info-row">
+                        <span class="ver-info-label">Correo</span>
+                        <span class="ver-info-value" id="verCorreoUsuario"></span>
+                    </div>
+                    <div class="ver-info-row">
+                        <span class="ver-info-label">Fecha de Registro</span>
+                        <span class="ver-info-value" id="verFechaRegistro"></span>
+                    </div>
+                    <div class="ver-info-row">
+                        <span class="ver-info-label">Contraseña</span>
+                        <span class="ver-info-value" id="verContrasenaUsuario"></span>
+                    </div>
+                </div>
             </section>
         </section>
     </section>
 
     <!-- Enlaces a CSS y JS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modalesConf.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/gestionUsuarios.js') }}"></script>
 
@@ -230,76 +249,7 @@
         }
     </script>
 
-    <!-- Estilos adicionales -->
-    <style>
-        .headerUsuarios {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            gap: 10px;
-        }
 
-        .tabs {
-            margin-top: 10px;
-            display: flex;
-            margin-bottom: 10px;
-            border-bottom: none; /* quitamos la línea inferior */
-            gap: 10px;
-        }
 
-        .tab-btn {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            background-color: #f2f2f2; /* gris claro para inactivo */
-            color: #555;
-        }
-
-        .tab-btn:hover {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .tab-btn.active {
-            background-color: #ff7b42; /* mismo naranja que el botón "Agregar Usuario" */
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Estilo para botón de activar */
-        .btnActivarUsuario {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 0;
-        }
-        
-        .btnActivarUsuario:hover {
-            background-color: #45a049;
-        }
-    </style>
 </main>
 {% endblock %}

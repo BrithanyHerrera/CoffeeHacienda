@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
+    <title>Iniciar Sesión - Coffee Hacienda</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo/Logo Coffee Hacienda.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -23,14 +24,16 @@
 
         <div class="form-box login">
             <form action="{{ url_for('auth.login') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <h1>Iniciar Sesión</h1>
+                <p class="form-subtitle">Ingresa tus credenciales para continuar</p>
                 <div class="input-box">
-                    <input type="text" placeholder="Usuario" name="usuario" required>
+                    <input type="text" placeholder="Usuario" name="usuario" required maxlength="30">
                     <i class='bx bxs-user'></i>
                 </div>
                 <div class="input-box">
-                    <input type="password" placeholder="Contraseña" name="contrasena" id="passwordInput" required>
-                    <span class="toggle-password" id="togglePassword">👁️</span>
+                    <input type="password" placeholder="Contraseña" name="contrasena" id="passwordInput" required maxlength="30">
+                    <span class="toggle-password" id="togglePassword"><i class='bx bx-show'></i></span>
                 </div>                                     
                 <div class="links">
                     <a href="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
@@ -41,8 +44,12 @@
         </div>
 
         <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <span class="panel-icon">☕</span>
+                <h1>¡Bienvenido!</h1>
+                <p>Cafetería La Hacienda</p>
+            </div>
             <div class="toggle-panel toggle-right">
-                <h1>¡Bienvenido de nuevo!</h1>
             </div>
         </div>
     </div>

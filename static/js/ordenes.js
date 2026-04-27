@@ -36,8 +36,6 @@ function cargarOrdenes() {
 
                     const fechaFormateada = `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
 
-                    console.log("Fecha API:", orden.fecha_hora, "→ Convertida:", fechaFormateada);
-
                     // Determinar la clase CSS para el estado
                     let estadoClase = {
                         'Pendiente': 'Pendiente',
@@ -60,7 +58,7 @@ function cargarOrdenes() {
 
                     // Crear la fila de la tabla con la nueva columna
                     let fila = `
-                        <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}" data-vendedor="${vendedor}">
+                        <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}" data-vendedor="${vendedor}" data-metodo="${orden.metodo_pago || 'No especificado'}" data-dinero="${orden.dinero_recibido || 0}" data-cambio="${orden.cambio || 0}">
                             <td>${orden.cliente}</td>
                             <td>${fechaFormateada}</td>
                             <td>${vendedor}</td> <!-- Nueva columna -->
@@ -89,6 +87,9 @@ function verDetallesOrden(id) {
                 const vendedor = fila.getAttribute('data-vendedor') || 'No disponible';
                 const total = fila.getAttribute('data-total');
                 const mesa = fila.getAttribute('data-mesa');
+                const metodoPago = fila.getAttribute('data-metodo') || 'No especificado';
+                const dineroRecibido = parseFloat(fila.getAttribute('data-dinero') || 0);
+                const cambioOrden = parseFloat(fila.getAttribute('data-cambio') || 0);
                 
                 let detallesHTML = `
                     <div class="infoOrden">
@@ -114,6 +115,18 @@ function verDetallesOrden(id) {
                                 <span class="info-label">Fecha:</span>
                                 <span class="info-value">${fecha}</span>
                             </div>
+                            <div class="info-grupo">
+                                <span class="info-label">Método de pago:</span>
+                                <span class="info-value">${metodoPago}</span>
+                            </div>
+                            <div class="info-grupo">
+                                <span class="info-label">Dinero recibido:</span>
+                                <span class="info-value">$${dineroRecibido.toFixed(2)}</span>
+                            </div>
+                            <div class="info-grupo">
+                                <span class="info-label">Cambio:</span>
+                                <span class="info-value">$${cambioOrden.toFixed(2)}</span>
+                            </div>
                             ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${mesa}</span></div>` : ''}
                         </div>
                     </div>
@@ -134,8 +147,13 @@ function verDetallesOrden(id) {
 
                 let subtotal = 0;
                 data.detalles.forEach(detalle => {
-                    const precioFormateado = parseFloat(detalle.precio).toFixed(2);
-                    const subtotalItem = parseFloat(detalle.subtotal).toFixed(2);
+                    // Manejar productos eliminados donde el precio puede ser nulo
+                    let precio = parseFloat(detalle.precio);
+                    if (isNaN(precio) && detalle.subtotal && detalle.cantidad) {
+                        precio = parseFloat(detalle.subtotal) / parseInt(detalle.cantidad);
+                    }
+                    const precioFormateado = isNaN(precio) ? '0.00' : precio.toFixed(2);
+                    const subtotalItem = parseFloat(detalle.subtotal || 0).toFixed(2);
                     subtotal += parseFloat(subtotalItem);
                     const tamano = detalle.tamano || 'No aplica';
                     

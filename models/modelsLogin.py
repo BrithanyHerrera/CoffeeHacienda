@@ -1,19 +1,20 @@
+# Modelo de login — búsqueda de usuario para autenticación
 from bd import Conexion_BD
 
-def verificar_usuario(usuario, contrasena):
+
+def buscar_usuario_por_usuario(usuario):
+    """Busca un usuario por nombre y devuelve su info (Id, activo, contrasena, rol)."""
     conn = Conexion_BD()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT rol_id 
-        FROM tusuarios 
-        WHERE usuario = %s 
-        AND contrasena = %s
-        AND activo = 1  # Solo usuarios activos
-    """, (usuario, contrasena))
-    resultado = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    
-    if resultado:
-        return True, resultado['rol_id']  # Devuelve True y el rol_id
-    return False, None  # Devuelve False si no es válido o está inactivo
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT u.Id, u.activo, u.contrasena, r.rol 
+            FROM tusuarios u
+            JOIN troles r ON u.rol_id = r.Id
+            WHERE u.usuario = %s
+        """, (usuario,))
+        resultado = cursor.fetchone()
+        cursor.close()
+        return resultado
+    finally:
+        conn.close()
