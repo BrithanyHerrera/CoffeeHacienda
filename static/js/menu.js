@@ -399,13 +399,17 @@ function generarPDF() {
     let posicionY = 10;
 
     // Obtener información del pedido
-    const fechaHora = new Date().toLocaleString();
+    const ahora = new Date();
+    const fechaHora = ahora.toLocaleString();
+    const fechaCorta = ahora.toISOString().slice(0, 10); // 2026-05-04
     const nombreCliente = document.getElementById('nombreCliente').value.trim() || "No especificado";
     const direccionSucursal = "Haciendas de San Vicente, 63737 San Vicente, Nay.";
     const nombreVendedor = nombreUsuario || "No especificado"; 
     const dineroRecibido = document.getElementById('inputDineroRecibido').value || "0.00";
     const cambio = document.getElementById('inputCambio').value || "0.00";
     const metodoPago = document.getElementById('metodoPago').value || "No especificado";
+    const paraLlevar = document.getElementById('paraLlevar').checked;
+    const numeroMesa = document.getElementById('numeroMesa').value.trim();
 
     // Configurar fuente
     doc.setFont("times", "normal");
@@ -482,7 +486,31 @@ function generarPDF() {
     posicionY += 6;
     doc.text(`Cambio: $${cambio}`, margenIzquierdo, posicionY);
 
-    doc.save(`Recibo_${nombreCliente}.pdf`);
+    // Generar nombre estructurado del archivo
+    const vendedorLimpio = nombreVendedor.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]/g, '').replace(/\s+/g, '_');
+    const clienteLimpio = nombreCliente.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]/g, '').replace(/\s+/g, '_');
+    let nombreArchivo;
+
+    if (paraLlevar) {
+        nombreArchivo = `Llevar_${clienteLimpio}_${vendedorLimpio}_${fechaCorta}.pdf`;
+    } else {
+        nombreArchivo = `Mesa${numeroMesa || '0'}_${vendedorLimpio}_${fechaCorta}.pdf`;
+    }
+
+    // Descargar localmente
+    doc.save(nombreArchivo);
+
+    // Guardar en el servidor
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    fetch('/api/guardar-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            pdf: pdfBase64,
+            nombre: nombreArchivo,
+            tipo: 'ticket'
+        })
+    }).catch(err => console.error('Error al guardar PDF en servidor:', err));
 }
 
 

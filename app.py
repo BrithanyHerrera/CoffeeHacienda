@@ -1,6 +1,6 @@
 # Punto de entrada de la aplicación Flask — Coffee Hacienda
 import os
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, jsonify
 from flask_mail import Mail
 from dotenv import load_dotenv
 from utils import login_required
@@ -92,7 +92,47 @@ def confirmar_salir():
     return render_template('confirmar_salir.html')
 
 
+# ── Guardar PDFs en el servidor ───────────────────────────────────────
+import base64
+
+CARPETA_PDFS_TICKETS = os.path.join('static', 'pdfs', 'tickets_ventas')
+CARPETA_PDFS_CORTES  = os.path.join('static', 'pdfs', 'cortes_de_caja')
+
+@app.route('/api/guardar-pdf', methods=['POST'])
+@csrf.exempt
+@login_required
+def guardar_pdf():
+    """Recibe un PDF en base64 desde el frontend y lo guarda en la carpeta correspondiente."""
+    try:
+        data = request.get_json()
+        pdf_base64 = data.get('pdf')
+        nombre_archivo = data.get('nombre', 'documento.pdf')
+        tipo = data.get('tipo', 'ticket')  # 'ticket' o 'corte'
+
+        if not pdf_base64:
+            return jsonify({'success': False, 'message': 'No se recibió el PDF'}), 400
+
+        # Sanitizar nombre del archivo
+        nombre_archivo = nombre_archivo.replace('/', '_').replace('\\', '_').replace('..', '')
+
+        carpeta = CARPETA_PDFS_TICKETS if tipo == 'ticket' else CARPETA_PDFS_CORTES
+        os.makedirs(carpeta, exist_ok=True)
+
+        ruta_completa = os.path.join(carpeta, nombre_archivo)
+        pdf_bytes = base64.b64decode(pdf_base64)
+
+        with open(ruta_completa, 'wb') as f:
+            f.write(pdf_bytes)
+
+        return jsonify({'success': True, 'ruta': ruta_completa})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al guardar PDF: {str(e)}'}), 500
+
+
 if __name__ == '__main__':
+    # Crear carpetas de PDFs si no existen
+    os.makedirs(CARPETA_PDFS_TICKETS, exist_ok=True)
+    os.makedirs(CARPETA_PDFS_CORTES, exist_ok=True)
     limpiar_validaciones_expiradas()
     limpiar_codigos_recuperacion_expirados()
     app.run(debug=True)

@@ -9,7 +9,7 @@
     /* Brand Colors (shared with styles.css) */
     --color-primary: #FF7F50;
     --color-primary-hover: #e86d40;
-    --color-bg: #F4EDE4;
+    --color-bg: #F5E6D1;
     --color-surface: #ffffff;
     --color-border: #e8e0d8;
     --color-text: #2d2418;
@@ -159,7 +159,7 @@ form {
     font-weight: 400;
 }
 
-.input-box > i {
+.input-box>i {
     position: absolute;
     right: 20px;
     top: 50%;
@@ -421,6 +421,7 @@ form {
         transform: translateX(-50%) translateY(-100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(-50%) translateY(0);
         opacity: 1;
@@ -432,6 +433,7 @@ form {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
     }
+
     to {
         opacity: 0;
         transform: translateX(-50%) translateY(-10px);

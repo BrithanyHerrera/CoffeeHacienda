@@ -9,21 +9,26 @@ document.addEventListener("DOMContentLoaded", function() {
 function formatearFecha(fechaStr) {
     if (!fechaStr) return "Sin fecha";
 
-    const fechaUTC = new Date(fechaStr);
-    if (isNaN(fechaUTC.getTime())) return "Fecha inválida";
+    // Intento 1: formato ISO (2026-05-04 18:17:59 o 2026-05-04T18:17:59)
+    const partes = fechaStr.match(/(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/);
+    if (partes) {
+        const [, anio, mes, dia, horas, minutos, segundos] = partes;
+        return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
+    }
 
-    // Convertir a la zona horaria local sin desfases
-    const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
+    // Intento 2: otros formatos (ej: "Mon, 04 May 2026 18:17:59 GMT")
+    const fecha = new Date(fechaStr);
+    if (!isNaN(fecha.getTime())) {
+        const dia = fecha.getDate().toString().padStart(2, '0');
+        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+        const anio = fecha.getFullYear();
+        const horas = fecha.getHours().toString().padStart(2, '0');
+        const minutos = fecha.getMinutes().toString().padStart(2, '0');
+        const segundos = fecha.getSeconds().toString().padStart(2, '0');
+        return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
+    }
 
-    // Formatear fecha y hora en formato 24 horas (HH:MM:SS)
-    const dia = fechaLocal.getDate().toString().padStart(2, '0');
-    const mes = (fechaLocal.getMonth() + 1).toString().padStart(2, '0');
-    const anio = fechaLocal.getFullYear();
-    const horas = fechaLocal.getHours().toString().padStart(2, '0');
-    const minutos = fechaLocal.getMinutes().toString().padStart(2, '0');
-    const segundos = fechaLocal.getSeconds().toString().padStart(2, '0');
-
-    return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
+    return fechaStr;
 }
 
 function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "") {

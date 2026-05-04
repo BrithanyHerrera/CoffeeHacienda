@@ -1,5 +1,5 @@
 // Cargar órdenes al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     cargarOrdenes();
 });
 
@@ -10,7 +10,7 @@ function cargarOrdenes() {
             if (data.success) {
                 let tablaOrdenes = document.getElementById("tablaOrdenes");
                 tablaOrdenes.innerHTML = "";
-                
+
                 if (data.ordenes.length === 0) {
                     tablaOrdenes.innerHTML = `
                         <tr>
@@ -25,7 +25,7 @@ function cargarOrdenes() {
                     // Convertir la fecha correctamente a la zona horaria local
                     const fechaUTC = new Date(orden.fecha_hora);
                     const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
-                    
+
                     // Formatear fecha y hora en formato 24 horas
                     const dia = fechaLocal.getDate().toString().padStart(2, '0');
                     const mes = (fechaLocal.getMonth() + 1).toString().padStart(2, '0');
@@ -45,14 +45,14 @@ function cargarOrdenes() {
                     }[orden.estado] || '';
 
                     // Determinar qué botones mostrar según el estado
-                    let botonesHTML = `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️ Ver</button>`;
+                    let botonesHTML = `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️</button>`;
 
                     if (orden.estado === 'Pendiente') {
-                        botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">⏳ Procesando</button>`;
-                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
+                        botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">Procesando</button>`;
+                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">Cancelar</button>`;
                     } else if (orden.estado === 'En proceso') {
-                        botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">✔️ Lista</button>`;
-                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">❌ Cancelar</button>`;
+                        botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">Lista</button>`;
+                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">Cancelar</button>`;
                     }
 
 
@@ -90,7 +90,7 @@ function verDetallesOrden(id) {
                 const metodoPago = fila.getAttribute('data-metodo') || 'No especificado';
                 const dineroRecibido = parseFloat(fila.getAttribute('data-dinero') || 0);
                 const cambioOrden = parseFloat(fila.getAttribute('data-cambio') || 0);
-                
+
                 let detallesHTML = `
                     <div class="infoOrden">
                         <div class="orden-header">
@@ -156,7 +156,7 @@ function verDetallesOrden(id) {
                     const subtotalItem = parseFloat(detalle.subtotal || 0).toFixed(2);
                     subtotal += parseFloat(subtotalItem);
                     const tamano = detalle.tamano || 'No aplica';
-                    
+
                     detallesHTML += `
                         <tr>
                             <td class="producto-nombre">${detalle.nombre_producto}</td>
@@ -178,7 +178,7 @@ function verDetallesOrden(id) {
                             </table>
                         </div>
                     </div>`;
-                
+
                 document.getElementById('detallesOrden').innerHTML = detallesHTML;
                 document.getElementById('ordenModal').style.display = 'flex';
             } else {
@@ -212,19 +212,19 @@ function confirmarCambioEstado() {
         },
         body: JSON.stringify({ estado: nuevoEstadoAActualizar })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            mostrarAlerta(data.message); // Mostrar mensaje de éxito
-            cargarOrdenes(); // Recargar las órdenes
-        } else {
-            mostrarAlerta('Error: ' + data.message, 'ErrorG'); // Mostrar mensaje de error
-        }
-    })
-    .catch(error => {
-        console.error('Error en la solicitud:', error, 'ErrorG');
-        mostrarAlerta('Error en la solicitud: ' + error, 'ErrorG'); // Mostrar mensaje de error
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarAlerta(data.message); // Mostrar mensaje de éxito
+                cargarOrdenes(); // Recargar las órdenes
+            } else {
+                mostrarAlerta('Error: ' + data.message, 'ErrorG'); // Mostrar mensaje de error
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud:', error, 'ErrorG');
+            mostrarAlerta('Error en la solicitud: ' + error, 'ErrorG'); // Mostrar mensaje de error
+        });
 
     cerrarConfirmacionModal(); // Cerrar el modal de confirmación
 }

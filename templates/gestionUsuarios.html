@@ -96,7 +96,7 @@
                         <td>{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}</td>
                         <td>
                             <button class="btnVerUsuario" onclick="abrirVerUsuario('{{ usuario.Id }}', '{{ usuario.usuario }}', '{{ usuario.correo }}', '{{ usuario.rol }}', '{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}')">👁️</button>
-                            <button class="btnActivarUsuario" onclick="confirmarActivar({{ usuario.Id }})">✅ Activar</button>
+                            <button class="btnActivarUsuario" onclick="confirmarActivar({{ usuario.Id }})"> Activar</button>
                         </td>
                     </tr>
                     {% endfor %}

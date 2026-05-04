@@ -172,6 +172,10 @@
                 <section id="verDetallesProducto" class="ver-producto-detalle">
                     <div class="ver-producto-imagen">
                         <img id="verImagenProducto" alt="Imagen del Producto">
+                        <div class="ver-producto-header">
+                            <span class="ver-producto-nombre" id="verNombreProducto"></span>
+                            <span class="ver-producto-categoria" id="verCategoriaProducto"></span>
+                        </div>
                     </div>
                     <div class="ver-producto-info">
                         <div class="ver-info-row">
@@ -179,16 +183,12 @@
                             <span class="ver-info-value" id="verIDProducto"></span>
                         </div>
                         <div class="ver-info-row">
-                            <span class="ver-info-label">Nombre</span>
-                            <span class="ver-info-value" id="verNombreProducto"></span>
+                            <span class="ver-info-label">Precio</span>
+                            <span class="ver-info-value ver-precio">$<span id="verPrecioProducto"></span></span>
                         </div>
                         <div class="ver-info-row ver-info-full">
                             <span class="ver-info-label">Descripción</span>
                             <span class="ver-info-value" id="verDescripcionProducto"></span>
-                        </div>
-                        <div class="ver-info-row">
-                            <span class="ver-info-label">Precio</span>
-                            <span class="ver-info-value ver-precio">$<span id="verPrecioProducto"></span></span>
                         </div>
                         <div class="ver-info-row">
                             <span class="ver-info-label">Tamaño</span>
@@ -205,10 +205,6 @@
                         <div class="ver-info-row" id="verStockMaxLabel">
                             <span class="ver-info-label">Stock Máximo</span>
                             <span class="ver-info-value" id="verStockMaxProducto"></span>
-                        </div>
-                        <div class="ver-info-row">
-                            <span class="ver-info-label">Categoría</span>
-                            <span class="ver-info-value" id="verCategoriaProducto"></span>
                         </div>
                     </div>
                 </section>

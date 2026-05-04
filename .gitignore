@@ -22,3 +22,7 @@ Thumbs.db
 
 # Gemini
 .gemini/
+
+# PDFs generados (tickets y cortes de caja)
+static/pdfs/tickets_ventas/*.pdf
+static/pdfs/cortes_de_caja/*.pdf
