@@ -160,7 +160,7 @@ def guardar_usuario_pendiente(usuario, contrasena, correo, rol_id):
         return False, f"Error: {str(e)}", None
 
 def validar_codigo_usuario(correo, codigo):
-    """Valida el código y crea el usuario definitivo en tusuarios."""
+    """Valida el código y crea el usuario definitivo en tusuarios, o actualiza su correo si es un cambio."""
     try:
         conn = Conexion_BD()
         cursor = conn.cursor()
@@ -181,13 +181,23 @@ def validar_codigo_usuario(correo, codigo):
             cursor.close(); conn.close()
             return False, "El código de validación ha expirado"
         
-        cursor.execute("INSERT INTO tusuarios (usuario, contrasena, correo, rol_id) VALUES (%s, %s, %s, %s)",
-                       (validacion['usuario'], validacion['contrasena'], validacion['correo'], validacion['rol_id']))
+        if validacion['usuario'].startswith('__CAMBIO_CORREO__'):
+            # Es un cambio de correo para un usuario existente
+            id_usuario_existente = int(validacion['usuario'].replace('__CAMBIO_CORREO__', ''))
+            cursor.execute("UPDATE tusuarios SET correo = %s WHERE Id = %s",
+                           (validacion['correo'], id_usuario_existente))
+            mensaje_exito = "Correo electrónico actualizado y validado correctamente"
+        else:
+            # Es un nuevo usuario
+            cursor.execute("INSERT INTO tusuarios (usuario, contrasena, correo, rol_id) VALUES (%s, %s, %s, %s)",
+                           (validacion['usuario'], validacion['contrasena'], validacion['correo'], validacion['rol_id']))
+            mensaje_exito = "Usuario validado correctamente"
+            
         cursor.execute("DELETE FROM tvalidacion_usuarios WHERE id = %s", (validacion['id'],))
         
         conn.commit()
         cursor.close(); conn.close()
-        return True, "Usuario validado correctamente"
+        return True, mensaje_exito
     except Exception as e:
         logger.error(f"Error al validar código: {e}")
         return False, f"Error: {str(e)}"
@@ -313,3 +323,37 @@ def actualizar_correo_validacion(validacion_id, correo_nuevo, nuevo_codigo):
         return False
     finally:
         conn.close()
+
+def guardar_cambio_correo_pendiente(id_usuario, correo_nuevo, codigo):
+    """Guarda un cambio de correo pendiente de validación para un usuario existente."""
+    try:
+        conn = Conexion_BD()
+        cursor = conn.cursor()
+        
+        # Verificar que el nuevo correo no esté en uso
+        cursor.execute("SELECT Id FROM tusuarios WHERE correo = %s AND Id != %s", (correo_nuevo, id_usuario))
+        if cursor.fetchone():
+            cursor.close(); conn.close()
+            return False
+        
+        # Obtener el rol_id actual del usuario para cumplir con la foreign key
+        cursor.execute("SELECT rol_id FROM tusuarios WHERE Id = %s", (id_usuario,))
+        rol_row = cursor.fetchone()
+        rol_id_actual = rol_row['rol_id'] if rol_row else 1
+        
+        # Eliminar validaciones previas de cambio de correo para este usuario
+        cursor.execute("DELETE FROM tvalidacion_usuarios WHERE usuario LIKE %s AND validado = FALSE", 
+                      (f'__CAMBIO_CORREO__{id_usuario}',))
+        
+        # Insertar nueva validación de cambio de correo
+        cursor.execute("""
+            INSERT INTO tvalidacion_usuarios (usuario, contrasena, correo, rol_id, codigo, fecha_creacion)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (f'__CAMBIO_CORREO__{id_usuario}', '', correo_nuevo, rol_id_actual, codigo, datetime.now()))
+        
+        conn.commit()
+        cursor.close(); conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Error al guardar cambio de correo pendiente: {e}")
+        return False

@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Si requiere validación, mostrar mensaje y redirigir
                         mostrarAlerta(data.message, 'ExitoG');
                         setTimeout(() => {
-                            window.location.href = `/validar-usuario?email=${encodeURIComponent(data.email)}`;
+                            window.location.replace(`/validar-usuario?email=${encodeURIComponent(data.email)}`);
                         }, 1500);
                     } else {
                         // Si no requiere validación, mostrar mensaje y recargar
@@ -382,7 +382,7 @@ function guardarUsuario() {
                 // Si requiere validación, mostrar mensaje y redirigir
                 mostrarAlerta(data.message, 'success');
                 setTimeout(() => {
-                    window.location.href = `/validar-usuario?email=${encodeURIComponent(data.email)}`;
+                    window.location.replace(`/validar-usuario?email=${encodeURIComponent(data.email)}`);
                 }, 1500);
             } else {
                 // Si no requiere validación, mostrar mensaje y recargar
