@@ -41,10 +41,9 @@ def login_required(f):
         if necesita_verificar:
             try:
                 conn = Conexion_BD()
-                cursor = conn.cursor()
-                cursor.execute("SELECT activo FROM tusuarios WHERE usuario = %s", (session['usuario'],))
-                usuario_info = cursor.fetchone()
-                cursor.close()
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT activo FROM tusuarios WHERE usuario = %s", (session['usuario'],))
+                    usuario_info = cursor.fetchone()
                 conn.close()
                 
                 if not usuario_info or not usuario_info['activo']:
@@ -81,3 +80,19 @@ def validar_fortaleza_contrasena(contrasena):
     if not any(c.isdigit() for c in contrasena):
         return False, 'La contraseña debe tener al menos un número'
     return True, ''
+
+def enviar_correo(destinatario, asunto, cuerpo):
+    """Envía un correo electrónico. Retorna True si se envió, False si falló."""
+    from flask import current_app
+    from flask_mail import Message
+    try:
+        mail = current_app.extensions['mail']
+        msg = Message(asunto, 
+                     sender=current_app.config['MAIL_USERNAME'],
+                     recipients=[destinatario])
+        msg.body = cuerpo
+        mail.send(msg)
+        return True
+    except Exception as e:
+        logger.error(f"Error al enviar correo a {destinatario}: {e}", exc_info=True)
+        return False

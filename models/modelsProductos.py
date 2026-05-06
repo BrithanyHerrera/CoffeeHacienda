@@ -182,12 +182,12 @@ def eliminar_producto(id_producto):
     """Soft-delete: marca el producto como inactivo."""
     conn = Conexion_BD()
     try:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE tproductos SET activo = 0 WHERE Id = %s", (id_producto,))
+        with conn.cursor() as cursor:
+            cursor.execute("UPDATE tproductos SET activo = 0 WHERE Id = %s", (id_producto,))
         conn.commit()
-        cursor.close()
         return True
     except Exception as e:
+        conn.rollback()
         logger.error(f"Error al desactivar producto: {str(e)}")
         return False
     finally:

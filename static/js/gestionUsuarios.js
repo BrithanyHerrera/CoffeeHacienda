@@ -11,11 +11,12 @@ function abrirEAModal(id = null, nombre = '', correo = '', tipoPrivilegio = '') 
                     document.getElementById('nombreUsuario').value = nombre;
                     document.getElementById('correoUsuario').value = correo;
                     document.getElementById('tipoPrivilegio').value = tipoPrivilegio;
-                    document.getElementById('contrasenaUsuario').value = data.usuario.contrasena;
-                    
+                    document.getElementById('contrasenaUsuario').value = '';
+                    document.getElementById('contrasenaUsuario').placeholder = 'Dejar vacío para mantener la actual';
+
                     // Establecer el título del modal
                     document.getElementById('tituloModal').innerText = 'Editar Usuario';
-                    
+
                     // Mostrar el modal de agregar/editar usuario
                     document.getElementById('usuarioModal').style.display = 'flex';
                 } else {
@@ -33,10 +34,10 @@ function abrirEAModal(id = null, nombre = '', correo = '', tipoPrivilegio = '') 
         document.getElementById('correoUsuario').value = '';
         document.getElementById('tipoPrivilegio').value = '';
         document.getElementById('contrasenaUsuario').value = '';
-        
+
         // Establecer el título del modal
         document.getElementById('tituloModal').innerText = 'Agregar Usuario';
-        
+
         // Mostrar el modal de agregar/editar usuario
         document.getElementById('usuarioModal').style.display = 'flex';
     }
@@ -48,14 +49,14 @@ function cerrarEAModal() {
 }
 
 // Esperar a que el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Obtener referencia al formulario
     const formUsuario = document.getElementById('formUsuario');
-    
+
     if (formUsuario) {
-        formUsuario.addEventListener('submit', function(event) {
+        formUsuario.addEventListener('submit', function (event) {
             event.preventDefault();
-            
+
             const userData = {
                 id: document.getElementById('idUsuario').value || null,
                 nombre: document.getElementById('nombreUsuario').value,
@@ -63,7 +64,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 contrasena: document.getElementById('contrasenaUsuario').value,
                 tipoPrivilegio: document.getElementById('tipoPrivilegio').value
             };
-            
+
+            // Deshabilitar botón para evitar doble envío
+            const btnGuardar = formUsuario.querySelector('button[type="submit"]');
+            const textoOriginal = btnGuardar ? btnGuardar.textContent : '';
+            if (btnGuardar) {
+                btnGuardar.disabled = true;
+                btnGuardar.textContent = 'Guardando...';
+            }
+
             fetch('/api/usuarios/guardar', {
                 method: 'POST',
                 headers: {
@@ -71,31 +80,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(userData)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.require_validation) {
-                        // Si requiere validación, mostrar mensaje y redirigir
-                        mostrarAlerta(data.message, 'ExitoG');
-                        setTimeout(() => {
-                            window.location.replace(`/validar-usuario?email=${encodeURIComponent(data.email)}`);
-                        }, 1500);
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.require_validation) {
+                            // Si requiere validación, mostrar mensaje y redirigir
+                            mostrarAlerta(data.message, 'ExitoG');
+                            setTimeout(() => {
+                                window.location.replace(`/validar-usuario?email=${encodeURIComponent(data.email)}`);
+                            }, 1500);
+                        } else {
+                            // Si no requiere validación, mostrar mensaje y recargar
+                            mostrarAlerta(data.message, 'ExitoG');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
                     } else {
-                        // Si no requiere validación, mostrar mensaje y recargar
-                        mostrarAlerta(data.message, 'ExitoG');
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        mostrarAlerta(data.message, 'ErrorG');
+                        // Re-habilitar botón en caso de error
+                        if (btnGuardar) {
+                            btnGuardar.disabled = false;
+                            btnGuardar.textContent = textoOriginal;
+                        }
                     }
-                } else {
-                    mostrarAlerta(data.message, 'ErrorG');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarAlerta('Error al guardar el usuario', 'ErrorG');
-            });
-            
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlerta('Error al guardar el usuario', 'ErrorG');
+                    if (btnGuardar) {
+                        btnGuardar.disabled = false;
+                        btnGuardar.textContent = textoOriginal;
+                    }
+                });
+
             // No cerramos el modal inmediatamente para permitir ver los errores
             // Solo cerramos si la operación fue exitosa
         });
@@ -117,21 +135,21 @@ function confirmarEliminacion() {
             'Content-Type': 'application/json',
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            mostrarAlerta('Usuario desactivado exitosamente', 'ExitoG');
-            setTimeout(() => {
-                location.reload();
-            }, 3000);
-        } else {
-            mostrarAlerta(data.message, 'ErrorG');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarAlerta('Error al desactivar el usuario', 'ErrorG');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarAlerta('Usuario desactivado exitosamente', 'ExitoG');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            } else {
+                mostrarAlerta(data.message, 'ErrorG');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al desactivar el usuario', 'ErrorG');
+        });
 
     cerrarConfirmacionModal();
 }
@@ -153,12 +171,12 @@ function abrirVerUsuario(id, nombre, correo, tipoPrivilegio, fechaRegistro) {
                 document.getElementById('verCorreoUsuario').textContent = correo;
                 document.getElementById('verTipoPrivilegio').textContent = tipoPrivilegio;
                 document.getElementById('verFechaRegistro').textContent = fechaRegistro;
-                document.getElementById('verContrasenaUsuario').textContent = data.usuario.contrasena;
-                
+                document.getElementById('verContrasenaUsuario').textContent = '••••••••';
+
                 // Establecer inicial del avatar
                 const avatar = document.getElementById('avatarUsuario');
                 avatar.textContent = nombre.charAt(0).toUpperCase();
-                
+
                 // Mostrar el modal de ver usuario
                 document.getElementById('verModalUsuario').style.display = 'flex';
             } else {
@@ -274,51 +292,51 @@ function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
         contenedorAlertas.className = 'contenedorAlertas';
         document.body.appendChild(contenedorAlertas);
     }
-    
+
     // Crear la alerta
     const alerta = document.createElement('div');
     alerta.className = `alertaInventario ${tipo === 'error' ? 'alerta-critica' : 'alerta-normal'}`;
-    
+
     // Crear el icono
     const icono = document.createElement('div');
     icono.className = 'iconoAlerta';
     icono.innerHTML = tipo === 'error' ? '⚠️' : '✅';
-    
+
     // Crear el mensaje
     const mensajeDiv = document.createElement('div');
     mensajeDiv.className = 'mensajeAlerta';
-    
+
     const titulo = document.createElement('h3');
     titulo.textContent = tipo === 'error' ? 'Error' : 'Éxito';
-    
+
     const parrafo = document.createElement('p');
     parrafo.textContent = mensaje;
-    
+
     mensajeDiv.appendChild(titulo);
     mensajeDiv.appendChild(parrafo);
-    
+
     // Crear el botón de cerrar
     const btnCerrar = document.createElement('button');
     btnCerrar.className = 'cerrarAlerta';
     btnCerrar.innerHTML = '&times;';
-    btnCerrar.onclick = function() {
+    btnCerrar.onclick = function () {
         contenedorAlertas.removeChild(alerta);
     };
-    
+
     // Ensamblar la alerta
     alerta.appendChild(icono);
     alerta.appendChild(mensajeDiv);
     alerta.appendChild(btnCerrar);
-    
+
     // Añadir la alerta al contenedor
     contenedorAlertas.appendChild(alerta);
-    
+
     // Eliminar automáticamente después de la duración especificada
     setTimeout(() => {
         if (alerta.parentNode === contenedorAlertas) {
             contenedorAlertas.removeChild(alerta);
         }
-        
+
         // Si no quedan más alertas, eliminar el contenedor
         if (contenedorAlertas.children.length === 0) {
             document.body.removeChild(contenedorAlertas);
@@ -330,7 +348,7 @@ function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
 function toggleMesaField() {
     const paraLlevar = document.getElementById('paraLlevar').checked;
     const mesaContainer = document.getElementById('mesaContainer');
-    
+
     if (paraLlevar) {
         mesaContainer.style.display = 'none';
         document.getElementById('numeroMesa').value = ''; // Limpiar el valor
@@ -348,19 +366,19 @@ function guardarUsuario() {
     const contrasena = document.getElementById('contrasenaUsuario').value;
     const correo = document.getElementById('correoUsuario').value;
     const tipoPrivilegio = document.getElementById('tipoPrivilegio').value;
-    
+
     // Validar campos obligatorios
     if (!nombre || !correo || !tipoPrivilegio) {
         mostrarAlerta('Por favor, complete todos los campos obligatorios', 'danger');
         return;
     }
-    
+
     // Si es un nuevo usuario, la contraseña es obligatoria
     if (!id && !contrasena) {
         mostrarAlerta('La contraseña es obligatoria para nuevos usuarios', 'danger');
         return;
     }
-    
+
     // Enviar datos al servidor
     fetch('/api/usuarios/guardar', {
         method: 'POST',
@@ -375,30 +393,30 @@ function guardarUsuario() {
             tipoPrivilegio: tipoPrivilegio
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (data.require_validation) {
-                // Si requiere validación, mostrar mensaje y redirigir
-                mostrarAlerta(data.message, 'success');
-                setTimeout(() => {
-                    window.location.replace(`/validar-usuario?email=${encodeURIComponent(data.email)}`);
-                }, 1500);
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.require_validation) {
+                    // Si requiere validación, mostrar mensaje y redirigir
+                    mostrarAlerta(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.replace(`/validar-usuario?email=${encodeURIComponent(data.email)}`);
+                    }, 1500);
+                } else {
+                    // Si no requiere validación, mostrar mensaje y recargar
+                    mostrarAlerta(data.message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
             } else {
-                // Si no requiere validación, mostrar mensaje y recargar
-                mostrarAlerta(data.message, 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
+                mostrarAlerta(data.message, 'danger');
             }
-        } else {
-            mostrarAlerta(data.message, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarAlerta('Error al guardar usuario', 'danger');
-    });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al guardar usuario', 'danger');
+        });
 }
 
 

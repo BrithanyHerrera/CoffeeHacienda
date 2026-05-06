@@ -1,9 +1,9 @@
 # Rutas de autenticación — login, logout, recuperación de contraseña
 import logging
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from flask_mail import Message
 from datetime import datetime, timedelta
-from utils import login_required, validar_fortaleza_contrasena
+from utils import login_required, validar_fortaleza_contrasena, enviar_correo
+from werkzeug.security import check_password_hash, generate_password_hash
 from models.modelsLogin import buscar_usuario_por_usuario
 from models.modelsUsuarios import obtener_usuario_por_correo
 from models.modelsRecuperacion import (guardar_codigo_recuperacion, verificar_codigo_recuperacion,
@@ -35,7 +35,7 @@ def login():
             flash('Esta cuenta está desactivada. Contacta al administrador.', 'danger')
             return render_template('login.html')
         
-        if usuario_info['contrasena'] != contrasena:
+        if not check_password_hash(usuario_info['contrasena'], contrasena):
             flash('Usuario o contraseña incorrectos', 'danger')
             return render_template('login.html')
         
@@ -57,8 +57,6 @@ def salir():
 @auth_bp.route('/recuperar-contrasena', methods=['GET', 'POST'])
 @limiter.limit("3 per minute", methods=["POST"])
 def recuperar_contrasena():
-    from flask import current_app
-    
     if request.method == 'POST':
         correo = request.form['correo']
         usuario = obtener_usuario_por_correo(correo)
@@ -70,26 +68,13 @@ def recuperar_contrasena():
             
             session['correo_recuperacion'] = correo
             
-            try:
-                mail = current_app.extensions['mail']
-                msg = Message('Recuperación de Contraseña - Coffee Hacienda',
-                            sender=current_app.config['MAIL_USERNAME'],
-                            recipients=[correo])
-                msg.body = f'''Para recuperar tu contraseña, utiliza el siguiente código:
-                
-{codigo}
-
-Este código expirará en 30 minutos.
-
-Si no solicitaste recuperar tu contraseña, ignora este mensaje.
-
-Saludos,
-Coffee Hacienda'''
-                
-                mail.send(msg)
+            enviado = enviar_correo(correo,
+                'Recuperación de Contraseña - Coffee Hacienda',
+                f"Para recuperar tu contraseña, utiliza el siguiente código:\n\n{codigo}\n\nEste código expirará en 30 minutos.\n\nSi no solicitaste recuperar tu contraseña, ignora este mensaje.\n\nSaludos,\nCoffee Hacienda")
+            
+            if enviado:
                 flash('Se ha enviado un código de verificación a tu correo', 'success')
-            except Exception as e:
-                logger.error(f"Error al enviar correo: {e}", exc_info=True)
+            else:
                 flash('Error al enviar el correo. Por favor, intenta más tarde.', 'danger')
                 return render_template('recuperarContrasena.html')
                 
@@ -133,7 +118,7 @@ def actualizar_contrasena():
         
         usuario = obtener_usuario_por_correo(session['correo_recuperacion'])
         
-        if usuario and usuario['contrasena'] == nueva_contrasena:
+        if usuario and check_password_hash(usuario['contrasena'], nueva_contrasena):
             flash('La nueva contraseña no puede ser igual a la anterior', 'danger')
             return render_template('actualizarContrasena.html')
         
@@ -141,7 +126,7 @@ def actualizar_contrasena():
             flash('Las contraseñas no coinciden', 'danger')
             return render_template('actualizarContrasena.html')
             
-        if usuario and actualizar_contrasena_por_codigo(usuario['Id'], nueva_contrasena):
+        if usuario and actualizar_contrasena_por_codigo(usuario['Id'], generate_password_hash(nueva_contrasena)):
             session.pop('correo_recuperacion', None)
             session['contrasena_reseteada'] = True
             return redirect(url_for('auth.login'))

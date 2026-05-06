@@ -11,7 +11,13 @@
 
     <section class="buscador">
         <section id="formBuscador">
-            <input type="text" id="buscarCliente" placeholder="Nombre del cliente" name="cliente" oninput="buscarVentas()">
+            <input type="text" id="buscarCliente" placeholder="Nombre del cliente" name="cliente" oninput="filtrarOrdenes()">
+            <select id="filtroVendedor" onchange="filtrarOrdenes()">
+                <option value="">Todos los vendedores</option>
+                {% for v in vendedores %}
+                <option value="{{ v.usuario }}">{{ v.usuario }}</option>
+                {% endfor %}
+            </select>
             <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
         </section>        
     </section>

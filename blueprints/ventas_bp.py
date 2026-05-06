@@ -1,7 +1,7 @@
 # Rutas de ventas — menú, órdenes, historial y procesamiento de pedidos
 import logging
 from flask import Blueprint, render_template, request, jsonify, session
-from utils import login_required, admin_required
+from utils import login_required
 from models.modelsProductosMenu import obtener_productos_menu
 from models.modelsVentas import (obtener_ordenes_pendientes, actualizar_estado_orden,
                                 obtener_detalle_orden, obtener_estado_orden,
@@ -24,7 +24,8 @@ def menu():
 @login_required
 def ordenes():
     ordenes_pendientes = obtener_ordenes_pendientes()
-    return render_template('ordenes.html', ordenes=ordenes_pendientes)
+    vendedores = obtener_vendedores_activos()
+    return render_template('ordenes.html', ordenes=ordenes_pendientes, vendedores=vendedores)
 
 @ventas_bp.route('/api/ordenes', methods=['GET'])
 @login_required
@@ -118,10 +119,19 @@ def api_historial_ventas():
     filtro_vendedor = request.args.get('vendedor', '')
     fecha_inicio = request.args.get('fechaInicio', '')
     fecha_fin = request.args.get('fechaFin', '')
+    pagina = request.args.get('pagina', 1, type=int)
+    por_pagina = request.args.get('por_pagina', 15, type=int)
 
     try:
-        ventas = obtener_historial_ventas(filtro_cliente, filtro_vendedor, fecha_inicio, fecha_fin)
-        return jsonify({'success': True, 'ventas': ventas})
+        ventas, total_paginas, total = obtener_historial_ventas(
+            filtro_cliente, filtro_vendedor, fecha_inicio, fecha_fin, pagina, por_pagina)
+        return jsonify({
+            'success': True, 
+            'ventas': ventas,
+            'pagina_actual': pagina,
+            'total_paginas': total_paginas,
+            'total_ventas': total
+        })
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 

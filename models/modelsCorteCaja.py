@@ -1,7 +1,6 @@
 # Modelo de corte de caja — consultas y registro de cortes
 import logging
 from bd import Conexion_BD
-from pymysql.cursors import DictCursor
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ def filtrar_ventas(fecha_desde, fecha_hasta):
 
         conn = Conexion_BD()
         try:
-            with conn.cursor(DictCursor) as cursor:
+            with conn.cursor() as cursor:
                 cursor.execute("""
                     SELECT metodo_pago_id, SUM(total) AS total
                     FROM tventas 

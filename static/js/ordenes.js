@@ -233,15 +233,24 @@ function cerrarConfirmacionModal() {
     document.getElementById('confirmacionModal').style.display = 'none'; // Ocultar el modal de confirmación
 }
 
-function buscarVentas() {
-    const busqueda = document.getElementById('buscarCliente').value.toLowerCase();
+function filtrarOrdenes() {
+    const busquedaCliente = document.getElementById('buscarCliente').value.toLowerCase();
+    const vendedorSeleccionado = document.getElementById('filtroVendedor').value.toLowerCase();
+    
     document.querySelectorAll('#tablaOrdenes tr').forEach(fila => {
-        fila.style.display = fila.querySelector('td:first-child').textContent.toLowerCase().includes(busqueda) ? '' : 'none';
+        const cliente = fila.querySelector('td:first-child').textContent.toLowerCase();
+        const vendedor = fila.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        
+        const coincideCliente = !busquedaCliente || cliente.includes(busquedaCliente);
+        const coincideVendedor = !vendedorSeleccionado || vendedor === vendedorSeleccionado;
+        
+        fila.style.display = (coincideCliente && coincideVendedor) ? '' : 'none';
     });
 }
 
 function reestablecerFiltros() {
     document.getElementById('buscarCliente').value = '';
+    document.getElementById('filtroVendedor').value = '';
     cargarOrdenes();
 }
 

@@ -7,7 +7,7 @@ from utils import login_required, admin_required, archivo_permitido
 from models.modelsProductos import (obtener_productos, obtener_categorias, obtener_tamanos,
                                 agregar_producto, actualizar_producto, eliminar_producto,
                                 obtener_producto_por_id, agregar_variante_producto,
-                                obtener_variantes_por_producto, actualizar_variante_producto,
+                                obtener_variantes_por_producto,
                                 eliminar_variantes_producto, obtener_variantes_batch)
 
 productos_bp = Blueprint('productos', __name__)

@@ -1,9 +1,12 @@
+// Estado de paginación
+let paginaActual = 1;
+
 document.addEventListener("DOMContentLoaded", function() {
     cargarHistorialVentas();
 
-    document.getElementById("buscarCliente").addEventListener("input", buscarVentas);
-    document.getElementById("fechaInicio").addEventListener("change", buscarVentas);
-    document.getElementById("fechaFin").addEventListener("change", buscarVentas);
+    document.getElementById("buscarCliente").addEventListener("input", () => { paginaActual = 1; buscarVentas(); });
+    document.getElementById("fechaInicio").addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
+    document.getElementById("fechaFin").addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
 });
 
 function formatearFecha(fechaStr) {
@@ -32,7 +35,7 @@ function formatearFecha(fechaStr) {
 }
 
 function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "") {
-    let url = `/api/historial-ventas?cliente=${filtroCliente}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+    let url = `/api/historial-ventas?cliente=${encodeURIComponent(filtroCliente)}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&pagina=${paginaActual}&por_pagina=15`;
 
     fetch(url)
         .then(response => response.json())
@@ -41,11 +44,15 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
                 let tablaHistorial = document.getElementById("tablaHistorialVentas");
                 tablaHistorial.innerHTML = "";
 
-                data.ventas.forEach(venta => {
-                    // Formatear la fecha correctamente
-                    const fechaFormateada = formatearFecha(venta.fecha_hora);
+                if (data.ventas.length === 0) {
+                    tablaHistorial.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; opacity: 0.6;">No se encontraron ventas</td></tr>`;
+                    document.getElementById("paginacionHistorial").innerHTML = "";
+                    document.getElementById("paginacionInfo").innerHTML = "";
+                    return;
+                }
 
-                    // Mostrar número de mesa si existe
+                data.ventas.forEach(venta => {
+                    const fechaFormateada = formatearFecha(venta.fecha_hora);
                     const numeroMesa = venta.numero_mesa ? `Mesa: ${venta.numero_mesa}` : "Sin mesa";
 
                     let fila = `
@@ -61,11 +68,77 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
                         </tr>`;
                     tablaHistorial.innerHTML += fila;
                 });
+
+                // Renderizar paginación
+                renderizarPaginacion(data.pagina_actual, data.total_paginas, data.total_ventas);
             } else {
-                alert("Error al cargar ventas: " + data.message);
+                console.error("Error al cargar ventas:", data.message);
             }
         })
         .catch(error => console.error("Error al obtener historial de ventas:", error));
+}
+
+function renderizarPaginacion(paginaActualServer, totalPaginas, totalVentas) {
+    const contenedor = document.getElementById("paginacionHistorial");
+    const info = document.getElementById("paginacionInfo");
+    
+    if (totalPaginas <= 1) {
+        contenedor.innerHTML = "";
+        info.innerHTML = `<span>${totalVentas} venta${totalVentas !== 1 ? 's' : ''} en total</span>`;
+        return;
+    }
+    
+    let html = '';
+    
+    // Botón anterior
+    html += `<button class="pag-btn pag-flecha ${paginaActualServer <= 1 ? 'disabled' : ''}" 
+             onclick="irAPagina(${paginaActualServer - 1})" ${paginaActualServer <= 1 ? 'disabled' : ''}>‹</button>`;
+    
+    // Calcular rango de páginas a mostrar (máximo 7)
+    let inicio = Math.max(1, paginaActualServer - 3);
+    let fin = Math.min(totalPaginas, paginaActualServer + 3);
+    
+    // Ajustar para siempre mostrar 7 si hay suficientes
+    if (fin - inicio < 6) {
+        if (inicio === 1) fin = Math.min(totalPaginas, 7);
+        else inicio = Math.max(1, fin - 6);
+    }
+    
+    // Primera página + puntos suspensivos si es necesario
+    if (inicio > 1) {
+        html += `<button class="pag-btn" onclick="irAPagina(1)">1</button>`;
+        if (inicio > 2) html += `<span class="pag-puntos">...</span>`;
+    }
+    
+    // Páginas del rango
+    for (let i = inicio; i <= fin; i++) {
+        html += `<button class="pag-btn ${i === paginaActualServer ? 'pag-activa' : ''}" 
+                 onclick="irAPagina(${i})">${i}</button>`;
+    }
+    
+    // Última página + puntos suspensivos si es necesario
+    if (fin < totalPaginas) {
+        if (fin < totalPaginas - 1) html += `<span class="pag-puntos">...</span>`;
+        html += `<button class="pag-btn" onclick="irAPagina(${totalPaginas})">${totalPaginas}</button>`;
+    }
+    
+    // Botón siguiente
+    html += `<button class="pag-btn pag-flecha ${paginaActualServer >= totalPaginas ? 'disabled' : ''}" 
+             onclick="irAPagina(${paginaActualServer + 1})" ${paginaActualServer >= totalPaginas ? 'disabled' : ''}>›</button>`;
+    
+    contenedor.innerHTML = html;
+    
+    // Info
+    const desde = (paginaActualServer - 1) * 15 + 1;
+    const hasta = Math.min(paginaActualServer * 15, totalVentas);
+    info.innerHTML = `<span>Mostrando ${desde}-${hasta} de ${totalVentas} ventas</span>`;
+}
+
+function irAPagina(pagina) {
+    paginaActual = pagina;
+    buscarVentas();
+    // Scroll suave al inicio de la tabla
+    document.querySelector('.listaVentas').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function buscarVentas() {
@@ -80,6 +153,7 @@ function reestablecerFiltros() {
     document.getElementById("buscarCliente").value = "";
     document.getElementById("fechaInicio").value = "";
     document.getElementById("fechaFin").value = "";
+    paginaActual = 1;
     cargarHistorialVentas();
 }
 
@@ -199,32 +273,6 @@ function verDetallesVenta(id) {
             console.error("Error al obtener detalles de la venta:", error);
             alert("Error al cargar los detalles de la venta");
         });
-}
-
-function obtenerInfoVentaDesdeTabla(id) {
-    const filas = document.querySelectorAll("#tablaHistorialVentas tr");
-    let ventaInfo = { 
-        vendedor: '', 
-        cliente: '', 
-        fecha: '', 
-        total: '', 
-        mesa: '' 
-    };
-
-    for (let fila of filas) {
-        const boton = fila.querySelector(`button[onclick="verDetallesVenta(${id})"]`);
-        if (boton) {
-            const celdas = fila.querySelectorAll("td");
-            ventaInfo.vendedor = celdas[0].textContent.trim();
-            ventaInfo.cliente = celdas[1].textContent.trim();
-            ventaInfo.fecha = celdas[2].textContent.trim();
-            ventaInfo.total = celdas[3].textContent.trim().replace('$', '');
-            ventaInfo.mesa = celdas[4].textContent.trim();
-            break;
-        }
-    }
-
-    return ventaInfo;
 }
 
 function cerrarDetallesVenta() {
