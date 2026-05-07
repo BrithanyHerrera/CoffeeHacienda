@@ -1,4 +1,4 @@
-# Modelo de ventas — órdenes, procesamiento de pedidos y consultas de detalle
+# Ventas: órdenes, pedidos y detalle
 import logging
 from bd import Conexion_BD
 

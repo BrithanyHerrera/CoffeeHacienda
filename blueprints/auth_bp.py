@@ -1,4 +1,4 @@
-# Rutas de autenticación — login, logout, recuperación de contraseña
+# Rutas: login, logout y recuperación de contraseña
 import logging
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from datetime import datetime, timedelta

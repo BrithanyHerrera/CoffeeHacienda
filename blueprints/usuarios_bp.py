@@ -1,4 +1,4 @@
-# Rutas de gestión de usuarios — CRUD, validación por correo y activación/desactivación
+# Rutas: gestión de usuarios, validación y activación
 import logging
 from flask import Blueprint, render_template, request, session, jsonify
 from utils import login_required, admin_required, validar_fortaleza_contrasena, enviar_correo

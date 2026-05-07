@@ -1,4 +1,4 @@
-# Rutas de inventario — consulta y actualización de stock
+# Rutas: inventario y stock
 from flask import Blueprint, render_template, request, jsonify
 from utils import login_required, admin_required
 from models.modelsInventario import (obtener_productos_inventario, actualizar_stock_producto,

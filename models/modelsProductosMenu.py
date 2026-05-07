@@ -1,4 +1,4 @@
-# Modelo del menú — consulta de productos activos con sus variantes de tamaño
+# Menú: productos activos con variantes de tamaño
 import logging
 from bd import Conexion_BD
 from pymysql.cursors import DictCursor

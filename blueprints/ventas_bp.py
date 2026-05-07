@@ -1,4 +1,4 @@
-# Rutas de ventas — menú, órdenes, historial y procesamiento de pedidos
+# Rutas: menú, órdenes, historial y ventas
 import logging
 from flask import Blueprint, render_template, request, jsonify, session
 from utils import login_required

@@ -1,4 +1,4 @@
-# Modelo de historial — ventas completadas, canceladas y reembolsadas
+# Historial: ventas completadas, canceladas y reembolsadas
 import logging
 from bd import Conexion_BD
 

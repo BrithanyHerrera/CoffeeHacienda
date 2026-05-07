@@ -1,4 +1,4 @@
-# Rutas de gestión de productos — CRUD, imágenes, variantes y categorías
+# Rutas: productos, imágenes y variantes
 import logging
 from flask import Blueprint, render_template, request, jsonify, current_app
 from werkzeug.utils import secure_filename

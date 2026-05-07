@@ -1,4 +1,4 @@
-# Rutas de finanzas — corte de caja y reportes de ventas
+# Rutas: corte de caja y reportes
 from flask import Blueprint, render_template, request, jsonify, session
 from utils import login_required, admin_required
 from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja, obtener_corte_por_id,

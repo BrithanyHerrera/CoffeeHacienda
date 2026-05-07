@@ -1,4 +1,4 @@
-# Funciones auxiliares — decoradores de autenticación y validaciones
+# Helpers: login, roles, validaciones y correos
 import logging
 from functools import wraps
 from flask import session, redirect, url_for, flash

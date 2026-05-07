@@ -1,4 +1,4 @@
-# Punto de entrada de la aplicación Flask — Coffee Hacienda
+# App principal de Coffee Hacienda
 import os
 from flask import Flask, render_template, request, session, jsonify
 from flask_mail import Mail
@@ -37,7 +37,7 @@ def after_request(response):
         response.headers["Expires"] = "0"
     return response
 
-# ── Blueprints ────────────────────────────────────────────────────────
+# Blueprints
 from blueprints.auth_bp import auth_bp
 from blueprints.usuarios_bp import usuarios_bp
 from blueprints.productos_bp import productos_bp
@@ -52,14 +52,14 @@ app.register_blueprint(ventas_bp)
 app.register_blueprint(inventario_bp)
 app.register_blueprint(finanzas_bp)
 
-# Los blueprints AJAX no usan formularios HTML, así que se exentan del CSRF
+# Exentar CSRF en blueprints que solo manejan AJAX (no tienen formularios HTML)
 csrf.exempt(ventas_bp)
 csrf.exempt(productos_bp)
 csrf.exempt(usuarios_bp)
 csrf.exempt(inventario_bp)
 csrf.exempt(finanzas_bp)
 
-# ── Rutas generales ──────────────────────────────────────────────────
+# Rutas generales
 
 @app.route('/sidebar')
 @login_required
@@ -92,7 +92,7 @@ def confirmar_salir():
     return render_template('confirmar_salir.html')
 
 
-# ── Guardar PDFs en el servidor ───────────────────────────────────────
+# Guardar PDFs (tickets y cortes)
 import base64
 
 CARPETA_PDFS_TICKETS = os.path.join('static', 'pdfs', 'tickets_ventas')

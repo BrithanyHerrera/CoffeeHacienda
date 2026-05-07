@@ -1,4 +1,4 @@
-# Modelo de inventario — stock, alertas y movimientos
+# Inventario: stock, alertas y movimientos
 import logging
 from bd import Conexion_BD
 

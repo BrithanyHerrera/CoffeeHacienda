@@ -1,4 +1,4 @@
-# Modelo de login — búsqueda de usuario para autenticación
+# Login: búsqueda de usuario
 from bd import Conexion_BD
 
 

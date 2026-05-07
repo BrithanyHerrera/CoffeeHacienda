@@ -1,12 +1,11 @@
 /* =============================================
    LOGIN — Coffee Hacienda
-   Uses design tokens from styles.css :root
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    /* Brand Colors (shared with styles.css) */
+    /* Colores (mismos que styles.css) */
     --color-primary: #FF7F50;
     --color-primary-hover: #e86d40;
     --color-bg: #F5E6D1;

@@ -1,4 +1,4 @@
-# Modelo de limpieza — elimina registros temporales expirados al arrancar
+# Limpieza: borra registros temporales expirados al iniciar
 import logging
 from bd import Conexion_BD
 from datetime import datetime, timedelta

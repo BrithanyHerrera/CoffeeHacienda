@@ -1,4 +1,4 @@
-# Modelo de recuperación de contraseña — códigos de verificación por correo
+# Recuperación de contraseña: códigos por correo
 import logging
 from bd import Conexion_BD
 from datetime import datetime

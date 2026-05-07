@@ -1,4 +1,4 @@
-# Modelo de usuarios — CRUD, validación por código y gestión de activos/inactivos
+# Usuarios: CRUD, validación por código y activación
 import logging
 from datetime import datetime, timedelta
 from bd import Conexion_BD

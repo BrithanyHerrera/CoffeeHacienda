@@ -1,4 +1,4 @@
-# Modelo de corte de caja — consultas y registro de cortes
+# Corte de caja: consultas y registros
 import logging
 from bd import Conexion_BD
 

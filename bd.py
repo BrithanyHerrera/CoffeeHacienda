@@ -1,4 +1,4 @@
-# Pool de conexiones a MySQL — soporta entorno local y Aiven (nube)
+# Pool de conexiones MySQL (local y nube)
 import os
 import logging
 import pymysql

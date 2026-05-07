@@ -1,6 +1,5 @@
 /* =============================================
    CARRITO — Coffee Hacienda
-   Usa los tokens de diseño de styles.css :root
    ============================================= */
 
 .carritoPanel {
@@ -68,7 +67,9 @@
     gap: 10px;
 }
 
-.btnRestar, .btnSumar, .btnEliminar {
+.btnRestar,
+.btnSumar,
+.btnEliminar {
     background: none;
     border: 1px solid var(--color-border);
     border-radius: 3px;

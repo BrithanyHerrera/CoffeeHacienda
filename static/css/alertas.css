@@ -1,6 +1,5 @@
 /* =============================================
    ALERTAS — Coffee Hacienda
-   Usa los tokens de diseño de styles.css :root
    ============================================= */
 
 /* Notificaciones tipo toast (esquina superior derecha) */
@@ -72,6 +71,7 @@
         transform: translateY(-20px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -83,6 +83,7 @@
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;

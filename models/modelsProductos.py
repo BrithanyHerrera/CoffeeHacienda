@@ -1,4 +1,4 @@
-# Modelo de productos — CRUD, variantes y categorías
+# Productos: CRUD, variantes y categorías
 import logging
 from bd import Conexion_BD
 

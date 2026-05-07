@@ -1,5 +1,5 @@
 /* =============================================
-   COFFEE HACIENDA — SISTEMA DE DISEÑO
+   COFFEE HACIENDA — Estilos principales
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -28,7 +28,7 @@
     --color-warning-bg: rgba(243, 156, 18, 0.1);
     --color-danger: #E74C3C;
     --color-danger-bg: rgba(231, 76, 60, 0.1);
-    --color-info: #3498DB;
+    --color-info: #3498DB; /* azul para botones de 'ver' */
     --color-info-bg: rgba(52, 152, 219, 0.1);
     --color-amber: #FFBF00;
 
@@ -157,6 +157,7 @@ select {
     font-size: var(--font-size-base);
 }
 
+/* Solo inputs de texto/email/password/number */
 input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="submit"]):not([type="button"]) {
     width: 100%;
     padding: 9px 12px;
@@ -229,7 +230,7 @@ textarea:focus {
 }
 
 /* =============================================
-   GENERALES — Tarjetas y Contenedores
+   COMPONENTES REUTILIZABLES
    ============================================= */
 
 .filtroSelect select {
@@ -283,7 +284,7 @@ textarea:focus {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px); /* fondo difuminado al abrir modal */
     animation: fadeInOverlay var(--transition-base);
 }
 
@@ -355,7 +356,7 @@ textarea:focus {
     box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.12);
 }
 
-/* Formulario de dos columnas para modales (Agregar/Editar Producto, Inventario) */
+/* Grid de 2 columnas para forms grandes (productos, inventario) */
 .contenedorModal form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -615,7 +616,7 @@ textarea:focus {
     transform: translateX(2px);
 }
 
-/* Enlace activo del sidebar */
+/* Página actual resaltada */
 .sidebar ul li a.active {
     color: var(--color-primary);
     background-color: var(--color-primary-light);
@@ -624,7 +625,7 @@ textarea:focus {
     padding-left: 9px;
 }
 
-/* Punto de alerta del sidebar (indicador rojo) */
+/* Punto rojo de alerta de inventario */
 .sidebar-link-alertable {
     position: relative;
 }
@@ -739,7 +740,7 @@ textarea:focus {
 }
 
 /* =============================================
-   MENÚ (PUNTO DE VENTA)
+   PUNTO DE VENTA
    ============================================= */
 
 .contenedorMenu {
@@ -984,7 +985,7 @@ textarea:focus {
     transform: translateY(-1px);
 }
 
-/* Carrito (panel lateral) */
+/* Panel lateral del carrito (sticky para que siga al scroll) */
 .carrito {
     position: sticky;
     top: 20px;
@@ -1098,9 +1099,7 @@ textarea:focus {
 }
 
 /* =============================================
-   TABLAS DE DATOS
-   Compartido por: listaProductos, listaUsuarios,
-   listaOrdenes, listaVentas, listaInventario
+   TABLAS DE DATOS (compartido entre módulos)
    ============================================= */
 
 .listaProductos,
@@ -1391,7 +1390,7 @@ form {
 }
 
 /* =============================================
-   INSIGNIAS DE ESTADO
+   BADGES DE ESTADO (Pendiente, Completada, etc)
    ============================================= */
 
 .Pendiente {
@@ -1511,7 +1510,7 @@ form {
     background: var(--color-amber);
 }
 
-/* Celda de acciones de órdenes — botones en línea */
+/* Evitar que los botones de acción se partan en varias líneas */
 .listaOrdenes td:last-child {
     white-space: nowrap;
 }
@@ -1630,7 +1629,7 @@ form {
     color: white;
 }
 
-/* Clases antiguas por compatibilidad */
+/* Legacy: clases viejas que aún usa algún template */
 .enEspera {
     background-color: var(--color-warning);
     color: white;
@@ -1787,7 +1786,7 @@ form {
     color: var(--color-text);
 }
 
-/* Los modales de detalle (venta/orden) se ensanchan para la rejilla de 3 columnas */
+/* Más ancho para que quepan las 3 columnas de info */
 #ventaModal .contenedorModal,
 #ordenModal .contenedorModal {
     max-width: 780px;
@@ -2369,7 +2368,7 @@ form {
 }
 
 /* =============================================
-   TABS — Usuarios Activos / Inactivos
+   TABS (Activos / Inactivos)
    ============================================= */
 
 .tabs {
@@ -2533,7 +2532,7 @@ form {
 }
 
 /* =============================================
-   PESTAÑAS (Usuarios activos/inactivos)
+   PESTAÑAS — override para gestión de usuarios
    ============================================= */
 
 .headerUsuarios {
@@ -2697,7 +2696,7 @@ form {
 }
 
 /* =============================================
-   RESPONSIVO — MEDIA QUERIES
+   RESPONSIVE
    ============================================= */
 
 /* Botón hamburguesa (oculto en escritorio) */
@@ -3140,7 +3139,7 @@ form {
 }
 
 /* =============================================
-   PAGINACIÓN — Estilo Google
+   PAGINACIÓN (historial de ventas)
    ============================================= */
 
 .paginacion {
