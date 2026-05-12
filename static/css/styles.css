@@ -2176,7 +2176,7 @@ form {
 .table td:first-child {
     font-weight: 600;
     color: var(--color-text-secondary);
-    text-align: left;
+    text-align: center;
 }
 
 .table td input[type="number"] {

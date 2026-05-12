@@ -44,7 +44,7 @@ def obtener_todos_cortes():
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados
+                SELECT  fecha_hora_inicio, fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados
                 FROM tcortescaja ORDER BY fecha_hora_cierre DESC
             """)
             return cursor.fetchall()

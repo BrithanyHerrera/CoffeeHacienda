@@ -1,8 +1,16 @@
+let corteCalculado = false;
+
 document.getElementById('btnRealizarCorte').addEventListener('click', function () {
     realizarCorte();
 });
 
 function realizarCorte() {
+
+    if (!corteCalculado) {
+        mostrarAlerta("Primero debes presionar calcular corte para verificar los totales.", 'ErrorG');
+        return; // Detiene la ejecución aquí mismo
+    }
+
     // Recoger los datos del formulario
     const fechaDesde = document.getElementById('fechaDesde').value;
     const fechaHasta = document.getElementById('fechaHasta').value;
@@ -14,12 +22,6 @@ function realizarCorte() {
     const totalPaypal = parseFloat(document.getElementById('calculadoVales').value);
     const pagosRealizados = parseFloat(document.getElementById('pagos_realizados').value);
     const fondo = parseFloat(document.getElementById('fondo').value);
-
-    // Asegurarse de que las fechas estén presentes
-    if (!fechaDesde || !fechaHasta) {
-        alert("Por favor, selecciona las fechas de inicio y cierre.");
-        return;
-    }
 
 
     fetch('/guardarCorteCaja', {
@@ -53,15 +55,12 @@ function realizarCorte() {
             generarPDFCorte(fechaDesde, fechaHasta, totalVentas, totalContado, 
                            totalEfectivo, totalTransferencias, totalPaypal, 
                            pagosRealizados, fondo);
-            alert("Corte de caja guardado exitosamente.");
             setTimeout(() => location.reload(), 1000);
         } else {
-            alert("Hubo un problema al guardar el corte.");
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert("Hubo un error en el proceso.");
     });
 }
 

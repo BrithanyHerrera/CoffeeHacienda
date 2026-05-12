@@ -16,25 +16,34 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Fecha</th>
+                <th>Fecha de inicio</th>
+                <th>Fecha de cierre</th>
                 <th>Fondo</th>
                 <th>Contado</th>
                 <th>Calculado</th>
-                <th>Pagos realizados</th>   
+                <th>Pagos realizados</th>  
+                <th>Acciones</th> 
             </tr>
         </thead>
         <tbody>
             {% for corte in cortes %}
             <tr>
+                <td>{{ corte.fecha_hora_inicio.strftime('%Y-%m-%d') }}</td>
                 <td>{{ corte.fecha_hora_cierre.strftime('%Y-%m-%d') }}</td>
                 <td>${{ corte.fondo }}</td>
                 <td>${{ corte.total_contado }}</td>
                 <td>${{ corte.total_ventas }}</td>
-                <td>${{ corte.pagos_realizados }}</td>         
+                <td>${{ corte.pagos_realizados }}</td>    
+                <td>
+                    <button type="button" class="btnVerProducto" 
+                            onclick="verPdfCorte('{{ corte.fecha_hora_inicio}}', '{{ corte.fecha_hora_cierre}}')">
+                        👁️
+                    </button>
+                </td>   
             </tr>
             {% else %}
             <tr>
-                <td colspan="5">No hay registros de corte de caja aún.</td>
+                <td colspan="">No hay registros de corte de caja aún.</td>
             </tr>
             {% endfor %}
         </tbody>

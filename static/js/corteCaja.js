@@ -87,4 +87,22 @@ function reestablecerFiltros() {
     });
 }
 
+function verPdfCorte(fechaInicioFull, fechaCierreFull) {
 
+    const fInicio = fechaInicioFull.trim().substring(0, 10);
+    const fFin = fechaCierreFull.trim().substring(0, 10);
+
+    fetch(`/buscar_pdf_corte/${fInicio}/${fFin}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.open(data.url, '_blank');
+            } else {
+                mostrarAlerta(data.message, 'ErrorG');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta("Error de comunicación", 'ErrorG');
+        });
+}

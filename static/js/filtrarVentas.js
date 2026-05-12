@@ -1,4 +1,7 @@
 document.getElementById('btnFiltrarFechas').addEventListener('click', function () {
+    corteCalculado = false;
+
+
     const fechaDesde = document.getElementById('fechaDesde').value;
     const fechaHasta = document.getElementById('fechaHasta').value;
 
@@ -118,6 +121,8 @@ document.getElementById('btnCalcularCorte').addEventListener('click', function (
         alerta.style.display = 'none';
         btnGuardar.disabled = false;
     }
+
+    corteCalculado = true; 
 });
 
 
@@ -153,20 +158,6 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         isNaN(contadoEfectivo) || isNaN(contadoCheque) || isNaN(contadoVales)
     ) {
         mostrarAlerta("Por favor, asegúrate de que todos los campos numéricos estén completos y sean válidos.", 'ErrorG');
-        return;
-    }
-
-    // Validación de que si hay valores en "calculado", no puede haber 0 en "contado"
-    if (totalEfectivo > 0 && contadoEfectivo === 0) {
-        mostrarAlerta("El campo de Efectivo no puede ser 0 si hay un valor calculado", 'ErrorG');
-        return;
-    }
-    if (totalTransferencias > 0 && contadoCheque === 0) {
-        mostrarAlerta("El campo de Transferencias' no puede ser 0 si hay un valor calculado.", 'ErrorG');
-        return;
-    }
-    if (totalPaypal > 0 && contadoVales === 0) {
-        mostrarAlerta("El campo Tarjeta no puede ser 0 si hay un valor calculado.", 'ErrorG');
         return;
     }
 
@@ -211,9 +202,6 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
             window.location.reload();
         }, 3000);
             
-           // Generar PDF solo si la venta fue exitosa
-           generarCorteCajaPDF();
-            //location.reload();  // Recargar la página
         } else {
             mostrarAlerta("Error al realizar el corte de caja.", 'ErrorG');
         }
@@ -222,94 +210,6 @@ document.getElementById('btnRealizarCorte').addEventListener('click', function (
         mostrarAlerta("Error al realizar el corte de caja: " + error, 'ErrorG');
     });
 });
-
-function generarCorteCajaPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // Verificar si autoTable está cargado correctamente
-    if (!doc.autoTable) {
-        console.error("autoTable no está cargado correctamente.");
-        alert("Error al generar el PDF. Asegúrate de incluir la librería jsPDF.");
-        return;
-    }
-
-    const margenIzquierdo = 10;
-    let posicionY = 10;
-
-    const fechaHora = new Date().toLocaleString();
-    const nombreVendedor = nombreUsuario || "No especificado"; 
-
-    doc.setFont("times", "normal");
-
-    doc.setFontSize(16);
-    doc.text("CORTE DE CAJA", 105, posicionY, { align: "center" });
-    posicionY += 10;
-
-    doc.setLineWidth(0.5);
-    doc.line(margenIzquierdo, posicionY, 200, posicionY);
-    posicionY += 10;
-
-    doc.setFontSize(12);
-    doc.text(`Fecha y Hora: ${fechaHora}`, margenIzquierdo, posicionY);
-    posicionY += 6;
-    doc.text(`Vendedor: ${nombreVendedor}`, margenIzquierdo, posicionY);
-    posicionY += 6;
-
-    doc.setLineWidth(0.5);
-    doc.line(margenIzquierdo, posicionY, 200, posicionY);
-    posicionY += 10;
-
-    // Obtener los valores de los pagos y datos
-    const efectivo = document.getElementById('contado').value;
-    const calculadoEfectivo = document.getElementById('calculado').value;
-    const diferenciaEfectivo = document.getElementById('diferencia').value;
-
-    const transferencia = document.getElementById('cheque').value;
-    const calculadoTransf = document.getElementById('calculadoCheque').value;
-    const diferenciaTransf = document.getElementById('diferenciaCheque').value;
-
-    const paypal = document.getElementById('vales').value;
-    const calculadoPaypal = document.getElementById('calculadoVales').value;
-    const diferenciaPaypal = document.getElementById('diferenciaVales').value;
-
-    const total = document.getElementById('total').value;
-    const total2 = document.getElementById('total2').value;
-    const totalDiferencia = document.getElementById('totalDiferencia').value;
-
-    const fondo = document.getElementById('fondo') ? document.getElementById('fondo').value : '0';
-    const pagosRealizados = document.getElementById('pagos_realizados').value;
-
-    // Crear la tabla de corte de caja
-    const columnas = ["Método", "Contado", "Calculado", "Diferencia"];
-    const filas = [
-        ["Efectivo", `$${efectivo}`, `$${calculadoEfectivo}`, `$${diferenciaEfectivo}`],
-        ["Transferencias", `$${transferencia}`, `$${calculadoTransf}`, `$${diferenciaTransf}`],
-        ["Tarjeta", `$${paypal}`, `$${calculadoPaypal}`, `$${diferenciaPaypal}`],
-        ["TOTAL", `$${total}`, `$${total2}`, `$${totalDiferencia}`],
-        ["", "", "", ""],
-        ["FONDO", `$${fondo}`, "", ""],
-        ["PAGOS REALIZADOS", `$${pagosRealizados}`, "", ""]
-    ];
-
-    // Crear la tabla en el PDF
-    doc.autoTable({
-        startY: posicionY,
-        head: [columnas],
-        body: filas,
-        styles: {
-            halign: 'center',
-        },
-        headStyles: {
-            fillColor: [189, 215, 238], // Azul claro
-            textColor: 0,
-            fontStyle: 'bold'
-        }
-    });
-
-    // Guardar el PDF
-    doc.save("corte_de_caja.pdf");
-}
 
 function mostrarAlerta(mensaje, tipo = 'ExitoG') {
     const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
