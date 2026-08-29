@@ -11,11 +11,12 @@ os.environ.setdefault('DB_USER', 'testing')
 os.environ.setdefault('DB_PASSWORD', 'testing')
 os.environ.setdefault('DB_NAME', 'testing')
 
-from app import app as flask_app  # noqa: E402
+from app import create_app  # noqa: E402
 
 
 @pytest.fixture
 def app():
+    flask_app = create_app('TESTING')
     flask_app.config.update(
         TESTING=True,
         WTF_CSRF_ENABLED=False,

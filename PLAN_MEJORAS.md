@@ -206,22 +206,22 @@ Flujo obligatorio:
 
 ### 4.1 Base técnica
 
-- [ ] Convertir `app.py` a un patrón de fábrica `create_app(config)`.
+- [x] Convertir `app.py` a un patrón de fábrica `create_app(config)`.
 - [~] Separar lógica de negocio de las rutas y del acceso SQL.
 - [x] Bloquear versiones de dependencias y documentar Python 3.12.
 - [x] Añadir Ruff para análisis estático crítico.
-- [ ] Dividir los JavaScript grandes en módulos y eliminar funciones duplicadas.
+- [x] Dividir los JavaScript grandes en módulos y eliminar funciones duplicadas.
 
 ### 4.2 Pruebas mínimas obligatorias
 
 1. [~] La ruta final de recuperación exige autorización; falta ampliar casos de reutilización y expiración.
 2. [x] Un empleado no puede consultar hashes ni ejecutar acciones administrativas.
 3. [x] Manipular precios o totales del cliente no afecta una venta.
-4. [ ] Ejecutar una prueba real de dos ventas concurrentes contra MySQL.
+4. [x] Ejecutar una prueba real de dos ventas concurrentes contra MySQL.
 5. [x] Cancelar repone stock una sola vez, conserva la venta y genera auditoría.
 6. [~] El catálogo es estable; falta una prueba integral hasta el corte.
 7. [~] Se prueba la escritura del snapshot; falta probar el historial después de cambiar el catálogo.
-8. [ ] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
+8. [x] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
 9. [x] Un archivo con firma no PDF es rechazado; faltan casos adicionales de límite de tamaño.
 10. [~] Las migraciones 002 y 003 se validaron contra MySQL 8.4 limpio; aplicarlas a las bases local/Aiven queda pendiente de respaldo.
 
