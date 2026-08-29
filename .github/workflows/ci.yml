@@ -63,8 +63,11 @@ jobs:
       - name: Validar JavaScript
         run: find static/js -name '*.js' -print0 | xargs -0 -n1 node --check
 
-      - name: Probar autorización de recuperación
-        run: pytest tests/test_app_security.py::test_password_reset_final_step_requires_verified_state
+      - name: Probar redirección de recuperación
+        run: pytest tests/test_app_security.py::test_password_reset_final_step_redirects_without_verified_state
+
+      - name: Probar destino de recuperación
+        run: pytest tests/test_app_security.py::test_password_reset_final_step_returns_to_recovery_start
 
       - name: Probar permisos de empleados
         run: pytest tests/test_app_security.py::test_employee_cannot_read_another_user

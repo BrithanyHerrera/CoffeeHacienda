@@ -1,10 +1,15 @@
 import base64
 
 
-def test_password_reset_final_step_requires_verified_state(client):
+def test_password_reset_final_step_redirects_without_verified_state(client):
     response = client.get('/actualizar-contrasena')
 
     assert response.status_code == 302
+
+
+def test_password_reset_final_step_returns_to_recovery_start(client):
+    response = client.get('/actualizar-contrasena')
+
     assert '/recuperar-contrasena' in response.headers['Location']
 
 
