@@ -19,7 +19,7 @@ function realizarCorte() {
     const totalContado = parseFloat(document.getElementById('total').value);
     const totalEfectivo = parseFloat(document.getElementById('calculado').value);
     const totalTransferencias = parseFloat(document.getElementById('calculadoCheque').value);
-    const totalPaypal = parseFloat(document.getElementById('calculadoVales').value);
+    const totalTarjeta = parseFloat(document.getElementById('calculadoVales').value);
     const pagosRealizados = parseFloat(document.getElementById('pagos_realizados').value);
     const fondo = parseFloat(document.getElementById('fondo').value);
 
@@ -35,7 +35,7 @@ function realizarCorte() {
             total_ventas: totalVentas,
             total_efectivo: totalEfectivo,
             total_transferencias: totalTransferencias,
-            total_paypal: totalPaypal,
+            total_tarjeta: totalTarjeta,
             total_contado: totalContado,
             pagos_realizados: pagosRealizados,
             fondo: fondo
@@ -53,7 +53,7 @@ function realizarCorte() {
         if (data.success) {
             // Generar y guardar PDF del corte
             generarPDFCorte(fechaDesde, fechaHasta, totalVentas, totalContado, 
-                           totalEfectivo, totalTransferencias, totalPaypal, 
+                           totalEfectivo, totalTransferencias, totalTarjeta,
                            pagosRealizados, fondo);
             setTimeout(() => location.reload(), 1000);
         } else {
@@ -68,8 +68,8 @@ function realizarCorte() {
  * Genera un PDF del corte de caja y lo guarda en el servidor.
  * Nombre: CorteCaja_{Vendedor}_{FechaInicio}_a_{FechaCierre}.pdf
  */
-function generarPDFCorte(fechaDesde, fechaHasta, totalVentas, totalContado, 
-                         totalEfectivo, totalTransferencias, totalPaypal, 
+function generarPDFCorte(fechaDesde, fechaHasta, totalVentas, totalContado,
+                         totalEfectivo, totalTransferencias, totalTarjeta,
                          pagosRealizados, fondo) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -120,7 +120,7 @@ function generarPDFCorte(fechaDesde, fechaHasta, totalVentas, totalContado,
     const filas = [
         ["Efectivo", `$${totalContado.toFixed(2)}`, `$${totalEfectivo.toFixed(2)}`],
         ["Transferencias", "-", `$${totalTransferencias.toFixed(2)}`],
-        ["Tarjeta", "-", `$${totalPaypal.toFixed(2)}`],
+        ["Tarjeta", "-", `$${totalTarjeta.toFixed(2)}`],
         ["TOTAL", `$${totalContado.toFixed(2)}`, `$${totalVentas.toFixed(2)}`]
     ];
 

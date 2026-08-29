@@ -18,28 +18,34 @@ def inventario():
 @admin_required
 def actualizar_inventario():
     try:
-        data = request.json
-        id_producto = data.get('id')
-        nuevo_stock = data.get('stock')
-        nuevo_stock_min = data.get('stock_min')
-        nuevo_stock_max = data.get('stock_max')
+        data = request.get_json(silent=True) or {}
+        try:
+            id_producto = int(data.get('id'))
+            nuevo_stock = int(data.get('stock'))
+            nuevo_stock_min = int(data.get('stock_min'))
+            nuevo_stock_max = int(data.get('stock_max'))
+        except (TypeError, ValueError):
+            return jsonify({'success': False, 'message': 'Los valores de inventario no son válidos'}), 400
+
+        if id_producto <= 0 or nuevo_stock < 0 or nuevo_stock_min < 0 or nuevo_stock_max < 0:
+            return jsonify({'success': False, 'message': 'El inventario no admite valores negativos'}), 400
         
         if nuevo_stock_min == 0:
-            return jsonify({'success': False, 'message': 'El stock mínimo no puede ser cero'})
+            return jsonify({'success': False, 'message': 'El stock mínimo no puede ser cero'}), 400
             
         if nuevo_stock_max == 0:
-            return jsonify({'success': False, 'message': 'El stock máximo no puede ser cero'})
+            return jsonify({'success': False, 'message': 'El stock máximo no puede ser cero'}), 400
             
         if nuevo_stock_min == nuevo_stock_max:
-            return jsonify({'success': False, 'message': 'El stock mínimo y máximo no pueden ser iguales'})
+            return jsonify({'success': False, 'message': 'El stock mínimo y máximo no pueden ser iguales'}), 400
         
         if nuevo_stock_min > nuevo_stock_max:
-            return jsonify({'success': False, 'message': 'El stock mínimo no puede ser mayor que el stock máximo'})
+            return jsonify({'success': False, 'message': 'El stock mínimo no puede ser mayor que el stock máximo'}), 400
         
         producto_actual = obtener_producto_inventario_por_id(id_producto)
 
         if not producto_actual:
-            return jsonify({'success': False, 'message': 'Producto no encontrado'})
+            return jsonify({'success': False, 'message': 'Producto no encontrado'}), 404
         
         # Si nada cambió, no hacer update
         if (producto_actual['stock'] == nuevo_stock and 
@@ -59,5 +65,5 @@ def actualizar_inventario():
             mensaje = 'Error al actualizar inventario'
         
         return jsonify({'success': resultado, 'message': mensaje})
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+    except Exception:
+        return jsonify({'success': False, 'message': 'No se pudo actualizar el inventario'}), 500

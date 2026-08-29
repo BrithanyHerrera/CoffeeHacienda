@@ -45,7 +45,10 @@
                             <div class="tamaños">
                                 {% if producto.variantes %}
                                     {% for variante in producto.variantes %}
-                                        <p class="tamaño" preciosDatos="{{ variante.precio }}">
+                                        <p class="tamaño"
+                                           preciosDatos="{{ variante.precio }}"
+                                           data-variante-id="{{ variante.variante_id }}"
+                                           data-tamano="{{ variante.tamano }}">
                                             {% if variante.tamano == "No aplica" %}
                                                 ${{ variante.precio }}
                                             {% else %}
@@ -54,7 +57,8 @@
                                         </p>
                                     {% endfor %}
                                 {% else %}
-                                    <p class="tamaño" preciosDatos="{{ producto.precio }}">
+                                    <p class="tamaño" preciosDatos="{{ producto.precio }}"
+                                       data-variante-id="" data-tamano="No aplica">
                                         ${{ producto.precio }}
                                     </p>
                                 {% endif %}
@@ -120,9 +124,11 @@
             <div class="metodosPago">
                 <h3>Método de Pago</h3>
                 <select id="metodoPago" name="metodoPago">
-                    <option value="Efectivo">Efectivo</option>
-                    <option value="Tarjeta">Tarjeta</option>
-                    <option value="Transferencia">Transferencia Bancaria</option>
+                    {% for metodo in metodos_pago %}
+                    <option value="{{ metodo.id }}" data-codigo="{{ metodo.codigo }}">
+                        {{ metodo.nombre }}
+                    </option>
+                    {% endfor %}
                 </select>
             </div>
 
@@ -143,7 +149,7 @@
 </div>
 
 <script>
-    var nombreUsuario = "{{ nombre_usuario | default('No especificado') }}";
+    const nombreUsuario = {{ nombre_usuario | default('No especificado') | tojson }};
 </script>
 <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

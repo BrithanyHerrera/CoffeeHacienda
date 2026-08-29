@@ -1,6 +1,6 @@
 // Función para abrir el modal de Edición y Agregar usuario.
 function abrirEAModal(id = null, nombre = '', correo = '', tipoPrivilegio = '') {
-    // Si es edición, obtener los datos completos del usuario incluyendo la contraseña
+    // Si es edición, comprobar y obtener solamente los datos públicos del usuario.
     if (id) {
         fetch(`/api/usuarios/${id}`)
             .then(response => response.json())
@@ -160,7 +160,7 @@ function cerrarConfirmacionModal() {
 
 // Función para abrir el modal de ver usuario.
 function abrirVerUsuario(id, nombre, correo, tipoPrivilegio, fechaRegistro) {
-    // Obtener la contraseña del usuario por su ID
+    // Comprobar que el usuario siga disponible antes de mostrar el modal.
     fetch(`/api/usuarios/${id}`)
         .then(response => response.json())
         .then(data => {
@@ -171,7 +171,6 @@ function abrirVerUsuario(id, nombre, correo, tipoPrivilegio, fechaRegistro) {
                 document.getElementById('verCorreoUsuario').textContent = correo;
                 document.getElementById('verTipoPrivilegio').textContent = tipoPrivilegio;
                 document.getElementById('verFechaRegistro').textContent = fechaRegistro;
-                document.getElementById('verContrasenaUsuario').textContent = '••••••••';
 
                 // Establecer inicial del avatar
                 const avatar = document.getElementById('avatarUsuario');
@@ -245,6 +244,12 @@ function reestablecerFiltros() {
     });
 }
 
+function escaparHtmlUsuarios(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[caracter]));
+}
+
 function mostrarAlerta(mensaje, tipo = 'ExitoG') {
     const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
 
@@ -265,7 +270,7 @@ function mostrarAlerta(mensaje, tipo = 'ExitoG') {
         <span class="iconoAlertaG">${icono}</span>
         <div class="mensajeAlertaG">
             <h3>${titulo}</h3>
-            <p>${mensaje}</p>
+            <p>${escaparHtmlUsuarios(mensaje)}</p>
         </div>
         <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
     `;

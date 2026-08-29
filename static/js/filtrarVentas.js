@@ -26,8 +26,8 @@ document.getElementById('btnFiltrarFechas').addEventListener('click', function (
         document.getElementById('calculado').value = data.efectivo;
         document.getElementById('cheque').value = data.transferencias;
         document.getElementById('calculadoCheque').value = data.transferencias;
-        document.getElementById('vales').value = data.paypal;
-        document.getElementById('calculadoVales').value = data.paypal; // Asignar valor 0 por defecto si es necesario
+        document.getElementById('vales').value = data.tarjeta;
+        document.getElementById('calculadoVales').value = data.tarjeta;
 
     })
     .catch(error => console.error('Error al obtener las ventas:', error));
@@ -126,90 +126,13 @@ document.getElementById('btnCalcularCorte').addEventListener('click', function (
 });
 
 
-document.getElementById('btnRealizarCorte').addEventListener('click', function (event) {
-    event.preventDefault();  // Prevenir el comportamiento predeterminado (como redirección o descarga)
 
-    // Obtener los valores de los campos
-    const fechaDesde = document.getElementById('fechaDesde').value;
-    const fechaHasta = document.getElementById('fechaHasta').value;
-    const totalVentas = parseFloat(document.getElementById('total2').value);
-    const totalContado = parseFloat(document.getElementById('total').value);
-    const totalEfectivo = parseFloat(document.getElementById('calculado').value);
-    const totalTransferencias = parseFloat(document.getElementById('calculadoCheque').value);
-    const totalPaypal = parseFloat(document.getElementById('calculadoVales').value);
-    const pagosRealizados = parseFloat(document.getElementById('pagos_realizados').value);
-    const fondo = parseFloat(document.getElementById('fondo').value);
 
-    // Nuevos campos de comparación
-    const contadoEfectivo = parseFloat(document.getElementById('contado').value);
-    const contadoCheque = parseFloat(document.getElementById('cheque').value);
-    const contadoVales = parseFloat(document.getElementById('vales').value);
-
-    // Validaciones de campos
-    if (!fechaDesde || !fechaHasta) {
-        mostrarAlerta("Por favor, selecciona las fechas de inicio y cierre", 'ErrorG');
-        return;
-    }
-
-    if (
-        isNaN(totalVentas) || isNaN(totalContado) || isNaN(totalEfectivo) ||
-        isNaN(totalTransferencias) || isNaN(totalPaypal) ||
-        isNaN(pagosRealizados) || isNaN(fondo) ||
-        isNaN(contadoEfectivo) || isNaN(contadoCheque) || isNaN(contadoVales)
-    ) {
-        mostrarAlerta("Por favor, asegúrate de que todos los campos numéricos estén completos y sean válidos.", 'ErrorG');
-        return;
-    }
-
-    // Validar que total, fondo y pagos_realizados no estén en 0 si hay valores en calculado
-    if ((totalEfectivo > 0 || totalTransferencias > 0 || totalPaypal > 0) && (totalContado === 0 || fondo === 0)) {
-        mostrarAlerta("Los campos totales y el fondo no pueden ser 0.", 'ErrorG');
-        return;
-    }
-
-    // Verificación de que los pagos no exceden el fondo disponible
-    const totalDisponible = totalVentas + fondo;
-    if (pagosRealizados > totalDisponible) {
-        mostrarAlerta("No se puede realizar el corte.\nLos pagos realizados superan el total disponible.", 'ErrorG');
-        
-        return;  // Terminar la función sin continuar con la descarga o envío
-    }
-
-    // Lógica para enviar los datos y generar el PDF (solo si los pagos son válidos)
-    fetch('/guardarCorteCaja', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',  // Asegúrate de enviar los datos como JSON
-        },
-        body: JSON.stringify({
-            fecha_hora_inicio: fechaDesde,
-            fecha_hora_cierre: fechaHasta,
-            total_ventas: totalVentas,
-            total_efectivo: totalEfectivo,
-            total_transferencias: totalTransferencias,
-            total_paypal: totalPaypal,
-            total_contado: totalContado,
-            pagos_realizados: pagosRealizados,
-            fondo: fondo
-        })
-    })
-    .then(response => response.json())  // Manejo de respuesta JSON
-    .then(data => {
-        if (data.success) {
-           // Mostrar mensaje de éxito
-           mostrarAlerta("Corte realizado exitosamente.", 'ExitoG', 3000);
-           setTimeout(() => {
-            window.location.reload();
-        }, 3000);
-            
-        } else {
-            mostrarAlerta("Error al realizar el corte de caja.", 'ErrorG');
-        }
-    })
-    .catch(error => {
-        mostrarAlerta("Error al realizar el corte de caja: " + error, 'ErrorG');
-    });
-});
+function escaparHtmlCorte(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[caracter]));
+}
 
 function mostrarAlerta(mensaje, tipo = 'ExitoG') {
     const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
@@ -231,7 +154,7 @@ function mostrarAlerta(mensaje, tipo = 'ExitoG') {
         <span class="iconoAlertaG">${icono}</span>
         <div class="mensajeAlertaG">
             <h3>${titulo}</h3>
-            <p>${mensaje}</p>
+            <p>${escaparHtmlCorte(mensaje)}</p>
         </div>
         <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
     `;

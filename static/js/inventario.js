@@ -199,6 +199,12 @@ function reestablecerFiltrosInventario() {
     filtrarInventario();
 }
 
+function escaparHtmlInventario(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[caracter]));
+}
+
 function mostrarAlerta(mensaje, tipo = 'ExitoG') {
     const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
 
@@ -219,7 +225,7 @@ function mostrarAlerta(mensaje, tipo = 'ExitoG') {
         <span class="iconoAlertaG">${icono}</span>
         <div class="mensajeAlertaG">
             <h3>${titulo}</h3>
-            <p>${mensaje}</p>
+            <p>${escaparHtmlInventario(mensaje)}</p>
         </div>
         <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
     `;

@@ -46,6 +46,11 @@
         <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
         <h3>Confirmación</h3>
         <p id="mensajeConfirmacion"></p>
+        <div id="contenedorMotivoCancelacion" style="display: none; margin: 12px 0;">
+            <label for="motivoCancelacion">Motivo de cancelación</label>
+            <textarea id="motivoCancelacion" maxlength="255" rows="3"
+                      placeholder="Describe brevemente el motivo"></textarea>
+        </div>
         <button id="btnConfirmar" onclick="confirmarCambioEstado()">Sí</button>
         <button onclick="cerrarConfirmacionModal()">No</button>
     </section>

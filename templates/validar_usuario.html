@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Validar Usuario - Coffee Hacienda</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/recuperacion_contrasena.css') }}">
+    <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
     <style>
         .edit-email-container {
             display: none;
@@ -135,11 +137,11 @@
             
             // Función para mostrar alertas
             function mostrarAlerta(mensaje, tipo) {
-                alertContainer.innerHTML = `
-                    <div class="alert alert-${tipo}">
-                        ${mensaje}
-                    </div>
-                `;
+                const tipoSeguro = tipo === 'success' ? 'success' : 'danger';
+                const alerta = document.createElement('div');
+                alerta.className = `alert alert-${tipoSeguro}`;
+                alerta.textContent = String(mensaje || 'Ocurrió un error');
+                alertContainer.replaceChildren(alerta);
             }
             
             // Mostrar/ocultar formulario de edición de correo

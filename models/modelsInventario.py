@@ -77,37 +77,31 @@ def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_s
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
-            # Leer stock anterior para calcular el movimiento
-            cursor.execute("SELECT stock FROM tproductos WHERE Id = %s", (id_producto,))
+            # Bloquear la fila para que el ajuste y su movimiento sean atómicos.
+            cursor.execute("SELECT stock FROM tproductos WHERE Id = %s FOR UPDATE", (id_producto,))
             fila = cursor.fetchone()
-            stock_anterior = fila['stock'] if fila else 0
+            if not fila:
+                conn.rollback()
+                return False
+
+            stock_anterior = fila['stock']
             
             cursor.execute("""
                 UPDATE tproductos 
                 SET stock = %s, stock_minimo = %s, stock_maximo = %s
                 WHERE Id = %s
             """, (nuevo_stock, nuevo_stock_min, nuevo_stock_max, id_producto))
-        conn.commit()
-        
-        # Registrar movimiento de inventario
-        with conn.cursor() as cursor:
+
             cantidad = abs(nuevo_stock - stock_anterior)
             tipo_movimiento = 3 if nuevo_stock >= stock_anterior else 4  # 3=Ajuste+, 4=Ajuste-
-            
+
             if cantidad > 0:
-                try:
-                    # tmovimientosinventario no tiene AUTO_INCREMENT
-                    cursor.execute("SELECT COALESCE(MAX(Id), 0) + 1 AS next_id FROM tmovimientosinventario")
-                    next_id = cursor.fetchone()['next_id']
-                    
-                    cursor.execute("""
-                        INSERT INTO tmovimientosinventario (Id, producto_id, cantidad, tipo_movimiento_id, motivo)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (next_id, id_producto, cantidad, tipo_movimiento, "Actualización desde panel de inventario"))
-                    conn.commit()
-                except Exception as mov_error:
-                    logger.warning(f"No se registró movimiento de inventario: {mov_error}")
-        
+                cursor.execute("""
+                    INSERT INTO tmovimientosinventario (producto_id, cantidad, tipo_movimiento_id, motivo)
+                    VALUES (%s, %s, %s, %s)
+                """, (id_producto, cantidad, tipo_movimiento, "Actualización desde panel de inventario"))
+
+        conn.commit()
         return True
     except Exception as e:
         conn.rollback()

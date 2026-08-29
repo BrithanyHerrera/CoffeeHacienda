@@ -4,7 +4,7 @@ var btn = document.getElementById("btnAgregarCorte");
 var span = document.getElementById("cerrarModal");
 
 btn.onclick = function() {
-    modal.style.display = "block";
+    modal.style.display = "flex";
 }
 
 span.onclick = function() {

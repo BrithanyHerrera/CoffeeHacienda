@@ -21,14 +21,28 @@ def actualizar_usuario(id, usuario, contrasena, correo, rol_id):
             if cursor.fetchone()['count'] > 0:
                 return False, "El correo electrónico ya está registrado por otro usuario"
             
-            cursor.execute("UPDATE tusuarios SET usuario=%s, contrasena=%s, rol_id=%s, correo=%s WHERE Id=%s",
-                          (usuario, contrasena, rol_id, correo, id))
+            if contrasena:
+                cursor.execute(
+                    """
+                    UPDATE tusuarios
+                    SET usuario=%s, contrasena=%s, rol_id=%s, correo=%s,
+                        sesion_version=sesion_version + 1
+                    WHERE Id=%s
+                    """,
+                    (usuario, contrasena, rol_id, correo, id)
+                )
+            else:
+                # No es necesario recuperar ni reenviar el hash para conservarlo.
+                cursor.execute(
+                    "UPDATE tusuarios SET usuario=%s, rol_id=%s, correo=%s WHERE Id=%s",
+                    (usuario, rol_id, correo, id)
+                )
         conn.commit()
         return True, "Usuario actualizado exitosamente"
     except Exception as e:
         conn.rollback()
         logger.error(f"Error al actualizar usuario: {e}")
-        return False, f"Error al actualizar usuario: {str(e)}"
+        return False, "No fue posible actualizar el usuario"
     finally:
         conn.close()
 
@@ -36,7 +50,13 @@ def obtener_usuario_por_id(id):
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT u.*, r.rol FROM tusuarios u JOIN troles r ON u.rol_id = r.Id WHERE u.Id = %s", (id,))
+            cursor.execute("""
+                SELECT u.Id, u.usuario, u.correo, u.rol_id, u.activo,
+                       u.creado_en, u.modificado_en, r.rol
+                FROM tusuarios u
+                JOIN troles r ON u.rol_id = r.Id
+                WHERE u.Id = %s
+            """, (id,))
             return cursor.fetchone()
     except Exception as e:
         logger.error(f"Error al obtener usuario por ID: {e}")
@@ -48,7 +68,7 @@ def obtener_roles():
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM troles")
+            cursor.execute("SELECT Id, rol FROM troles")
             return cursor.fetchall()
     except Exception as e:
         logger.error(f"Error al obtener roles: {e}")
@@ -60,7 +80,14 @@ def obtener_usuario_por_correo(correo):
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT u.*, r.rol FROM tusuarios u JOIN troles r ON u.rol_id = r.Id WHERE u.correo = %s", (correo,))
+            cursor.execute("""
+                SELECT u.Id, u.usuario, u.contrasena, u.correo, u.rol_id,
+                       u.activo, u.sesion_version, u.creado_en, u.modificado_en,
+                       r.rol
+                FROM tusuarios u
+                JOIN troles r ON u.rol_id = r.Id
+                WHERE u.correo = %s
+            """, (correo,))
             return cursor.fetchone()
     except Exception as e:
         logger.error(f"Error al obtener usuario por correo: {e}")
@@ -93,7 +120,7 @@ def guardar_usuario_pendiente(usuario, contrasena, correo, rol_id):
     except Exception as e:
         conn.rollback()
         logger.error(f"Error al guardar usuario pendiente: {e}")
-        return False, f"Error: {str(e)}", None
+        return False, "No fue posible guardar el usuario pendiente", None
     finally:
         conn.close()
 
@@ -135,7 +162,7 @@ def validar_codigo_usuario(correo, codigo):
     except Exception as e:
         conn.rollback()
         logger.error(f"Error al validar código: {e}")
-        return False, f"Error: {str(e)}"
+        return False, "No fue posible validar el código"
     finally:
         conn.close()
 
@@ -159,7 +186,7 @@ def reenviar_codigo_validacion(correo):
     except Exception as e:
         conn.rollback()
         logger.error(f"Error al reenviar código: {e}")
-        return False, f"Error: {str(e)}", None
+        return False, "No fue posible reenviar el código", None
     finally:
         conn.close()
 
@@ -216,12 +243,17 @@ def desactivar_usuario(id):
             cursor.execute("SELECT Id FROM tusuarios WHERE Id = %s", (id,))
             if not cursor.fetchone():
                 return False, 'Usuario no encontrado'
-            cursor.execute("UPDATE tusuarios SET activo = 0 WHERE Id = %s", (id,))
+            cursor.execute("""
+                UPDATE tusuarios
+                SET activo = 0, sesion_version = sesion_version + 1
+                WHERE Id = %s
+            """, (id,))
         conn.commit()
         return True, 'Usuario desactivado exitosamente'
     except Exception as e:
         conn.rollback()
-        return False, f'Error al desactivar usuario: {str(e)}'
+        logger.error('Error al desactivar usuario: %s', e)
+        return False, 'No fue posible desactivar el usuario'
     finally:
         conn.close()
 
@@ -234,26 +266,40 @@ def correo_existe_en_usuarios(correo):
     finally:
         conn.close()
 
-def obtener_validacion_pendiente(correo):
+def obtener_validacion_pendiente(validacion_id):
+    """Obtiene una solicitud pendiente por su identificador no controlado por el cliente."""
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT id, usuario, contrasena, rol_id
-                FROM tvalidacion_usuarios WHERE correo = %s AND validado = FALSE
-            """, (correo,))
+                SELECT id, usuario, correo, rol_id, fecha_creacion
+                FROM tvalidacion_usuarios
+                WHERE id = %s AND validado = FALSE
+            """, (validacion_id,))
             return cursor.fetchone()
     finally:
         conn.close()
 
-def actualizar_correo_validacion(validacion_id, correo_nuevo, nuevo_codigo):
+def actualizar_correo_validacion(validacion_id, correo_actual, correo_nuevo, nuevo_codigo):
+    """Actualiza únicamente la solicitud pendiente que sigue ligada al correo esperado."""
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("UPDATE tvalidacion_usuarios SET correo=%s, codigo=%s, fecha_creacion=%s WHERE id=%s",
-                          (correo_nuevo, nuevo_codigo, datetime.now(), validacion_id))
+            cursor.execute("""
+                SELECT id FROM tvalidacion_usuarios
+                WHERE correo = %s AND id != %s AND validado = FALSE
+            """, (correo_nuevo, validacion_id))
+            if cursor.fetchone():
+                return False
+
+            cursor.execute("""
+                UPDATE tvalidacion_usuarios
+                SET correo=%s, codigo=%s, fecha_creacion=%s
+                WHERE id=%s AND correo=%s AND validado=FALSE
+            """, (correo_nuevo, nuevo_codigo, datetime.now(), validacion_id, correo_actual))
+            actualizado = cursor.rowcount == 1
         conn.commit()
-        return True
+        return actualizado
     except Exception as e:
         conn.rollback()
         logger.error(f"Error al actualizar correo de validación: {e}")
@@ -266,31 +312,44 @@ def guardar_cambio_correo_pendiente(id_usuario, correo_nuevo, codigo):
     conn = Conexion_BD()
     try:
         with conn.cursor() as cursor:
+            marcador_usuario = f'__CAMBIO_CORREO__{id_usuario}'
+
             # Verificar que el nuevo correo no esté en uso
             cursor.execute("SELECT Id FROM tusuarios WHERE correo = %s AND Id != %s", (correo_nuevo, id_usuario))
             if cursor.fetchone():
-                return False
+                return None
+
+            # No permitir que dos solicitudes distintas reclamen el mismo correo.
+            cursor.execute("""
+                SELECT id FROM tvalidacion_usuarios
+                WHERE correo = %s AND usuario != %s AND validado = FALSE
+            """, (correo_nuevo, marcador_usuario))
+            if cursor.fetchone():
+                return None
             
             # Obtener el rol_id actual del usuario para cumplir con la foreign key
             cursor.execute("SELECT rol_id FROM tusuarios WHERE Id = %s", (id_usuario,))
             rol_row = cursor.fetchone()
-            rol_id_actual = rol_row['rol_id'] if rol_row else 1
+            if not rol_row:
+                return None
+            rol_id_actual = rol_row['rol_id']
             
             # Eliminar validaciones previas de cambio de correo para este usuario
             cursor.execute("DELETE FROM tvalidacion_usuarios WHERE usuario = %s AND validado = FALSE", 
-                          (f'__CAMBIO_CORREO__{id_usuario}',))
+                          (marcador_usuario,))
             
             # Insertar nueva validación de cambio de correo
             cursor.execute("""
                 INSERT INTO tvalidacion_usuarios (usuario, contrasena, correo, rol_id, codigo, fecha_creacion)
                 VALUES (%s, %s, %s, %s, %s, %s)
-            """, (f'__CAMBIO_CORREO__{id_usuario}', '', correo_nuevo, rol_id_actual, codigo, datetime.now()))
+            """, (marcador_usuario, '', correo_nuevo, rol_id_actual, codigo, datetime.now()))
+            validacion_id = cursor.lastrowid
             
         conn.commit()
-        return True
+        return validacion_id
     except Exception as e:
         conn.rollback()
         logger.error(f"Error al guardar cambio de correo pendiente: {e}")
-        return False
+        return None
     finally:
         conn.close()

@@ -1,3 +1,12 @@
+function escaparHtmlHistorial(valor) {
+    return String(valor ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 // Estado de paginación
 let paginaActual = 1;
 
@@ -53,17 +62,23 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
 
                 data.ventas.forEach(venta => {
                     const fechaFormateada = formatearFecha(venta.fecha_hora);
-                    const numeroMesa = venta.numero_mesa ? `Mesa: ${venta.numero_mesa}` : "Sin mesa";
+                    const ventaId = Number.parseInt(venta.id, 10);
+                    if (!Number.isInteger(ventaId) || ventaId <= 0) {
+                        return;
+                    }
+                    const numeroMesa = venta.numero_mesa
+                        ? `Mesa: ${escaparHtmlHistorial(venta.numero_mesa)}`
+                        : "Sin mesa";
 
                     let fila = `
                         <tr>
-                            <td>${venta.vendedor}</td>
-                            <td>${venta.cliente}</td>
+                            <td>${escaparHtmlHistorial(venta.vendedor)}</td>
+                            <td>${escaparHtmlHistorial(venta.cliente)}</td>
                             <td>${fechaFormateada}</td>
                             <td>$${venta.total}</td>
                             <td>${numeroMesa}</td>
                             <td>
-                                <button class="btnVerVenta" onclick="verDetallesVenta(${venta.id})">👁️</button>
+                                <button class="btnVerVenta" onclick="verDetallesVenta(${ventaId})">👁️</button>
                             </td>
                         </tr>`;
                     tablaHistorial.innerHTML += fila;
@@ -179,17 +194,17 @@ function verDetallesVenta(id) {
                     <div class="venta-info-container">
                         <div class="venta-info-grupo">
                             <span class="info-label">Vendedor:</span>
-                            <span class="info-value">${venta.vendedor || 'No disponible'}</span>
+                            <span class="info-value">${escaparHtmlHistorial(venta.vendedor || 'No disponible')}</span>
                         </div>
                         
                         <div class="venta-info-grupo">
                             <span class="info-label">Cliente:</span>
-                            <span class="info-value">${venta.cliente || 'No disponible'}</span>
+                            <span class="info-value">${escaparHtmlHistorial(venta.cliente || 'No disponible')}</span>
                         </div>
                         
                         <div class="venta-info-grupo">
                             <span class="info-label">Método de pago:</span>
-                            <span class="info-value">${venta.metodo_pago || 'No especificado'}</span>
+                            <span class="info-value">${escaparHtmlHistorial(venta.metodo_pago || 'No especificado')}</span>
                         </div>
                         
                         <div class="venta-info-grupo">
@@ -205,7 +220,7 @@ function verDetallesVenta(id) {
                         ${venta.numero_mesa ? `
                         <div class="venta-info-grupo">
                             <span class="info-label">Mesa:</span>
-                            <span class="info-value">${venta.numero_mesa}</span>
+                            <span class="info-value">${escaparHtmlHistorial(venta.numero_mesa)}</span>
                         </div>` : ''}
                     </div>
                     
@@ -241,8 +256,8 @@ function verDetallesVenta(id) {
 
                         detallesHTML += `
                             <tr>
-                                <td class="producto-nombre">${producto.nombre_producto}</td>
-                                <td class="producto-tamano">${tamano}</td>
+                                <td class="producto-nombre">${escaparHtmlHistorial(producto.nombre_producto)}</td>
+                                <td class="producto-tamano">${escaparHtmlHistorial(tamano)}</td>
                                 <td class="precio-unitario">$${precioFormateado}</td>
                                 <td class="cantidad-producto">${producto.cantidad}</td>
                                 <td class="subtotal-producto">$${subtotalItem}</td>

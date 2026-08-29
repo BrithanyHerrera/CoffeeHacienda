@@ -2,6 +2,12 @@
 // BÚSQUEDA Y FILTROS
 // ==========================================
 
+function escaparHtmlMenu(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[caracter]));
+}
+
 document.getElementById('searchInput').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
     const productos = document.querySelectorAll('.producto');
@@ -38,8 +44,10 @@ function filtrarProductos(categoria) {
 
 let carrito = [];
 
-function agregarAlCarrito(nombre, precio, imagen, tamaño, id) {
-    const productoExistente = carrito.find(item => item.nombre === nombre && item.tamaño === tamaño);
+function agregarAlCarrito(nombre, precio, imagen, tamaño, id, varianteId = null) {
+    const productoExistente = carrito.find(item => (
+        item.id === id && item.varianteId === varianteId
+    ));
     
     if (productoExistente) {
         productoExistente.cantidad++;
@@ -50,7 +58,8 @@ function agregarAlCarrito(nombre, precio, imagen, tamaño, id) {
             cantidad: 1, 
             imagen, 
             tamaño,
-            id
+            id,
+            varianteId
         });
     }
     
@@ -72,11 +81,11 @@ function actualizarCarrito() {
         itemDiv.classList.add('carritoItem');
 
         itemDiv.innerHTML = `
-            <img src="${item.imagen}" alt="${item.nombre}">
+            <img src="${escaparHtmlMenu(item.imagen)}" alt="${escaparHtmlMenu(item.nombre)}">
             <div>
-                <h4>${item.nombre} (${item.tamaño})</h4>
-                <p>Precio: $${item.precio}</p>
-                <p>Total: $<span class="total-item">${item.precio * item.cantidad}</span></p>
+                <h4>${escaparHtmlMenu(item.nombre)} (${escaparHtmlMenu(item.tamaño)})</h4>
+                <p>Precio: $${Number(item.precio).toFixed(2)}</p>
+                <p>Total: $<span class="total-item">${(item.precio * item.cantidad).toFixed(2)}</span></p>
             </div>
             <input type="number" class="cantidadProducto" data-index="${index}" value="${item.cantidad}" min="1">
             <button class="eliminarItemCarrito" data-index="${index}">X</button>
@@ -180,20 +189,24 @@ document.querySelectorAll('.añadirCarrito').forEach(button => {
         if (tamaños.length > 1) {
             // Múltiples tamaños → abrir modal bonito
             mostrarModalTamano(nombre, tamaños, function(indice) {
-                const tamaño = tamaños[indice].textContent.split('-')[0].trim();
+                const tamaño = tamaños[indice].dataset.tamano || 'No aplica';
                 const precio = parseFloat(tamaños[indice].getAttribute('preciosDatos'));
-                agregarAlCarrito(nombre, precio, imagen, tamaño, id);
+                const varianteValor = tamaños[indice].dataset.varianteId;
+                const varianteId = varianteValor ? parseInt(varianteValor, 10) : null;
+                agregarAlCarrito(nombre, precio, imagen, tamaño, id, varianteId);
             });
         } else if (tamaños.length === 1) {
             // Un solo tamaño → agregar directo
-            const tamaño = tamaños[0].textContent.split('-')[0].trim();
+            const tamaño = tamaños[0].dataset.tamano || 'No aplica';
             const precio = parseFloat(tamaños[0].getAttribute('preciosDatos'));
-            agregarAlCarrito(nombre, precio, imagen, tamaño, id);
+            const varianteValor = tamaños[0].dataset.varianteId;
+            const varianteId = varianteValor ? parseInt(varianteValor, 10) : null;
+            agregarAlCarrito(nombre, precio, imagen, tamaño, id, varianteId);
         } else {
             // Sin tamaños definidos
             const tamaño = 'Único';
             const precio = parseFloat(producto.getAttribute('data-precio') || 0);
-            agregarAlCarrito(nombre, precio, imagen, tamaño, id);
+            agregarAlCarrito(nombre, precio, imagen, tamaño, id, null);
         }
     });
 });
@@ -222,7 +235,7 @@ function mostrarAlerta(mensaje, tipo = 'ExitoG') {
         <span class="iconoAlertaG">${icono}</span>
         <div class="mensajeAlertaG">
             <h3>${titulo}</h3>
-            <p>${mensaje}</p>
+            <p>${escaparHtmlMenu(mensaje)}</p>
         </div>
         <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
     `;
@@ -247,7 +260,9 @@ function realizarPedido() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim();
     const paraLlevar = document.getElementById('paraLlevar').checked;
     const numeroMesa = paraLlevar ? '' : document.getElementById('numeroMesa').value.trim();
-    const metodoPago = document.querySelector('select[name="metodoPago"]').value;
+    const selectorPago = document.querySelector('select[name="metodoPago"]');
+    const metodoPagoId = parseInt(selectorPago.value, 10);
+    const metodoPagoCodigo = selectorPago.selectedOptions[0]?.dataset.codigo || '';
     const dineroRecibido = parseFloat(document.getElementById('inputDineroRecibido').value) || 0;
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
@@ -268,18 +283,27 @@ function realizarPedido() {
     }
 
     // Validación de dinero recibido SOLO para pagos en efectivo
-    if (metodoPago.toLowerCase() === 'efectivo' && dineroRecibido < total) {
+    if (!Number.isInteger(metodoPagoId) || !metodoPagoCodigo) {
+        mostrarAlerta('Seleccione un método de pago válido.', 'ErrorG');
+        return;
+    }
+
+    if (metodoPagoCodigo === 'EFECTIVO' && dineroRecibido < total) {
         mostrarAlerta('El monto recibido es menor al total de la compra. No se puede realizar la venta.', 'ErrorG');
         return;
     }
 
-    const cambio = parseFloat(document.getElementById('inputCambio').value) || 0;
-
     const productos = carrito.map(item => ({
         id: item.id,
         cantidad: item.cantidad,
-        precio: item.precio
+        variante_id: item.varianteId
     }));
+
+    const botonCheckout = document.querySelector('.checkout');
+    if (botonCheckout.disabled) {
+        return;
+    }
+    botonCheckout.disabled = true;
 
     fetch('/api/ventas/crear', {
         method: 'POST',
@@ -288,17 +312,15 @@ function realizarPedido() {
             cliente: nombreCliente,
             mesa: numeroMesa,
             productos: productos,
-            total: total,
-            metodo_pago: obtenerIdMetodoPago(metodoPago),
-            dinero_recibido: dineroRecibido,
-            cambio: cambio
+            metodo_pago: metodoPagoId,
+            dinero_recibido: metodoPagoCodigo === 'EFECTIVO' ? dineroRecibido : 0
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             mostrarAlerta('Venta registrada exitosamente.', 'ExitoG');
-            generarPDF();
+            generarPDF(data);
             carrito = [];
             actualizarCarrito();
             // Limpiar formulario
@@ -324,6 +346,9 @@ function realizarPedido() {
     .catch(error => {
         console.error('Error:', error);
         mostrarAlerta('Error al procesar la venta.', 'ErrorG');
+    })
+    .finally(() => {
+        botonCheckout.disabled = false;
     });
 }
 
@@ -331,14 +356,6 @@ function realizarPedido() {
 // ==========================================
 // UTILIDADES
 // ==========================================
-
-function obtenerIdMetodoPago(metodoPago) {
-    const metodo = metodoPago.toLowerCase();
-    if (metodo.includes('efectivo')) return 1;
-    if (metodo.includes('tarjeta')) return 2;
-    if (metodo.includes('transferencia')) return 3;
-    return 1;
-}
 
 function calcularCambio() {
     const dineroRecibido = parseFloat(document.getElementById('inputDineroRecibido').value) || 0;
@@ -365,11 +382,12 @@ function toggleMesaField() {
 }
 
 function toggleCamposPago() {
-    const metodoPago = document.getElementById('metodoPago').value.toLowerCase();
+    const selectorPago = document.getElementById('metodoPago');
+    const metodoPagoCodigo = selectorPago.selectedOptions[0]?.dataset.codigo || '';
     const dineroRecibidoDiv = document.querySelector('.dineroRecibido');
     const cambioDiv = document.querySelector('.cambio');
 
-    if (metodoPago === 'efectivo') {
+    if (metodoPagoCodigo === 'EFECTIVO') {
         dineroRecibidoDiv.style.display = 'flex';
         cambioDiv.style.display = 'flex';
     } else {
@@ -385,7 +403,7 @@ function toggleCamposPago() {
 // GENERAR PDF
 // ==========================================
 
-function generarPDF() {
+function generarPDF(datosVenta = {}) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
@@ -405,9 +423,14 @@ function generarPDF() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim() || "No especificado";
     const direccionSucursal = "Haciendas de San Vicente, 63737 San Vicente, Nay.";
     const nombreVendedor = nombreUsuario || "No especificado"; 
-    const dineroRecibido = document.getElementById('inputDineroRecibido').value || "0.00";
-    const cambio = document.getElementById('inputCambio').value || "0.00";
-    const metodoPago = document.getElementById('metodoPago').value || "No especificado";
+    const dineroRecibido = datosVenta.dinero_recibido
+        ?? document.getElementById('inputDineroRecibido').value
+        ?? "0.00";
+    const cambio = datosVenta.cambio
+        ?? document.getElementById('inputCambio').value
+        ?? "0.00";
+    const metodoPagoSelect = document.getElementById('metodoPago');
+    const metodoPago = metodoPagoSelect.selectedOptions[0]?.textContent || "No especificado";
     const paraLlevar = document.getElementById('paraLlevar').checked;
     const numeroMesa = document.getElementById('numeroMesa').value.trim();
 
@@ -452,17 +475,25 @@ function generarPDF() {
     let filas = [];
 
     let total = 0;
-    carrito.forEach(item => {
-        let subtotal = item.precio * item.cantidad;
+    const productosTicket = Array.isArray(datosVenta.productos) ? datosVenta.productos : carrito;
+    productosTicket.forEach(item => {
+        const precio = parseFloat(item.precio) || 0;
+        const tamano = item.tamano || item.tamaño || 'No aplica';
+        let subtotal = precio * item.cantidad;
         total += subtotal;
         filas.push([
             item.nombre,
-            item.tamaño,
+            tamano,
             item.cantidad,
-            `$${item.precio.toFixed(2)}`,
+            `$${precio.toFixed(2)}`,
             `$${subtotal.toFixed(2)}`
         ]);
     });
+
+    const totalServidor = parseFloat(datosVenta.total);
+    if (Number.isFinite(totalServidor)) {
+        total = totalServidor;
+    }
 
     if (filas.length === 0) {
         filas.push(["No hay productos en la orden", "", "", "", ""]);

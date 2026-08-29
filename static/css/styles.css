@@ -2085,10 +2085,75 @@ form {
     box-shadow: var(--shadow-lg);
 }
 
+/* Variante más ancha para el modal de Corte de Caja */
+.modal-content--corte {
+    width: 70%;
+    max-width: 820px;
+    padding: 20px 24px;
+}
+
 .modal-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+/* Grid de 2 columnas para el corte de caja */
+.corte-grid {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 14px;
+    align-items: start;
+}
+
+.corte-grid__tabla {
+    min-width: 0;
+}
+
+.corte-grid__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    background: var(--color-surface-alt);
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+}
+
+.corte-panel-campo label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    display: block;
+}
+
+.corte-panel-campo input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: var(--font-size-sm);
+    background-color: #f0f0f0;
+    text-align: center;
+    font-family: var(--font-family);
+    box-sizing: border-box;
+}
+
+.corte-panel-campo input:focus {
+    border-color: var(--color-primary);
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.12);
+}
+
+.corte-panel-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
 }
 
 .fecha-selector {
@@ -2329,6 +2394,10 @@ form {
 
     .fecha-selector .fecha-item {
         width: 100%;
+    }
+
+    .corte-grid {
+        grid-template-columns: 1fr;
     }
 
     .contenedorBotones {

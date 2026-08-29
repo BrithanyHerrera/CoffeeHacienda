@@ -65,8 +65,8 @@
                         <td>{{ usuario.rol }}</td>
                         <td>{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}</td>
                         <td>
-                            <button class="btnVerUsuario" onclick="abrirVerUsuario('{{ usuario.Id }}', '{{ usuario.usuario }}', '{{ usuario.correo }}', '{{ usuario.rol }}', '{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}')">👁️</button>
-                            <button class="btnEditarUsuario" onclick="abrirEAModal({{ usuario.Id }}, '{{ usuario.usuario }}', '{{ usuario.correo }}', {{ usuario.rol_id }})">✏️</button>
+                            <button class="btnVerUsuario" onclick='abrirVerUsuario({{ usuario.Id|tojson }}, {{ usuario.usuario|tojson }}, {{ usuario.correo|tojson }}, {{ usuario.rol|tojson }}, {{ (usuario.creado_en.strftime("%Y-%m-%d %H:%M:%S") if usuario.creado_en else "N/A")|tojson }})'>👁️</button>
+                            <button class="btnEditarUsuario" onclick='abrirEAModal({{ usuario.Id|tojson }}, {{ usuario.usuario|tojson }}, {{ usuario.correo|tojson }}, {{ usuario.rol_id|tojson }})'>✏️</button>
                             <button class="btnEliminarUsuario" onclick="confirmarEliminar({{ usuario.Id }})">🗑️</button>
                         </td>
                     </tr>
@@ -95,7 +95,7 @@
                         <td>{{ usuario.rol }}</td>
                         <td>{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}</td>
                         <td>
-                            <button class="btnVerUsuario" onclick="abrirVerUsuario('{{ usuario.Id }}', '{{ usuario.usuario }}', '{{ usuario.correo }}', '{{ usuario.rol }}', '{{ usuario.creado_en.strftime('%Y-%m-%d %H:%M:%S') if usuario.creado_en else 'N/A' }}')">👁️</button>
+                            <button class="btnVerUsuario" onclick='abrirVerUsuario({{ usuario.Id|tojson }}, {{ usuario.usuario|tojson }}, {{ usuario.correo|tojson }}, {{ usuario.rol|tojson }}, {{ (usuario.creado_en.strftime("%Y-%m-%d %H:%M:%S") if usuario.creado_en else "N/A")|tojson }})'>👁️</button>
                             <button class="btnActivarUsuario" onclick="confirmarActivar({{ usuario.Id }})"> Activar</button>
                         </td>
                     </tr>
@@ -180,10 +180,6 @@
                     <div class="ver-info-row">
                         <span class="ver-info-label">Fecha de Registro</span>
                         <span class="ver-info-value" id="verFechaRegistro"></span>
-                    </div>
-                    <div class="ver-info-row">
-                        <span class="ver-info-label">Contraseña</span>
-                        <span class="ver-info-value" id="verContrasenaUsuario"></span>
                     </div>
                 </div>
             </section>

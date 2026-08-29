@@ -21,8 +21,8 @@
                 <th>Fondo</th>
                 <th>Contado</th>
                 <th>Calculado</th>
-                <th>Pagos realizados</th>  
-                <th>Acciones</th> 
+                <th>Pagos realizados</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -33,32 +33,33 @@
                 <td>${{ corte.fondo }}</td>
                 <td>${{ corte.total_contado }}</td>
                 <td>${{ corte.total_ventas }}</td>
-                <td>${{ corte.pagos_realizados }}</td>    
+                <td>${{ corte.pagos_realizados }}</td>
                 <td>
-                    <button type="button" class="btnVerProducto" 
-                            onclick="verPdfCorte('{{ corte.fecha_hora_inicio}}', '{{ corte.fecha_hora_cierre}}')">
+                    <button type="button" class="btnVerProducto"
+                            onclick='verPdfCorte({{ corte.fecha_hora_inicio|string|tojson }}, {{ corte.fecha_hora_cierre|string|tojson }})'>
                         👁️
                     </button>
-                </td>   
+                </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="">No hay registros de corte de caja aún.</td>
+                <td colspan="7">No hay registros de corte de caja aún.</td>
             </tr>
             {% endfor %}
         </tbody>
-        
+
     </table>
     </div>
 
     <!-- Modal de Corte de Caja -->
     <div id="miModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content modal-content--corte">
             <span class="cerrar" id="cerrarModal">&times;</span>
-            <h2>Corte de Caja</h2>
+            <h2 style="margin: 0 0 10px 0; font-size: 18px;">Corte de Caja</h2>
 
-            <div class="modal-container">
-                <div class="fecha-selector">
+            <div class="modal-container" style="gap: 10px;">
+                <!-- Fechas en línea compacta -->
+                <div class="fecha-selector" style="margin-bottom: 0; padding: 10px 12px;">
                     <div class="fecha-item">
                         <label for="fechaDesde">Desde</label>
                         <input type="datetime-local" id="fechaDesde">
@@ -67,67 +68,73 @@
                         <label for="fechaHasta">Hasta</label>
                         <input type="datetime-local" id="fechaHasta">
                     </div>
-                    <button type="button" id="btnFiltrarFechas" class="btnFiltrar">Filtrar Fechas</button>
+                    <button type="button" id="btnFiltrarFechas" class="btnFiltrar" style="margin-top: 0; height: 36px; width: 120px; font-size: 12px;">Filtrar</button>
                 </div>
 
-                <table class="table">
-                    <tr>
-                        <th> </th>
-                        <th>Contado</th>
-                        <th>Calculado</th>
-                        <th>Diferencia</th>
-                    </tr>
-                    <tr>
-                        <td>Efectivo</td>
-                        <td><input type="number" class="input-field" id="contado" value="0" min="0" max="999999"
-                             onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
-                             oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)"></td>
-                        <td><input type="number" class="input-field" id="calculado" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="diferencia" value="0" readonly></td>
-                    </tr>
-                    <tr>
-                        <td>Transferencias</td>
-                        <td><input type="number" class="input-field" id="cheque" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="calculadoCheque" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="diferenciaCheque" value="0" readonly></td>
-                    </tr>
-                    <tr>
-                        <td>Tarjeta</td>
-                        <td><input type="number" class="input-field" id="vales" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="calculadoVales" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="diferenciaVales" value="0" readonly></td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td><input type="number" class="input-field" id="total" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="total2" value="0" readonly></td>
-                        <td><input type="number" class="input-field" id="totalDiferencia" value="0" readonly></td>
-                    </tr>                    
-                </table>
-                <table class="table">
-                    <tr>
-                        <td>Fondo</td>
-                        <td><input type="number" class="input-field" id="fondo" value="0" min="0" max="999999"
-                             onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
-                             oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)"></td>
-                    </tr>
-                    <tr>
-                        <td>Pagos realizados</td>
-                        <td><input type="number" class="input-field" id="pagos_realizados" value="0" min="0" max="999999"
-                             onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
-                             oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)"></td>
-                    </tr>
-                </table>
-                <div class="contenedor">
-                <button type="button" id="btnRealizarCorte" class="btnRealizar">Realizar Corte</button>
-                
-                <button type="button" id="btnCalcularCorte" class="btnRealizar">Calcular Corte</button>
+                <!-- Layout de 2 columnas: tabla principal + panel lateral -->
+                <div class="corte-grid">
+                    <!-- Columna izquierda: tabla de comparación -->
+                    <div class="corte-grid__tabla">
+                        <table class="table">
+                            <tr>
+                                <th> </th>
+                                <th>Contado</th>
+                                <th>Calculado</th>
+                                <th>Diferencia</th>
+                            </tr>
+                            <tr>
+                                <td>Efectivo</td>
+                                <td><input type="number" class="input-field" id="contado" value="0" min="0" max="999999"
+                                     onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                                     oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)"></td>
+                                <td><input type="number" class="input-field" id="calculado" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="diferencia" value="0" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Transferencias</td>
+                                <td><input type="number" class="input-field" id="cheque" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="calculadoCheque" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="diferenciaCheque" value="0" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Tarjeta</td>
+                                <td><input type="number" class="input-field" id="vales" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="calculadoVales" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="diferenciaVales" value="0" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>Total</td>
+                                <td><input type="number" class="input-field" id="total" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="total2" value="0" readonly></td>
+                                <td><input type="number" class="input-field" id="totalDiferencia" value="0" readonly></td>
+                            </tr>
+                        </table>
+                    </div>
 
+                    <!-- Columna derecha: fondo, pagos y botones -->
+                    <div class="corte-grid__panel">
+                        <div class="corte-panel-campo">
+                            <label for="fondo">Fondo</label>
+                            <input type="number" class="input-field" id="fondo" value="0" min="0" max="999999"
+                                 onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                                 oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)">
+                        </div>
+                        <div class="corte-panel-campo">
+                            <label for="pagos_realizados">Pagos realizados</label>
+                            <input type="number" class="input-field" id="pagos_realizados" value="0" min="0" max="999999"
+                                 onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                                 oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)">
+                        </div>
+                        <div class="corte-panel-botones">
+                            <button type="button" id="btnCalcularCorte" class="btnRealizar" style="width: 100%; height: 36px; font-size: 12px; margin-top: 0;">Calcular Corte</button>
+                            <button type="button" id="btnRealizarCorte" class="btnRealizar" style="width: 100%; height: 36px; font-size: 12px; margin-top: 0;">Realizar Corte</button>
+                        </div>
+                        <div id="alertaDiferencia" style="display:none; padding: 8px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px; font-size: 12px;">
+                            La diferencia debe ser 0 para realizar el corte.
+                        </div>
+                    </div>
                 </div>
-                <div id="alertaDiferencia" style="display:none; margin-top: 10px; padding: 10px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
-                    No puedes realizar el corte, la diferencia debe ser igual a 0. 
-                </div>
-                
+
             </div>
         </div>
     </div>
@@ -148,18 +155,18 @@
                     <p><strong>Total calculado:</strong> $<span id="detalleCalculado">0.00</span></p>
                     <p><strong>Total efectivo:</strong> $<span id="detalleEfectivo">0.00</span></p>
                     <p><strong>Total transferencias:</strong> $<span id="detalleTransferencias">0.00</span></p>
-                    <p><strong>Total PayPal:</strong> $<span id="detallePaypal">0.00</span></p>
+                    <p><strong>Total tarjeta:</strong> $<span id="detalleTarjeta">0.00</span></p>
                     <p><strong>Pagos realizados:</strong> $<span id="detallePagosRealizados">0.00</span></p>
                 </div>
             </div>
         </div>
     </div>
-         
+
 
     <script>
-        var nombreUsuario = "{{ nombre_usuario | default('No especificado') }}";
+        const nombreUsuario = {{ nombre_usuario | default('No especificado') | tojson }};
     </script>
-  
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -187,4 +194,3 @@
     });
 </script>
 {% endblock %}
-  

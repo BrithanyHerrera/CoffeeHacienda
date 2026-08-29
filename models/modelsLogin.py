@@ -8,7 +8,7 @@ def buscar_usuario_por_usuario(usuario):
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT u.Id, u.activo, u.contrasena, r.rol 
+                SELECT u.Id, u.activo, u.contrasena, u.sesion_version, r.rol
                 FROM tusuarios u
                 JOIN troles r ON u.rol_id = r.Id
                 WHERE u.usuario = %s

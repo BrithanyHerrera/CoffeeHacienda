@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.19, for Win64 (x86_64)
 --
--- Host: [REDACTED_AIVEN_HOST]    Database: bd
+-- Host: sanitized-example    Database: coffee_hacienda
 -- ------------------------------------------------------
 -- Server version	8.0.45
 
@@ -63,7 +63,7 @@ CREATE TABLE `tclientes` (
 
 LOCK TABLES `tclientes` WRITE;
 /*!40000 ALTER TABLE `tclientes` DISABLE KEYS */;
-INSERT INTO `tclientes` VALUES (36,'Juan'),(37,'Isma'),(40,'qaq'),(41,'asa'),(42,'wasa'),(43,'qaza'),(44,'Ana'),(45,'Lalo'),(46,'Me'),(47,'Pina'),(48,'titi'),(49,'Lola'),(50,'pepe'),(51,'Reyna'),(52,'ESPE'),(53,'IRMA'),(54,'Juliette'),(55,'Yo'),(56,'Bri'),(57,'Cami'),(58,'Camim'),(59,'iris'),(60,'Ismael'),(62,'efdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbddefdeaaadbdd'),(63,'isamel'),(64,'d                                                                                 f'),(65,'Test Client');
+-- Datos operativos de tclientes omitidos intencionalmente.
 /*!40000 ALTER TABLE `tclientes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -110,11 +110,11 @@ CREATE TABLE `tcortescaja` (
   `total_ventas` decimal(10,2) NOT NULL,
   `total_efectivo` decimal(10,2) NOT NULL,
   `total_transferencias` decimal(10,2) NOT NULL,
-  `total_paypal` decimal(10,2) NOT NULL,
+  `total_tarjeta` decimal(10,2) NOT NULL,
   `total_contado` decimal(10,2) NOT NULL DEFAULT '0.00',
   `pagos_realizados` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `fondo` varchar(255) DEFAULT NULL,
-  `ganancia_o_perdida` float DEFAULT NULL,
+  `fondo` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `ganancia_o_perdida` decimal(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`Id`),
   KEY `vendedor_id` (`vendedor_id`),
   CONSTRAINT `tcortescaja_ibfk_1` FOREIGN KEY (`vendedor_id`) REFERENCES `tusuarios` (`Id`)
@@ -127,7 +127,7 @@ CREATE TABLE `tcortescaja` (
 
 LOCK TABLES `tcortescaja` WRITE;
 /*!40000 ALTER TABLE `tcortescaja` DISABLE KEYS */;
-INSERT INTO `tcortescaja` VALUES (4,NULL,'2025-04-08 15:44:00','2025-04-10 15:44:00',102.00,2.00,60.00,40.00,102.00,0.00,'900',102),(5,NULL,'2025-05-06 15:33:00','2025-05-06 19:33:00',195.00,50.00,120.00,25.00,455.00,0.00,'500',195),(6,NULL,'2025-05-01 13:12:00','2025-05-14 13:12:00',1965.00,1245.00,720.00,0.00,1965.00,400.00,'3000',1565),(7,NULL,'2025-05-01 13:12:00','2025-05-14 13:12:00',1965.00,1245.00,720.00,0.00,1965.00,400.00,'3000',1565),(8,NULL,'2025-05-01 14:41:00','2025-05-14 14:41:00',2100.00,1350.00,750.00,0.00,2100.00,0.00,'300',2100);
+-- Datos operativos de tcortescaja omitidos intencionalmente.
 /*!40000 ALTER TABLE `tcortescaja` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -142,12 +142,16 @@ CREATE TABLE `tdetalleventas` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `venta_id` int DEFAULT NULL,
   `producto_id` int DEFAULT NULL,
+  `variante_id` int DEFAULT NULL,
+  `producto_nombre_snapshot` varchar(255) DEFAULT NULL,
+  `tamano_snapshot` varchar(100) DEFAULT NULL,
   `cantidad` int NOT NULL,
   `precio` decimal(10,2) NOT NULL,
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   KEY `venta_id` (`venta_id`),
   KEY `tdetalleventas_ibfk_2` (`producto_id`),
+  KEY `idx_detalleventas_variante_id` (`variante_id`),
   CONSTRAINT `tdetalleventas_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `tventas` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `tdetalleventas_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`),
   CONSTRAINT `chk_cantidad_positiva` CHECK ((`cantidad` > 0)),
@@ -161,7 +165,7 @@ CREATE TABLE `tdetalleventas` (
 
 LOCK TABLES `tdetalleventas` WRITE;
 /*!40000 ALTER TABLE `tdetalleventas` DISABLE KEYS */;
-INSERT INTO `tdetalleventas` VALUES (50,52,42,1,2.00,'2025-04-10 15:34:05'),(51,53,48,1,60.00,'2025-04-10 15:43:27'),(52,54,45,1,40.00,'2025-04-10 15:43:44'),(53,55,50,1,25.00,'2025-04-10 16:02:06'),(54,56,50,1,25.00,'2025-04-10 16:17:28'),(55,57,50,4,25.00,'2025-04-10 18:00:22'),(56,58,45,6,40.00,'2025-04-10 18:06:53'),(60,62,48,2,60.00,'2025-05-06 17:33:35'),(61,63,50,1,25.00,'2025-05-10 00:01:54'),(62,64,47,4,90.00,'2025-05-10 01:07:31'),(64,66,45,1,40.00,'2025-05-10 01:10:48'),(65,67,45,10,40.00,'2025-05-10 01:52:09'),(66,68,48,1,60.00,'2025-05-12 00:30:01'),(67,68,45,1,40.00,'2025-05-12 00:30:01'),(68,68,50,1,25.00,'2025-05-12 00:30:01'),(69,68,52,1,30.00,'2025-05-12 00:30:01'),(70,68,46,1,90.00,'2025-05-12 00:30:01'),(71,68,47,1,90.00,'2025-05-12 00:30:01'),(72,68,49,1,70.00,'2025-05-12 00:30:01'),(73,69,50,4,25.00,'2025-05-14 12:48:14'),(74,70,50,3,25.00,'2025-05-14 14:24:36'),(78,74,50,1,25.00,'2026-04-20 16:58:32'),(79,75,48,1,60.00,'2026-04-20 21:51:50'),(103,98,52,8,30.00,'2026-04-20 22:29:36'),(104,99,48,1,60.00,'2026-04-20 22:30:12'),(105,100,45,1,40.00,'2026-04-23 03:43:39'),(106,101,45,1,40.00,'2026-04-23 03:59:11');
+-- Datos operativos de tdetalleventas omitidos intencionalmente.
 /*!40000 ALTER TABLE `tdetalleventas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -258,8 +262,10 @@ DROP TABLE IF EXISTS `tmetodospago`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tmetodospago` (
   `Id` int NOT NULL,
+  `codigo` varchar(32) NOT NULL,
   `tipo_de_pago` varchar(50) NOT NULL,
-  PRIMARY KEY (`Id`)
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `uq_metodospago_codigo` (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -269,7 +275,7 @@ CREATE TABLE `tmetodospago` (
 
 LOCK TABLES `tmetodospago` WRITE;
 /*!40000 ALTER TABLE `tmetodospago` DISABLE KEYS */;
-INSERT INTO `tmetodospago` VALUES (1,'Efectivo'),(2,'Transferencia Bancaria'),(3,'PayPal');
+INSERT INTO `tmetodospago` VALUES (1,'EFECTIVO','Efectivo'),(2,'TARJETA','Tarjeta'),(3,'TRANSFERENCIA','Transferencia Bancaria');
 /*!40000 ALTER TABLE `tmetodospago` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -281,14 +287,18 @@ DROP TABLE IF EXISTS `tmovimientosinventario`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tmovimientosinventario` (
-  `Id` int NOT NULL,
+  `Id` int NOT NULL AUTO_INCREMENT,
   `producto_id` int NOT NULL,
+  `venta_id` int DEFAULT NULL,
+  `usuario_id` int DEFAULT NULL,
   `cantidad` int NOT NULL,
   `tipo_movimiento_id` int NOT NULL,
   `motivo` text,
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   KEY `producto_id` (`producto_id`),
+  KEY `idx_movimientos_venta` (`venta_id`),
+  KEY `idx_movimientos_usuario` (`usuario_id`),
   KEY `tipo_movimiento_id` (`tipo_movimiento_id`),
   CONSTRAINT `tmovimientosinventario_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `tproductos` (`Id`),
   CONSTRAINT `tmovimientosinventario_ibfk_2` FOREIGN KEY (`tipo_movimiento_id`) REFERENCES `ttiposmovimiento` (`Id`)
@@ -301,7 +311,7 @@ CREATE TABLE `tmovimientosinventario` (
 
 LOCK TABLES `tmovimientosinventario` WRITE;
 /*!40000 ALTER TABLE `tmovimientosinventario` DISABLE KEYS */;
-INSERT INTO `tmovimientosinventario` VALUES (1,47,2,3,'Actualización desde panel de inventario','2026-04-20 17:11:00'),(2,46,3,3,'Actualización desde panel de inventario','2026-04-20 17:11:18'),(3,47,17,3,'Actualización desde panel de inventario','2026-04-21 18:00:16'),(4,50,50,4,'Actualización desde panel de inventario','2026-04-21 18:01:08'),(5,52,50,3,'Actualización desde panel de inventario','2026-04-21 18:01:26'),(6,46,3,4,'Actualización desde panel de inventario','2026-04-21 18:01:40');
+-- Datos operativos de tmovimientosinventario omitidos intencionalmente.
 /*!40000 ALTER TABLE `tmovimientosinventario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -477,7 +487,7 @@ CREATE TABLE `ttiposdevolucion` (
 
 LOCK TABLES `ttiposdevolucion` WRITE;
 /*!40000 ALTER TABLE `ttiposdevolucion` DISABLE KEYS */;
-INSERT INTO `ttiposdevolucion` VALUES (1,'Total'),(2,'Devolución por transferencia'),(3,'Devolución por PayPal'),(4,'Defecto de producto'),(5,'Insatisfacción del cliente');
+INSERT INTO `ttiposdevolucion` VALUES (1,'Total'),(2,'Devolución por transferencia'),(3,'Devolución por tarjeta'),(4,'Defecto de producto'),(5,'Insatisfacción del cliente');
 /*!40000 ALTER TABLE `ttiposdevolucion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -520,6 +530,7 @@ CREATE TABLE `tusuarios` (
   `rol_id` int NOT NULL,
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `activo` tinyint(1) DEFAULT '1',
+  `sesion_version` int NOT NULL DEFAULT '1',
   `modificado_en` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `usuario_UNIQUE` (`usuario`),
@@ -535,7 +546,7 @@ CREATE TABLE `tusuarios` (
 
 LOCK TABLES `tusuarios` WRITE;
 /*!40000 ALTER TABLE `tusuarios` DISABLE KEYS */;
-INSERT INTO `tusuarios` VALUES (6,'Isma','[REDACTED_PASS_1]','ismaelcm18182@gmail.com',1,'2025-03-10 23:19:36',1,'2026-04-21 19:24:36'),(13,'Isma2','[REDACTED_PASS_2]','ismaelcm1818@gmail.com',2,'2025-03-15 17:16:44',1,'2025-05-14 20:18:33'),(14,'Bri','123','brithanymil@gmail.com',1,'2025-04-07 01:06:17',1,'2025-05-14 20:18:33'),(16,'Bri2','123','brithanyherrera04@gmail.com',2,'2025-04-10 15:45:44',0,'2025-05-14 20:22:34'),(19,'Brithany','[REDACTED_PASS_3]','brithany2mil4@gmail.com',1,'2025-05-09 23:48:33',1,'2025-05-14 20:18:33'),(20,'Isma2hgca','[REDACTED_PASS_4]','carmelacar12@gmail.com',2,'2025-10-06 14:49:50',0,'2026-04-11 04:29:22'),(21,'Jaime','[REDACTED_PASS_5]','jaimejes92@gmail.com',2,'2025-10-06 15:32:48',0,'2026-04-20 16:54:44');
+-- Datos operativos de tusuarios omitidos intencionalmente.
 /*!40000 ALTER TABLE `tusuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -589,11 +600,15 @@ CREATE TABLE `tventas` (
   `creado_en` datetime DEFAULT CURRENT_TIMESTAMP,
   `dinero_recibido` decimal(10,2) DEFAULT '0.00',
   `cambio` decimal(10,2) DEFAULT '0.00',
+  `cancelado_por_id` int DEFAULT NULL,
+  `cancelado_en` datetime DEFAULT NULL,
+  `motivo_cancelacion` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `cliente_id` (`cliente_id`),
   KEY `vendedor_id` (`vendedor_id`),
   KEY `metodo_pago_id` (`metodo_pago_id`),
   KEY `estado_id` (`estado_id`),
+  KEY `idx_ventas_cancelado_por` (`cancelado_por_id`),
   CONSTRAINT `tventas_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `tclientes` (`Id`),
   CONSTRAINT `tventas_ibfk_2` FOREIGN KEY (`vendedor_id`) REFERENCES `tusuarios` (`Id`),
   CONSTRAINT `tventas_ibfk_3` FOREIGN KEY (`metodo_pago_id`) REFERENCES `tmetodospago` (`Id`),
@@ -610,7 +625,7 @@ CREATE TABLE `tventas` (
 
 LOCK TABLES `tventas` WRITE;
 /*!40000 ALTER TABLE `tventas` DISABLE KEYS */;
-INSERT INTO `tventas` VALUES (52,44,2.00,'2025-04-10 15:34:05',14,1,4,'','2025-04-10 15:34:05',0.00,0.00),(53,36,60.00,'2025-04-10 15:43:27',14,2,4,'','2025-04-10 15:43:27',0.00,0.00),(54,45,40.00,'2025-04-10 15:43:44',14,3,3,'','2025-04-10 15:43:44',0.00,0.00),(55,37,25.00,'2025-04-10 16:02:06',14,1,3,'','2025-04-10 16:02:06',0.00,0.00),(56,46,25.00,'2025-04-10 16:17:28',16,1,3,'','2025-04-10 16:17:28',0.00,0.00),(57,47,100.00,'2025-04-10 18:00:22',14,1,3,'19','2025-04-10 18:00:22',0.00,0.00),(58,48,240.00,'2025-04-10 18:06:53',14,1,4,'','2025-04-10 18:06:53',0.00,0.00),(62,50,120.00,'2025-05-06 17:33:35',6,2,1,'','2025-05-06 17:33:35',0.00,0.00),(63,49,25.00,'2025-05-10 00:01:54',6,1,4,'26','2025-05-10 00:01:54',0.00,0.00),(64,51,360.00,'2025-05-10 01:07:31',6,2,1,'','2025-05-10 01:07:31',0.00,0.00),(66,52,40.00,'2025-05-10 01:10:48',6,1,4,'','2025-05-10 01:10:48',0.00,0.00),(67,53,400.00,'2025-05-10 01:52:09',6,1,4,'','2025-05-10 01:52:09',0.00,0.00),(68,54,405.00,'2025-05-12 00:30:01',6,1,4,'3','2025-05-12 00:30:01',0.00,0.00),(69,49,100.00,'2025-05-14 12:48:14',16,1,4,'','2025-05-14 12:48:14',0.00,0.00),(70,55,75.00,'2025-05-14 14:24:36',6,1,4,'','2025-05-14 14:24:36',0.00,0.00),(74,60,25.00,'2026-04-20 16:58:32',6,1,4,'','2026-04-20 16:58:32',0.00,0.00),(75,60,60.00,'2026-04-20 21:51:49',6,1,1,'94','2026-04-20 21:51:49',0.00,0.00),(98,63,240.00,'2026-04-20 22:29:36',6,1,1,'1','2026-04-20 22:29:36',0.00,0.00),(99,64,60.00,'2026-04-20 22:30:12',6,1,1,'42','2026-04-20 22:30:12',0.00,0.00),(100,65,40.00,'2026-04-23 03:43:38',6,1,1,'','2026-04-23 03:43:38',100.00,60.00),(101,36,40.00,'2026-04-23 03:59:11',6,1,1,'','2026-04-23 03:59:11',50.00,10.00);
+-- Datos operativos de tventas omitidos intencionalmente.
 /*!40000 ALTER TABLE `tventas` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -1,3 +1,12 @@
+function escaparHtmlOrdenes(valor) {
+    return String(valor ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 // Cargar órdenes al cargar la página
 document.addEventListener('DOMContentLoaded', function () {
     cargarOrdenes();
@@ -21,7 +30,15 @@ function cargarOrdenes() {
                 }
 
                 data.ordenes.forEach(orden => {
-                    const vendedor = orden.vendedor || 'No disponible';
+                    const ordenId = Number.parseInt(orden.id, 10);
+                    if (!Number.isInteger(ordenId) || ordenId <= 0) {
+                        return;
+                    }
+                    const vendedor = escaparHtmlOrdenes(orden.vendedor || 'No disponible');
+                    const cliente = escaparHtmlOrdenes(orden.cliente || 'No disponible');
+                    const mesa = escaparHtmlOrdenes(orden.numero_mesa || '');
+                    const metodoPago = escaparHtmlOrdenes(orden.metodo_pago || 'No especificado');
+                    const estado = escaparHtmlOrdenes(orden.estado || '');
                     // Convertir la fecha correctamente a la zona horaria local
                     const fechaUTC = new Date(orden.fecha_hora);
                     const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
@@ -45,24 +62,24 @@ function cargarOrdenes() {
                     }[orden.estado] || '';
 
                     // Determinar qué botones mostrar según el estado
-                    let botonesHTML = `<button class="btnVerOrden" onclick="verDetallesOrden(${orden.id})">👁️</button>`;
+                    let botonesHTML = `<button class="btnVerOrden" onclick="verDetallesOrden(${ordenId})">👁️</button>`;
 
                     if (orden.estado === 'Pendiente') {
-                        botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'En proceso')">Procesando</button>`;
-                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">Cancelar</button>`;
+                        botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${ordenId}, 'En proceso')">Procesando</button>`;
+                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${ordenId}, 'Cancelado')">Cancelar</button>`;
                     } else if (orden.estado === 'En proceso') {
-                        botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Completado')">Lista</button>`;
-                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${orden.id}, 'Cancelado')">Cancelar</button>`;
+                        botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${ordenId}, 'Completado')">Lista</button>`;
+                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${ordenId}, 'Cancelado')">Cancelar</button>`;
                     }
 
 
                     // Crear la fila de la tabla con la nueva columna
                     let fila = `
-                        <tr data-id="${orden.id}" data-cliente="${orden.cliente}" data-fecha="${fechaFormateada}" data-total="${orden.total}" data-mesa="${orden.numero_mesa || ''}" data-vendedor="${vendedor}" data-metodo="${orden.metodo_pago || 'No especificado'}" data-dinero="${orden.dinero_recibido || 0}" data-cambio="${orden.cambio || 0}">
-                            <td>${orden.cliente}</td>
+                        <tr data-id="${ordenId}" data-cliente="${cliente}" data-fecha="${fechaFormateada}" data-total="${Number(orden.total) || 0}" data-mesa="${mesa}" data-vendedor="${vendedor}" data-metodo="${metodoPago}" data-dinero="${Number(orden.dinero_recibido) || 0}" data-cambio="${Number(orden.cambio) || 0}">
+                            <td>${cliente}</td>
                             <td>${fechaFormateada}</td>
                             <td>${vendedor}</td> <!-- Nueva columna -->
-                            <td><span class="estadoOrden ${estadoClase}">${orden.estado}</span></td>
+                            <td><span class="estadoOrden ${estadoClase}">${estado}</span></td>
                             <td>${botonesHTML}</td>
                         </tr>
                     `;
@@ -105,19 +122,19 @@ function verDetallesOrden(id) {
                         <div class="orden-cliente-info">
                             <div class="info-grupo">
                                 <span class="info-label">Cliente:</span>
-                                <span class="info-value">${cliente}</span>
+                                <span class="info-value">${escaparHtmlOrdenes(cliente)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Vendedor:</span>
-                                <span class="info-value">${vendedor}</span>
+                                <span class="info-value">${escaparHtmlOrdenes(vendedor)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Fecha:</span>
-                                <span class="info-value">${fecha}</span>
+                                <span class="info-value">${escaparHtmlOrdenes(fecha)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Método de pago:</span>
-                                <span class="info-value">${metodoPago}</span>
+                                <span class="info-value">${escaparHtmlOrdenes(metodoPago)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Dinero recibido:</span>
@@ -127,7 +144,7 @@ function verDetallesOrden(id) {
                                 <span class="info-label">Cambio:</span>
                                 <span class="info-value">$${cambioOrden.toFixed(2)}</span>
                             </div>
-                            ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${mesa}</span></div>` : ''}
+                            ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${escaparHtmlOrdenes(mesa)}</span></div>` : ''}
                         </div>
                     </div>
                     <div class="productosOrden">
@@ -159,8 +176,8 @@ function verDetallesOrden(id) {
 
                     detallesHTML += `
                         <tr>
-                            <td class="producto-nombre">${detalle.nombre_producto}</td>
-                            <td class="producto-tamano">${tamano}</td>
+                            <td class="producto-nombre">${escaparHtmlOrdenes(detalle.nombre_producto)}</td>
+                            <td class="producto-tamano">${escaparHtmlOrdenes(tamano)}</td>
                             <td class="precio-unitario">$${precioFormateado}</td>
                             <td class="cantidad-producto">${detalle.cantidad}</td>
                             <td class="subtotal-producto">$${subtotalItem}</td>
@@ -201,16 +218,30 @@ function cambiarEstadoOrden(id, nuevoEstado) {
     idOrdenAActualizar = id; // Almacenar el ID de la orden a actualizar
     nuevoEstadoAActualizar = nuevoEstado; // Almacenar el nuevo estado
     document.getElementById('mensajeConfirmacion').textContent = `¿Estás seguro de cambiar esta orden a estado "${nuevoEstado}"?`;
+    const contenedorMotivo = document.getElementById('contenedorMotivoCancelacion');
+    const motivo = document.getElementById('motivoCancelacion');
+    const requiereMotivo = nuevoEstado === 'Cancelado';
+    contenedorMotivo.style.display = requiereMotivo ? 'block' : 'none';
+    motivo.value = '';
     document.getElementById('confirmacionModal').style.display = 'flex'; // Mostrar el modal de confirmación
 }
 
 function confirmarCambioEstado() {
+    const motivo = document.getElementById('motivoCancelacion').value.trim();
+    if (nuevoEstadoAActualizar === 'Cancelado' && motivo.length < 3) {
+        mostrarAlerta('Indica un motivo de cancelación.', 'ErrorG');
+        return;
+    }
+
     fetch(`/api/ordenes/${idOrdenAActualizar}/estado`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ estado: nuevoEstadoAActualizar })
+        body: JSON.stringify({
+            estado: nuevoEstadoAActualizar,
+            motivo: nuevoEstadoAActualizar === 'Cancelado' ? motivo : null
+        })
     })
         .then(response => response.json())
         .then(data => {
@@ -274,7 +305,7 @@ function mostrarAlerta(mensaje, tipo = 'ExitoG') {
         <span class="iconoAlertaG">${icono}</span>
         <div class="mensajeAlertaG">
             <h3>${titulo}</h3>
-            <p>${mensaje}</p>
+            <p>${escaparHtmlOrdenes(mensaje)}</p>
         </div>
         <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
     `;
