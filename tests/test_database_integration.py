@@ -12,14 +12,21 @@ pytestmark = pytest.mark.integration
     os.getenv('RUN_DB_TESTS') != '1',
     reason='RUN_DB_TESTS=1 habilita las pruebas con MySQL',
 )
-def test_required_schema_migrations_are_applied():
+def test_required_schema_versions_are_applied():
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
             cursor.execute('SELECT version FROM tschema_migrations ORDER BY version')
             versions = [row['version'] for row in cursor.fetchall()]
             assert versions[-2:] == [2, 3]
+    finally:
+        connection.close()
 
+
+def test_required_schema_columns_exist():
+    connection = Conexion_BD()
+    try:
+        with connection.cursor() as cursor:
             expected_columns = {
                 ('tmetodospago', 'codigo'),
                 ('tdetalleventas', 'producto_nombre_snapshot'),

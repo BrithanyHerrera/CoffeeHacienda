@@ -63,5 +63,11 @@ jobs:
       - name: Validar JavaScript
         run: find static/js -name '*.js' -print0 | xargs -0 -n1 node --check
 
-      - name: Ejecutar pruebas
-        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=35
+      - name: Ejecutar pruebas unitarias
+        run: pytest -m "not integration" --cov=. --cov-report=term-missing --cov-fail-under=35
+
+      - name: Verificar versiones del esquema
+        run: pytest tests/test_database_integration.py::test_required_schema_versions_are_applied
+
+      - name: Verificar columnas requeridas
+        run: pytest tests/test_database_integration.py::test_required_schema_columns_exist
