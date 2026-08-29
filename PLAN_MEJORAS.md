@@ -1,0 +1,267 @@
+# Plan de mejoras — Coffee Hacienda
+
+## Objetivo
+
+Convertir el proyecto actual en un punto de venta seguro, consistente y mantenible, usando:
+
+- **MySQL local** para desarrollo y pruebas.
+- **Aiven MySQL** para el entorno en la nube.
+- Un único esquema versionado mediante migraciones, para evitar que ambas bases se separen.
+
+> Regla principal: ningún cambio de esquema se hará manualmente primero en Aiven. Se crea como migración, se prueba en local, se respalda Aiven y después se aplica en la nube.
+
+## Estado general
+
+La rama de estabilización ya cubre los controles críticos que dependen del
+código. Siguen requiriendo intervención humana la rotación de secretos, la
+limpieza coordinada del historial Git, el respaldo/migración de Aiven y la
+configuración de infraestructura compartida.
+
+**Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
+
+## Ruta de trabajo
+
+| Fase | Prioridad | Resultado esperado |
+|---|---:|---|
+| 0. Contención | P0 | Cerrar accesos críticos y retirar datos sensibles |
+| 1. Ventas e inventario | P0 | Importes confiables, cancelaciones auditables y stock consistente |
+| 2. Base de datos local/Aiven | P0–P1 | Un solo esquema reproducible mediante migraciones |
+| 3. Seguridad web | P1 | Permisos, CSRF, sesiones, XSS y archivos protegidos |
+| 4. Pruebas y calidad | P1–P2 | Cambios verificables automáticamente |
+| 5. Operación en nube | P2 | Despliegue, respaldos, logs y monitoreo básicos |
+
+---
+
+## Fase 0 — Contención inmediata
+
+### 0.1 Reparar la recuperación de contraseña
+
+- [x] No permitir `/actualizar-contrasena` solo por tener un correo en sesión.
+- [x] Al validar el código, guardar en sesión un estado de verificación de un solo uso y con expiración corta.
+- [x] Consumir el código y el permiso temporal dentro de la misma operación que cambia la contraseña.
+- [x] Usar `secrets` en lugar de `random` para generar códigos.
+- [x] Limitar intentos de verificación y actualización.
+- [x] Invalidar las sesiones del usuario mediante `sesion_version` después del cambio.
+
+**Criterio de aceptación:** visitar directamente la ruta final, reutilizar un código o usar un código expirado nunca permite cambiar una contraseña.
+
+### 0.2 Retirar credenciales y datos personales del repositorio
+
+- [x] Sustituir los datos reales de `bd.sql` por datos ficticios o eliminar completamente los `INSERT` sensibles.
+- [x] Crear el administrador local mediante un script que genera el hash sin guardar la contraseña.
+- [ ] Rotar contraseñas de usuarios que aparecieron en el dump.
+- [ ] Rotar las credenciales que hayan estado en versiones anteriores de `bd.env`.
+- [ ] Limpiar esos archivos del historial Git si el repositorio se compartió o subió a un remoto.
+- [x] Crear `bd.env.example` únicamente con nombres de variables y valores ficticios.
+
+**Criterio de aceptación:** una búsqueda en el historial y en la rama actual no encuentra correos reales, contraseñas ni secretos utilizables.
+
+### 0.3 Dejar de exponer contraseñas o hashes
+
+- [x] Cambiar las consultas de usuario para seleccionar columnas explícitas; nunca `u.*`.
+- [x] No incluir `contrasena` en ninguna respuesta JSON.
+- [x] Eliminar de la interfaz la opción de mostrar el hash.
+- [x] Exigir rol Administrador para consultar información individual de otros usuarios.
+
+**Criterio de aceptación:** ninguna respuesta HTTP ni elemento del navegador contiene el hash de contraseña.
+
+### 0.4 Configuración segura por defecto
+
+- [x] Eliminar `debug=True` como valor fijo.
+- [x] Definir configuraciones separadas: `DevelopmentConfig`, `TestingConfig` y `ProductionConfig`.
+- [x] En producción activar cookies `Secure`, `HttpOnly` y `SameSite=Lax` o más restrictivo.
+- [x] No devolver `str(e)` al navegador; registrar el detalle y usar mensajes genéricos.
+
+---
+
+## Fase 1 — Integridad de ventas, caja e inventario
+
+### 1.1 El servidor es la única autoridad de precios
+
+El navegador debe enviar únicamente:
+
+- Identificador de producto o variante.
+- Cantidad.
+- Cliente, mesa y método de pago.
+- Dinero recibido cuando corresponda.
+
+El servidor debe:
+
+1. Consultar productos, variantes y precios vigentes.
+2. Validar cantidades positivas.
+3. Calcular subtotales, total y cambio usando `Decimal`.
+4. Validar el método de pago contra la base de datos.
+5. Guardar cabecera, detalles y descuento de stock en una sola transacción.
+
+**Criterio de aceptación:** modificar precio o total desde las herramientas del navegador no altera el importe registrado.
+
+### 1.2 Corregir métodos de pago
+
+- [x] Decidir el catálogo definitivo: Efectivo, Tarjeta y Transferencia.
+- [x] Dejar de depender de IDs escritos directamente en JavaScript.
+- [x] Consultar el catálogo en el servidor y usar claves estables como `EFECTIVO`, `TARJETA` y `TRANSFERENCIA`.
+- [x] Actualizar reportes y cortes para usar los tres métodos acordados.
+
+**Criterio de aceptación:** cada venta aparece bajo el mismo método en menú, historial, base de datos y corte.
+
+### 1.3 Registrar correctamente tamaños y variantes
+
+- [x] Agregar `variante_id` al detalle de venta cuando aplique.
+- [x] Conservar instantáneas independientes de nombre, tamaño y precio vendido.
+- [x] No reconstruir ventas antiguas uniendo todas las variantes actuales del producto.
+
+**Criterio de aceptación:** cambiar el catálogo después de una venta no modifica lo que muestra su ticket o historial.
+
+### 1.4 Cancelaciones auditables
+
+- [x] No borrar físicamente ventas canceladas.
+- [x] Cambiar su estado a `Cancelado`.
+- [x] Reponer stock y registrar el movimiento dentro de la misma transacción.
+- [x] Guardar usuario, fecha y motivo de cancelación.
+- [x] Evitar una segunda cancelación o reposición duplicada.
+
+**Criterio de aceptación:** la venta sigue en el historial, el stock se repone exactamente una vez y existe trazabilidad.
+
+### 1.5 Cortes de caja confiables
+
+- [x] Recalcular totales en el servidor consultando ventas completadas del rango.
+- [x] Excluir pendientes, canceladas y reembolsadas según la regla de negocio.
+- [x] No aceptar del navegador los totales calculados como fuente de verdad.
+- [x] Validar rangos, impedir solapamientos o duplicados y registrar quién cerró la caja.
+- [x] Guardar dinero con `DECIMAL`, no `float` ni `varchar`.
+
+### 1.6 Inventario atómico
+
+- [x] Hacer el cambio de stock y su movimiento en una sola transacción.
+- [x] Convertir `tmovimientosinventario.Id` en `AUTO_INCREMENT`; eliminar `MAX(Id)+1`.
+- [x] Descontar con una operación condicional, comprobando stock suficiente en el mismo `UPDATE`.
+- [x] Registrar movimientos de ventas, cancelaciones y ajustes manuales.
+
+---
+
+## Fase 2 — MySQL local y Aiven sin divergencias
+
+### 2.1 Papeles de cada entorno
+
+| Entorno | Uso | Datos permitidos |
+|---|---|---|
+| Local | Desarrollo, migraciones y pruebas manuales | Datos ficticios o anonimizados |
+| Aiven | Nube/producción | Datos reales, acceso restringido y respaldos |
+| Testing | Pruebas automáticas | Base temporal creada y destruida por la suite |
+
+No se debe usar Aiven para experimentar con cambios de esquema.
+
+### 2.2 Migraciones
+
+- [x] Incorporar migraciones SQL numeradas.
+- [x] Mantener `bd.sql` como esquema inicial reproducible y saneado, sin datos operativos personales.
+- [~] La migración actual es repetible; falta una reversión formal cuando sea posible.
+- [x] Registrar en `tschema_migrations` qué versión de esquema está aplicada.
+
+Flujo obligatorio:
+
+1. Crear la migración.
+2. Aplicarla en una base local limpia.
+3. Cargar datos ficticios.
+4. Ejecutar pruebas.
+5. Probar actualización desde una copia del esquema anterior.
+6. Crear respaldo de Aiven.
+7. Aplicar la migración en Aiven.
+8. Ejecutar una prueba de humo y verificar logs.
+
+### 2.3 Configuración
+
+- [x] Mantener una sola interfaz `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` y `DB_NAME` para ambos entornos.
+- [x] Elegir el entorno con `APP_ENV`, sin duplicar lógica por toda la aplicación.
+- [x] Construir rutas a `bd.env`, imágenes y PDFs a partir de la raíz de la aplicación.
+- [x] En Aiven verificar TLS con el certificado CA suministrado por el servicio.
+- [ ] Aplicar mínimo privilegio a la cuenta web.
+
+### 2.4 Respaldos y restauración
+
+- Confirmar la política automática de respaldos de Aiven.
+- Documentar un respaldo manual antes de cada migración delicada.
+- Probar periódicamente una restauración en una instancia o base separada.
+- Nunca guardar respaldos con datos reales dentro del repositorio.
+
+---
+
+## Fase 3 — Seguridad web
+
+- [x] Mantener CSRF habilitado en operaciones de escritura y enviar el token desde `fetch`.
+- [x] Definir y aplicar permisos en el servidor.
+- [x] Exigir Administrador para usuarios, productos, inventario, cortes y reportes sensibles.
+- [~] Escapar interpolaciones dinámicas; quedan estructuras heredadas con `innerHTML` por modularizar.
+- [x] Validar longitud y formato de datos principales en el servidor.
+- [x] Restringir PDFs a extensión `.pdf`, firma `%PDF-`, tamaño máximo y nombre generado por el servidor.
+- [x] Guardar documentos fuera de `/static` y entregarlos mediante una ruta autenticada.
+- [x] Generar nombres únicos para evitar sobrescrituras.
+- [x] Definir `MAX_CONTENT_LENGTH` para PDFs e imágenes.
+- [x] Agregar encabezados CSP, HSTS en HTTPS, `X-Content-Type-Options` y protección contra marcos.
+- [~] Soportar almacenamiento compartido con `RATELIMIT_STORAGE_URI`; falta proporcionar Redis en el despliegue.
+
+---
+
+## Fase 4 — Pruebas y mantenibilidad
+
+### 4.1 Base técnica
+
+- [ ] Convertir `app.py` a un patrón de fábrica `create_app(config)`.
+- [~] Separar lógica de negocio de las rutas y del acceso SQL.
+- [x] Bloquear versiones de dependencias y documentar Python 3.12.
+- [x] Añadir Ruff para análisis estático crítico.
+- [ ] Dividir los JavaScript grandes en módulos y eliminar funciones duplicadas.
+
+### 4.2 Pruebas mínimas obligatorias
+
+1. [~] La ruta final de recuperación exige autorización; falta ampliar casos de reutilización y expiración.
+2. [x] Un empleado no puede consultar hashes ni ejecutar acciones administrativas.
+3. [x] Manipular precios o totales del cliente no afecta una venta.
+4. [ ] Ejecutar una prueba real de dos ventas concurrentes contra MySQL.
+5. [x] Cancelar repone stock una sola vez, conserva la venta y genera auditoría.
+6. [~] El catálogo es estable; falta una prueba integral hasta el corte.
+7. [~] Se prueba la escritura del snapshot; falta probar el historial después de cambiar el catálogo.
+8. [ ] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
+9. [x] Un archivo con firma no PDF es rechazado; faltan casos adicionales de límite de tamaño.
+10. [~] CI valida las migraciones en MySQL limpio; la ejecución local/Aiven queda pendiente de respaldo.
+
+### 4.3 Integración continua
+
+En cada cambio ejecutar automáticamente:
+
+- [x] Análisis estático de Python y JavaScript.
+- [x] Pruebas unitarias.
+- [x] Pruebas de integración con MySQL temporal configuradas en CI.
+- [x] Validación de migraciones desde cero configurada en CI.
+- [~] Búsqueda de secretos actuales; falta automatizar el análisis de dependencias vulnerables.
+
+---
+
+## Fase 5 — Operación en Aiven
+
+- [x] Documentar Waitress detrás de un proxy HTTPS y soporte seguro de `ProxyFix`.
+- Mantener imágenes y PDFs en almacenamiento persistente u objetos, no en el disco efímero de una instancia web.
+- Configurar logs estructurados sin contraseñas, códigos ni datos financieros sensibles.
+- [~] Registrar eventos de auditoría; cancelaciones, ventas y ajustes ya generan trazabilidad.
+- [x] Añadir un endpoint de salud que compruebe aplicación y conectividad básica sin revelar datos internos.
+- Monitorear errores, latencia, conexiones ocupadas y espacio de almacenamiento.
+- [x] Definir un procedimiento de reversión para aplicación y migraciones.
+
+---
+
+## Primer bloque recomendado
+
+Antes de agregar nuevas funciones, completar en este orden:
+
+- [x] Corregir recuperación de contraseña.
+- [ ] Rotar secretos y retirar datos reales del repositorio e historial.
+- [x] Eliminar exposición de contraseñas/hashes.
+- [x] Recalcular precios y total de venta en el servidor.
+- [x] Corregir el catálogo de métodos de pago y eliminar IDs fijos del JavaScript.
+- [x] Cancelar sin borrar, reponer inventario y guardar auditoría atómicamente.
+- [x] Introducir una migración SQL para local y Aiven.
+- [~] Añadir pruebas automatizadas; la suite base está creada y quedan escenarios integrales indicados arriba.
+
+El bloque de código crítico está cerrado. La publicación en Aiven permanece
+condicionada a rotar los secretos expuestos históricamente, crear un respaldo y
+aplicar las migraciones 002 y 003 durante una ventana sin escrituras.

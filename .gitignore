@@ -6,6 +6,10 @@ bd.env
 __pycache__/
 */__pycache__/
 *.pyc
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Build artifacts
 build/
@@ -26,3 +30,6 @@ Thumbs.db
 # PDFs generados (tickets y cortes de caja)
 static/pdfs/tickets_ventas/*.pdf
 static/pdfs/cortes_de_caja/*.pdf
+
+# Archivos generados por la aplicación
+instance/
