@@ -10,8 +10,8 @@ from models.modelsVentas import procesar_venta_completa
 pytestmark = pytest.mark.integration
 
 @pytest.mark.skipif(
-    os.getenv('RUN_DB_TESTS') != '1',
-    reason='RUN_DB_TESTS=1 habilita las pruebas de concurrencia reales contra MySQL'
+    os.getenv('RUN_DB_WRITE_TESTS') != '1',
+    reason='RUN_DB_WRITE_TESTS=1 habilita pruebas de escritura en una base separada'
 )
 def test_concurrencia_ventas_mismo_producto_evita_stock_negativo():
     """
@@ -20,6 +20,13 @@ def test_concurrencia_ventas_mismo_producto_evita_stock_negativo():
     de forma atómica y el stock no quede negativo, o que al menos una falle.
     """
     connection = Conexion_BD()
+
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT DATABASE() AS nombre')
+        database_name = cursor.fetchone()['nombre']
+    if not database_name.lower().endswith('_test'):
+        connection.close()
+        pytest.skip('La prueba de escritura exige una base cuyo nombre termine en _test')
     
     # Preparar datos de prueba
     try:

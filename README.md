@@ -27,7 +27,8 @@ static/images/      → Imágenes de productos
 
 ## Instalación
 
-Requiere Python 3.12 y MySQL 8.
+Requiere Python 3.12 y MySQL 5.7 o posterior. El entorno local actual se
+validó con MAMP/MySQL 5.7.24; para instalaciones nuevas se recomienda MySQL 8.
 
 ```powershell
 py -3.12 -m venv .venv

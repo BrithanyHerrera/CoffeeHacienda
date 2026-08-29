@@ -13,11 +13,12 @@ Convertir el proyecto actual en un punto de venta seguro, consistente y mantenib
 ## Estado general
 
 La rama `main` cubre los controles críticos que dependen del código y su
-arranque local fue validado nuevamente el 29 de agosto de 2026. Siguen
+arranque local fue validado nuevamente el 29 de agosto de 2026. La base local
+MAMP/MySQL 5.7.24 respondió correctamente, tiene las migraciones 2 y 3, y las
+pantallas principales pasaron una prueba de humo de solo lectura. Siguen
 requiriendo intervención humana la rotación de secretos y cualquier cambio
-futuro que se decida aplicar en Aiven. La base MySQL local no estaba activa
-durante la última validación, por lo que las pruebas que escriben en una base
-real permanecen separadas de la suite local.
+futuro que se decida aplicar en Aiven. Las pruebas que escriben datos se
+mantienen separadas para no alterar la base de uso normal.
 
 **Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
 
@@ -233,7 +234,8 @@ La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 - [x] Análisis estático crítico de Python mediante Ruff.
 - [x] Suite local: 27 pruebas correctas y cobertura global de 42%.
-- [~] Existen tres pruebas de integración para MySQL; requieren `RUN_DB_TESTS=1` y una base de prueba separada.
+- [x] Las dos pruebas de lectura MySQL pasan contra la base local usando `RUN_DB_TESTS=1`.
+- [~] La prueba concurrente requiere `RUN_DB_WRITE_TESTS=1` y una base separada cuyo nombre termine en `_test`.
 - [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
 - [ ] Automatizar estas comprobaciones en CI si el proyecto adopta despliegues o colaboración continua.
 - [~] Búsqueda de secretos actuales realizada; falta revisar el historial y automatizar dependencias vulnerables.
@@ -281,7 +283,7 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 - [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
 - [x] Permitir que el servidor inicie y muestre el login aunque MySQL esté temporalmente fuera de servicio.
 - [x] Validación local: 27 pruebas correctas, cobertura de 42%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
-- [~] El arranque y el login público responden correctamente; `/health` reporta 503 hasta que se active MySQL local.
+- [x] La conexión local, `/health` y 11 rutas principales responden correctamente con MAMP activo.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.
 - [x] Aplicar las migraciones en la base local real después de crear un respaldo.
 - [ ] Crear respaldo, rotar secretos y aplicar migraciones en Aiven sólo cuando se decida actualizar la nube.

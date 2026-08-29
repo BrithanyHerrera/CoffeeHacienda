@@ -5,13 +5,15 @@ import pytest
 from bd import Conexion_BD
 
 
-pytestmark = pytest.mark.integration
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        os.getenv('RUN_DB_TESTS') != '1',
+        reason='RUN_DB_TESTS=1 habilita las pruebas de lectura con MySQL',
+    ),
+]
 
 
-@pytest.mark.skipif(
-    os.getenv('RUN_DB_TESTS') != '1',
-    reason='RUN_DB_TESTS=1 habilita las pruebas con MySQL',
-)
 def test_required_schema_versions_are_applied():
     connection = Conexion_BD()
     try:

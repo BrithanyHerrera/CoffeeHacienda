@@ -5,11 +5,6 @@ import pytest
 
 os.environ['APP_ENV'] = 'TESTING'
 os.environ.setdefault('SECRET_KEY', 'testing-only-secret-key')
-os.environ.setdefault('DB_HOST', '127.0.0.1')
-os.environ.setdefault('DB_PORT', '3306')
-os.environ.setdefault('DB_USER', 'testing')
-os.environ.setdefault('DB_PASSWORD', 'testing')
-os.environ.setdefault('DB_NAME', 'testing')
 
 from app import create_app  # noqa: E402
 
