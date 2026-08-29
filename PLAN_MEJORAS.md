@@ -12,10 +12,10 @@ Convertir el proyecto actual en un punto de venta seguro, consistente y mantenib
 
 ## Estado general
 
-La rama de estabilización ya cubre los controles críticos que dependen del
-código. Siguen requiriendo intervención humana la rotación de secretos, la
-limpieza coordinada del historial Git, el respaldo/migración de Aiven y la
-configuración de infraestructura compartida.
+La rama `codex/version-estable` ya cubre los controles críticos que dependen
+del código y está validada para el uso local actual. Siguen requiriendo
+intervención humana la rotación de secretos, la limpieza coordinada del
+historial Git y cualquier cambio futuro que se decida aplicar en Aiven.
 
 **Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
 
@@ -223,17 +223,18 @@ Flujo obligatorio:
 7. [~] Se prueba la escritura del snapshot; falta probar el historial después de cambiar el catálogo.
 8. [ ] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
 9. [x] Un archivo con firma no PDF es rechazado; faltan casos adicionales de límite de tamaño.
-10. [~] CI valida las migraciones en MySQL limpio; la ejecución local/Aiven queda pendiente de respaldo.
+10. [~] Las migraciones 002 y 003 se validaron contra MySQL 8.4 limpio; aplicarlas a las bases local/Aiven queda pendiente de respaldo.
 
 ### 4.3 Integración continua
 
-En cada cambio ejecutar automáticamente:
+La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
-- [x] Análisis estático de Python y JavaScript.
-- [x] Pruebas unitarias.
-- [x] Pruebas de integración con MySQL temporal configuradas en CI.
-- [x] Validación de migraciones desde cero configurada en CI.
-- [~] Búsqueda de secretos actuales; falta automatizar el análisis de dependencias vulnerables.
+- [x] Análisis estático crítico de Python mediante Ruff.
+- [x] Suite unitaria local: 18 pruebas correctas y cobertura de 38%.
+- [~] Existen dos pruebas de integración para MySQL; requieren `RUN_DB_TESTS=1` y una base de prueba separada.
+- [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
+- [ ] Automatizar estas comprobaciones en CI si el proyecto adopta despliegues o colaboración continua.
+- [~] Búsqueda de secretos actuales realizada; falta revisar el historial y automatizar dependencias vulnerables.
 
 ---
 
@@ -265,3 +266,16 @@ Antes de agregar nuevas funciones, completar en este orden:
 El bloque de código crítico está cerrado. La publicación en Aiven permanece
 condicionada a rotar los secretos expuestos históricamente, crear un respaldo y
 aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
+
+---
+
+## Cierre de la versión estable local — 28 de agosto de 2026
+
+- [x] Rama `codex/version-estable` creada y publicada en el remoto.
+- [x] Ventas, cancelaciones, inventario, caja, sesiones y recuperación reforzados.
+- [x] Esquema saneado y migraciones 002/003 preparadas y verificadas en una base limpia.
+- [x] Validación local: 18 pruebas unitarias correctas, Ruff correcto y plantillas válidas.
+- [x] Archivo `bd.env` y credenciales reales excluidos de Git.
+- [ ] Aplicar las migraciones en la base local real después de crear un respaldo.
+- [ ] Crear respaldo, rotar secretos y aplicar migraciones en Aiven sólo cuando se decida actualizar la nube.
+- [ ] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.
