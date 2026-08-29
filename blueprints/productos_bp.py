@@ -2,6 +2,7 @@
 import logging
 from flask import Blueprint, render_template, request, jsonify, current_app
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
 import os
 import secrets
 import time
@@ -14,6 +15,7 @@ from models.modelsProductos import (obtener_productos, obtener_categorias, obten
 
 productos_bp = Blueprint('productos', __name__)
 logger = logging.getLogger(__name__)
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
 
 
 def _firma_imagen_valida(archivo, extension):
@@ -26,6 +28,13 @@ def _firma_imagen_valida(archivo, extension):
         'gif': encabezado.startswith((b'GIF87a', b'GIF89a')),
     }
     return firmas.get(extension, False)
+
+
+def _imagen_excede_limite(archivo):
+    archivo.stream.seek(0, os.SEEK_END)
+    size = archivo.stream.tell()
+    archivo.stream.seek(0)
+    return size > MAX_IMAGE_BYTES
 
 @productos_bp.route('/gestionProductos')
 @login_required
@@ -90,6 +99,8 @@ def guardar_producto():
                 if not archivo_permitido(archivo.filename):
                     return jsonify({'success': False, 'message': 'Formato de imagen no permitido'}), 400
                 extension = archivo.filename.rsplit('.', 1)[1].lower()
+                if _imagen_excede_limite(archivo):
+                    return jsonify({'success': False, 'message': 'La imagen excede el tamaño permitido'}), 413
                 if not _firma_imagen_valida(archivo, extension):
                     return jsonify({'success': False, 'message': 'El contenido no corresponde a una imagen válida'}), 400
                 timestamp = time.strftime("%Y%m%d%H%M%S")
@@ -116,6 +127,8 @@ def guardar_producto():
         return jsonify({'success': resultado, 'message': mensaje})
     except (TypeError, ValueError):
         return jsonify({'success': False, 'message': 'Los datos del producto no son válidos'}), 400
+    except RequestEntityTooLarge:
+        raise
     except Exception:
         logger.exception('Error en guardar_producto')
         return jsonify({'success': False, 'message': 'No se pudo guardar el producto'}), 500

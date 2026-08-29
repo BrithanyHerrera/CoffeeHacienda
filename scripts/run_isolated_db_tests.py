@@ -85,6 +85,7 @@ def main():
                 'pytest',
                 'tests/test_database_integration.py',
                 'tests/test_pos_flow_integration.py',
+                'tests/test_sales_concurrency.py',
                 '-m',
                 'integration',
             ],

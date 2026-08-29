@@ -113,8 +113,12 @@ python scripts/run_isolated_db_tests.py
 ```
 
 El segundo comando crea una base con un nombre aleatorio terminado en `_test`,
-ejecuta el esquema, las migraciones y las pruebas, y elimina esa base al
-terminar. Requiere que MAMP esté activo y que la cuenta local pueda crear bases.
+ejecuta el esquema, las migraciones, los flujos integrales y la prueba de ventas
+concurrentes, y elimina esa base al terminar. Requiere que MAMP esté activo y
+que la cuenta local pueda crear bases.
+
+El flujo de GitHub Actions ejecuta Ruff y la suite sin base de datos en cada
+push a `main` y en cada pull request.
 
 ---
 Coffee Hacienda 🤎

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from flask import Blueprint, render_template, request, jsonify, current_app, url_for, send_from_directory, session
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from utils import login_required
 from models.modelsInventario import contar_alertas_inventario
@@ -103,6 +104,8 @@ def guardar_pdf():
             'nombre': nombre_unico,
             'url': url_for('core.descargar_pdf', tipo=tipo, nombre=nombre_unico),
         })
+    except RequestEntityTooLarge:
+        raise
     except Exception:
         current_app.logger.exception('Error al guardar PDF')
         return jsonify({'success': False, 'message': 'No se pudo guardar el PDF'}), 500

@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from flask_wtf.csrf import CSRFError
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from config import config_for_environment
 from extensions import limiter, csrf, mail
@@ -103,6 +104,15 @@ def create_app(env=None):
             return jsonify({'success': False, 'message': 'La sesión o el formulario expiró.'}), 400
         from flask import render_template
         return render_template('login.html'), 400
+
+    @app.errorhandler(RequestEntityTooLarge)
+    def manejar_archivo_demasiado_grande(error):
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({
+                'success': False,
+                'message': 'El archivo o la solicitud excede el tamaño permitido.',
+            }), 413
+        return 'El archivo excede el tamaño permitido.', 413
         
     return app
 

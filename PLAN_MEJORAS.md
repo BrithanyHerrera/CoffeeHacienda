@@ -220,12 +220,12 @@ Flujo obligatorio:
 1. [x] La recuperación prueba expiración de sesión/código, reutilización y límite de cinco intentos.
 2. [x] Un empleado no puede consultar hashes ni ejecutar acciones administrativas.
 3. [x] Manipular precios o totales del cliente no afecta una venta.
-4. [~] Existe la prueba de dos ventas concurrentes; falta repetirla contra una base MySQL de pruebas activa.
+4. [x] Dos ventas concurrentes se prueban en MySQL aislado y nunca dejan stock negativo.
 5. [x] Cancelar repone stock una sola vez, conserva la venta y genera auditoría.
 6. [x] El flujo catálogo, venta, inventario, cancelación y corte se prueba contra MySQL aislado.
 7. [x] El historial conserva nombre, tamaño y precio después de cambiar el catálogo.
 8. [x] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
-9. [x] Un archivo con firma no PDF es rechazado; faltan casos adicionales de límite de tamaño.
+9. [x] PDFs e imágenes validan firma, límite de tamaño y nombres generados dentro de sus carpetas.
 10. [~] Las migraciones 002 y 003 están aplicadas en local; Aiven queda pendiente de respaldo y ventana de actualización.
 
 ### 4.3 Integración continua
@@ -233,12 +233,12 @@ Flujo obligatorio:
 La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 - [x] Análisis estático crítico de Python mediante Ruff.
-- [x] Suite local: 31 pruebas correctas y cobertura global de 46%.
+- [x] Suite local: 38 pruebas correctas y cobertura global de 49%.
 - [x] Las dos pruebas de lectura MySQL pasan contra la base local usando `RUN_DB_TESTS=1`.
-- [x] Cuatro pruebas integrales pasan en una base MySQL temporal creada y eliminada automáticamente.
-- [~] La prueba concurrente requiere `RUN_DB_WRITE_TESTS=1` y una base separada cuyo nombre termine en `_test`.
+- [x] Cinco pruebas integrales, incluida concurrencia, pasan en una base MySQL temporal creada y eliminada automáticamente.
+- [x] La prueba concurrente confirma una sola venta, un solo movimiento y stock final no negativo.
 - [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
-- [ ] Automatizar estas comprobaciones en CI si el proyecto adopta despliegues o colaboración continua.
+- [~] GitHub Actions ejecuta Ruff y la suite local; MySQL aislado permanece como validación local deliberada.
 - [~] Búsqueda de secretos actuales realizada; falta revisar el historial y automatizar dependencias vulnerables.
 
 ---
@@ -283,8 +283,8 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 - [x] Corregir y validar el arranque mediante la fábrica de aplicación con Waitress.
 - [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
 - [x] Permitir que el servidor inicie y muestre el login aunque MySQL esté temporalmente fuera de servicio.
-- [x] Validación local: 31 pruebas correctas, cobertura de 46%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
-- [x] Validación MySQL aislada: 4 pruebas correctas para esquema, venta, inventario, cancelación, corte y snapshots históricos.
+- [x] Validación local: 38 pruebas correctas, cobertura de 49%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
+- [x] Validación MySQL aislada: 5 pruebas correctas para esquema, venta, concurrencia, inventario, cancelación, corte y snapshots históricos.
 - [x] La conexión local, `/health` y 11 rutas principales responden correctamente con MAMP activo.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.
 - [x] Aplicar las migraciones en la base local real después de crear un respaldo.
