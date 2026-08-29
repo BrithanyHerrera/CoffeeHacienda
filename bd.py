@@ -13,7 +13,7 @@ load_dotenv(os.path.join(PROJECT_ROOT, 'bd.env'))
 _pool = None
 
 def _crear_pool():
-    """Crea el pool según APP_ENV (LOCAL o NUBE)."""
+    """Crea el pool con la interfaz DB_* y compatibilidad con nombres heredados."""
     global _pool
     
     env = os.getenv('APP_ENV', 'LOCAL').upper()
@@ -38,11 +38,6 @@ def _crear_pool():
         if not os.path.isfile(ssl_ca):
             raise RuntimeError('DB_SSL_CA no apunta a un certificado CA existente')
     else:
-        host = os.getenv('DB_HOST_LOCAL')
-        user = os.getenv('DB_USER_LOCAL')
-        password = os.getenv('DB_PASS_LOCAL')
-        database = os.getenv('DB_NAME_LOCAL')
-        port = int(os.getenv('DB_PORT_LOCAL', 3307))
         ssl_ca = None
 
     # En nube no pre-creamos conexiones SSL (lentas); en local sí para más agilidad
