@@ -1,11 +1,4 @@
-function escaparHtmlHistorial(valor) {
-    return String(valor ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-}
+﻿
 
 // Estado de paginación
 let paginaActual = 1;
@@ -18,30 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("fechaFin").addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
 });
 
-function formatearFecha(fechaStr) {
-    if (!fechaStr) return "Sin fecha";
 
-    // Intento 1: formato ISO (2026-05-04 18:17:59 o 2026-05-04T18:17:59)
-    const partes = fechaStr.match(/(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/);
-    if (partes) {
-        const [, anio, mes, dia, horas, minutos, segundos] = partes;
-        return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
-    }
-
-    // Intento 2: otros formatos (ej: "Mon, 04 May 2026 18:17:59 GMT")
-    const fecha = new Date(fechaStr);
-    if (!isNaN(fecha.getTime())) {
-        const dia = fecha.getDate().toString().padStart(2, '0');
-        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-        const anio = fecha.getFullYear();
-        const horas = fecha.getHours().toString().padStart(2, '0');
-        const minutos = fecha.getMinutes().toString().padStart(2, '0');
-        const segundos = fecha.getSeconds().toString().padStart(2, '0');
-        return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
-    }
-
-    return fechaStr;
-}
 
 function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "") {
     let url = `/api/historial-ventas?cliente=${encodeURIComponent(filtroCliente)}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&pagina=${paginaActual}&por_pagina=15`;
@@ -67,13 +37,13 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
                         return;
                     }
                     const numeroMesa = venta.numero_mesa
-                        ? `Mesa: ${escaparHtmlHistorial(venta.numero_mesa)}`
+                        ? `Mesa: ${escaparHtml(venta.numero_mesa)}`
                         : "Sin mesa";
 
                     let fila = `
                         <tr>
-                            <td>${escaparHtmlHistorial(venta.vendedor)}</td>
-                            <td>${escaparHtmlHistorial(venta.cliente)}</td>
+                            <td>${escaparHtml(venta.vendedor)}</td>
+                            <td>${escaparHtml(venta.cliente)}</td>
                             <td>${fechaFormateada}</td>
                             <td>$${venta.total}</td>
                             <td>${numeroMesa}</td>
@@ -194,17 +164,17 @@ function verDetallesVenta(id) {
                     <div class="venta-info-container">
                         <div class="venta-info-grupo">
                             <span class="info-label">Vendedor:</span>
-                            <span class="info-value">${escaparHtmlHistorial(venta.vendedor || 'No disponible')}</span>
+                            <span class="info-value">${escaparHtml(venta.vendedor || 'No disponible')}</span>
                         </div>
                         
                         <div class="venta-info-grupo">
                             <span class="info-label">Cliente:</span>
-                            <span class="info-value">${escaparHtmlHistorial(venta.cliente || 'No disponible')}</span>
+                            <span class="info-value">${escaparHtml(venta.cliente || 'No disponible')}</span>
                         </div>
                         
                         <div class="venta-info-grupo">
                             <span class="info-label">Método de pago:</span>
-                            <span class="info-value">${escaparHtmlHistorial(venta.metodo_pago || 'No especificado')}</span>
+                            <span class="info-value">${escaparHtml(venta.metodo_pago || 'No especificado')}</span>
                         </div>
                         
                         <div class="venta-info-grupo">
@@ -220,7 +190,7 @@ function verDetallesVenta(id) {
                         ${venta.numero_mesa ? `
                         <div class="venta-info-grupo">
                             <span class="info-label">Mesa:</span>
-                            <span class="info-value">${escaparHtmlHistorial(venta.numero_mesa)}</span>
+                            <span class="info-value">${escaparHtml(venta.numero_mesa)}</span>
                         </div>` : ''}
                     </div>
                     
@@ -256,8 +226,8 @@ function verDetallesVenta(id) {
 
                         detallesHTML += `
                             <tr>
-                                <td class="producto-nombre">${escaparHtmlHistorial(producto.nombre_producto)}</td>
-                                <td class="producto-tamano">${escaparHtmlHistorial(tamano)}</td>
+                                <td class="producto-nombre">${escaparHtml(producto.nombre_producto)}</td>
+                                <td class="producto-tamano">${escaparHtml(tamano)}</td>
                                 <td class="precio-unitario">$${precioFormateado}</td>
                                 <td class="cantidad-producto">${producto.cantidad}</td>
                                 <td class="subtotal-producto">$${subtotalItem}</td>

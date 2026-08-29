@@ -1,12 +1,8 @@
-// ==========================================
+﻿// ==========================================
 // BÚSQUEDA Y FILTROS
 // ==========================================
 
-function escaparHtmlMenu(valor) {
-    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[caracter]));
-}
+
 
 document.getElementById('searchInput').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
@@ -81,9 +77,9 @@ function actualizarCarrito() {
         itemDiv.classList.add('carritoItem');
 
         itemDiv.innerHTML = `
-            <img src="${escaparHtmlMenu(item.imagen)}" alt="${escaparHtmlMenu(item.nombre)}">
+            <img src="${escaparHtml(item.imagen)}" alt="${escaparHtml(item.nombre)}">
             <div>
-                <h4>${escaparHtmlMenu(item.nombre)} (${escaparHtmlMenu(item.tamaño)})</h4>
+                <h4>${escaparHtml(item.nombre)} (${escaparHtml(item.tamaño)})</h4>
                 <p>Precio: $${Number(item.precio).toFixed(2)}</p>
                 <p>Total: $<span class="total-item">${(item.precio * item.cantidad).toFixed(2)}</span></p>
             </div>
@@ -216,40 +212,9 @@ document.querySelectorAll('.añadirCarrito').forEach(button => {
 // ALERTAS / NOTIFICACIONES
 // ==========================================
 
-function mostrarAlerta(mensaje, tipo = 'ExitoG') {
-    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
 
-    const alerta = document.createElement('div');
-    alerta.className = `alertaGeneral alerta-${tipo}`;
 
-    let icono, titulo;
-    if (tipo === 'ErrorG') {
-        icono = '⚠️';
-        titulo = '¡Atención!';
-    } else {
-        icono = '✅';
-        titulo = '¡Éxito!';
-    }
 
-    alerta.innerHTML = `
-        <span class="iconoAlertaG">${icono}</span>
-        <div class="mensajeAlertaG">
-            <h3>${titulo}</h3>
-            <p>${escaparHtmlMenu(mensaje)}</p>
-        </div>
-        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
-    `;
-
-    contenedor.appendChild(alerta);
-    setTimeout(() => alerta.remove(), 5000);
-}
-
-function crearContenedorAlertas() {
-    const contenedor = document.createElement('div');
-    contenedor.className = 'contenedorAlertas';
-    document.body.appendChild(contenedor);
-    return contenedor;
-}
 
 
 // ==========================================

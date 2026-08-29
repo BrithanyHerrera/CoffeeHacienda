@@ -51,7 +51,7 @@ historial Git y cualquier cambio futuro que se decida aplicar en Aiven.
 - [x] Crear el administrador local mediante un script que genera el hash sin guardar la contraseña.
 - [ ] Rotar contraseñas de usuarios que aparecieron en el dump.
 - [ ] Rotar las credenciales que hayan estado en versiones anteriores de `bd.env`.
-- [ ] Limpiar esos archivos del historial Git si el repositorio se compartió o subió a un remoto.
+- [x] Limpiar esos archivos del historial Git si el repositorio se compartió o subió a un remoto.
 - [x] Crear `bd.env.example` únicamente con nombres de variables y valores ficticios.
 
 **Criterio de aceptación:** una búsqueda en el historial y en la rama actual no encuentra correos reales, contraseñas ni secretos utilizables.
@@ -255,7 +255,7 @@ La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 Antes de agregar nuevas funciones, completar en este orden:
 
 - [x] Corregir recuperación de contraseña.
-- [ ] Rotar secretos y retirar datos reales del repositorio e historial.
+- [~] Rotar secretos y retirar datos reales del repositorio e historial (historial purgado, pendiente rotación manual).
 - [x] Eliminar exposición de contraseñas/hashes.
 - [x] Recalcular precios y total de venta en el servidor.
 - [x] Corregir el catálogo de métodos de pago y eliminar IDs fijos del JavaScript.
@@ -276,6 +276,6 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 - [x] Esquema saneado y migraciones 002/003 preparadas y verificadas en una base limpia.
 - [x] Validación local: 18 pruebas unitarias correctas, Ruff correcto y plantillas válidas.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.
-- [ ] Aplicar las migraciones en la base local real después de crear un respaldo.
+- [x] Aplicar las migraciones en la base local real después de crear un respaldo.
 - [ ] Crear respaldo, rotar secretos y aplicar migraciones en Aiven sólo cuando se decida actualizar la nube.
-- [ ] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.
+- [x] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.

@@ -1,11 +1,4 @@
-function escaparHtmlOrdenes(valor) {
-    return String(valor ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-}
+﻿
 
 // Cargar órdenes al cargar la página
 document.addEventListener('DOMContentLoaded', function () {
@@ -34,11 +27,11 @@ function cargarOrdenes() {
                     if (!Number.isInteger(ordenId) || ordenId <= 0) {
                         return;
                     }
-                    const vendedor = escaparHtmlOrdenes(orden.vendedor || 'No disponible');
-                    const cliente = escaparHtmlOrdenes(orden.cliente || 'No disponible');
-                    const mesa = escaparHtmlOrdenes(orden.numero_mesa || '');
-                    const metodoPago = escaparHtmlOrdenes(orden.metodo_pago || 'No especificado');
-                    const estado = escaparHtmlOrdenes(orden.estado || '');
+                    const vendedor = escaparHtml(orden.vendedor || 'No disponible');
+                    const cliente = escaparHtml(orden.cliente || 'No disponible');
+                    const mesa = escaparHtml(orden.numero_mesa || '');
+                    const metodoPago = escaparHtml(orden.metodo_pago || 'No especificado');
+                    const estado = escaparHtml(orden.estado || '');
                     // Convertir la fecha correctamente a la zona horaria local
                     const fechaUTC = new Date(orden.fecha_hora);
                     const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
@@ -122,19 +115,19 @@ function verDetallesOrden(id) {
                         <div class="orden-cliente-info">
                             <div class="info-grupo">
                                 <span class="info-label">Cliente:</span>
-                                <span class="info-value">${escaparHtmlOrdenes(cliente)}</span>
+                                <span class="info-value">${escaparHtml(cliente)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Vendedor:</span>
-                                <span class="info-value">${escaparHtmlOrdenes(vendedor)}</span>
+                                <span class="info-value">${escaparHtml(vendedor)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Fecha:</span>
-                                <span class="info-value">${escaparHtmlOrdenes(fecha)}</span>
+                                <span class="info-value">${escaparHtml(fecha)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Método de pago:</span>
-                                <span class="info-value">${escaparHtmlOrdenes(metodoPago)}</span>
+                                <span class="info-value">${escaparHtml(metodoPago)}</span>
                             </div>
                             <div class="info-grupo">
                                 <span class="info-label">Dinero recibido:</span>
@@ -144,7 +137,7 @@ function verDetallesOrden(id) {
                                 <span class="info-label">Cambio:</span>
                                 <span class="info-value">$${cambioOrden.toFixed(2)}</span>
                             </div>
-                            ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${escaparHtmlOrdenes(mesa)}</span></div>` : ''}
+                            ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${escaparHtml(mesa)}</span></div>` : ''}
                         </div>
                     </div>
                     <div class="productosOrden">
@@ -176,8 +169,8 @@ function verDetallesOrden(id) {
 
                     detallesHTML += `
                         <tr>
-                            <td class="producto-nombre">${escaparHtmlOrdenes(detalle.nombre_producto)}</td>
-                            <td class="producto-tamano">${escaparHtmlOrdenes(tamano)}</td>
+                            <td class="producto-nombre">${escaparHtml(detalle.nombre_producto)}</td>
+                            <td class="producto-tamano">${escaparHtml(tamano)}</td>
                             <td class="precio-unitario">$${precioFormateado}</td>
                             <td class="cantidad-producto">${detalle.cantidad}</td>
                             <td class="subtotal-producto">$${subtotalItem}</td>
@@ -285,41 +278,7 @@ function reestablecerFiltros() {
     cargarOrdenes();
 }
 
-function mostrarAlerta(mensaje, tipo = 'ExitoG') {
-    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
-
-    const alerta = document.createElement('div');
-    alerta.className = `alertaGeneral alerta-${tipo}`;
-
-    // Configurar icono y título según el tipo de alerta
-    let icono, titulo;
-    if (tipo === 'ErrorG') {
-        icono = '⚠️';
-        titulo = '¡Atención!';
-    } else {
-        icono = '✅';
-        titulo = '¡Éxito!';
-    }
-
-    alerta.innerHTML = `
-        <span class="iconoAlertaG">${icono}</span>
-        <div class="mensajeAlertaG">
-            <h3>${titulo}</h3>
-            <p>${escaparHtmlOrdenes(mensaje)}</p>
-        </div>
-        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
-    `;
-
-    contenedor.appendChild(alerta);
-
-    // Aumentar el tiempo de espera a 10 segundos
-    setTimeout(() => alerta.remove(), 3000); // Eliminar después de 10s
-}
 
 
-function crearContenedorAlertas() {
-    const contenedor = document.createElement('div');
-    contenedor.className = 'contenedorAlertas';
-    document.body.appendChild(contenedor);
-    return contenedor;
-}
+
+

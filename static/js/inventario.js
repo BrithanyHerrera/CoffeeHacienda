@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
     const formProducto = document.getElementById("formProducto");
 
     // Agregar estilos CSS para alertas de inventario
@@ -199,47 +199,9 @@ function reestablecerFiltrosInventario() {
     filtrarInventario();
 }
 
-function escaparHtmlInventario(valor) {
-    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[caracter]));
-}
-
-function mostrarAlerta(mensaje, tipo = 'ExitoG') {
-    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
-
-    const alerta = document.createElement('div');
-    alerta.className = `alertaGeneral alerta-${tipo}`;
-
-    // Configurar icono y título según el tipo de alerta
-    let icono, titulo;
-    if (tipo === 'ErrorG') {
-        icono = '⚠️';
-        titulo = '¡Atención!';
-    } else {
-        icono = '✅';
-        titulo = '¡Éxito!';
-    }
-
-    alerta.innerHTML = `
-        <span class="iconoAlertaG">${icono}</span>
-        <div class="mensajeAlertaG">
-            <h3>${titulo}</h3>
-            <p>${escaparHtmlInventario(mensaje)}</p>
-        </div>
-        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
-    `;
-
-    contenedor.appendChild(alerta);
-
-    // Aumentar el tiempo de espera a 10 segundos
-    setTimeout(() => alerta.remove(), 3000); // Eliminar después de 10s
-}
 
 
-function crearContenedorAlertas() {
-    const contenedor = document.createElement('div');
-    contenedor.className = 'contenedorAlertas';
-    document.body.appendChild(contenedor);
-    return contenedor;
-}
+
+
+
+

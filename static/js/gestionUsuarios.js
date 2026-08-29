@@ -1,4 +1,4 @@
-// Función para abrir el modal de Edición y Agregar usuario.
+﻿// Función para abrir el modal de Edición y Agregar usuario.
 function abrirEAModal(id = null, nombre = '', correo = '', tipoPrivilegio = '') {
     // Si es edición, comprobar y obtener solamente los datos públicos del usuario.
     if (id) {
@@ -244,49 +244,12 @@ function reestablecerFiltros() {
     });
 }
 
-function escaparHtmlUsuarios(valor) {
-    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[caracter]));
-}
-
-function mostrarAlerta(mensaje, tipo = 'ExitoG') {
-    const contenedor = document.querySelector('.contenedorAlertas') || crearContenedorAlertas();
-
-    const alerta = document.createElement('div');
-    alerta.className = `alertaGeneral alerta-${tipo}`;
-
-    // Configurar icono y título según el tipo de alerta
-    let icono, titulo;
-    if (tipo === 'ErrorG') {
-        icono = '⚠️';
-        titulo = '¡Atención!';
-    } else {
-        icono = '✅';
-        titulo = '¡Éxito!';
-    }
-
-    alerta.innerHTML = `
-        <span class="iconoAlertaG">${icono}</span>
-        <div class="mensajeAlertaG">
-            <h3>${titulo}</h3>
-            <p>${escaparHtmlUsuarios(mensaje)}</p>
-        </div>
-        <button class="cerrarAlertaG" onclick="this.parentElement.remove()">×</button>
-    `;
-
-    contenedor.appendChild(alerta);
-
-    setTimeout(() => alerta.remove(), 5000); // Eliminar después de 5s
-}
 
 
-function crearContenedorAlertas() {
-    const contenedor = document.createElement('div');
-    contenedor.className = 'contenedorAlertas';
-    document.body.appendChild(contenedor);
-    return contenedor;
-}
+
+
+
+
 
 // Función para mostrar notificaciones con duración personalizable
 function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
