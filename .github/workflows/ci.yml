@@ -32,9 +32,9 @@ jobs:
       RUN_DB_TESTS: "1"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -42,11 +42,14 @@ jobs:
       - name: Instalar dependencias
         run: python -m pip install -r requirements-dev.txt
 
-      - name: Preparar esquema y migraciones
-        run: |
-          mysql -h 127.0.0.1 -uroot -proot bd < bd.sql
-          python scripts/apply_migrations.py
-          python scripts/apply_migrations.py --dry-run
+      - name: Importar esquema base
+        run: mysql -h 127.0.0.1 -uroot -proot bd < bd.sql
+
+      - name: Aplicar migraciones
+        run: python scripts/apply_migrations.py
+
+      - name: Validar migraciones repetibles
+        run: python scripts/apply_migrations.py --dry-run
 
       - name: Validar Python
         run: ruff check .
