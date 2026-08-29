@@ -153,7 +153,7 @@ def buscar_pdf_corte(fecha_inicio, fecha_fin):
             if f_inicio_limpia in archivo and f_fin_limpia in archivo and archivo.endswith('.pdf'):
                 return jsonify({
                     'success': True, 
-                    'url': url_for('descargar_pdf', tipo='corte', nombre=archivo)
+                    'url': url_for('core.descargar_pdf', tipo='corte', nombre=archivo)
                 })
         
         return jsonify({'success': False, 'message': f'No existe PDF del {fecha_inicio} al {fecha_fin}'})

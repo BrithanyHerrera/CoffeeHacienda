@@ -1,5 +1,29 @@
 import base64
 
+import pytest
+
+from werkzeug.security import generate_password_hash
+
+
+def test_factory_reads_secret_key_after_environment_is_loaded(monkeypatch):
+    from app import create_app
+
+    monkeypatch.setenv('SECRET_KEY', 'configured-after-module-import')
+
+    flask_app = create_app('LOCAL')
+
+    assert flask_app.config['SECRET_KEY'] == 'configured-after-module-import'
+
+
+def test_factory_rejects_missing_secret_key(monkeypatch):
+    import app as app_module
+
+    monkeypatch.delenv('SECRET_KEY', raising=False)
+    monkeypatch.setattr(app_module, 'load_dotenv', lambda *args, **kwargs: None)
+
+    with pytest.raises(RuntimeError, match='SECRET_KEY es obligatoria'):
+        app_module.create_app('LOCAL')
+
 
 def test_password_reset_final_step_redirects_without_verified_state(client):
     response = client.get('/actualizar-contrasena')
@@ -58,6 +82,66 @@ def test_security_headers_are_present(client):
     assert response.headers['X-Content-Type-Options'] == 'nosniff'
     assert response.headers['X-Frame-Options'] == 'DENY'
     assert 'Content-Security-Policy' in response.headers
+
+
+def test_successful_login_redirects_to_welcome(client, monkeypatch):
+    from blueprints import autenticacion_bp
+
+    monkeypatch.setattr(
+        autenticacion_bp,
+        'buscar_usuario_por_usuario',
+        lambda usuario: {
+            'Id': 1,
+            'activo': True,
+            'contrasena': generate_password_hash('Segura123'),
+            'rol': 'Administrador',
+            'sesion_version': 1,
+        },
+    )
+
+    response = client.post('/', data={
+        'usuario': 'administrador',
+        'contrasena': 'Segura123',
+    })
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/bienvenida')
+
+
+def test_employee_is_redirected_to_welcome_from_admin_page(
+        client, authenticated_session):
+    authenticated_session(client, role='Vendedor')
+
+    response = client.get('/corteCaja')
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/bienvenida')
+
+
+def test_exit_confirmation_template_has_valid_cancel_link(
+        client, authenticated_session):
+    authenticated_session(client)
+
+    response = client.get('/confirmar-salir')
+
+    assert response.status_code == 200
+    assert 'href="/bienvenida"' in response.get_data(as_text=True)
+
+
+def test_existing_cash_report_pdf_returns_download_url(
+        app, client, authenticated_session, tmp_path):
+    authenticated_session(client, role='Administrador')
+    pdf_name = 'corte_2026-08-01_2026-08-02.pdf'
+    (tmp_path / pdf_name).write_bytes(b'%PDF-test')
+    app.config['PDF_CORTES_FOLDER'] = str(tmp_path)
+
+    response = client.get('/buscar_pdf_corte/2026-08-01/2026-08-02')
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        'success': True,
+        'url': f'/api/pdfs/corte/{pdf_name}',
+    }
 
 
 def test_xss_payload_in_customer_name_is_escaped(client, authenticated_session, monkeypatch):

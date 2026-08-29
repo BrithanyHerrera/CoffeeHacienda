@@ -12,10 +12,12 @@ Convertir el proyecto actual en un punto de venta seguro, consistente y mantenib
 
 ## Estado general
 
-La rama `codex/version-estable` ya cubre los controles críticos que dependen
-del código y está validada para el uso local actual. Siguen requiriendo
-intervención humana la rotación de secretos, la limpieza coordinada del
-historial Git y cualquier cambio futuro que se decida aplicar en Aiven.
+La rama `main` cubre los controles críticos que dependen del código y su
+arranque local fue validado nuevamente el 29 de agosto de 2026. Siguen
+requiriendo intervención humana la rotación de secretos y cualquier cambio
+futuro que se decida aplicar en Aiven. La base MySQL local no estaba activa
+durante la última validación, por lo que las pruebas que escriben en una base
+real permanecen separadas de la suite local.
 
 **Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
 
@@ -217,7 +219,7 @@ Flujo obligatorio:
 1. [~] La ruta final de recuperación exige autorización; falta ampliar casos de reutilización y expiración.
 2. [x] Un empleado no puede consultar hashes ni ejecutar acciones administrativas.
 3. [x] Manipular precios o totales del cliente no afecta una venta.
-4. [x] Ejecutar una prueba real de dos ventas concurrentes contra MySQL.
+4. [~] Existe la prueba de dos ventas concurrentes; falta repetirla contra una base MySQL de pruebas activa.
 5. [x] Cancelar repone stock una sola vez, conserva la venta y genera auditoría.
 6. [~] El catálogo es estable; falta una prueba integral hasta el corte.
 7. [~] Se prueba la escritura del snapshot; falta probar el historial después de cambiar el catálogo.
@@ -230,8 +232,8 @@ Flujo obligatorio:
 La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 - [x] Análisis estático crítico de Python mediante Ruff.
-- [x] Suite unitaria local: 18 pruebas correctas y cobertura de 38%.
-- [~] Existen dos pruebas de integración para MySQL; requieren `RUN_DB_TESTS=1` y una base de prueba separada.
+- [x] Suite local: 27 pruebas correctas y cobertura global de 42%.
+- [~] Existen tres pruebas de integración para MySQL; requieren `RUN_DB_TESTS=1` y una base de prueba separada.
 - [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
 - [ ] Automatizar estas comprobaciones en CI si el proyecto adopta despliegues o colaboración continua.
 - [~] Búsqueda de secretos actuales realizada; falta revisar el historial y automatizar dependencias vulnerables.
@@ -269,12 +271,17 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 
 ---
 
-## Cierre de la versión estable local — 28 de agosto de 2026
+## Cierre de la versión estable local — actualizado el 29 de agosto de 2026
 
-- [x] Rama `codex/version-estable` creada y publicada en el remoto.
+- [x] Cambios de la versión estable integrados en `main`.
 - [x] Ventas, cancelaciones, inventario, caja, sesiones y recuperación reforzados.
 - [x] Esquema saneado y migraciones 002/003 preparadas y verificadas en una base limpia.
-- [x] Validación local: 18 pruebas unitarias correctas, Ruff correcto y plantillas válidas.
+- [x] Corregir las rutas rotas posteriores a la conversión a blueprints: login, permisos, salida y PDF de corte.
+- [x] Corregir y validar el arranque mediante la fábrica de aplicación con Waitress.
+- [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
+- [x] Permitir que el servidor inicie y muestre el login aunque MySQL esté temporalmente fuera de servicio.
+- [x] Validación local: 27 pruebas correctas, cobertura de 42%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
+- [~] El arranque y el login público responden correctamente; `/health` reporta 503 hasta que se active MySQL local.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.
 - [x] Aplicar las migraciones en la base local real después de crear un respaldo.
 - [ ] Crear respaldo, rotar secretos y aplicar migraciones en Aiven sólo cuando se decida actualizar la nube.

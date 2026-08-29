@@ -63,7 +63,7 @@ Arranca en `http://localhost:5000`.
 En producción, usar un servidor WSGI y un proxy HTTPS. Ejemplo con Waitress:
 
 ```powershell
-waitress-serve --listen=127.0.0.1:8000 app:app
+waitress-serve --call --listen=127.0.0.1:8000 app:create_app
 ```
 
 ## Variables de entorno (`bd.env`)

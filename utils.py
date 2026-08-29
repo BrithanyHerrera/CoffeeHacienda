@@ -100,7 +100,7 @@ def admin_required(f):
                     'message': 'No tienes permiso para realizar esta acción',
                 }), 403
             flash('No tienes permiso para acceder a esta página.', 'danger')
-            return redirect(url_for('bienvenida'))
+            return redirect(url_for('core.bienvenida'))
         return f(*args, **kwargs)
     return decorated_function
 

@@ -107,7 +107,7 @@ def login():
         session['ultima_actividad'] = datetime.now().isoformat()
         session['ultima_verificacion_activo'] = datetime.now().isoformat()
         flash('¡Bienvenido!', 'success')
-        return redirect(url_for('bienvenida'))
+        return redirect(url_for('core.bienvenida'))
     
     return render_template('login.html')
 

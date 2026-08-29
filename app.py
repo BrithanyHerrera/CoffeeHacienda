@@ -20,7 +20,11 @@ def create_app(env=None):
     
     # 3. Configuración del entorno
     app_env = env or os.getenv('APP_ENV', 'LOCAL').upper()
-    app.config.from_object(config_for_environment(app_env))
+    app.config.from_mapping(config_for_environment(app_env))
+    if not app.config.get('SECRET_KEY'):
+        raise RuntimeError(
+            'SECRET_KEY es obligatoria. Configúrala en bd.env antes de iniciar la aplicación.'
+        )
     es_produccion = app_env in {'NUBE', 'PRODUCTION'}
     
     # 4. Configurar Servidor de Correo
