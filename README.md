@@ -98,5 +98,23 @@ local de su certificado en `DB_SSL_CA`. Antes de migrar Aiven:
 No se debe aplicar la migración 002 por separado mientras una versión antigua
 de la aplicación siga atendiendo ventas.
 
+## Pruebas
+
+Suite local sin escritura en MySQL:
+
+```powershell
+python -m pytest -m "not integration"
+```
+
+Flujos integrales de venta sobre una base temporal aislada:
+
+```powershell
+python scripts/run_isolated_db_tests.py
+```
+
+El segundo comando crea una base con un nombre aleatorio terminado en `_test`,
+ejecuta el esquema, las migraciones y las pruebas, y elimina esa base al
+terminar. Requiere que MAMP esté activo y que la cuenta local pueda crear bases.
+
 ---
 Coffee Hacienda 🤎

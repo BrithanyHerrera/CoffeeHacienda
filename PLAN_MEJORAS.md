@@ -217,24 +217,25 @@ Flujo obligatorio:
 
 ### 4.2 Pruebas mínimas obligatorias
 
-1. [~] La ruta final de recuperación exige autorización; falta ampliar casos de reutilización y expiración.
+1. [x] La recuperación prueba expiración de sesión/código, reutilización y límite de cinco intentos.
 2. [x] Un empleado no puede consultar hashes ni ejecutar acciones administrativas.
 3. [x] Manipular precios o totales del cliente no afecta una venta.
 4. [~] Existe la prueba de dos ventas concurrentes; falta repetirla contra una base MySQL de pruebas activa.
 5. [x] Cancelar repone stock una sola vez, conserva la venta y genera auditoría.
-6. [~] El catálogo es estable; falta una prueba integral hasta el corte.
-7. [~] Se prueba la escritura del snapshot; falta probar el historial después de cambiar el catálogo.
+6. [x] El flujo catálogo, venta, inventario, cancelación y corte se prueba contra MySQL aislado.
+7. [x] El historial conserva nombre, tamaño y precio después de cambiar el catálogo.
 8. [x] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
 9. [x] Un archivo con firma no PDF es rechazado; faltan casos adicionales de límite de tamaño.
-10. [~] Las migraciones 002 y 003 se validaron contra MySQL 8.4 limpio; aplicarlas a las bases local/Aiven queda pendiente de respaldo.
+10. [~] Las migraciones 002 y 003 están aplicadas en local; Aiven queda pendiente de respaldo y ventana de actualización.
 
 ### 4.3 Integración continua
 
 La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 - [x] Análisis estático crítico de Python mediante Ruff.
-- [x] Suite local: 27 pruebas correctas y cobertura global de 42%.
+- [x] Suite local: 31 pruebas correctas y cobertura global de 46%.
 - [x] Las dos pruebas de lectura MySQL pasan contra la base local usando `RUN_DB_TESTS=1`.
+- [x] Cuatro pruebas integrales pasan en una base MySQL temporal creada y eliminada automáticamente.
 - [~] La prueba concurrente requiere `RUN_DB_WRITE_TESTS=1` y una base separada cuyo nombre termine en `_test`.
 - [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
 - [ ] Automatizar estas comprobaciones en CI si el proyecto adopta despliegues o colaboración continua.
@@ -265,7 +266,7 @@ Antes de agregar nuevas funciones, completar en este orden:
 - [x] Corregir el catálogo de métodos de pago y eliminar IDs fijos del JavaScript.
 - [x] Cancelar sin borrar, reponer inventario y guardar auditoría atómicamente.
 - [x] Introducir una migración SQL para local y Aiven.
-- [~] Añadir pruebas automatizadas; la suite base está creada y quedan escenarios integrales indicados arriba.
+- [~] Añadir pruebas automatizadas; recuperación y flujos integrales críticos están cubiertos, pero quedan módulos con cobertura baja.
 
 El bloque de código crítico está cerrado. La publicación en Aiven permanece
 condicionada a rotar los secretos expuestos históricamente, crear un respaldo y
@@ -282,7 +283,8 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 - [x] Corregir y validar el arranque mediante la fábrica de aplicación con Waitress.
 - [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
 - [x] Permitir que el servidor inicie y muestre el login aunque MySQL esté temporalmente fuera de servicio.
-- [x] Validación local: 27 pruebas correctas, cobertura de 42%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
+- [x] Validación local: 31 pruebas correctas, cobertura de 46%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
+- [x] Validación MySQL aislada: 4 pruebas correctas para esquema, venta, inventario, cancelación, corte y snapshots históricos.
 - [x] La conexión local, `/health` y 11 rutas principales responden correctamente con MAMP activo.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.
 - [x] Aplicar las migraciones en la base local real después de crear un respaldo.
