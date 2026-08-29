@@ -45,7 +45,13 @@ jobs:
       - name: Importar esquema base
         run: mysql -h 127.0.0.1 -uroot -proot bd < bd.sql
 
-      - name: Aplicar migraciones
+      - name: Aplicar migración 002
+        run: mysql -h 127.0.0.1 -uroot -proot bd < migrations/002_ventas_variantes_cancelacion.sql
+
+      - name: Aplicar migración 003
+        run: mysql -h 127.0.0.1 -uroot -proot bd < migrations/003_estabilidad_auditoria.sql
+
+      - name: Validar registro de migraciones
         run: python scripts/apply_migrations.py
 
       - name: Validar migraciones repetibles
