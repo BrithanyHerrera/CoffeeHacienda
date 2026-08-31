@@ -12,13 +12,15 @@ Convertir el proyecto actual en un punto de venta seguro, consistente y mantenib
 
 ## Estado general
 
-La rama `main` cubre los controles críticos que dependen del código y su
-arranque local fue validado nuevamente el 29 de agosto de 2026. La base local
-MAMP/MySQL 5.7.24 respondió correctamente, tiene las migraciones 2 y 3, y las
-pantallas principales pasaron una prueba de humo de solo lectura. Siguen
-requiriendo intervención humana la rotación de secretos y cualquier cambio
-futuro que se decida aplicar en Aiven. Las pruebas que escriben datos se
-mantienen separadas para no alterar la base de uso normal.
+La rama `main` cubre los controles críticos que dependen del código. La base
+local MAMP/MySQL 5.7.24 respondió correctamente, tiene las migraciones 2 y 3, y
+las pantallas principales pasaron una prueba de humo de solo lectura. El 30 de
+agosto de 2026 se creó y validó un respaldo manual de Aiven y se aplicaron allí
+las migraciones 002 y 003 mediante una conexión TLS verificada. Siguen
+requiriendo intervención humana la rotación de secretos, la creación de una
+cuenta web de mínimo privilegio y una prueba de restauración separada. Las
+pruebas que escriben datos se mantienen aisladas para no alterar las bases de
+uso normal.
 
 **Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
 
@@ -182,10 +184,15 @@ Flujo obligatorio:
 
 ### 2.4 Respaldos y restauración
 
-- Confirmar la política automática de respaldos de Aiven.
-- Documentar un respaldo manual antes de cada migración delicada.
-- Probar periódicamente una restauración en una instancia o base separada.
-- Nunca guardar respaldos con datos reales dentro del repositorio.
+- [x] Confirmar que los respaldos automáticos de Aiven están activos.
+- [x] Crear y validar un respaldo manual antes de aplicar las migraciones 002/003.
+- [x] Conservar el respaldo real fuera del repositorio, en
+  `C:\CoffeeHacienda_Backups\aiven_antes_migraciones_20260830_225048.sql`.
+- [x] Verificar la integridad básica del respaldo: 20 tablas, datos de 16 tablas,
+  marcador de finalización y SHA-256
+  `0D69F320E717472190BCDF7D94D29DF3A7C1DD7F4ECF7F0E708B98D42762CE05`.
+- [ ] Probar periódicamente una restauración en una instancia o base separada.
+- [x] Nunca guardar respaldos con datos reales dentro del repositorio.
 
 ---
 
@@ -226,7 +233,7 @@ Flujo obligatorio:
 7. [x] El historial conserva nombre, tamaño y precio después de cambiar el catálogo.
 8. [x] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
 9. [x] PDFs e imágenes validan firma, límite de tamaño y nombres generados dentro de sus carpetas.
-10. [~] Las migraciones 002 y 003 están aplicadas en local; Aiven queda pendiente de respaldo y ventana de actualización.
+10. [x] Las migraciones 002 y 003 están aplicadas y verificadas tanto en local como en Aiven.
 
 ### 4.3 Integración continua
 
@@ -303,9 +310,10 @@ Antes de agregar nuevas funciones, completar en este orden:
 - [x] Introducir una migración SQL para local y Aiven.
 - [x] Añadir pruebas automatizadas y exigir 100% de cobertura del código de producción.
 
-El bloque de código crítico está cerrado. La publicación en Aiven permanece
-condicionada a rotar los secretos expuestos históricamente, crear un respaldo y
-aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
+El bloque de código crítico está cerrado. Aiven ya cuenta con el respaldo previo
+y las migraciones 002/003. Antes de usarlo activamente todavía deben rotarse los
+secretos expuestos históricamente y configurarse una cuenta web de mínimo
+privilegio.
 
 ---
 
@@ -325,5 +333,10 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 - [x] La conexión local, `/health` y 11 rutas principales responden correctamente con MAMP activo.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.
 - [x] Aplicar las migraciones en la base local real después de crear un respaldo.
-- [ ] Crear respaldo, rotar secretos y aplicar migraciones en Aiven sólo cuando se decida actualizar la nube.
+- [x] Crear y validar un respaldo manual de Aiven fuera del repositorio.
+- [x] Aplicar las migraciones 002 y 003 en Aiven y comprobar sus 10 columnas,
+  5 índices, 4 relaciones y el `AUTO_INCREMENT` de movimientos de inventario.
+- [ ] Rotar los secretos históricos y sustituirlos en la configuración local y de nube.
+- [ ] Crear una cuenta exclusiva para la aplicación con permisos mínimos en Aiven.
+- [ ] Probar la restauración del respaldo en una base o servicio separado.
 - [x] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.
