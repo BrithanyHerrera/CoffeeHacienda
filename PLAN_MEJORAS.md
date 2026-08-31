@@ -54,8 +54,12 @@ uso normal.
 
 - [x] Sustituir los datos reales de `bd.sql` por datos ficticios o eliminar completamente los `INSERT` sensibles.
 - [x] Crear el administrador local mediante un script que genera el hash sin guardar la contraseña.
-- [ ] Rotar contraseñas de usuarios que aparecieron en el dump.
-- [ ] Rotar las credenciales que hayan estado en versiones anteriores de `bd.env`.
+- [ ] Rotar las contraseñas de las 5 cuentas activas conservadas en Aiven que
+  pudieron aparecer en el dump histórico; las 4 cuentas inactivas permanecen
+  bloqueadas.
+- [~] Rotar las credenciales que hayan estado en versiones anteriores de
+  `bd.env`: `avnadmin`, el usuario web de Aiven y `SECRET_KEY` ya se renovaron;
+  `MAIL_PASSWORD` se conserva por decisión del propietario.
 - [x] Limpiar esos archivos del historial Git si el repositorio se compartió o subió a un remoto.
 - [x] Crear `bd.env.example` únicamente con nombres de variables y valores ficticios.
 
@@ -180,7 +184,9 @@ Flujo obligatorio:
 - [x] Elegir el entorno con `APP_ENV`, sin duplicar lógica por toda la aplicación.
 - [x] Construir rutas a `bd.env`, imágenes y PDFs a partir de la raíz de la aplicación.
 - [x] En Aiven verificar TLS con el certificado CA suministrado por el servicio.
-- [ ] Aplicar mínimo privilegio a la cuenta web.
+- [x] Aplicar mínimo privilegio a la cuenta web: `coffee_hacienda_app` sólo
+  conserva `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre la base de la
+  aplicación, sin permisos globales, de esquema ni administración.
 
 ### 2.4 Respaldos y restauración
 
@@ -336,7 +342,11 @@ privilegio.
 - [x] Crear y validar un respaldo manual de Aiven fuera del repositorio.
 - [x] Aplicar las migraciones 002 y 003 en Aiven y comprobar sus 10 columnas,
   5 índices, 4 relaciones y el `AUTO_INCREMENT` de movimientos de inventario.
-- [ ] Rotar los secretos históricos y sustituirlos en la configuración local y de nube.
-- [ ] Crear una cuenta exclusiva para la aplicación con permisos mínimos en Aiven.
+- [x] Rotar `avnadmin`, crear credenciales nuevas para la aplicación y renovar
+  `SECRET_KEY`; las comprobaciones de salud local y Aiven respondieron HTTP 200.
+- [~] Conservar temporalmente `MAIL_PASSWORD` por decisión del propietario; debe
+  rotarse si esa contraseña de aplicación de Gmail llegó a compartirse.
+- [x] Crear y validar `coffee_hacienda_app` con permisos mínimos en Aiven.
+- [ ] Renovar las contraseñas de las 5 cuentas activas conservadas en Aiven.
 - [ ] Probar la restauración del respaldo en una base o servicio separado.
 - [x] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.
