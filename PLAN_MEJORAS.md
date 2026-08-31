@@ -233,13 +233,48 @@ Flujo obligatorio:
 La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 - [x] Análisis estático crítico de Python mediante Ruff.
-- [x] Suite local: 38 pruebas correctas y cobertura global de 49%.
+- [x] Suite local: 284 pruebas correctas y 100% de cobertura exclusiva del
+  código de producción (2,149 líneas, ninguna sin cubrir).
 - [x] Las dos pruebas de lectura MySQL pasan contra la base local usando `RUN_DB_TESTS=1`.
 - [x] Cinco pruebas integrales, incluida concurrencia, pasan en una base MySQL temporal creada y eliminada automáticamente.
 - [x] La prueba concurrente confirma una sola venta, un solo movimiento y stock final no negativo.
 - [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
-- [~] GitHub Actions ejecuta Ruff y la suite local; MySQL aislado permanece como validación local deliberada.
+- [x] GitHub Actions ejecuta Ruff y rechaza la suite local si la cobertura de producción baja de 100%; MySQL aislado permanece como validación local deliberada.
 - [~] Búsqueda de secretos actuales realizada; falta revisar el historial y automatizar dependencias vulnerables.
+
+### 4.4 Cobertura por módulos — cierre al 100%
+
+La medición ya excluye `tests/` y `scripts/`; por tanto, el porcentaje representa
+solamente la aplicación que se ejecuta en uso normal. El corte global terminó
+con **284 pruebas correctas, 5 pruebas MySQL aisladas separadas y 100% de
+cobertura del código de producción: 2,149 líneas y ninguna sin cubrir**.
+
+#### Módulos ya validados al 100%
+
+| Grupo | Módulos | Estado |
+|---|---|---|
+| Núcleo de la aplicación | `app.py`, `bd.py`, `config.py`, `extensions.py`, `utils.py` | [x] 100% |
+| Productos y catálogo | `modelsProductos.py`, `modelsProductosMenu.py` | [x] 100% |
+| Usuarios y acceso a datos | `modelsUsuarios.py`, `modelsLogin.py` | [x] 100% |
+| Ventas | `modelsVentas.py` | [x] 100% |
+| Inventario | `modelsInventario.py` | [x] 100% |
+| Caja | `modelsCorteCaja.py` | [x] 100% |
+| Recuperación de contraseña | `modelsRecuperacion.py` | [x] 100% |
+| Historial y limpieza | `modelsHistorial.py`, `modelsLimpieza.py` | [x] 100% |
+| Rutas de autenticación y recuperación | `autenticacion_bp.py` | [x] 100% |
+| Rutas de finanzas y cortes | `finanzas_bp.py` | [x] 100% |
+| Rutas generales y archivos | `generales_bp.py` | [x] 100% |
+| Rutas de inventario | `inventario_bp.py` | [x] 100% |
+| Rutas de productos | `productos_bp.py` | [x] 100% |
+| Rutas de usuarios | `usuarios_bp.py` | [x] 100% |
+| Rutas de ventas e historial | `ventas_bp.py` | [x] 100% |
+
+- [x] Configurar una métrica real que mida únicamente código de producción.
+- [x] Llevar el núcleo y todos los modelos de acceso a datos al 100%.
+- [x] Terminar las pruebas de las siete áreas de rutas indicadas en la tabla.
+- [x] Ejecutar nuevamente la suite completa y corregir cualquier fallo detectado.
+- [x] Activar en la validación automática el requisito estricto de 100%.
+- [x] Confirmar Ruff y MySQL aislado, registrar el cierre y hacer `push`.
 
 ---
 
@@ -266,7 +301,7 @@ Antes de agregar nuevas funciones, completar en este orden:
 - [x] Corregir el catálogo de métodos de pago y eliminar IDs fijos del JavaScript.
 - [x] Cancelar sin borrar, reponer inventario y guardar auditoría atómicamente.
 - [x] Introducir una migración SQL para local y Aiven.
-- [~] Añadir pruebas automatizadas; recuperación y flujos integrales críticos están cubiertos, pero quedan módulos con cobertura baja.
+- [x] Añadir pruebas automatizadas y exigir 100% de cobertura del código de producción.
 
 El bloque de código crítico está cerrado. La publicación en Aiven permanece
 condicionada a rotar los secretos expuestos históricamente, crear un respaldo y
@@ -274,7 +309,7 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 
 ---
 
-## Cierre de la versión estable local — actualizado el 29 de agosto de 2026
+## Cierre de la versión estable local — actualizado el 30 de agosto de 2026
 
 - [x] Cambios de la versión estable integrados en `main`.
 - [x] Ventas, cancelaciones, inventario, caja, sesiones y recuperación reforzados.
@@ -283,7 +318,9 @@ aplicar las migraciones 002 y 003 durante una ventana sin escrituras.
 - [x] Corregir y validar el arranque mediante la fábrica de aplicación con Waitress.
 - [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
 - [x] Permitir que el servidor inicie y muestre el login aunque MySQL esté temporalmente fuera de servicio.
-- [x] Validación local: 38 pruebas correctas, cobertura de 49%, Ruff correcto, 16 plantillas válidas y cero referencias de rutas inválidas.
+- [x] Validación local ampliada: 284 pruebas correctas, 2,149 líneas de
+  producción medidas y 100% de cobertura real; la validación automática ya
+  impide que el porcentaje disminuya.
 - [x] Validación MySQL aislada: 5 pruebas correctas para esquema, venta, concurrencia, inventario, cancelación, corte y snapshots históricos.
 - [x] La conexión local, `/health` y 11 rutas principales responden correctamente con MAMP activo.
 - [x] Archivo `bd.env` y credenciales reales excluidos de Git.

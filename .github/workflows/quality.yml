@@ -33,4 +33,4 @@ jobs:
         env:
           APP_ENV: TESTING
           SECRET_KEY: ci-testing-only-secret
-        run: python -m pytest -m "not integration"
+        run: python -m pytest -m "not integration" --cov --cov-report=term-missing --cov-fail-under=100

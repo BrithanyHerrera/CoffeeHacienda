@@ -11,3 +11,23 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E9", "F63", "F7", "F82"]
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "tests/*",
+    "scripts/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+include = [
+    "app.py",
+    "bd.py",
+    "config.py",
+    "extensions.py",
+    "utils.py",
+    "blueprints/*.py",
+    "models/*.py",
+]

@@ -103,8 +103,10 @@ de la aplicación siga atendiendo ventas.
 Suite local sin escritura en MySQL:
 
 ```powershell
-python -m pytest -m "not integration"
+python -m pytest -m "not integration" --cov --cov-report=term-missing --cov-fail-under=100
 ```
+
+Esta suite mide únicamente el código de producción y exige 100% de cobertura.
 
 Flujos integrales de venta sobre una base temporal aislada:
 
@@ -117,8 +119,8 @@ ejecuta el esquema, las migraciones, los flujos integrales y la prueba de ventas
 concurrentes, y elimina esa base al terminar. Requiere que MAMP esté activo y
 que la cuenta local pueda crear bases.
 
-El flujo de GitHub Actions ejecuta Ruff y la suite sin base de datos en cada
-push a `main` y en cada pull request.
+El flujo de GitHub Actions ejecuta Ruff y exige la suite al 100% de cobertura
+en cada push a `main` y en cada pull request.
 
 ---
 Coffee Hacienda 🤎
