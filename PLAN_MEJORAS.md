@@ -54,9 +54,9 @@ uso normal.
 
 - [x] Sustituir los datos reales de `bd.sql` por datos ficticios o eliminar completamente los `INSERT` sensibles.
 - [x] Crear el administrador local mediante un script que genera el hash sin guardar la contraseña.
-- [ ] Rotar las contraseñas de las 5 cuentas activas conservadas en Aiven que
-  pudieron aparecer en el dump histórico; las 4 cuentas inactivas permanecen
-  bloqueadas.
+- [~] Las contraseñas de las 5 cuentas activas conservadas en Aiven no se
+  rotarán por decisión del propietario; las 4 cuentas inactivas permanecen
+  bloqueadas. Se conserva este punto como riesgo aceptado, no como fallo técnico.
 - [~] Rotar las credenciales que hayan estado en versiones anteriores de
   `bd.env`: `avnadmin`, el usuario web de Aiven y `SECRET_KEY` ya se renovaron;
   `MAIL_PASSWORD` se conserva por decisión del propietario.
@@ -347,6 +347,10 @@ privilegio.
 - [~] Conservar temporalmente `MAIL_PASSWORD` por decisión del propietario; debe
   rotarse si esa contraseña de aplicación de Gmail llegó a compartirse.
 - [x] Crear y validar `coffee_hacienda_app` con permisos mínimos en Aiven.
-- [ ] Renovar las contraseñas de las 5 cuentas activas conservadas en Aiven.
+- [~] Conservar las contraseñas de las 5 cuentas activas por decisión del
+  propietario; las 4 cuentas inactivas siguen bloqueadas.
 - [ ] Probar la restauración del respaldo en una base o servicio separado.
 - [x] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.
+- [x] Validación final posterior a la rotación: Ruff sin errores, 284 pruebas
+  locales y 5 pruebas MySQL aisladas correctas, con `/health` HTTP 200 tanto en
+  local como en Aiven mediante la cuenta de mínimo privilegio.
