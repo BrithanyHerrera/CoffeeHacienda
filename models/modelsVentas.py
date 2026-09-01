@@ -3,6 +3,7 @@ import logging
 from decimal import Decimal, InvalidOperation
 
 from bd import Conexion_BD
+from services.auditoria import registrar_evento
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,9 @@ def actualizar_estado_orden(orden_id, nuevo_estado_id):
             if cursor.rowcount != 1:
                 conn.rollback()
                 return False
+            registrar_evento(cursor, 'CAMBIAR_ESTADO', 'venta', orden_id,
+                             detalles={'estado_anterior': estado_actual,
+                                       'estado_nuevo': nuevo_estado_id})
         conn.commit()
         return True
     except Exception as e:
@@ -239,6 +243,8 @@ def cancelar_orden(orden_id, usuario_id, motivo):
             )
             if cursor.rowcount != 1:
                 raise RuntimeError('La orden cambió mientras se intentaba cancelar')
+            registrar_evento(cursor, 'CANCELAR', 'venta', orden_id, usuario_id,
+                             detalles={'motivo': motivo})
         conn.commit()
         return True
     except Exception as e:
@@ -557,6 +563,10 @@ def procesar_venta_completa(nombre_cliente, numero_mesa, productos, total,
                     producto_id, venta_id, vendedor_id, cantidad,
                     'Salida por venta'
                 ))
+
+            registrar_evento(cursor, 'CREAR', 'venta', venta_id, vendedor_id,
+                             detalles={'total': str(total_calculado),
+                                       'partidas': len(productos_validos)})
 
         conn.commit()
         return True, 'Venta registrada exitosamente', {

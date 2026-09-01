@@ -5,6 +5,7 @@ import string
 from datetime import datetime
 
 from bd import Conexion_BD
+from services.auditoria import registrar_evento
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ def guardar_codigo_recuperacion(usuario_id, codigo, expiracion):
                 INSERT INTO tcodigosrecuperacion (usuario_id, codigo, fecha_expiracion)
                 VALUES (%s, %s, %s)
             """, (usuario_id, codigo, expiracion))
+            registrar_evento(cursor, 'SOLICITAR_RECUPERACION', 'usuario', usuario_id)
             conn.commit()
             return True
     except Exception as e:
@@ -101,6 +103,7 @@ def eliminar_codigos_recuperacion(usuario_id):
                 "DELETE FROM tcodigosrecuperacion WHERE usuario_id = %s",
                 (usuario_id,),
             )
+            registrar_evento(cursor, 'INVALIDAR_CODIGOS', 'usuario', usuario_id)
         conn.commit()
         return True
     except Exception as e:
@@ -141,6 +144,7 @@ def actualizar_contrasena_por_codigo(usuario_id, nueva_contrasena, codigo_consum
             if cursor.rowcount != 1:
                 conn.rollback()
                 return False
+            registrar_evento(cursor, 'CAMBIAR_CONTRASENA', 'usuario', usuario_id)
             cursor.execute(
                 "DELETE FROM tcodigosrecuperacion WHERE Id = %s",
                 (registro['Id'],),

@@ -69,23 +69,40 @@ function eliminarDelCarrito(nombre, tamaño) {
 
 function actualizarCarrito() {
     const carritoItems = document.querySelector('.carritoItems');
-    carritoItems.innerHTML = '';
+    carritoItems.replaceChildren();
 
     let total = 0;
     carrito.forEach((item, index) => {
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('carritoItem');
 
-        itemDiv.innerHTML = `
-            <img src="${escaparHtml(item.imagen)}" alt="${escaparHtml(item.nombre)}">
-            <div>
-                <h4>${escaparHtml(item.nombre)} (${escaparHtml(item.tamaño)})</h4>
-                <p>Precio: $${Number(item.precio).toFixed(2)}</p>
-                <p>Total: $<span class="total-item">${(item.precio * item.cantidad).toFixed(2)}</span></p>
-            </div>
-            <input type="number" class="cantidadProducto" data-index="${index}" value="${item.cantidad}" min="1">
-            <button class="eliminarItemCarrito" data-index="${index}">X</button>
-        `;
+        const imagenElemento = document.createElement('img');
+        imagenElemento.src = item.imagen;
+        imagenElemento.alt = item.nombre;
+        const detalles = document.createElement('div');
+        const titulo = document.createElement('h4');
+        titulo.textContent = `${item.nombre} (${item.tamaño})`;
+        const precio = document.createElement('p');
+        precio.textContent = `Precio: $${Number(item.precio).toFixed(2)}`;
+        const totalItem = document.createElement('p');
+        totalItem.textContent = 'Total: $';
+        const totalValor = document.createElement('span');
+        totalValor.className = 'total-item';
+        totalValor.textContent = (item.precio * item.cantidad).toFixed(2);
+        totalItem.append(totalValor);
+        detalles.append(titulo, precio, totalItem);
+        const cantidad = document.createElement('input');
+        cantidad.type = 'number';
+        cantidad.className = 'cantidadProducto';
+        cantidad.dataset.index = index;
+        cantidad.value = item.cantidad;
+        cantidad.min = '1';
+        const eliminar = document.createElement('button');
+        eliminar.className = 'eliminarItemCarrito';
+        eliminar.dataset.index = index;
+        eliminar.type = 'button';
+        eliminar.textContent = 'X';
+        itemDiv.append(imagenElemento, detalles, cantidad, eliminar);
 
         carritoItems.appendChild(itemDiv);
         total += item.precio * item.cantidad;
@@ -136,7 +153,7 @@ function mostrarModalTamano(nombre, tamaños, callback) {
     const opciones = document.getElementById('tamanoOpciones');
 
     titulo.textContent = `Seleccione tamaño para ${nombre}`;
-    opciones.innerHTML = '';
+    opciones.replaceChildren();
 
     tamaños.forEach((tamano, index) => {
         const btn = document.createElement('button');

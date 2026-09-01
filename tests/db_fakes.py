@@ -16,6 +16,11 @@ class FakeCursor:
         normalized = ' '.join(sql.split())
         self.calls.append((normalized, params))
         self.rowcount = 0
+        # La auditoría es una preocupación transversal; los dobles de prueba
+        # la aceptan sin consumir respuestas configuradas para la operación.
+        if normalized.startswith('INSERT INTO tauditoria'):
+            self.result = None
+            return 1
         self.result = self.handler(normalized, params, self)
         return 1
 

@@ -50,7 +50,7 @@ function mostrarAlerta(mensaje, tipo = 'ExitoG') {
     alerta.appendChild(texto);
 
     const botonCerrar = document.createElement('button');
-    botonCerrar.innerHTML = '&times;';
+    botonCerrar.textContent = '×';
     botonCerrar.style.background = 'none';
     botonCerrar.style.border = 'none';
     botonCerrar.style.color = '#fff';

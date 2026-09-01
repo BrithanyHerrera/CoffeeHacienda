@@ -61,6 +61,8 @@ def test_sale_uses_official_price_and_records_stock_movement(monkeypatch):
     captured = {}
 
     def handler(sql, params, cursor):
+        if sql.startswith('INSERT INTO tauditoria'):
+            return None
         if 'FROM tmetodospago' in sql:
             return {'Id': 1, 'codigo': 'EFECTIVO', 'tipo_de_pago': 'Efectivo'}
         if 'FROM tproductos p JOIN tcategorias' in sql:
@@ -120,6 +122,8 @@ def test_sale_uses_official_price_and_records_stock_movement(monkeypatch):
 @pytest.mark.parametrize('quantity', [0, -1, 1.5, True, '2.5'])
 def test_sale_rejects_invalid_quantities(monkeypatch, quantity):
     def handler(sql, params, cursor):
+        if sql.startswith('INSERT INTO tauditoria'):
+            return None
         if 'FROM tmetodospago' in sql:
             return {'Id': 1, 'codigo': 'EFECTIVO', 'tipo_de_pago': 'Efectivo'}
         raise AssertionError(f'No debía continuar: {sql}')
@@ -140,6 +144,8 @@ def test_cancel_restores_stock_once_and_records_audit(monkeypatch):
     captured = {'movements': 0}
 
     def handler(sql, params, cursor):
+        if sql.startswith('INSERT INTO tauditoria'):
+            return None
         if sql.startswith('SELECT estado_id FROM tventas'):
             return {'estado_id': 1}
         if 'SUM(dv.cantidad)' in sql:

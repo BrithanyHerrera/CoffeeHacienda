@@ -21,12 +21,18 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
         .then(data => {
             if (data.success) {
                 let tablaHistorial = document.getElementById("tablaHistorialVentas");
-                tablaHistorial.innerHTML = "";
+                tablaHistorial.replaceChildren();
 
                 if (data.ventas.length === 0) {
-                    tablaHistorial.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; opacity: 0.6;">No se encontraron ventas</td></tr>`;
-                    document.getElementById("paginacionHistorial").innerHTML = "";
-                    document.getElementById("paginacionInfo").innerHTML = "";
+                    const filaVacia = document.createElement('tr');
+                    const celdaVacia = document.createElement('td');
+                    celdaVacia.colSpan = 6;
+                    celdaVacia.className = 'text-center';
+                    celdaVacia.textContent = 'No se encontraron ventas';
+                    filaVacia.append(celdaVacia);
+                    tablaHistorial.append(filaVacia);
+                    document.getElementById("paginacionHistorial").replaceChildren();
+                    document.getElementById("paginacionInfo").replaceChildren();
                     return;
                 }
 
@@ -36,22 +42,19 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
                     if (!Number.isInteger(ventaId) || ventaId <= 0) {
                         return;
                     }
-                    const numeroMesa = venta.numero_mesa
-                        ? `Mesa: ${escaparHtml(venta.numero_mesa)}`
-                        : "Sin mesa";
-
-                    let fila = `
-                        <tr>
-                            <td>${escaparHtml(venta.vendedor)}</td>
-                            <td>${escaparHtml(venta.cliente)}</td>
-                            <td>${fechaFormateada}</td>
-                            <td>$${venta.total}</td>
-                            <td>${numeroMesa}</td>
-                            <td>
-                                <button class="btnVerVenta" onclick="verDetallesVenta(${ventaId})">👁️</button>
-                            </td>
-                        </tr>`;
-                    tablaHistorial.innerHTML += fila;
+                    const fila = document.createElement('tr');
+                    [venta.vendedor, venta.cliente, fechaFormateada,
+                        `$${Number(venta.total || 0).toFixed(2)}`,
+                        venta.numero_mesa ? `Mesa: ${venta.numero_mesa}` : 'Sin mesa']
+                        .forEach(valor => { const celda = document.createElement('td'); celda.textContent = valor || ''; fila.append(celda); });
+                    const acciones = document.createElement('td');
+                    const boton = document.createElement('button');
+                    boton.className = 'btnVerVenta';
+                    boton.type = 'button';
+                    boton.textContent = '👁️';
+                    boton.addEventListener('click', () => verDetallesVenta(ventaId));
+                    acciones.append(boton); fila.append(acciones);
+                    tablaHistorial.append(fila);
                 });
 
                 // Renderizar paginación
@@ -68,16 +71,22 @@ function renderizarPaginacion(paginaActualServer, totalPaginas, totalVentas) {
     const info = document.getElementById("paginacionInfo");
     
     if (totalPaginas <= 1) {
-        contenedor.innerHTML = "";
-        info.innerHTML = `<span>${totalVentas} venta${totalVentas !== 1 ? 's' : ''} en total</span>`;
+        contenedor.replaceChildren();
+        info.replaceChildren();
+        const resumen = document.createElement('span');
+        resumen.textContent = `${totalVentas} venta${totalVentas !== 1 ? 's' : ''} en total`;
+        info.append(resumen);
         return;
     }
     
-    let html = '';
-    
-    // Botón anterior
-    html += `<button class="pag-btn pag-flecha ${paginaActualServer <= 1 ? 'disabled' : ''}" 
-             onclick="irAPagina(${paginaActualServer - 1})" ${paginaActualServer <= 1 ? 'disabled' : ''}>‹</button>`;
+    contenedor.replaceChildren();
+    const agregarBoton = (texto, pagina, clase = '', deshabilitado = false) => {
+        const boton = document.createElement('button');
+        boton.className = `pag-btn ${clase}`.trim(); boton.type = 'button'; boton.textContent = texto;
+        boton.disabled = deshabilitado; boton.addEventListener('click', () => irAPagina(pagina));
+        contenedor.append(boton);
+    };
+    agregarBoton('‹', paginaActualServer - 1, 'pag-flecha', paginaActualServer <= 1);
     
     // Calcular rango de páginas a mostrar (máximo 7)
     let inicio = Math.max(1, paginaActualServer - 3);
@@ -91,32 +100,31 @@ function renderizarPaginacion(paginaActualServer, totalPaginas, totalVentas) {
     
     // Primera página + puntos suspensivos si es necesario
     if (inicio > 1) {
-        html += `<button class="pag-btn" onclick="irAPagina(1)">1</button>`;
-        if (inicio > 2) html += `<span class="pag-puntos">...</span>`;
+        agregarBoton('1', 1);
+        if (inicio > 2) { const puntos = document.createElement('span'); puntos.className = 'pag-puntos'; puntos.textContent = '...'; contenedor.append(puntos); }
     }
     
     // Páginas del rango
     for (let i = inicio; i <= fin; i++) {
-        html += `<button class="pag-btn ${i === paginaActualServer ? 'pag-activa' : ''}" 
-                 onclick="irAPagina(${i})">${i}</button>`;
+        agregarBoton(String(i), i, i === paginaActualServer ? 'pag-activa' : '');
     }
     
     // Última página + puntos suspensivos si es necesario
     if (fin < totalPaginas) {
-        if (fin < totalPaginas - 1) html += `<span class="pag-puntos">...</span>`;
-        html += `<button class="pag-btn" onclick="irAPagina(${totalPaginas})">${totalPaginas}</button>`;
+        if (fin < totalPaginas - 1) { const puntos = document.createElement('span'); puntos.className = 'pag-puntos'; puntos.textContent = '...'; contenedor.append(puntos); }
+        agregarBoton(String(totalPaginas), totalPaginas);
     }
     
     // Botón siguiente
-    html += `<button class="pag-btn pag-flecha ${paginaActualServer >= totalPaginas ? 'disabled' : ''}" 
-             onclick="irAPagina(${paginaActualServer + 1})" ${paginaActualServer >= totalPaginas ? 'disabled' : ''}>›</button>`;
-    
-    contenedor.innerHTML = html;
+    agregarBoton('›', paginaActualServer + 1, 'pag-flecha', paginaActualServer >= totalPaginas);
     
     // Info
     const desde = (paginaActualServer - 1) * 15 + 1;
     const hasta = Math.min(paginaActualServer * 15, totalVentas);
-    info.innerHTML = `<span>Mostrando ${desde}-${hasta} de ${totalVentas} ventas</span>`;
+    info.replaceChildren();
+    const resumen = document.createElement('span');
+    resumen.textContent = `Mostrando ${desde}-${hasta} de ${totalVentas} ventas`;
+    info.append(resumen);
 }
 
 function irAPagina(pagina) {
@@ -149,105 +157,44 @@ function verDetallesVenta(id) {
             if (data.success && data.venta && data.detalles) {
                 const venta = data.venta;
                 const detalles = data.detalles;
-                
-                let detallesHTML = `
-                    <div class="venta-header">
-                        <div class="venta-id">
-                            <span class="venta-label">Venta #</span>
-                            <span class="venta-value">${id}</span>
-                        </div>
-                        <div class="venta-fecha">
-                            <span class="fecha-value">${formatearFecha(venta.fecha_hora)}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="venta-info-container">
-                        <div class="venta-info-grupo">
-                            <span class="info-label">Vendedor:</span>
-                            <span class="info-value">${escaparHtml(venta.vendedor || 'No disponible')}</span>
-                        </div>
-                        
-                        <div class="venta-info-grupo">
-                            <span class="info-label">Cliente:</span>
-                            <span class="info-value">${escaparHtml(venta.cliente || 'No disponible')}</span>
-                        </div>
-                        
-                        <div class="venta-info-grupo">
-                            <span class="info-label">Método de pago:</span>
-                            <span class="info-value">${escaparHtml(venta.metodo_pago || 'No especificado')}</span>
-                        </div>
-                        
-                        <div class="venta-info-grupo">
-                            <span class="info-label">Dinero recibido:</span>
-                            <span class="info-value">$${parseFloat(venta.dinero_recibido || 0).toFixed(2)}</span>
-                        </div>
-                        
-                        <div class="venta-info-grupo">
-                            <span class="info-label">Cambio:</span>
-                            <span class="info-value">$${parseFloat(venta.cambio || 0).toFixed(2)}</span>
-                        </div>
-                        
-                        ${venta.numero_mesa ? `
-                        <div class="venta-info-grupo">
-                            <span class="info-label">Mesa:</span>
-                            <span class="info-value">${escaparHtml(venta.numero_mesa)}</span>
-                        </div>` : ''}
-                    </div>
-                    
-                    <div class="productos-container">
-                        <h4 class="productos-titulo">Productos Vendidos</h4>
-                        <div class="tabla-responsive">
-                            <table class="tabla-productos">
-                                <thead>
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th>Tamaño</th>
-                                        <th>Precio Unit.</th>
-                                        <th>Cant.</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                const elemento = (tag, clase, texto) => {
+                    const nodo = document.createElement(tag);
+                    if (clase) nodo.className = clase;
+                    if (texto !== undefined) nodo.textContent = texto;
+                    return nodo;
+                };
+                const contenido = document.getElementById('detallesVenta');
+                contenido.replaceChildren();
+                const encabezado = elemento('div', 'venta-header');
+                const ventaId = elemento('div', 'venta-id');
+                ventaId.append(elemento('span', 'venta-label', 'Venta #'), elemento('span', 'venta-value', id));
+                const fecha = elemento('div', 'venta-fecha');
+                fecha.append(elemento('span', 'fecha-value', formatearFecha(venta.fecha_hora)));
+                encabezado.append(ventaId, fecha);
+                contenido.append(encabezado);
 
-                if (detalles.length === 0) {
-                    detallesHTML += `<tr><td colspan="5" class="no-productos">No hay productos en esta venta</td></tr>`;
-                } else {
-                    let subtotal = 0;
-                    detalles.forEach(producto => {
-                        // Manejar productos eliminados donde el precio puede ser nulo
-                        let precio = parseFloat(producto.precio);
-                        if (isNaN(precio) && producto.subtotal && producto.cantidad) {
-                            precio = parseFloat(producto.subtotal) / parseInt(producto.cantidad);
-                        }
-                        const precioFormateado = isNaN(precio) ? '0.00' : precio.toFixed(2);
-                        const subtotalItem = parseFloat(producto.subtotal || 0).toFixed(2);
-                        subtotal += parseFloat(subtotalItem);
-                        const tamano = producto.tamano || 'No aplica';
+                const info = elemento('div', 'venta-info-container');
+                [['Vendedor:', venta.vendedor || 'No disponible'], ['Cliente:', venta.cliente || 'No disponible'],
+                    ['Método de pago:', venta.metodo_pago || 'No especificado'],
+                    ['Dinero recibido:', `$${parseFloat(venta.dinero_recibido || 0).toFixed(2)}`],
+                    ['Cambio:', `$${parseFloat(venta.cambio || 0).toFixed(2)}`]]
+                    .concat(venta.numero_mesa ? [['Mesa:', venta.numero_mesa]] : [])
+                    .forEach(([etiqueta, valor]) => { const grupo = elemento('div', 'venta-info-grupo'); grupo.append(elemento('span', 'info-label', etiqueta), elemento('span', 'info-value', valor)); info.append(grupo); });
+                contenido.append(info);
 
-                        detallesHTML += `
-                            <tr>
-                                <td class="producto-nombre">${escaparHtml(producto.nombre_producto)}</td>
-                                <td class="producto-tamano">${escaparHtml(tamano)}</td>
-                                <td class="precio-unitario">$${precioFormateado}</td>
-                                <td class="cantidad-producto">${producto.cantidad}</td>
-                                <td class="subtotal-producto">$${subtotalItem}</td>
-                            </tr>`;
-                    });
-                }
-
-                detallesHTML += `
-                                </tbody>
-                                <tfoot>
-                                    <tr class="total-row">
-                                        <td colspan="4" class="total-label">Total</td>
-                                        <td class="total-value">$${parseFloat(venta.total || 0).toFixed(2)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>`;
-
-                document.getElementById("detallesVenta").innerHTML = detallesHTML;
+                const productos = elemento('div', 'productos-container');
+                productos.append(elemento('h4', 'productos-titulo', 'Productos Vendidos'));
+                const responsive = elemento('div', 'tabla-responsive');
+                const tabla = elemento('table', 'tabla-productos');
+                const thead = elemento('thead'); const headRow = elemento('tr');
+                ['Producto', 'Tamaño', 'Precio Unit.', 'Cant.', 'Subtotal'].forEach(t => headRow.append(elemento('th', null, t)));
+                thead.append(headRow); tabla.append(thead);
+                const tbody = elemento('tbody');
+                if (!detalles.length) { const row = elemento('tr'); const cell = elemento('td', 'no-productos', 'No hay productos en esta venta'); cell.colSpan = 5; row.append(cell); tbody.append(row); }
+                else detalles.forEach(producto => { let precio = parseFloat(producto.precio); if (isNaN(precio) && producto.subtotal && producto.cantidad) precio = parseFloat(producto.subtotal) / parseInt(producto.cantidad); const row = elemento('tr'); [producto.nombre_producto, producto.tamano || 'No aplica', `$${isNaN(precio) ? '0.00' : precio.toFixed(2)}`, producto.cantidad, `$${parseFloat(producto.subtotal || 0).toFixed(2)}`].forEach(v => row.append(elemento('td', null, v))); tbody.append(row); });
+                tabla.append(tbody);
+                const tfoot = elemento('tfoot'); const totalRow = elemento('tr', 'total-row'); const label = elemento('td', 'total-label', 'Total'); label.colSpan = 4; totalRow.append(label, elemento('td', 'total-value', `$${parseFloat(venta.total || 0).toFixed(2)}`)); tfoot.append(totalRow); tabla.append(tfoot);
+                responsive.append(tabla); productos.append(responsive); contenido.append(productos);
                 document.getElementById("ventaModal").style.display = "flex";
             } else {
                 console.error("Datos de la venta incompletos:", data);

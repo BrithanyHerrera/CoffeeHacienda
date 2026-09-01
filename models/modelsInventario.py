@@ -1,6 +1,7 @@
 # Inventario: stock, alertas y movimientos
 import logging
 from bd import Conexion_BD
+from services.auditoria import registrar_evento
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +101,12 @@ def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_s
                     INSERT INTO tmovimientosinventario (producto_id, cantidad, tipo_movimiento_id, motivo)
                     VALUES (%s, %s, %s, %s)
                 """, (id_producto, cantidad, tipo_movimiento, "Actualización desde panel de inventario"))
+
+            if cantidad > 0:
+                registrar_evento(cursor, 'AJUSTAR_STOCK', 'producto', id_producto,
+                                 detalles={'stock_anterior': stock_anterior,
+                                           'stock_nuevo': nuevo_stock,
+                                           'cantidad': cantidad})
 
         conn.commit()
         return True

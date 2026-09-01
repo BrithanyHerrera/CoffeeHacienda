@@ -213,7 +213,11 @@ def test_resend_validation_code_missing_success_and_error(monkeypatch):
 
 
 def test_reactivate_user_success_and_error(monkeypatch):
-    successful = connection_with_results(None)
+    def reactivate_handler(sql, params, cursor):
+        cursor.rowcount = 1
+        return None
+
+    successful = FakeConnection(reactivate_handler)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: successful)
     assert modelsUsuarios.reactivar_usuario(1) is True
 
@@ -228,7 +232,13 @@ def test_deactivate_user_missing_success_and_error(monkeypatch):
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: missing)
     assert modelsUsuarios.desactivar_usuario(1) == (False, 'Usuario no encontrado')
 
-    successful = connection_with_results({'Id': 1}, None)
+    def deactivate_handler(sql, params, cursor):
+        if sql.startswith('SELECT Id FROM tusuarios'):
+            return {'Id': 1}
+        cursor.rowcount = 1
+        return None
+
+    successful = FakeConnection(deactivate_handler)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: successful)
     assert modelsUsuarios.desactivar_usuario(1) == (
         True,

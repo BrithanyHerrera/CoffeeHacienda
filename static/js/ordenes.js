@@ -11,14 +11,14 @@ function cargarOrdenes() {
         .then(data => {
             if (data.success) {
                 let tablaOrdenes = document.getElementById("tablaOrdenes");
-                tablaOrdenes.innerHTML = "";
+                tablaOrdenes.replaceChildren();
 
                 if (data.ordenes.length === 0) {
-                    tablaOrdenes.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center">No hay órdenes pendientes</td>
-                        </tr>
-                    `;
+                    const filaVacia = document.createElement('tr');
+                    const celdaVacia = document.createElement('td');
+                    celdaVacia.colSpan = 4; celdaVacia.className = 'text-center';
+                    celdaVacia.textContent = 'No hay órdenes pendientes'; filaVacia.append(celdaVacia);
+                    tablaOrdenes.append(filaVacia);
                     return;
                 }
 
@@ -27,11 +27,11 @@ function cargarOrdenes() {
                     if (!Number.isInteger(ordenId) || ordenId <= 0) {
                         return;
                     }
-                    const vendedor = escaparHtml(orden.vendedor || 'No disponible');
-                    const cliente = escaparHtml(orden.cliente || 'No disponible');
-                    const mesa = escaparHtml(orden.numero_mesa || '');
-                    const metodoPago = escaparHtml(orden.metodo_pago || 'No especificado');
-                    const estado = escaparHtml(orden.estado || '');
+                    const vendedor = orden.vendedor || 'No disponible';
+                    const cliente = orden.cliente || 'No disponible';
+                    const mesa = orden.numero_mesa || '';
+                    const metodoPago = orden.metodo_pago || 'No especificado';
+                    const estado = orden.estado || '';
                     // Convertir la fecha correctamente a la zona horaria local
                     const fechaUTC = new Date(orden.fecha_hora);
                     const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000);
@@ -55,28 +55,18 @@ function cargarOrdenes() {
                     }[orden.estado] || '';
 
                     // Determinar qué botones mostrar según el estado
-                    let botonesHTML = `<button class="btnVerOrden" onclick="verDetallesOrden(${ordenId})">👁️</button>`;
-
-                    if (orden.estado === 'Pendiente') {
-                        botonesHTML += `<button class="btnProcesarOrden" onclick="cambiarEstadoOrden(${ordenId}, 'En proceso')">Procesando</button>`;
-                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${ordenId}, 'Cancelado')">Cancelar</button>`;
-                    } else if (orden.estado === 'En proceso') {
-                        botonesHTML += `<button class="btnListaOrden" onclick="cambiarEstadoOrden(${ordenId}, 'Completado')">Lista</button>`;
-                        botonesHTML += `<button class="btnCancelarOrden" onclick="cambiarEstadoOrden(${ordenId}, 'Cancelado')">Cancelar</button>`;
-                    }
-
-
-                    // Crear la fila de la tabla con la nueva columna
-                    let fila = `
-                        <tr data-id="${ordenId}" data-cliente="${cliente}" data-fecha="${fechaFormateada}" data-total="${Number(orden.total) || 0}" data-mesa="${mesa}" data-vendedor="${vendedor}" data-metodo="${metodoPago}" data-dinero="${Number(orden.dinero_recibido) || 0}" data-cambio="${Number(orden.cambio) || 0}">
-                            <td>${cliente}</td>
-                            <td>${fechaFormateada}</td>
-                            <td>${vendedor}</td> <!-- Nueva columna -->
-                            <td><span class="estadoOrden ${estadoClase}">${estado}</span></td>
-                            <td>${botonesHTML}</td>
-                        </tr>
-                    `;
-                    tablaOrdenes.innerHTML += fila;
+                    const fila = document.createElement('tr');
+                    fila.dataset.id = ordenId; fila.dataset.cliente = cliente; fila.dataset.fecha = fechaFormateada;
+                    fila.dataset.total = Number(orden.total) || 0; fila.dataset.mesa = mesa; fila.dataset.vendedor = vendedor;
+                    fila.dataset.metodo = metodoPago; fila.dataset.dinero = Number(orden.dinero_recibido) || 0; fila.dataset.cambio = Number(orden.cambio) || 0;
+                    [cliente, fechaFormateada, vendedor].forEach(valor => { const celda = document.createElement('td'); celda.textContent = valor; fila.append(celda); });
+                    const estadoCelda = document.createElement('td'); const estadoSpan = document.createElement('span'); estadoSpan.className = `estadoOrden ${estadoClase}`; estadoSpan.textContent = estado; estadoCelda.append(estadoSpan); fila.append(estadoCelda);
+                    const acciones = document.createElement('td');
+                    const agregarAccion = (clase, texto, estadoNuevo) => { const boton = document.createElement('button'); boton.className = clase; boton.type = 'button'; boton.textContent = texto; boton.addEventListener('click', () => cambiarEstadoOrden(ordenId, estadoNuevo)); acciones.append(boton); };
+                    const ver = document.createElement('button'); ver.className = 'btnVerOrden'; ver.type = 'button'; ver.textContent = '👁️'; ver.addEventListener('click', () => verDetallesOrden(ordenId)); acciones.append(ver);
+                    if (orden.estado === 'Pendiente') { agregarAccion('btnProcesarOrden', 'Procesando', 'En proceso'); agregarAccion('btnCancelarOrden', 'Cancelar', 'Cancelado'); }
+                    else if (orden.estado === 'En proceso') { agregarAccion('btnListaOrden', 'Lista', 'Completado'); agregarAccion('btnCancelarOrden', 'Cancelar', 'Cancelado'); }
+                    fila.append(acciones); tablaOrdenes.append(fila);
                 });
             } else {
                 console.error('Error al cargar órdenes:', data.message, 'ErrorG');
@@ -101,95 +91,12 @@ function verDetallesOrden(id) {
                 const dineroRecibido = parseFloat(fila.getAttribute('data-dinero') || 0);
                 const cambioOrden = parseFloat(fila.getAttribute('data-cambio') || 0);
 
-                let detallesHTML = `
-                    <div class="infoOrden">
-                        <div class="orden-header">
-                            <div class="orden-id">
-                                <span class="orden-label">Orden #</span>
-                                <span class="orden-value">${id}</span>
-                            </div>
-                            <div class="orden-estado">
-                                <span class="estado-badge">Activa</span>
-                            </div>
-                        </div>
-                        <div class="orden-cliente-info">
-                            <div class="info-grupo">
-                                <span class="info-label">Cliente:</span>
-                                <span class="info-value">${escaparHtml(cliente)}</span>
-                            </div>
-                            <div class="info-grupo">
-                                <span class="info-label">Vendedor:</span>
-                                <span class="info-value">${escaparHtml(vendedor)}</span>
-                            </div>
-                            <div class="info-grupo">
-                                <span class="info-label">Fecha:</span>
-                                <span class="info-value">${escaparHtml(fecha)}</span>
-                            </div>
-                            <div class="info-grupo">
-                                <span class="info-label">Método de pago:</span>
-                                <span class="info-value">${escaparHtml(metodoPago)}</span>
-                            </div>
-                            <div class="info-grupo">
-                                <span class="info-label">Dinero recibido:</span>
-                                <span class="info-value">$${dineroRecibido.toFixed(2)}</span>
-                            </div>
-                            <div class="info-grupo">
-                                <span class="info-label">Cambio:</span>
-                                <span class="info-value">$${cambioOrden.toFixed(2)}</span>
-                            </div>
-                            ${mesa ? `<div class="info-grupo"><span class="info-label">Mesa:</span><span class="info-value">${escaparHtml(mesa)}</span></div>` : ''}
-                        </div>
-                    </div>
-                    <div class="productosOrden">
-                        <h4 class="productos-titulo">Detalle de Productos</h4>
-                        <div class="tabla-responsive">
-                            <table class="tabla-productos">
-                                <thead>
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th>Tamaño</th>
-                                        <th>Precio Unit.</th>
-                                        <th>Cant.</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-                let subtotal = 0;
-                data.detalles.forEach(detalle => {
-                    // Manejar productos eliminados donde el precio puede ser nulo
-                    let precio = parseFloat(detalle.precio);
-                    if (isNaN(precio) && detalle.subtotal && detalle.cantidad) {
-                        precio = parseFloat(detalle.subtotal) / parseInt(detalle.cantidad);
-                    }
-                    const precioFormateado = isNaN(precio) ? '0.00' : precio.toFixed(2);
-                    const subtotalItem = parseFloat(detalle.subtotal || 0).toFixed(2);
-                    subtotal += parseFloat(subtotalItem);
-                    const tamano = detalle.tamano || 'No aplica';
-
-                    detallesHTML += `
-                        <tr>
-                            <td class="producto-nombre">${escaparHtml(detalle.nombre_producto)}</td>
-                            <td class="producto-tamano">${escaparHtml(tamano)}</td>
-                            <td class="precio-unitario">$${precioFormateado}</td>
-                            <td class="cantidad-producto">${detalle.cantidad}</td>
-                            <td class="subtotal-producto">$${subtotalItem}</td>
-                        </tr>`;
-                });
-
-                detallesHTML += `
-                                </tbody>
-                                <tfoot>
-                                    <tr class="total-row">
-                                        <td colspan="4" class="total-label">Total</td>
-                                        <td class="total-value">$${parseFloat(total).toFixed(2)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>`;
-
-                document.getElementById('detallesOrden').innerHTML = detallesHTML;
+                const e = (tag, clase, texto) => { const n = document.createElement(tag); if (clase) n.className = clase; if (texto !== undefined) n.textContent = texto; return n; };
+                const contenido = document.getElementById('detallesOrden'); contenido.replaceChildren();
+                const infoOrden = e('div', 'infoOrden'); const cab = e('div', 'orden-header'); const oid = e('div', 'orden-id'); oid.append(e('span', 'orden-label', 'Orden #'), e('span', 'orden-value', id)); const est = e('div', 'orden-estado'); est.append(e('span', 'estado-badge', 'Activa')); cab.append(oid, est); infoOrden.append(cab);
+                const clienteInfo = e('div', 'orden-cliente-info'); [['Cliente:', cliente], ['Vendedor:', vendedor], ['Fecha:', fecha], ['Método de pago:', metodoPago], ['Dinero recibido:', `$${dineroRecibido.toFixed(2)}`], ['Cambio:', `$${cambioOrden.toFixed(2)}`]].concat(mesa ? [['Mesa:', mesa]] : []).forEach(([label, value]) => { const grupo = e('div', 'info-grupo'); grupo.append(e('span', 'info-label', label), e('span', 'info-value', value)); clienteInfo.append(grupo); }); infoOrden.append(clienteInfo); contenido.append(infoOrden);
+                const productos = e('div', 'productosOrden'); productos.append(e('h4', 'productos-titulo', 'Detalle de Productos')); const responsive = e('div', 'tabla-responsive'); const tabla = e('table', 'tabla-productos'); const head = e('tr'); ['Producto', 'Tamaño', 'Precio Unit.', 'Cant.', 'Subtotal'].forEach(t => head.append(e('th', null, t))); const thead = e('thead'); thead.append(head); tabla.append(thead); const tbody = e('tbody');
+                data.detalles.forEach(detalle => { let precio = parseFloat(detalle.precio); if (isNaN(precio) && detalle.subtotal && detalle.cantidad) precio = parseFloat(detalle.subtotal) / parseInt(detalle.cantidad); const row = e('tr'); [detalle.nombre_producto, detalle.tamano || 'No aplica', `$${isNaN(precio) ? '0.00' : precio.toFixed(2)}`, detalle.cantidad, `$${parseFloat(detalle.subtotal || 0).toFixed(2)}`].forEach(v => row.append(e('td', null, v))); tbody.append(row); }); tabla.append(tbody); const foot = e('tfoot'); const totalRow = e('tr', 'total-row'); const totalLabel = e('td', 'total-label', 'Total'); totalLabel.colSpan = 4; totalRow.append(totalLabel, e('td', 'total-value', `$${parseFloat(total).toFixed(2)}`)); foot.append(totalRow); tabla.append(foot); responsive.append(tabla); productos.append(responsive); contenido.append(productos);
                 document.getElementById('ordenModal').style.display = 'flex';
             } else {
                 alert('Error al cargar detalles: ' + data.message, 'ErrorG');

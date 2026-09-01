@@ -1,6 +1,7 @@
 # Productos: CRUD, variantes y categorías
 import logging
 from bd import Conexion_BD
+from services.auditoria import registrar_evento
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,8 @@ def agregar_variante_producto(producto_id, tamano_id, precio):
                 INSERT INTO tproductos_variantes (producto_id, tamano_id, precio)
                 VALUES (%s, %s, %s)
             """, (producto_id, tamano_id, precio))
+            registrar_evento(cursor, 'CREAR', 'variante_producto', cursor.lastrowid,
+                             detalles={'producto_id': producto_id, 'tamano_id': tamano_id})
         conn.commit()
         return True
     except Exception as e:
@@ -111,8 +114,12 @@ def actualizar_variante_producto(variante_id, precio):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE tproductos_variantes SET precio = %s WHERE Id = %s", (precio, variante_id))
+            actualizado = cursor.rowcount > 0
+            if actualizado:
+                registrar_evento(cursor, 'ACTUALIZAR', 'variante_producto', variante_id,
+                                 detalles={'precio': str(precio)})
         conn.commit()
-        return cursor.rowcount > 0
+        return actualizado
     except Exception as e:
         logger.error(f"Error al actualizar variante: {e}")
         return False
@@ -124,6 +131,7 @@ def eliminar_variantes_producto(producto_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("DELETE FROM tproductos_variantes WHERE producto_id = %s", (producto_id,))
+            registrar_evento(cursor, 'ELIMINAR', 'variantes_producto', producto_id)
         conn.commit()
         return True
     except Exception as e:
@@ -142,6 +150,8 @@ def agregar_producto(nombre, descripcion, precio, stock, stock_min, stock_max, c
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, ruta_imagen))
             producto_id = cursor.lastrowid
+            registrar_evento(cursor, 'CREAR', 'producto', producto_id,
+                             detalles={'nombre': nombre, 'categoria_id': categoria_id})
         conn.commit()
         return True, producto_id
     except Exception as e:
@@ -168,8 +178,12 @@ def actualizar_producto(id, nombre, descripcion, precio, stock, stock_min, stock
                         stock_minimo=%s, stock_maximo=%s, categoria_id=%s
                     WHERE Id=%s
                 """, (nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, id))
+            actualizado = cursor.rowcount > 0
+            if actualizado:
+                registrar_evento(cursor, 'ACTUALIZAR', 'producto', id,
+                                 detalles={'nombre': nombre, 'categoria_id': categoria_id})
         conn.commit()
-        if cursor.rowcount > 0:
+        if actualizado:
             return True, "Producto actualizado correctamente"
         return False, "No se realizaron cambios en el producto"
     except Exception as e:
@@ -184,6 +198,7 @@ def eliminar_producto(id_producto):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE tproductos SET activo = 0 WHERE Id = %s", (id_producto,))
+            registrar_evento(cursor, 'DESACTIVAR', 'producto', id_producto)
         conn.commit()
         return True
     except Exception as e:

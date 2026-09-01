@@ -20,7 +20,7 @@ def test_required_schema_versions_are_applied():
         with connection.cursor() as cursor:
             cursor.execute('SELECT version FROM tschema_migrations ORDER BY version')
             versions = [row['version'] for row in cursor.fetchall()]
-            assert versions[-2:] == [2, 3]
+            assert versions[-3:] == [2, 3, 4]
     finally:
         connection.close()
 
@@ -36,6 +36,7 @@ def test_required_schema_columns_exist():
                 ('tventas', 'motivo_cancelacion'),
                 ('tmovimientosinventario', 'venta_id'),
                 ('tusuarios', 'sesion_version'),
+                ('tauditoria', 'accion'),
             }
             cursor.execute("""
                 SELECT TABLE_NAME, COLUMN_NAME

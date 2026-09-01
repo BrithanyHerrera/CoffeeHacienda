@@ -22,6 +22,11 @@ cuenta web de mínimo privilegio y una prueba de restauración separada. Las
 pruebas que escriben datos se mantienen aisladas para no alterar las bases de
 uso normal.
 
+El código de auditoría y la migración 004 ya están preparados; su aplicación en
+la base local quedó pendiente porque MySQL no estaba escuchando durante la
+última comprobación. Aiven tampoco se modifica hasta contar con el respaldo y
+la autorización operativa correspondientes.
+
 **Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
 
 ## Ruta de trabajo
@@ -207,7 +212,7 @@ Flujo obligatorio:
 - [x] Mantener CSRF habilitado en operaciones de escritura y enviar el token desde `fetch`.
 - [x] Definir y aplicar permisos en el servidor.
 - [x] Exigir Administrador para usuarios, productos, inventario, cortes y reportes sensibles.
-- [~] Escapar interpolaciones dinámicas; quedan estructuras heredadas con `innerHTML` por modularizar.
+- [x] Escapar interpolaciones dinámicas y sustituir los últimos `innerHTML` heredados por renderizado DOM seguro.
 - [x] Validar longitud y formato de datos principales en el servidor.
 - [x] Restringir PDFs a extensión `.pdf`, firma `%PDF-`, tamaño máximo y nombre generado por el servidor.
 - [x] Guardar documentos fuera de `/static` y entregarlos mediante una ruta autenticada.
@@ -223,7 +228,7 @@ Flujo obligatorio:
 ### 4.1 Base técnica
 
 - [x] Convertir `app.py` a un patrón de fábrica `create_app(config)`.
-- [~] Separar lógica de negocio de las rutas y del acceso SQL.
+- [x] Separar la auditoría en un servicio de dominio y un módulo de persistencia SQL reutilizable.
 - [x] Bloquear versiones de dependencias y documentar Python 3.12.
 - [x] Añadir Ruff para análisis estático crítico.
 - [x] Dividir los JavaScript grandes en módulos y eliminar funciones duplicadas.
@@ -239,19 +244,19 @@ Flujo obligatorio:
 7. [x] El historial conserva nombre, tamaño y precio después de cambiar el catálogo.
 8. [x] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
 9. [x] PDFs e imágenes validan firma, límite de tamaño y nombres generados dentro de sus carpetas.
-10. [x] Las migraciones 002 y 003 están aplicadas y verificadas tanto en local como en Aiven.
+10. [~] Las migraciones 002 y 003 están aplicadas y verificadas tanto en local como en Aiven; la 004 está preparada y pendiente de aplicación en ambos entornos.
 
 ### 4.3 Integración continua
 
 La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 - [x] Análisis estático crítico de Python mediante Ruff.
-- [x] Suite local: 284 pruebas correctas y 100% de cobertura exclusiva del
-  código de producción (2,149 líneas, ninguna sin cubrir).
+- [x] Suite local: 289 pruebas correctas y 100% de cobertura exclusiva del
+  código de producción (2,201 líneas, ninguna sin cubrir).
 - [x] Las dos pruebas de lectura MySQL pasan contra la base local usando `RUN_DB_TESTS=1`.
 - [x] Cinco pruebas integrales, incluida concurrencia, pasan en una base MySQL temporal creada y eliminada automáticamente.
 - [x] La prueba concurrente confirma una sola venta, un solo movimiento y stock final no negativo.
-- [x] El esquema inicial y las migraciones 002/003 se validaron desde cero contra MySQL 8.4.
+- [x] El esquema inicial y las migraciones 002/003/004 se validaron desde cero en el flujo aislado de MySQL 8.4.
 - [x] GitHub Actions ejecuta Ruff y rechaza la suite local si la cobertura de producción baja de 100%; MySQL aislado permanece como validación local deliberada.
 - [~] Búsqueda de secretos actuales realizada; falta revisar el historial y automatizar dependencias vulnerables.
 
@@ -259,8 +264,8 @@ La aplicación se opera localmente. Para cada cambio debe ejecutarse:
 
 La medición ya excluye `tests/` y `scripts/`; por tanto, el porcentaje representa
 solamente la aplicación que se ejecuta en uso normal. El corte global terminó
-con **284 pruebas correctas, 5 pruebas MySQL aisladas separadas y 100% de
-cobertura del código de producción: 2,149 líneas y ninguna sin cubrir**.
+con **289 pruebas correctas, 5 pruebas MySQL aisladas separadas y 100% de
+cobertura del código de producción: 2,201 líneas y ninguna sin cubrir**.
 
 #### Módulos ya validados al 100%
 
@@ -296,7 +301,9 @@ cobertura del código de producción: 2,149 líneas y ninguna sin cubrir**.
 - [x] Documentar Waitress detrás de un proxy HTTPS y soporte seguro de `ProxyFix`.
 - Mantener imágenes y PDFs en almacenamiento persistente u objetos, no en el disco efímero de una instancia web.
 - Configurar logs estructurados sin contraseñas, códigos ni datos financieros sensibles.
-- [~] Registrar eventos de auditoría; cancelaciones, ventas y ajustes ya generan trazabilidad.
+- [~] Registrar eventos de auditoría para altas, cambios y bajas de usuarios/productos,
+  variantes, inventario, ventas, cancelaciones, cortes y recuperación de contraseña.
+  El código está completo; falta aplicar la tabla 004 en las bases operativas.
 - [x] Añadir un endpoint de salud que compruebe aplicación y conectividad básica sin revelar datos internos.
 - Monitorear errores, latencia, conexiones ocupadas y espacio de almacenamiento.
 - [x] Definir un procedimiento de reversión para aplicación y migraciones.
@@ -313,7 +320,7 @@ Antes de agregar nuevas funciones, completar en este orden:
 - [x] Recalcular precios y total de venta en el servidor.
 - [x] Corregir el catálogo de métodos de pago y eliminar IDs fijos del JavaScript.
 - [x] Cancelar sin borrar, reponer inventario y guardar auditoría atómicamente.
-- [x] Introducir una migración SQL para local y Aiven.
+- [x] Introducir migraciones SQL para local y Aiven (incluida 004 para auditoría).
 - [x] Añadir pruebas automatizadas y exigir 100% de cobertura del código de producción.
 
 El bloque de código crítico está cerrado. Aiven ya cuenta con el respaldo previo
@@ -327,12 +334,12 @@ privilegio.
 
 - [x] Cambios de la versión estable integrados en `main`.
 - [x] Ventas, cancelaciones, inventario, caja, sesiones y recuperación reforzados.
-- [x] Esquema saneado y migraciones 002/003 preparadas y verificadas en una base limpia.
+- [~] Esquema saneado y migraciones 002/003/004 preparadas; 004 queda pendiente de aplicarse en las bases operativas.
 - [x] Corregir las rutas rotas posteriores a la conversión a blueprints: login, permisos, salida y PDF de corte.
 - [x] Corregir y validar el arranque mediante la fábrica de aplicación con Waitress.
 - [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
 - [x] Permitir que el servidor inicie y muestre el login aunque MySQL esté temporalmente fuera de servicio.
-- [x] Validación local ampliada: 284 pruebas correctas, 2,149 líneas de
+- [x] Validación local ampliada: 289 pruebas correctas, 2,201 líneas de
   producción medidas y 100% de cobertura real; la validación automática ya
   impide que el porcentaje disminuya.
 - [x] Validación MySQL aislada: 5 pruebas correctas para esquema, venta, concurrencia, inventario, cancelación, corte y snapshots históricos.
@@ -347,10 +354,12 @@ privilegio.
 - [~] Conservar temporalmente `MAIL_PASSWORD` por decisión del propietario; debe
   rotarse si esa contraseña de aplicación de Gmail llegó a compartirse.
 - [x] Crear y validar `coffee_hacienda_app` con permisos mínimos en Aiven.
+- [ ] Aplicar la migración 004 de auditoría en local y Aiven después de respaldar
+  y verificar conectividad.
 - [~] Conservar las contraseñas de las 5 cuentas activas por decisión del
   propietario; las 4 cuentas inactivas siguen bloqueadas.
 - [ ] Probar la restauración del respaldo en una base o servicio separado.
 - [x] Integrar la rama a `main` después de una prueba manual del flujo de venta en el equipo local.
-- [x] Validación final posterior a la rotación: Ruff sin errores, 284 pruebas
+- [x] Validación final posterior a la rotación: Ruff sin errores, 289 pruebas
   locales y 5 pruebas MySQL aisladas correctas, con `/health` HTTP 200 tanto en
   local como en Aiven mediante la cuenta de mínimo privilegio.

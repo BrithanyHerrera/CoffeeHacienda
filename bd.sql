@@ -554,6 +554,27 @@ UNLOCK TABLES;
 -- Table structure for table `tvalidacion_usuarios`
 --
 
+--
+-- Table structure for table `tauditoria`
+--
+
+DROP TABLE IF EXISTS `tauditoria`;
+CREATE TABLE `tauditoria` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `usuario_id` int DEFAULT NULL,
+  `accion` varchar(80) NOT NULL,
+  `entidad` varchar(80) NOT NULL,
+  `entidad_id` bigint DEFAULT NULL,
+  `detalles` text,
+  `creado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Id`),
+  KEY `idx_auditoria_usuario` (`usuario_id`),
+  KEY `idx_auditoria_entidad` (`entidad`,`entidad_id`),
+  KEY `idx_auditoria_creado` (`creado_en`),
+  CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `tusuarios` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 DROP TABLE IF EXISTS `tvalidacion_usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;

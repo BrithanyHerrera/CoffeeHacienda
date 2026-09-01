@@ -161,7 +161,7 @@ function cargarCategorias() {
             if (data.success) {
                 const selectCategoria = document.getElementById('categoriaProducto');
                 // Limpiar opciones existentes
-                selectCategoria.innerHTML = '<option value="">Seleccione una categoría</option>';
+                selectCategoria.replaceChildren(new Option('Seleccione una categoría', ''));
                 
                 // Agregar las categorías
                 data.categorias.forEach(categoria => {
@@ -187,7 +187,7 @@ function cargarTamanos() {
             if (data.success) {
                 const selectTamano = document.getElementById('tamanoProducto');
                 // Limpiar opciones existentes
-                selectTamano.innerHTML = '<option value="">Seleccione un tamaño</option>';
+                selectTamano.replaceChildren(new Option('Seleccione un tamaño', ''));
                 
                 // Agregar los tamaños
                 data.tamanos.forEach(tamano => {

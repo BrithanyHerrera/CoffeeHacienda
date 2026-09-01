@@ -152,7 +152,7 @@ function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
     // Crear el icono
     const icono = document.createElement('div');
     icono.className = 'iconoAlerta';
-    icono.innerHTML = tipo === 'error' ? '⚠️' : '✅';
+    icono.textContent = tipo === 'error' ? '⚠️' : '✅';
     
     // Crear el mensaje
     const mensajeDiv = document.createElement('div');
@@ -170,7 +170,7 @@ function mostrarNotificacion(mensaje, tipo, duracion = 3000) {
     // Crear el botón de cerrar
     const btnCerrar = document.createElement('button');
     btnCerrar.className = 'cerrarAlerta';
-    btnCerrar.innerHTML = '&times;';
+    btnCerrar.textContent = '×';
     btnCerrar.onclick = function() {
         contenedorAlertas.removeChild(alerta);
     };

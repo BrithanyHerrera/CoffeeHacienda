@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from bd import Conexion_BD
 from models.modelsRecuperacion import generar_codigo
+from services.auditoria import registrar_evento
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,9 @@ def actualizar_usuario(id, usuario, contrasena, correo, rol_id):
                     "UPDATE tusuarios SET usuario=%s, rol_id=%s, correo=%s WHERE Id=%s",
                     (usuario, rol_id, correo, id)
                 )
+            registrar_evento(cursor, 'ACTUALIZAR', 'usuario', id,
+                             detalles={'usuario': usuario, 'rol_id': rol_id,
+                                       'contrasena_cambiada': bool(contrasena)})
         conn.commit()
         return True, "Usuario actualizado exitosamente"
     except Exception as e:
@@ -113,9 +117,11 @@ def guardar_usuario_pendiente(usuario, contrasena, correo, rol_id):
                 INSERT INTO tvalidacion_usuarios (usuario, contrasena, correo, rol_id, codigo, fecha_creacion)
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (usuario, contrasena, correo, rol_id, codigo, datetime.now()))
+            id_validacion = cursor.lastrowid
+            registrar_evento(cursor, 'SOLICITAR_ALTA', 'validacion_usuario', id_validacion,
+                             detalles={'usuario': usuario, 'rol_id': rol_id})
             
             conn.commit()
-            id_validacion = cursor.lastrowid
             return True, "Usuario pendiente de validación", {"id": id_validacion, "codigo": codigo}
     except Exception as e:
         conn.rollback()
@@ -148,11 +154,15 @@ def validar_codigo_usuario(correo, codigo):
                 id_usuario_existente = int(validacion['usuario'].replace('__CAMBIO_CORREO__', ''))
                 cursor.execute("UPDATE tusuarios SET correo = %s WHERE Id = %s",
                                (validacion['correo'], id_usuario_existente))
+                registrar_evento(cursor, 'ACTUALIZAR_CORREO', 'usuario', id_usuario_existente)
                 mensaje_exito = "Correo electrónico actualizado y validado correctamente"
             else:
                 # Es un nuevo usuario
                 cursor.execute("INSERT INTO tusuarios (usuario, contrasena, correo, rol_id) VALUES (%s, %s, %s, %s)",
                                (validacion['usuario'], validacion['contrasena'], validacion['correo'], validacion['rol_id']))
+                registrar_evento(cursor, 'CREAR', 'usuario', cursor.lastrowid,
+                                 detalles={'usuario': validacion['usuario'],
+                                           'rol_id': validacion['rol_id']})
                 mensaje_exito = "Usuario validado correctamente"
                 
             cursor.execute("DELETE FROM tvalidacion_usuarios WHERE id = %s", (validacion['id'],))
@@ -180,6 +190,7 @@ def reenviar_codigo_validacion(correo):
             nuevo_codigo = generar_codigo()
             cursor.execute("UPDATE tvalidacion_usuarios SET codigo = %s, fecha_creacion = %s WHERE id = %s",
                            (nuevo_codigo, datetime.now(), validacion['id']))
+            registrar_evento(cursor, 'REENVIAR_CODIGO', 'validacion_usuario', validacion['id'])
             
             conn.commit()
             return True, "Código regenerado correctamente", nuevo_codigo
@@ -195,6 +206,8 @@ def reactivar_usuario(id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE tusuarios SET activo = 1, modificado_en = NOW() WHERE Id = %s", (id,))
+            if cursor.rowcount:
+                registrar_evento(cursor, 'REACTIVAR', 'usuario', id)
         conn.commit()
         return True
     except Exception as e:
@@ -248,6 +261,8 @@ def desactivar_usuario(id):
                 SET activo = 0, sesion_version = sesion_version + 1
                 WHERE Id = %s
             """, (id,))
+            if cursor.rowcount:
+                registrar_evento(cursor, 'DESACTIVAR', 'usuario', id)
         conn.commit()
         return True, 'Usuario desactivado exitosamente'
     except Exception as e:
@@ -298,6 +313,8 @@ def actualizar_correo_validacion(validacion_id, correo_actual, correo_nuevo, nue
                 WHERE id=%s AND correo=%s AND validado=FALSE
             """, (correo_nuevo, nuevo_codigo, datetime.now(), validacion_id, correo_actual))
             actualizado = cursor.rowcount == 1
+            if actualizado:
+                registrar_evento(cursor, 'ACTUALIZAR_CORREO', 'validacion_usuario', validacion_id)
         conn.commit()
         return actualizado
     except Exception as e:
@@ -344,6 +361,7 @@ def guardar_cambio_correo_pendiente(id_usuario, correo_nuevo, codigo):
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (marcador_usuario, '', correo_nuevo, rol_id_actual, codigo, datetime.now()))
             validacion_id = cursor.lastrowid
+            registrar_evento(cursor, 'SOLICITAR_CAMBIO_CORREO', 'validacion_usuario', validacion_id)
             
         conn.commit()
         return validacion_id

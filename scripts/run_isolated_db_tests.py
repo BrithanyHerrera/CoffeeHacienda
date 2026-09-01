@@ -64,6 +64,10 @@ def main():
                 test_connection,
                 PROJECT_ROOT / 'migrations' / '003_estabilidad_auditoria.sql',
             )
+            _execute_script(
+                test_connection,
+                PROJECT_ROOT / 'migrations' / '004_auditoria_operaciones.sql',
+            )
         finally:
             test_connection.close()
 

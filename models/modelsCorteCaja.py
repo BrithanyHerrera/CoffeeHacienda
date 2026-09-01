@@ -2,6 +2,7 @@
 import logging
 from decimal import Decimal
 from bd import Conexion_BD
+from services.auditoria import registrar_evento
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,10 @@ def guardar_corte_caja(vendedor_id, fecha_inicio, fecha_cierre, total_ventas,
                       total_efectivo, total_transferencias, total_tarjeta,
                       total_contado, pagos_realizados, fondo, ganancia))
                 corte_id = cursor.lastrowid
+                registrar_evento(cursor, 'CREAR', 'corte_caja', corte_id,
+                                 usuario_id=vendedor_id,
+                                 detalles={'total_ventas': str(total_ventas),
+                                           'ganancia': str(ganancia)})
             conn.commit()
             return True, 'Corte registrado correctamente', corte_id
         finally:

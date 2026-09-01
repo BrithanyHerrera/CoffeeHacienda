@@ -17,7 +17,7 @@ def test_migrations_are_numbered_and_unique():
     versions = [version for version, _ in migrations]
 
     assert versions == sorted(set(versions))
-    assert versions[-2:] == [2, 3]
+    assert versions[-2:] == [3, 4]
 
 
 def test_current_schema_dump_has_no_operational_users_or_emails():
