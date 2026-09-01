@@ -22,10 +22,10 @@ cuenta web de mínimo privilegio y una prueba de restauración separada. Las
 pruebas que escriben datos se mantienen aisladas para no alterar las bases de
 uso normal.
 
-El código de auditoría y la migración 004 ya están preparados; su aplicación en
-la base local quedó pendiente porque MySQL no estaba escuchando durante la
-última comprobación. Aiven tampoco se modifica hasta contar con el respaldo y
-la autorización operativa correspondientes.
+El código de auditoría y la migración 004 ya están preparados y aplicados en la
+base local. Las comprobaciones de versión y columnas pasaron correctamente.
+Aiven no se modifica hasta contar con el respaldo y la autorización operativa
+correspondientes.
 
 **Leyenda:** `[x]` completado · `[~]` parcial · `[ ]` pendiente.
 
@@ -244,7 +244,7 @@ Flujo obligatorio:
 7. [x] El historial conserva nombre, tamaño y precio después de cambiar el catálogo.
 8. [x] Añadir una prueba de navegador que confirme que HTML se muestra como texto.
 9. [x] PDFs e imágenes validan firma, límite de tamaño y nombres generados dentro de sus carpetas.
-10. [~] Las migraciones 002 y 003 están aplicadas y verificadas tanto en local como en Aiven; la 004 está preparada y pendiente de aplicación en ambos entornos.
+10. [~] Las migraciones 002 y 003 están aplicadas y verificadas tanto en local como en Aiven; la 004 está aplicada y verificada en local, pendiente únicamente en Aiven.
 
 ### 4.3 Integración continua
 
@@ -303,7 +303,7 @@ cobertura del código de producción: 2,201 líneas y ninguna sin cubrir**.
 - Configurar logs estructurados sin contraseñas, códigos ni datos financieros sensibles.
 - [~] Registrar eventos de auditoría para altas, cambios y bajas de usuarios/productos,
   variantes, inventario, ventas, cancelaciones, cortes y recuperación de contraseña.
-  El código está completo; falta aplicar la tabla 004 en las bases operativas.
+  El código y la base local están completos; falta aplicar la tabla 004 en Aiven.
 - [x] Añadir un endpoint de salud que compruebe aplicación y conectividad básica sin revelar datos internos.
 - Monitorear errores, latencia, conexiones ocupadas y espacio de almacenamiento.
 - [x] Definir un procedimiento de reversión para aplicación y migraciones.
@@ -334,7 +334,7 @@ privilegio.
 
 - [x] Cambios de la versión estable integrados en `main`.
 - [x] Ventas, cancelaciones, inventario, caja, sesiones y recuperación reforzados.
-- [~] Esquema saneado y migraciones 002/003/004 preparadas; 004 queda pendiente de aplicarse en las bases operativas.
+- [~] Esquema saneado y migraciones 002/003/004 verificadas en local; 004 queda pendiente únicamente en Aiven.
 - [x] Corregir las rutas rotas posteriores a la conversión a blueprints: login, permisos, salida y PDF de corte.
 - [x] Corregir y validar el arranque mediante la fábrica de aplicación con Waitress.
 - [x] Cargar `SECRET_KEY` después de leer `bd.env` y fallar con un mensaje claro si no está configurada.
@@ -354,8 +354,8 @@ privilegio.
 - [~] Conservar temporalmente `MAIL_PASSWORD` por decisión del propietario; debe
   rotarse si esa contraseña de aplicación de Gmail llegó a compartirse.
 - [x] Crear y validar `coffee_hacienda_app` con permisos mínimos en Aiven.
-- [ ] Aplicar la migración 004 de auditoría en local y Aiven después de respaldar
-  y verificar conectividad.
+- [x] Aplicar y verificar la migración 004 de auditoría en local.
+- [ ] Aplicar la migración 004 en Aiven después de respaldar y autorizar el cambio.
 - [~] Conservar las contraseñas de las 5 cuentas activas por decisión del
   propietario; las 4 cuentas inactivas siguen bloqueadas.
 - [ ] Probar la restauración del respaldo en una base o servicio separado.
