@@ -46,7 +46,7 @@ def test_vendedor_no_puede_consultar_otro_usuario(client, authenticated_session)
     assert response.get_json()['success'] is False
 
 
-def test_invalid_pdf_signature_is_rejected(client, authenticated_session):
+def test_firma_pdf_invalida_es_rechazada(client, authenticated_session):
     authenticated_session(client)
     payload = base64.b64encode(b'not-a-pdf').decode('ascii')
 
@@ -60,7 +60,7 @@ def test_invalid_pdf_signature_is_rejected(client, authenticated_session):
     assert response.get_json()['success'] is False
 
 
-def test_write_api_rejects_missing_csrf_token(app, client, authenticated_session):
+def test_api_escritura_rechaza_falta_token_csrf(app, client, authenticated_session):
     authenticated_session(client)
     app.config['WTF_CSRF_ENABLED'] = True
     try:
@@ -76,7 +76,7 @@ def test_write_api_rejects_missing_csrf_token(app, client, authenticated_session
     assert 'expiró' in response.get_json()['message']
 
 
-def test_security_headers_are_present(client):
+def test_cabeceras_seguridad_estan_presentes(client):
     response = client.get('/')
 
     assert response.headers['X-Content-Type-Options'] == 'nosniff'

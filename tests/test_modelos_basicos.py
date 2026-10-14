@@ -140,7 +140,7 @@ def test_inventory_reads_handle_errors(monkeypatch, function_name, expected):
     ('previous', 'new', 'expected_type', 'expected_quantity'),
     [(5, 8, 3, 3), (8, 5, 4, 3)],
 )
-def test_inventory_update_records_positive_and_negative_adjustments(
+def test_actualizacion_inventario_registra_ajustes_positivos_y_negativos(
         monkeypatch, previous, new, expected_type, expected_quantity):
     captured = []
 
@@ -159,7 +159,7 @@ def test_inventory_update_records_positive_and_negative_adjustments(
     assert connection.commits == 1
 
 
-def test_inventory_update_handles_unchanged_missing_and_error(monkeypatch):
+def test_actualizacion_inventario_maneja_sin_cambios_faltante_y_error(monkeypatch):
     unchanged = connection_with_results({'stock': 5}, None)
     monkeypatch.setattr(modelsInventario, 'Conexion_BD', lambda: unchanged)
     assert modelsInventario.actualizar_stock_producto(10, 5, 1, 20) is True

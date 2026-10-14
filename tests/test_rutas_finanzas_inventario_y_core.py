@@ -75,7 +75,7 @@ def test_guardar_pdf_maneja_error_de_almacenamiento(
     assert response.status_code == 500
 
 
-def test_save_pdf_size_signature_success_and_request_limit(
+def test_guardar_pdf_tamano_firma_exito_y_limite_peticiones(
         app, client, authenticated_session, monkeypatch, tmp_path):
     authenticated_session(client)
     app.config['PDF_TICKETS_FOLDER'] = str(tmp_path)
@@ -120,7 +120,7 @@ def test_save_pdf_size_signature_success_and_request_limit(
             original_view()
 
 
-def test_download_pdf_valid_and_invalid(
+def test_descarga_pdf_valido_e_invalido(
         app, client, authenticated_session, tmp_path):
     authenticated_session(client)
     app.config['PDF_TICKETS_FOLDER'] = str(tmp_path)
@@ -152,7 +152,7 @@ def test_inventory_page_and_update_validation(
         assert response.status_code == 400
 
 
-def test_inventory_update_missing_success_failure_and_exception(
+def test_actualizacion_inventario_faltante_exito_fallo_y_excepcion(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     payload = {'id': 1, 'stock': 5, 'stock_min': 1, 'stock_max': 10}
@@ -238,7 +238,7 @@ def test_finance_date_range_validation():
     assert start < end
 
 
-def test_finance_filter_cut_and_report_pages(
+def test_finanzas_paginas_filtro_corte_y_reporte(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     totals = {

@@ -87,7 +87,7 @@ def test_recuperacion_get_y_correo_vacio_o_desconocido(client, monkeypatch):
     assert response.status_code == 200
 
 
-def test_recovery_rejects_code_storage_failure(client, monkeypatch):
+def test_recuperacion_rechaza_fallo_guardado_codigo(client, monkeypatch):
     monkeypatch.setattr(
         autenticacion_bp,
         'obtener_usuario_por_correo',
@@ -104,7 +104,7 @@ def test_recovery_rejects_code_storage_failure(client, monkeypatch):
 
 
 @pytest.mark.parametrize('email_sent', [False, True])
-def test_recovery_handles_email_delivery(client, monkeypatch, email_sent):
+def test_recuperacion_maneja_entrega_correo(client, monkeypatch, email_sent):
     deleted = []
     monkeypatch.setattr(
         autenticacion_bp,
@@ -139,7 +139,7 @@ def test_recovery_handles_email_delivery(client, monkeypatch, email_sent):
         assert deleted == [7]
 
 
-def test_verify_code_requires_state_and_redirects_verified_state(client):
+def test_verificar_codigo_requiere_estado_y_redirige_estado_verificado(client):
     response = client.get('/verificar-codigo')
     assert response.status_code == 302
     assert response.headers['Location'].endswith('/recuperar-contrasena')
@@ -154,7 +154,7 @@ def test_verify_code_requires_state_and_redirects_verified_state(client):
     assert response.headers['Location'].endswith('/actualizar-contrasena')
 
 
-def test_verify_code_consumes_valid_code(client, monkeypatch):
+def test_verificar_codigo_consume_codigo_valido(client, monkeypatch):
     with client.session_transaction() as current_session:
         current_session[autenticacion_bp._ESTADO_RECUPERACION] = _recovery_state()
     monkeypatch.setattr(

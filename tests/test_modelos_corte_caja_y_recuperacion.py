@@ -84,7 +84,7 @@ def test_guardar_corte_caja_rechaza_traslape_y_maneja_error(monkeypatch):
     ) == (False, 'No se pudo registrar el corte', None)
 
 
-def test_get_cash_cut_by_id_success_and_error(monkeypatch):
+def test_obtener_corte_caja_por_id_exito_y_error(monkeypatch):
     cut = {'id': 1}
     successful = connection_with_results(cut)
     monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: successful)
@@ -96,12 +96,12 @@ def test_get_cash_cut_by_id_success_and_error(monkeypatch):
 
 
 @pytest.mark.parametrize('length', [3, 11, '6'])
-def test_recovery_code_rejects_invalid_lengths(length):
+def test_codigo_recuperacion_rechaza_longitudes_invalidas(length):
     with pytest.raises(ValueError):
         modelsRecuperacion.generar_codigo(length)
 
 
-def test_recovery_code_is_numeric(monkeypatch):
+def test_codigo_recuperacion_es_numerico(monkeypatch):
     monkeypatch.setattr(modelsRecuperacion.secrets, 'choice', lambda values: values[-1])
     assert modelsRecuperacion.generar_codigo(4) == '9999'
 
@@ -122,11 +122,11 @@ def test_guardar_codigo_recuperacion_exito_y_error(monkeypatch):
 
 
 @pytest.mark.parametrize('code', ['', None, '12345678901', 'abcdef'])
-def test_verify_recovery_code_rejects_invalid_format(code):
+def test_verificar_codigo_recuperacion_rechaza_formato_invalido(code):
     assert modelsRecuperacion.verificar_codigo_recuperacion(1, code) is False
 
 
-def test_verify_recovery_code_missing_mismatch_and_without_consuming(monkeypatch):
+def test_verificar_codigo_recuperacion_faltante_discordancia_y_sin_consumir(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: missing)
     assert modelsRecuperacion.verificar_codigo_recuperacion(1, '123456') is False
@@ -145,7 +145,7 @@ def test_verify_recovery_code_missing_mismatch_and_without_consuming(monkeypatch
     ('replacement', 'expiration'),
     [('', datetime.now()), ('12345678901', datetime.now()), ('nuevo', None)],
 )
-def test_consume_recovery_code_requires_valid_replacement(
+def test_consumir_codigo_recuperacion_requiere_reemplazo_valido(
         monkeypatch, replacement, expiration):
     connection = connection_with_results({'Id': 1, 'codigo': '123456'})
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: connection)
@@ -154,7 +154,7 @@ def test_consume_recovery_code_requires_valid_replacement(
     ) is False
 
 
-def test_consume_recovery_code_update_failure_success_and_exception(monkeypatch):
+def test_consumir_codigo_recuperacion_fallo_exito_y_excepcion(monkeypatch):
     no_update = connection_with_results({'Id': 1, 'codigo': '123456'}, None)
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: no_update)
     assert modelsRecuperacion.verificar_codigo_recuperacion(
@@ -189,13 +189,13 @@ def test_eliminar_codigos_recuperacion_exito_y_error(monkeypatch):
 
 
 @pytest.mark.parametrize('permission', ['', None, '12345678901'])
-def test_password_update_rejects_invalid_permission(permission):
+def test_actualizar_contrasena_rechaza_permiso_invalido(permission):
     assert modelsRecuperacion.actualizar_contrasena_por_codigo(
         1, 'hash', permission
     ) is False
 
 
-def test_password_update_rejects_missing_mismatch_and_user_update_failure(monkeypatch):
+def test_actualizar_contrasena_rechaza_faltante_discordancia_y_fallo(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: missing)
     assert modelsRecuperacion.actualizar_contrasena_por_codigo(
@@ -215,7 +215,7 @@ def test_password_update_rejects_missing_mismatch_and_user_update_failure(monkey
     ) is False
 
 
-def test_password_update_requires_delete_then_commits_and_handles_error(monkeypatch):
+def test_actualizar_contrasena_requiere_eliminar_luego_commit_y_error(monkeypatch):
     calls = {'updates': 0}
 
     def no_delete_handler(sql, params, cursor):

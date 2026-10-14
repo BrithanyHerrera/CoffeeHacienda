@@ -58,7 +58,7 @@ def test_pool_conexiones_usa_variables_locales_legadas(monkeypatch):
     assert 'ssl_ca' not in captured
 
 
-def test_cloud_pool_requires_existing_ca_and_enables_tls(monkeypatch, tmp_path):
+def test_pool_nube_requiere_certificado_ca_y_habilita_tls(monkeypatch, tmp_path):
     _clear_database_environment(monkeypatch)
     monkeypatch.setenv('APP_ENV', 'NUBE')
     monkeypatch.setenv('DB_HOST_CLOUD', 'cloud.example.test')
@@ -89,7 +89,7 @@ def test_cloud_pool_requires_existing_ca_and_enables_tls(monkeypatch, tmp_path):
     assert captured['ssl_verify_identity'] is True
 
 
-def test_connection_reuses_existing_pool(monkeypatch):
+def test_conexion_reutiliza_pool_existente(monkeypatch):
     sentinel = object()
 
     class Pool:
@@ -104,7 +104,7 @@ def test_connection_reuses_existing_pool(monkeypatch):
     'function_name',
     ['limpiar_validaciones_expiradas', 'limpiar_codigos_recuperacion_expirados'],
 )
-def test_cleanup_success_and_database_error(monkeypatch, function_name):
+def test_limpieza_exito_y_error_base_datos(monkeypatch, function_name):
     def handler(sql, params, cursor):
         cursor.rowcount = 3
 
