@@ -13,7 +13,7 @@ def _failing_connection():
     return FakeConnection(fail)
 
 
-def test_update_user_rejects_duplicate_username_and_email(monkeypatch):
+def test_actualizar_usuario_rechaza_correo_o_usuario_duplicado(monkeypatch):
     duplicate_name = connection_with_results({'count': 1})
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: duplicate_name)
     assert modelsUsuarios.actualizar_usuario(
@@ -58,7 +58,7 @@ def test_update_user_handles_database_error(monkeypatch):
         ('obtener_usuarios_inactivos', (), [{'Id': 2}]),
     ],
 )
-def test_user_read_functions_return_data(
+def test_obtener_usuario_por_id_retorna_datos(
         monkeypatch, function_name, args, result):
     connection = connection_with_results(result)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: connection)

@@ -15,7 +15,7 @@ def test_factory_reads_secret_key_after_environment_is_loaded(monkeypatch):
     assert flask_app.config['SECRET_KEY'] == 'configured-after-module-import'
 
 
-def test_factory_rejects_missing_secret_key(monkeypatch):
+def test_fabrica_rechaza_falta_de_clave_secreta(monkeypatch):
     import app as app_module
 
     monkeypatch.delenv('SECRET_KEY', raising=False)
@@ -31,13 +31,13 @@ def test_password_reset_final_step_redirects_without_verified_state(client):
     assert response.status_code == 302
 
 
-def test_password_reset_final_step_returns_to_recovery_start(client):
+def test_acceso_sin_sesion_redirige_a_recuperacion(client):
     response = client.get('/actualizar-contrasena')
 
     assert '/recuperar-contrasena' in response.headers['Location']
 
 
-def test_employee_cannot_read_another_user(client, authenticated_session):
+def test_vendedor_no_puede_consultar_otro_usuario(client, authenticated_session):
     authenticated_session(client, role='Vendedor')
 
     response = client.get('/api/usuarios/1')
@@ -84,7 +84,7 @@ def test_security_headers_are_present(client):
     assert 'Content-Security-Policy' in response.headers
 
 
-def test_successful_login_redirects_to_welcome(client, monkeypatch):
+def test_login_con_credenciales_validas_redirige_a_bienvenida(client, monkeypatch):
     from blueprints import autenticacion_bp
 
     monkeypatch.setattr(
@@ -144,7 +144,7 @@ def test_existing_cash_report_pdf_returns_download_url(
     }
 
 
-def test_xss_payload_in_customer_name_is_escaped(client, authenticated_session, monkeypatch):
+def test_sanitizacion_xss_en_nombre_cliente(client, authenticated_session, monkeypatch):
     from models import modelsVentas
     
     # Mockear la BD para que no intente guardar

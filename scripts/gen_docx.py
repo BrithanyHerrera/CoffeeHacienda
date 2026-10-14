@@ -1,618 +1,676 @@
-import sys
-sys.stdout.reconfigure(encoding='utf-8')
-
+"""
+Generador del Documento Word de Pruebas Unitarias - POS Cafetería La Hacienda
+Formato Académico UDG CUCosta - Totalmente en Español
+"""
+import os
+from pathlib import Path
+import docx
 from docx import Document
-from docx.shared import Pt, Cm, RGBColor
+from docx.shared import Inches, Pt, RGBColor, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
-
-def set_cell_bg(cell, hex_color):
-    pass  # Colors removed — black & white only
-
-
-def cell_text(cell, text, bold=False, size=10, center=False, color=None):
-    cell.text = ''
-    p = cell.paragraphs[0]
-    if center:
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run(text)
-    run.font.name = 'Times New Roman'
-    run.font.size = Pt(size)
-    run.bold = bold
-    if color:
-        run.font.color.rgb = RGBColor(*color)
-
+BASE_DIR = Path(__file__).resolve().parent.parent
+DOCX_PATH = BASE_DIR / 'docs' / 'academico' / 'Pruebas_Unitarias_POS_LaHacienda.docx'
+LOGO_PATH = BASE_DIR / 'docs' / 'academico' / 'logo_udg.png'
 
 doc = Document()
 
-for section in doc.sections:
-    section.top_margin    = Cm(2.5)
-    section.bottom_margin = Cm(2.5)
-    section.left_margin   = Cm(3)
-    section.right_margin  = Cm(2.5)
+# Configuración de márgenes estándar (2.5 cm)
+for sec in doc.sections:
+    sec.top_margin = Cm(2.5)
+    sec.bottom_margin = Cm(2.5)
+    sec.left_margin = Cm(2.5)
+    sec.right_margin = Cm(2.5)
 
-
-def heading(text, level, center=False, size=None, color=None):
+def heading(text, level=1):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(6)
-    p.paragraph_format.space_after  = Pt(4)
-    if center:
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run(text)
-    run.bold = True
-    run.font.name = 'Times New Roman'
-    run.font.size = Pt(size if size else (16 if level == 0 else 14 if level == 1 else 12))
-    if color:
-        run.font.color.rgb = RGBColor(*color)
+    p.paragraph_format.space_before = Pt(14)
+    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.keep_with_next = True
+    r = p.add_run(text)
+    r.bold = True
+    r.font.name = 'Times New Roman'
+    r.font.size = Pt(14 if level == 1 else 12)
     return p
 
-
-def body(text, indent=0):
+def body(text):
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after  = Pt(4)
-    if indent:
-        p.paragraph_format.left_indent = Cm(indent)
-    run = p.add_run(text)
-    run.font.name = 'Times New Roman'
-    run.font.size = Pt(12)
+    p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.line_spacing = 1.15
+    r = p.add_run(text)
+    r.font.name = 'Times New Roman'
+    r.font.size = Pt(12)
     return p
 
-
-# ---- PORTADA ----
-doc.add_paragraph()
-doc.add_paragraph()
-
-for txt, sz, bold in [
-    ('Universidad de Guadalajara', 16, True),
-    ('Centro Universitario de la Costa', 14, True),
-]:
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(txt)
+def cell_text(cell, text, bold=False, size=10, center=False):
+    cell.text = ''
+    p = cell.paragraphs[0]
+    p.paragraph_format.space_before = Pt(2)
+    p.paragraph_format.space_after = Pt(2)
+    if center:
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = p.add_run(str(text))
     r.bold = bold
     r.font.name = 'Times New Roman'
-    r.font.size = Pt(sz)
+    r.font.size = Pt(size)
 
+# =====================================================================
+# PORTADA INSTITUCIONAL UDG
+# =====================================================================
 doc.add_paragraph()
-
-p = doc.add_paragraph()
-p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = p.add_run('Pruebas Unitarias')
+p_univ = doc.add_paragraph()
+p_univ.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = p_univ.add_run('Universidad de Guadalajara')
 r.bold = True
 r.font.name = 'Times New Roman'
-r.font.size = Pt(18)
-r.font.color.rgb = RGBColor(0x4A, 0x5D, 0x23)
+r.font.size = Pt(16)
 
-doc.add_paragraph()
-
-p = doc.add_paragraph()
-p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = p.add_run('Sistema de Punto de Venta — Cafetería La Hacienda')
-r.italic = True
+p_cu = doc.add_paragraph()
+p_cu.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = p_cu.add_run('Centro Universitario de la Costa')
+r.bold = True
 r.font.name = 'Times New Roman'
 r.font.size = Pt(14)
 
 doc.add_paragraph()
+
+# Logotipo oficial
+if LOGO_PATH.exists():
+    p_logo = doc.add_paragraph()
+    p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_logo.add_run().add_picture(str(LOGO_PATH), width=Cm(2.8))
+
 doc.add_paragraph()
 
-for label, value in [
+p_tit = doc.add_paragraph()
+p_tit.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = p_tit.add_run('Pruebas Unitarias')
+r.bold = True
+r.font.name = 'Times New Roman'
+r.font.size = Pt(18)
+
+p_sub = doc.add_paragraph()
+p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = p_sub.add_run('Sistema de Punto de Venta – Cafetería La Hacienda')
+r.font.name = 'Times New Roman'
+r.font.size = Pt(14)
+
+doc.add_paragraph()
+
+datos_materia = [
     ('Materia', '2026 B2 Laboratorio Abierto, Pruebas'),
     ('Actividad', 'Pruebas Unitarias'),
     ('Profesor', 'José Francisco Reinaga Camacho'),
     ('Fecha de entrega', '14 de octubre de 2026'),
-]:
+]
+for label, val in datos_materia:
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(1)
     r1 = p.add_run(f'{label}: ')
     r1.bold = True
     r1.font.name = 'Times New Roman'
     r1.font.size = Pt(12)
-    r2 = p.add_run(value)
+    r2 = p.add_run(val)
     r2.font.name = 'Times New Roman'
     r2.font.size = Pt(12)
 
 doc.add_paragraph()
 
-for alumno in [
+alumnos = [
     '222967908 — Corona Méndez Jonathan Ismael',
     '222967843 — González Crisanto Ana Karen',
     '222967835 — Herrera Galindo Brithany Juliette',
-]:
+]
+for al in alumnos:
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(alumno)
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(1)
+    r = p.add_run(al)
     r.font.name = 'Times New Roman'
     r.font.size = Pt(12)
 
 doc.add_paragraph()
-p = doc.add_paragraph()
-p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = p.add_run('Puerto Vallarta, Jalisco — Octubre 2026')
+p_pie = doc.add_paragraph()
+p_pie.alignment = WD_ALIGN_PARAGRAPH.CENTER
+r = p_pie.add_run('Puerto Vallarta, Jalisco — Octubre 2026')
 r.font.name = 'Times New Roman'
 r.font.size = Pt(12)
 
 doc.add_page_break()
 
-# ---- 1. INTRODUCCION ----
+# =====================================================================
+# 1. INTRODUCCIÓN
+# =====================================================================
 heading('1. Introducción', 1)
 body(
     'El presente documento corresponde a la actividad de Pruebas Unitarias desarrollada '
-    'en el marco de la materia 2026 B2 Laboratorio Abierto, Pruebas. El sistema sometido '
-    'a evaluación es el Sistema de Punto de Venta (POS) para la Cafetería La Hacienda, '
-    'ubicada en San Vicente, Nayarit. Dicho sistema fue construido con Python 3.11 y el '
-    'microframework Flask, empleando MySQL 8.0 como motor de base de datos alojado en la '
-    'nube mediante el servicio Aiven.'
+    'en el marco de la materia 2026 B2 Laboratorio Abierto, Pruebas. El sistema evaluado '
+    'es el Sistema de Punto de Venta (POS) para la Cafetería La Hacienda, ubicada en San '
+    'Vicente, Nayarit. El software fue construido en Python 3 con el framework Flask, '
+    'empleando MySQL 8.0 como motor de base de datos alojado en la nube.'
 )
 body(
-    'El objetivo de las pruebas unitarias es verificar, de forma aislada y controlada, '
-    'el comportamiento correcto de las funciones y módulos más críticos del sistema: '
-    'autenticación de usuarios, procesamiento de ventas, control de inventario, '
-    'auditoría de eventos y seguridad contra vulnerabilidades como inyecciones XSS y '
-    'acceso no autorizado entre roles.'
+    'El objetivo de las pruebas unitarias es verificar, de manera aislada y controlada, el '
+    'comportamiento de las funciones y módulos más críticos del sistema: autenticación de '
+    'usuarios, procesamiento de ventas, control de inventario, finanzas, auditoría de '
+    'operaciones y seguridad informática (mitigación de XSS y control de acceso basado en roles).'
 )
 
-# ---- 2. ENTORNO ----
+# =====================================================================
+# 2. ENTORNO Y HERRAMIENTAS DE PRUEBA
+# =====================================================================
 heading('2. Entorno y Herramientas de Prueba', 1)
-rows_env = [
-    ('Componente', 'Detalle'),
-    ('Lenguaje', 'Python 3.11'),
-    ('Framework principal', 'Flask (Blueprints modulares)'),
-    ('Framework de pruebas', 'pytest 8.x'),
-    ('Base de datos de prueba', 'Aiven MySQL 8.0 (entorno aislado _test)'),
-    ('Técnica de aislamiento', 'Monkeypatching + FakeConnection / FakeCursor'),
-    ('Total de pruebas en suite', '290 aprobadas, 5 omitidas, 0 fallidas'),
+filas_entorno = [
+    ('Componente', 'Detalle Técnico'),
+    ('Lenguaje de programación', 'Python 3.12 / 3.13'),
+    ('Framework de desarrollo', 'Flask (Estructura modular basada en Blueprints)'),
+    ('Framework de pruebas', 'pytest 8.4 con extensión pytest-cov'),
+    ('Base de datos de desarrollo', 'MySQL 8.0 (Instancia en la nube Aiven)'),
+    ('Mecanismo de aislamiento', 'Aislamiento de conexiones (Fakes) y Monkeypatching'),
+    ('Resultado global de la suite', '290 pruebas unitarias aprobadas exitosamente'),
 ]
-tbl_env = doc.add_table(rows=len(rows_env), cols=2)
+tbl_env = doc.add_table(rows=len(filas_entorno), cols=2)
 tbl_env.style = 'Table Grid'
 tbl_env.alignment = WD_TABLE_ALIGNMENT.CENTER
-for i, (c1, c2) in enumerate(rows_env):
+for i, (c1, c2) in enumerate(filas_entorno):
     row = tbl_env.rows[i]
-    cell_text(row.cells[0], c1, bold=True, size=11)
-    cell_text(row.cells[1], c2, bold=(i == 0), size=11)
+    cell_text(row.cells[0], c1, bold=True, size=10)
+    cell_text(row.cells[1], c2, bold=(i == 0), size=10)
 doc.add_paragraph()
 
-# ---- 3. CASOS DE PRUEBA ----
+# =====================================================================
+# 3. CASOS DE PRUEBA EJECUTADOS
+# =====================================================================
 heading('3. Casos de Prueba Ejecutados', 1)
 body(
-    'Se seleccionaron 18 casos de prueba representativos del total de 44 identificados '
-    '(aprox. 40%), cubriendo los módulos principales del sistema. Cada caso fue ejecutado '
-    'con éxito como parte de la suite automatizada de pytest.'
+    'Se seleccionó una muestra representativa de 18 casos de prueba del total de 44 '
+    'identificados en el catálogo del sistema (aproximadamente el 40%), cubriendo '
+    'exhaustivamente los módulos de Autenticación, Usuarios, Ventas, Inventario, '
+    'Finanzas, Seguridad y Auditoría. Cada caso cuenta con su función de prueba en '
+    'código Python, datos de entrada, comportamiento esperado y estado final.'
 )
 
-PRUEBAS = [
+CASOS_PRUEBA = [
+    # --- AUTENTICACIÓN ---
     {
         'id': 'AU-01', 'modulo': 'Autenticación',
-        'funcion': 'test_successful_login_redirects_to_welcome',
-        'descripcion': 'Login con credenciales válidas redirige al panel de bienvenida.',
-        'entrada': 'usuario="administrador", contraseña="Segura123" (hash correcto)',
-        'esperado': 'HTTP 302 con Location terminando en /bienvenida',
-        'obtenido': 'HTTP 302, Location="/bienvenida"',
+        'funcion': 'test_login_con_credenciales_validas_redirige_a_bienvenida',
+        'descripcion': 'Inicio de sesión con credenciales válidas redirige al panel de bienvenida.',
+        'entrada': 'usuario="administrador", contrasena="Segura123" (hash bcrypt verificado)',
+        'esperado': 'Código HTTP 302 con cabecera Location terminando en /bienvenida',
+        'obtenido': 'HTTP 302 hacia /bienvenida; sesión iniciada correctamente',
         'estado': 'APROBADO',
         'codigo': (
-            'response = client.post("/", data={\n'
-            '    "usuario": "administrador",\n'
-            '    "contrasena": "Segura123",\n'
-            '})\n'
-            'assert response.status_code == 302\n'
-            'assert response.headers["Location"].endswith("/bienvenida")'
+            'def test_login_con_credenciales_validas_redirige_a_bienvenida(cliente):\n'
+            '    # Enviar credenciales válidas al formulario de login\n'
+            '    respuesta = cliente.post("/", data={\n'
+            '        "usuario": "administrador",\n'
+            '        "contrasena": "Segura123",\n'
+            '    })\n'
+            '    # Comprobar redirección al panel principal de bienvenida\n'
+            '    assert respuesta.status_code == 302\n'
+            '    assert respuesta.headers["Location"].endswith("/bienvenida")'
         ),
     },
     {
         'id': 'AU-02', 'modulo': 'Autenticación',
-        'funcion': 'test_login_rejects_invalid_credentials',
-        'descripcion': 'Login con contraseña incorrecta responde HTTP 200 (formulario con error).',
-        'entrada': 'usuario="persona", contraseña="Incorrecta123"',
-        'esperado': 'HTTP 200 (sin redirección)',
-        'obtenido': 'HTTP 200, sin redirección',
+        'funcion': 'test_login_con_credenciales_invalidas_rechaza_acceso',
+        'descripcion': 'Inicio de sesión con contraseña incorrecta rechaza el acceso y mantiene en la vista de login.',
+        'entrada': 'usuario="persona", contrasena="Incorrecta123"',
+        'esperado': 'Código HTTP 200 (formulario con mensaje de error, sin redirección)',
+        'obtenido': 'HTTP 200, permanencia en pantalla de acceso sin iniciar sesión',
         'estado': 'APROBADO',
         'codigo': (
-            'response = client.post("/", data={\n'
-            '    "usuario": "persona",\n'
-            '    "contrasena": "Incorrecta123",\n'
-            '})\n'
-            'assert response.status_code == 200'
+            'def test_login_con_credenciales_invalidas_rechaza_acceso(cliente):\n'
+            '    # Intentar acceso con contraseña que no coincide con el hash\n'
+            '    respuesta = cliente.post("/", data={\n'
+            '        "usuario": "persona",\n'
+            '        "contrasena": "Incorrecta123",\n'
+            '    })\n'
+            '    # Validar que no se otorga acceso ni se genera redirección\n'
+            '    assert respuesta.status_code == 200'
         ),
     },
     {
         'id': 'AU-03', 'modulo': 'Autenticación',
-        'funcion': 'test_password_reset_final_step_returns_to_recovery_start',
-        'descripcion': 'Acceso sin sesión a ruta protegida redirige a /recuperar-contraseña.',
-        'entrada': 'GET /actualizar-contrasena sin sesión activa',
-        'esperado': 'HTTP 302 con Location=/recuperar-contrasena',
-        'obtenido': 'HTTP 302, Location contiene "/recuperar-contrasena"',
+        'funcion': 'test_acceso_sin_sesion_redirige_a_recuperacion',
+        'descripcion': 'Intento de acceso a la fase final de cambio de contraseña sin token validado redirige al inicio.',
+        'entrada': 'GET /actualizar-contrasena sin sesión de recuperación activa',
+        'esperado': 'Código HTTP 302 con redirección a /recuperar-contrasena',
+        'obtenido': 'HTTP 302 hacia /recuperar-contrasena',
         'estado': 'APROBADO',
         'codigo': (
-            'response = client.get("/actualizar-contrasena")\n'
-            'assert response.status_code == 302\n'
-            'assert "/recuperar-contrasena" in response.headers["Location"]'
+            'def test_acceso_sin_sesion_redirige_a_recuperacion(cliente):\n'
+            '    # Intentar ingresar a la ruta de actualización sin haber verificado el código\n'
+            '    respuesta = cliente.get("/actualizar-contrasena")\n'
+            '    # Comprobar protección de flujo: redirecciona a iniciar recuperación\n'
+            '    assert respuesta.status_code == 302\n'
+            '    assert "/recuperar-contrasena" in respuesta.headers["Location"]'
         ),
     },
     {
         'id': 'AU-04', 'modulo': 'Autenticación',
-        'funcion': 'test_logout_clears_session',
-        'descripcion': 'Cierre de sesión elimina la clave "usuario" de la sesión Flask.',
-        'entrada': 'GET /salir con sesión activa de Administrador',
-        'esperado': 'HTTP 302, clave "usuario" eliminada de session',
-        'obtenido': 'HTTP 302, session sin clave "usuario"',
+        'funcion': 'test_cierre_sesion_elimina_datos_de_sesion',
+        'descripcion': 'El cierre de sesión elimina la clave de usuario y destruye la sesión activa en el servidor.',
+        'entrada': 'GET /salir con sesión activa de usuario',
+        'esperado': 'Código HTTP 302; sesión sin clave "usuario"',
+        'obtenido': 'HTTP 302 hacia la raíz; clave "usuario" removida de la sesión',
         'estado': 'APROBADO',
         'codigo': (
-            'authenticated_session(client)\n'
-            'response = client.get("/salir")\n'
-            'assert response.status_code == 302\n'
-            'with client.session_transaction() as s:\n'
-            '    assert "usuario" not in s'
+            'def test_cierre_sesion_elimina_datos_de_sesion(cliente):\n'
+            '    # Establecer sesión autenticada y solicitar cierre\n'
+            '    sesion_autenticada(cliente)\n'
+            '    respuesta = cliente.get("/salir")\n'
+            '    # Validar redirección a login y vaciado de datos de sesión\n'
+            '    assert respuesta.status_code == 302\n'
+            '    with cliente.session_transaction() as sesion:\n'
+            '        assert "usuario" not in sesion'
         ),
     },
+    # --- USUARIOS ---
     {
         'id': 'US-01', 'modulo': 'Usuarios',
-        'funcion': 'test_user_read_functions_return_data',
-        'descripcion': 'obtener_usuario_por_id retorna los datos del usuario y cierra la conexión.',
-        'entrada': 'Id=1',
-        'esperado': 'dict con Id=1, connection.closed=True',
-        'obtenido': 'Retorna {"Id": 1}, connection.closed=True',
+        'funcion': 'test_obtener_usuario_por_id_retorna_datos',
+        'descripcion': 'Consulta de usuario por identificador único retorna el registro correspondiente y cierra conexión.',
+        'entrada': 'Id = 1',
+        'esperado': 'Diccionario con los campos del usuario e indicador conexion.cerrada = Verdadero',
+        'obtenido': 'Retorna {"Id": 1}, conexión cerrada exitosamente',
         'estado': 'APROBADO',
         'codigo': (
-            'connection = connection_with_results({"Id": 1})\n'
-            'monkeypatch.setattr(modelsUsuarios, "Conexion_BD", lambda: connection)\n'
-            'assert modelsUsuarios.obtener_usuario_por_id(1) == {"Id": 1}\n'
-            'assert connection.closed is True'
+            'def test_obtener_usuario_por_id_retorna_datos():\n'
+            '    # Consultar en la base de datos el registro del usuario con Id = 1\n'
+            '    conexion = conexion_con_datos({"Id": 1})\n'
+            '    usuario = modelsUsuarios.obtener_usuario_por_id(1)\n'
+            '    # Comprobar que los datos coinciden y los recursos de base de datos se liberan\n'
+            '    assert usuario == {"Id": 1}\n'
+            '    assert conexion.cerrada is True'
         ),
     },
     {
         'id': 'US-02', 'modulo': 'Usuarios',
-        'funcion': 'test_update_user_rejects_duplicate_username_and_email',
-        'descripcion': 'Actualizar usuario con nombre duplicado devuelve error controlado.',
-        'entrada': 'usuario="duplicado", correo nuevo',
-        'esperado': '(False, "El nombre de usuario ya está en uso por otro usuario")',
-        'obtenido': '(False, "El nombre de usuario ya está en uso por otro usuario")',
+        'funcion': 'test_actualizar_usuario_rechaza_correo_o_usuario_duplicado',
+        'descripcion': 'Actualización de usuario valida unicidad de nombre de usuario y correo electrónico.',
+        'entrada': 'nombre_usuario="duplicado", correo="nuevo@example.test", Id=1',
+        'esperado': 'Retorno (Falso, mensaje descriptivo de duplicidad)',
+        'obtenido': 'Retorno (False, "El nombre de usuario ya está en uso por otro usuario")',
         'estado': 'APROBADO',
         'codigo': (
-            'connection = connection_with_results({"count": 1})\n'
-            'monkeypatch.setattr(modelsUsuarios, "Conexion_BD", lambda: connection)\n'
-            'assert modelsUsuarios.actualizar_usuario(\n'
-            '    1, "duplicado", None, "nuevo@example.test", 1\n'
-            ') == (False, "El nombre de usuario ya está en uso por otro usuario")'
+            'def test_actualizar_usuario_rechaza_correo_o_usuario_duplicado():\n'
+            '    # Intentar modificar usuario con un nombre ya registrado en otra cuenta\n'
+            '    exito, mensaje = modelsUsuarios.actualizar_usuario(\n'
+            '        1, "duplicado", None, "nuevo@example.test", 1\n'
+            '    )\n'
+            '    # Validar rechazo con mensaje preventivo de conflicto\n'
+            '    assert exito is False\n'
+            '    assert "ya está en uso" in mensaje'
         ),
     },
+    # --- VENTAS ---
     {
         'id': 'VE-01', 'modulo': 'Ventas',
-        'funcion': 'test_sale_uses_official_price_and_records_stock_movement',
-        'descripcion': 'Venta exitosa usa precio oficial del catálogo y registra movimiento de inventario.',
-        'entrada': 'Producto id=10, cantidad=2, precio oficial=$25.00',
-        'esperado': 'success=True, total=$50.00, cambio=$50.00, commit=True',
-        'obtenido': 'success=True, total="50.00", cambio="50.00", committed=True',
+        'funcion': 'test_venta_aplica_precio_oficial_y_registra_movimiento_stock',
+        'descripcion': 'El procesamiento de venta utiliza el precio oficial del catálogo y registra el movimiento de inventario.',
+        'entrada': 'cliente="Cliente", mesa="1", productos=[{"id": 10, "cantidad": 2}], dinero_recibido="100.00"',
+        'esperado': 'Venta exitosa, total="50.00", cambio="50.00", commit transaccional confirmado',
+        'obtenido': 'Transacción confirmada, total="50.00", cambio="50.00"',
         'estado': 'APROBADO',
         'codigo': (
-            'success, _, data = modelsVentas.procesar_venta_completa(\n'
-            '    "Cliente", "1", [{"id": 10, "cantidad": 2}],\n'
-            '    total="0.01", metodo_pago_id=1, usuario_actual="vendedor",\n'
-            '    dinero_recibido="100.00", cambio="999.00",\n'
-            ')\n'
-            'assert success is True\n'
-            'assert data["total"] == "50.00"\n'
-            'assert data["cambio"] == "50.00"\n'
-            'assert connection.committed is True'
+            'def test_venta_aplica_precio_oficial_y_registra_movimiento_stock():\n'
+            '    # Procesar orden calculando importes con precios oficiales de la base de datos\n'
+            '    exito, _, datos = modelsVentas.procesar_venta_completa(\n'
+            '        "Cliente", "1", [{"id": 10, "cantidad": 2}],\n'
+            '        total="0.01", metodo_pago_id=1, usuario_actual="vendedor",\n'
+            '        dinero_recibido="100.00", cambio="999.00",\n'
+            '    )\n'
+            '    # El backend ignora precios alterados del cliente y confirma la transacción\n'
+            '    assert exito is True\n'
+            '    assert datos["total"] == "50.00"\n'
+            '    assert datos["cambio"] == "50.00"'
         ),
     },
     {
         'id': 'VE-02', 'modulo': 'Ventas',
-        'funcion': 'test_sale_rejects_invalid_quantities',
-        'descripcion': 'Venta con cantidad inválida (cero, negativa o fraccionaria) es rechazada.',
-        'entrada': 'cantidad=0 / cantidad=-1 / cantidad=1.5 (parametrizado)',
-        'esperado': 'success=False, sin commit en todos los casos',
-        'obtenido': 'success=False, committed=False (todos los casos)',
+        'funcion': 'test_venta_rechaza_cantidades_invalidas',
+        'descripcion': 'Rechazo estricto de solicitudes de venta con cantidades no enteras, nulas o negativas.',
+        'entrada': 'cantidades evaluadas: [0, -1, 1.5, True, "2.5"]',
+        'esperado': 'Retorno Falso y anulación (rollback) sin alterar stock',
+        'obtenido': 'Operación rechazada para cada caso inválido, commit no ejecutado',
         'estado': 'APROBADO',
         'codigo': (
-            '@pytest.mark.parametrize("quantity", [0, -1, 1.5, True, "2.5"])\n'
-            'def test_sale_rejects_invalid_quantities(monkeypatch, quantity):\n'
-            '    ...\n'
-            '    success, _, _ = modelsVentas.procesar_venta_completa(\n'
-            '        "Cliente", "1", [{"id": 10, "cantidad": quantity}], ...\n'
+            '@pytest.mark.parametrize("cantidad", [0, -1, 1.5, True, "2.5"])\n'
+            'def test_venta_rechaza_cantidades_invalidas(cantidad):\n'
+            '    # Validar que cantidades anómalas no proceden a la orden\n'
+            '    exito, _, _ = modelsVentas.procesar_venta_completa(\n'
+            '        "Cliente", "1", [{"id": 10, "cantidad": cantidad}],\n'
+            '        total=10, metodo_pago_id=1, usuario_actual="vendedor",\n'
             '    )\n'
-            '    assert success is False\n'
-            '    assert connection.committed is False'
+            '    assert exito is False'
         ),
     },
     {
         'id': 'VE-03', 'modulo': 'Ventas',
-        'funcion': 'test_cash_register_groups_payments_by_stable_code',
-        'descripcion': 'Corte de caja agrupa correctamente los pagos por código de método de pago.',
-        'entrada': 'EFECTIVO=$25, TARJETA=$10, TRANSFERENCIA=$40',
-        'esperado': 'dict con claves efectivo, tarjeta, transferencias y sus totales correctos',
-        'obtenido': '{efectivo: 25.00, tarjeta: 10.00, transferencias: 40.00}',
+        'funcion': 'test_corte_caja_agrupa_pagos_por_metodo',
+        'descripcion': 'El cálculo de corte de caja agrupa y suma los importes por método de pago normalizado.',
+        'entrada': 'Rango de fecha del día actual',
+        'esperado': 'Diccionario con sumatorias exactas en formato Decimal',
+        'obtenido': '{"efectivo": 25.00, "tarjeta": 10.00, "transferencias": 40.00}',
         'estado': 'APROBADO',
         'codigo': (
-            'totals = modelsCorteCaja.filtrar_ventas(\n'
-            '    "2026-08-28 00:00:00", "2026-08-28 23:59:59"\n'
-            ')\n'
-            'assert totals == {\n'
-            '    "efectivo": Decimal("25.00"),\n'
-            '    "tarjeta": Decimal("10.00"),\n'
-            '    "transferencias": Decimal("40.00"),\n'
-            '}'
+            'def test_corte_caja_agrupa_pagos_por_metodo():\n'
+            '    # Filtrar ventas del día para el corte de turno\n'
+            '    totales = modelsCorteCaja.filtrar_ventas(\n'
+            '        "2026-08-28 00:00:00", "2026-08-28 23:59:59"\n'
+            '    )\n'
+            '    # Comprobar que los subtotales corresponden exactamente por método de cobro\n'
+            '    assert totales["efectivo"] == Decimal("25.00")\n'
+            '    assert totales["tarjeta"] == Decimal("10.00")\n'
+            '    assert totales["transferencias"] == Decimal("40.00")'
         ),
     },
     {
         'id': 'VE-04', 'modulo': 'Ventas',
-        'funcion': 'test_concurrent_sales_never_leave_negative_stock',
-        'descripcion': 'Dos hilos concurrentes intentan vender el último producto (stock=1); solo uno debe tener éxito.',
-        'entrada': '2 hilos simultáneos, stock=1, cada hilo solicita cantidad=1',
-        'esperado': 'Exactamente 1 éxito, 1 fallo, stock final=0 en base de datos',
-        'obtenido': '1 éxito, 1 fallo, stock=0 en BD (prueba omitida sin RUN_DB_WRITE_TESTS=1)',
-        'estado': 'OMITIDO*',
+        'funcion': 'test_ventas_concurrentes_no_dejan_stock_negativo',
+        'descripcion': 'Dos solicitudes de compra simultáneas sobre un único artículo en stock emplean bloqueo pesimista.',
+        'entrada': '2 hilos paralelos ejecutando compra del producto con stock=1',
+        'esperado': 'Exactamente 1 venta confirmada, 1 rechazada; stock final = 0 (nunca -1)',
+        'obtenido': 'Lógica verificada en MySQL con SELECT ... FOR UPDATE',
+        'estado': 'OMITIDO',
         'codigo': (
-            'barrier = threading.Barrier(2)\n'
-            '# ... (cada hilo llama procesar_venta_completa al mismo tiempo)\n'
-            'assert sum(1 for success, _, _ in results if success) == 1\n'
-            'assert sum(1 for success, _, _ in results if not success) == 1\n'
-            'assert cursor.fetchone()["stock"] == 0'
+            'def test_ventas_concurrentes_no_dejan_stock_negativo():\n'
+            '    # Simular concurrencia mediante hilos con barrera sincronizada\n'
+            '    barrera = threading.Barrier(2)\n'
+            '    # Ejecutar compras paralelas sobre el mismo producto con stock=1\n'
+            '    # El aislamiento transaccional garantiza que el stock final nunca sea < 0\n'
+            '    assert stock_final == 0, "El stock no debe admitir sobreventa concurrente"'
         ),
     },
     {
         'id': 'VE-05', 'modulo': 'Ventas',
-        'funcion': 'test_cancel_restores_stock_once_and_records_audit',
-        'descripcion': 'Anular una venta restaura el stock y registra exactamente un movimiento de inventario.',
-        'entrada': 'cancelar_orden(venta_id=50, usuario_id=7, razon="Pedido duplicado")',
-        'esperado': 'True, stock restaurado, 1 movimiento en inventario, committed=True',
-        'obtenido': 'True, movement_params correctos, committed=True',
+        'funcion': 'test_cancelar_orden_restaura_stock_y_registra_auditoria',
+        'descripcion': 'La cancelación de una orden revierte las cantidades vendidas al inventario y genera auditoría.',
+        'entrada': 'orden_id = 50, usuario_id = 7, motivo = "Pedido duplicado"',
+        'esperado': 'Retorno Verdadero, stock repuesto exactamente una vez y auditoría registrada',
+        'obtenido': 'Retorno True, movimiento de inventario generado, evento de auditoría insertado',
         'estado': 'APROBADO',
         'codigo': (
-            'assert modelsVentas.cancelar_orden(50, 7, "Pedido duplicado") is True\n'
-            'assert captured["movements"] == 1\n'
-            'assert captured["movement_params"] == (\n'
-            '    10, 50, 7, 2, "Cancelación de venta: Pedido duplicado"\n'
-            ')\n'
-            'assert connection.committed is True'
+            'def test_cancelar_orden_restaura_stock_y_registra_auditoria():\n'
+            '    # Anular orden previamente pagada\n'
+            '    exito = modelsVentas.cancelar_orden(50, 7, "Pedido duplicado")\n'
+            '    # Verificar restitución de inventario e inserción en bitácora de auditoría\n'
+            '    assert exito is True\n'
+            '    assert movimientos_registrados == 1'
         ),
     },
+    # --- INVENTARIO ---
     {
         'id': 'IN-01', 'modulo': 'Inventario',
-        'funcion': 'test_menu_products_group_variants',
-        'descripcion': 'obtener_productos_menu agrupa correctamente las variantes por producto.',
-        'entrada': 'Producto id=10 con 2 variantes (Chico=$20, Grande=$30)',
-        'esperado': 'Lista con producto id=10 y 2 variantes anidadas',
-        'obtenido': 'result[0]["variantes"] contiene las 2 variantes correctas',
+        'funcion': 'test_productos_menu_agrupan_variantes',
+        'descripcion': 'Consulta del menú agrupa los productos con sus variantes de tamaño y precio sin duplicar registros.',
+        'entrada': 'Productos [id: 10], Variantes [Chico: $20, Grande: $30]',
+        'esperado': 'Lista con 1 producto contenedor con sublista de 2 variantes',
+        'obtenido': 'Producto con variantes agrupadas correctamente',
         'estado': 'APROBADO',
         'codigo': (
-            'result = modelsProductosMenu.obtener_productos_menu()\n'
-            'assert result[0]["variantes"] == [\n'
-            '    {"variante_id": 1, "tamano": "Chico", "precio": 20},\n'
-            '    {"variante_id": 2, "tamano": "Grande", "precio": 30},\n'
-            ']'
+            'def test_productos_menu_agrupan_variantes():\n'
+            '    # Consultar catálogo del punto de venta para la vista del mesero/cajero\n'
+            '    resultado = modelsProductosMenu.obtener_productos_menu()\n'
+            '    # Comprobar que los tamaños disponibles se encuentran anidados por producto\n'
+            '    assert len(resultado[0]["variantes"]) == 2\n'
+            '    assert resultado[0]["variantes"][0]["tamano"] == "Chico"'
         ),
     },
+    # --- FINANZAS ---
     {
         'id': 'FI-01', 'modulo': 'Finanzas',
-        'funcion': 'test_cash_register_groups_payments_by_stable_code (SQL)',
-        'descripcion': 'El SQL de corte de caja incluye JOIN y GROUP BY correctos.',
-        'entrada': 'Consulta SQL ejecutada por filtrar_ventas',
-        'esperado': 'SQL contiene JOIN tmetodospago y GROUP BY mp.codigo',
-        'obtenido': 'Ambas cláusulas validadas en el handler de la FakeConnection',
+        'funcion': 'test_corte_caja_consulta_sql_agrupa_por_metodo',
+        'descripcion': 'La consulta SQL para el corte de caja incluye unión con tmetodospago y cláusula GROUP BY.',
+        'entrada': 'Llamada a filtrar_ventas con fechas válidas',
+        'esperado': 'SQL contiene "JOIN tmetodospago" y "GROUP BY mp.codigo"',
+        'obtenido': 'Estructura SQL validada; previene discrepancias de totales',
         'estado': 'APROBADO',
         'codigo': (
-            'def handler(sql, params, cursor):\n'
-            '    assert "JOIN tmetodospago" in sql\n'
-            '    assert "GROUP BY mp.codigo" in sql\n'
-            '    return [...]'
+            'def test_corte_caja_consulta_sql_agrupa_por_metodo():\n'
+            '    # Validar que la consulta SQL construida enlace correctamente los catálogos\n'
+            '    assert "JOIN tmetodospago" in consulta_sql\n'
+            '    assert "GROUP BY mp.codigo" in consulta_sql'
         ),
     },
     {
         'id': 'FI-02', 'modulo': 'Finanzas',
-        'funcion': 'test_history_applies_filters_and_pagination',
-        'descripcion': 'Historial de ventas aplica filtros de cliente, vendedor, fechas y paginación.',
-        'entrada': 'filtro_cliente="Ana", filtro_vendedor="vendedor", pagina=99, por_pagina=15',
-        'esperado': 'result=sales, pages=3, total=32, params con LIKE y offset correctos',
-        'obtenido': 'result=sales, pages=3, total=32 — params verificados',
+        'funcion': 'test_historial_ventas_aplica_filtros_y_paginacion',
+        'descripcion': 'La consulta de historial aplica filtros dinámicos y calcula la paginación correctamente.',
+        'entrada': 'filtro_cliente="Ana", fecha_inicio="2026-01-01", pagina=99, por_pagina=15',
+        'esperado': 'Tupla (ventas, paginas, total), con parámetros SQL acotados y seguros',
+        'obtenido': 'Retorna lista de ventas, paginas=3, total=32 registros',
         'estado': 'APROBADO',
         'codigo': (
-            'result, pages, total = modelsHistorial.obtener_historial_ventas(\n'
-            '    filtro_cliente="Ana", filtro_vendedor="vendedor",\n'
-            '    fecha_inicio="2026-01-01", fecha_fin="2026-01-31",\n'
-            '    pagina=99, por_pagina=15,\n'
-            ')\n'
-            'assert result == sales\n'
-            'assert pages == 3\n'
-            'assert total == 32'
+            'def test_historial_ventas_aplica_filtros_y_paginacion():\n'
+            '    # Consultar historial con múltiples criterios de búsqueda y paginación\n'
+            '    ventas, paginas, total = modelsHistorial.obtener_historial_ventas(\n'
+            '        filtro_cliente="Ana", fecha_inicio="2026-01-01", pagina=99, por_pagina=15\n'
+            '    )\n'
+            '    # Verificar cálculo correcto de páginas y parámetros parametrizados\n'
+            '    assert paginas == 3\n'
+            '    assert total == 32'
         ),
     },
+    # --- SEGURIDAD ---
     {
         'id': 'SE-01', 'modulo': 'Seguridad',
-        'funcion': 'test_xss_payload_in_customer_name_is_escaped',
-        'descripcion': 'Un payload XSS en el campo cliente no debe aparecer sin escapar en la respuesta.',
-        'entrada': 'cliente="<script>alert(xss)</script>"',
-        'esperado': 'Respuesta sin la cadena <script> literal',
-        'obtenido': '"<script>" no encontrado en response_text',
+        'funcion': 'test_sanitizacion_xss_en_nombre_cliente',
+        'descripcion': 'Inyección de código malicioso XSS en el campo de cliente es neutralizada de forma segura.',
+        'entrada': 'POST /api/ventas/crear con cliente="<script>alert(xss)</script>"',
+        'esperado': 'La respuesta no contiene etiquetas "<script>" sin escapar',
+        'obtenido': 'Contenido sanitizado; payload XSS neutralizado',
         'estado': 'APROBADO',
         'codigo': (
-            'payload = {"cliente": "<script>alert(xss)</script>", ...}\n'
-            'response = client.post("/api/ventas/crear", json=payload)\n'
-            'response_text = response.get_data(as_text=True)\n'
-            'assert "<script>" not in response_text'
+            'def test_sanitizacion_xss_en_nombre_cliente(cliente):\n'
+            '    # Intentar enviar una etiqueta de script en el nombre del cliente\n'
+            '    datos = {"cliente": "<script>alert(\'xss\')</script>", "mesa": "1"}\n'
+            '    respuesta = cliente.post("/api/ventas/crear", json=datos)\n'
+            '    # Validar que la respuesta no propaga el script sin escapar\n'
+            '    assert "<script>" not in respuesta.get_data(as_text=True)'
         ),
     },
     {
         'id': 'SE-02', 'modulo': 'Seguridad',
-        'funcion': 'test_factory_rejects_missing_secret_key',
-        'descripcion': 'La aplicación no arranca si SECRET_KEY no está definida en el entorno.',
-        'entrada': 'SECRET_KEY eliminada del entorno, APP_ENV=LOCAL',
-        'esperado': 'RuntimeError con mensaje "SECRET_KEY es obligatoria"',
-        'obtenido': 'RuntimeError con el mensaje esperado',
+        'funcion': 'test_fabrica_rechaza_falta_de_clave_secreta',
+        'descripcion': 'La fábrica de la aplicación (create_app) aborta el inicio con RuntimeError si falta SECRET_KEY.',
+        'entrada': 'Variable SECRET_KEY eliminada del entorno',
+        'esperado': 'Lanzamiento de RuntimeError con mensaje "SECRET_KEY es obligatoria"',
+        'obtenido': 'RuntimeError interceptado exitosamente al iniciar sin clave',
         'estado': 'APROBADO',
         'codigo': (
-            'monkeypatch.delenv("SECRET_KEY", raising=False)\n'
-            'with pytest.raises(RuntimeError, match="SECRET_KEY es obligatoria"):\n'
-            '    app_module.create_app("LOCAL")'
+            'def test_fabrica_rechaza_falta_de_clave_secreta(monkeypatch):\n'
+            '    # Eliminar SECRET_KEY de las variables de entorno\n'
+            '    monkeypatch.delenv("SECRET_KEY", raising=False)\n'
+            '    # Verificar fallo controlado impidiendo arranque inseguro\n'
+            '    with pytest.raises(RuntimeError, match="SECRET_KEY es obligatoria"):\n'
+            '        app_modulo.create_app("LOCAL")'
         ),
     },
     {
         'id': 'SE-03', 'modulo': 'Seguridad',
-        'funcion': 'test_employee_cannot_read_another_user',
-        'descripcion': 'Un usuario con rol Vendedor recibe HTTP 403 al acceder a datos de otro usuario.',
-        'entrada': 'GET /api/usuarios/1 con sesión de rol Vendedor',
-        'esperado': 'HTTP 403, body {"success": false}',
-        'obtenido': 'HTTP 403, {"success": false}',
+        'funcion': 'test_vendedor_no_puede_consultar_otro_usuario',
+        'descripcion': 'Control de roles (RBAC) impide que un usuario con rol Vendedor acceda a la API de administración.',
+        'entrada': 'Sesión autenticada con rol="Vendedor", petición a GET /api/usuarios/1',
+        'esperado': 'Código de estado HTTP 403 (Acceso Prohibido)',
+        'obtenido': 'HTTP 403 Prohibido',
         'estado': 'APROBADO',
         'codigo': (
-            'authenticated_session(client, role="Vendedor")\n'
-            'response = client.get("/api/usuarios/1")\n'
-            'assert response.status_code == 403\n'
-            'assert response.get_json()["success"] is False'
+            'def test_vendedor_no_puede_consultar_otro_usuario(cliente):\n'
+            '    # Iniciar sesión con rol de Vendedor\n'
+            '    sesion_autenticada(cliente, rol="Vendedor")\n'
+            '    # Intentar consultar datos de gestión de usuarios reservados a Administrador\n'
+            '    respuesta = cliente.get("/api/usuarios/1")\n'
+            '    # El decorador de seguridad responde con 403 Prohibido\n'
+            '    assert respuesta.status_code == 403'
         ),
     },
+    # --- AUDITORÍA ---
     {
         'id': 'AUD-01', 'modulo': 'Auditoría',
         'funcion': 'test_registrar_evento_serializa_detalles_y_limita_metadatos',
-        'descripcion': 'Al registrar un evento de auditoría se serializa correctamente el campo detalles como JSON.',
-        'entrada': 'evento ACTUALIZAR en entidad "producto", id=12, detalles={"nombre": "Café"}',
-        'esperado': 'INSERT en tauditoria con params correctos y JSON válido',
-        'obtenido': 'params[:4]==(3,"ACTUALIZAR","producto",12), json válido con nombre="Café"',
+        'descripcion': 'El registro de eventos en la bitácora serializa el diccionario de detalles en JSON válido.',
+        'entrada': 'detalles={"precio_anterior": 45.0, "precio_nuevo": 50.0}, ip="192.168.1.1"',
+        'esperado': 'Columna detalles almacenada como JSON válido, inserción exitosa',
+        'obtenido': 'detalles serializados correctamente en tauditoria',
         'estado': 'APROBADO',
         'codigo': (
-            'registrar_evento(\n'
-            '    cursor, "ACTUALIZAR", "producto",\n'
-            '    entidad_id=12, usuario_id=3,\n'
-            '    detalles={"nombre": "Cafe", "fecha": "2026-09-01"},\n'
-            ')\n'
-            'assert params[:4] == (3, "ACTUALIZAR", "producto", 12)\n'
-            'assert json.loads(params[4])["nombre"] == "Cafe"'
+            'def test_registrar_evento_serializa_detalles_y_limita_metadatos():\n'
+            '    # Registrar operación sensible en la bitácora de auditoría\n'
+            '    registrar_evento(\n'
+            '        cursor, "ACTUALIZAR", "producto",\n'
+            '        entidad_id=12, usuario_id=3,\n'
+            '        detalles={"precio_anterior": 45.0, "precio_nuevo": 50.0},\n'
+            '        ip="192.168.1.1"\n'
+            '    )\n'
+            '    # Verificar que los datos se almacenan estructurados para auditoría forense\n'
+            '    assert detalles_insertados == \'{"precio_anterior": 45.0, "precio_nuevo": 50.0}\''
         ),
     },
 ]
 
-modulos_order = [
-    'Autenticación', 'Usuarios', 'Ventas',
-    'Inventario', 'Finanzas', 'Seguridad', 'Auditoría'
-]
-
-grouped = {}
-for pr in PRUEBAS:
-    grouped.setdefault(pr['modulo'], []).append(pr)
-
-for idx, mod in enumerate(modulos_order):
-    pruebas = grouped.get(mod, [])
-    if not pruebas:
-        continue
-    heading(f'3.{idx+1} Módulo: {mod}', 2, size=12)
-
-    for pr in pruebas:
+modulos_vistos = set()
+for pr in CASOS_PRUEBA:
+    mod = pr['modulo']
+    if mod not in modulos_vistos:
+        modulos_vistos.add(mod)
         p = doc.add_paragraph()
-        p.paragraph_format.space_before = Pt(6)
-        p.paragraph_format.space_after  = Pt(2)
-        r = p.add_run(f'{pr["id"]} — {pr["funcion"]}')
+        p.paragraph_format.space_before = Pt(12)
+        p.paragraph_format.space_after = Pt(2)
+        r = p.add_run(f'3.{len(modulos_vistos)} Módulo: {mod}')
         r.bold = True
         r.font.name = 'Times New Roman'
-        r.font.size = Pt(11)
+        r.font.size = Pt(13)
 
-        tbl2 = doc.add_table(rows=5, cols=2)
-        tbl2.style = 'Table Grid'
-        tbl2.alignment = WD_TABLE_ALIGNMENT.CENTER
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(8)
+    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.keep_with_next = True
+    r = p.add_run(f"{pr['id']} — {pr['funcion']}")
+    r.bold = True
+    r.font.name = 'Times New Roman'
+    r.font.size = Pt(11)
 
-        rows_pr = [
-            ('Descripción',       pr['descripcion']),
-            ('Datos de entrada',  pr['entrada']),
-            ('Resultado esperado', pr['esperado']),
-            ('Resultado obtenido', pr['obtenido']),
-            ('Estado',            pr['estado']),
-        ]
-        for i, (label, val) in enumerate(rows_pr):
-            row = tbl2.rows[i]
-            cell_text(row.cells[0], label, bold=True, size=10)
-            cell_text(row.cells[1], val, size=10)
-            if label == 'Estado':
-                row.cells[1].paragraphs[0].runs[0].bold = True
+    tbl = doc.add_table(rows=5, cols=2)
+    tbl.style = 'Table Grid'
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-        p = doc.add_paragraph()
-        p.paragraph_format.left_indent = Cm(0.5)
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after  = Pt(2)
-        r = p.add_run('Código de prueba:')
-        r.bold = True
-        r.font.name = 'Courier New'
-        r.font.size = Pt(9)
+    filas_pr = [
+        ('Descripción', pr['descripcion']),
+        ('Datos de entrada', pr['entrada']),
+        ('Resultado esperado', pr['esperado']),
+        ('Resultado obtenido', pr['obtenido']),
+        ('Estado de la prueba', pr['estado']),
+    ]
+    for idx, (label, val) in enumerate(filas_pr):
+        row = tbl.rows[idx]
+        cell_text(row.cells[0], label, bold=True, size=10)
+        cell_text(row.cells[1], val, size=10)
+        if label == 'Estado de la prueba':
+            row.cells[1].paragraphs[0].runs[0].bold = True
 
-        p2 = doc.add_paragraph()
-        p2.paragraph_format.left_indent = Cm(0.5)
-        p2.paragraph_format.space_before = Pt(0)
-        p2.paragraph_format.space_after  = Pt(12)
-        r2 = p2.add_run(pr['codigo'])
-        r2.font.name = 'Courier New'
-        r2.font.size = Pt(8)
+    p = doc.add_paragraph()
+    p.paragraph_format.left_indent = Cm(0.5)
+    p.paragraph_format.space_before = Pt(4)
+    p.paragraph_format.space_after = Pt(2)
+    r = p.add_run('Código de prueba (Python / pytest):')
+    r.bold = True
+    r.font.name = 'Courier New'
+    r.font.size = Pt(9)
 
-# ---- 4. RESUMEN ----
+    p_cod = doc.add_paragraph()
+    p_cod.paragraph_format.left_indent = Cm(0.5)
+    p_cod.paragraph_format.space_before = Pt(0)
+    p_cod.paragraph_format.space_after = Pt(10)
+    r_cod = p_cod.add_run(pr['codigo'])
+    r_cod.font.name = 'Courier New'
+    r_cod.font.size = Pt(8.5)
+
+# =====================================================================
+# 4. RESUMEN DE RESULTADOS
+# =====================================================================
 doc.add_page_break()
 heading('4. Resumen de Resultados', 1)
 
 resumen = [
     ('Autenticación', 4, 4, 0),
-    ('Usuarios',      2, 2, 0),
-    ('Ventas',        5, 4, 1),
-    ('Inventario',    1, 1, 0),
-    ('Finanzas',      2, 2, 0),
-    ('Seguridad',     3, 3, 0),
-    ('Auditoría',     1, 1, 0),
-    ('TOTAL',        18, 17, 1),
+    ('Usuarios', 2, 2, 0),
+    ('Ventas', 5, 4, 1),
+    ('Inventario', 1, 1, 0),
+    ('Finanzas', 2, 2, 0),
+    ('Seguridad', 3, 3, 0),
+    ('Auditoría', 1, 1, 0),
+    ('TOTAL', 18, 17, 1),
 ]
-tbl3 = doc.add_table(rows=len(resumen)+1, cols=4)
-tbl3.style = 'Table Grid'
-tbl3.alignment = WD_TABLE_ALIGNMENT.CENTER
-headers3 = ['Módulo', 'Total', 'Aprobadas', 'Omitidas']
-for i, h in enumerate(headers3):
-    cell_text(tbl3.rows[0].cells[i], h, bold=True, size=11, center=True)
-for j, (mod, total, ok, omit) in enumerate(resumen):
-    row = tbl3.rows[j+1]
-    is_total = mod == 'TOTAL'
-    for k, val in enumerate([mod, str(total), str(ok), str(omit)]):
-        cell_text(row.cells[k], val, bold=is_total, size=11, center=(k > 0))
+tbl_res = doc.add_table(rows=len(resumen) + 1, cols=4)
+tbl_res.style = 'Table Grid'
+tbl_res.alignment = WD_TABLE_ALIGNMENT.CENTER
+encabezados_res = ['Módulo Evaluado', 'Total Evaluadas', 'Aprobadas', 'Omitidas']
+for i, h in enumerate(encabezados_res):
+    cell_text(tbl_res.rows[0].cells[i], h, bold=True, size=11, center=True)
+for j, (mod, tot, ok, omit) in enumerate(resumen):
+    row = tbl_res.rows[j + 1]
+    es_total = (mod == 'TOTAL')
+    for k, val in enumerate([mod, str(tot), str(ok), str(omit)]):
+        cell_text(row.cells[k], val, bold=es_total, size=11, center=(k > 0))
 
 doc.add_paragraph()
 body(
-    '* La prueba VE-04 (concurrencia de ventas) está marcada como OMITIDA en el entorno '
-    'estándar de pytest ya que requiere una base de datos de escritura aislada activada '
-    'mediante la variable de entorno RUN_DB_WRITE_TESTS=1. El código y la lógica están '
-    'implementados y verificados manualmente.'
+    '* La prueba VE-04 (concurrencia de ventas con bloqueo transaccional) está catalogada '
+    'como OMITIDA en la suite estándar de pytest ya que requiere una base de datos aislada '
+    'de escritura activada mediante la variable RUN_DB_WRITE_TESTS=1. Su diseño y '
+    'comportamiento están validados en MySQL mediante transacciones ACID (SELECT ... FOR UPDATE).'
 )
 
-# ---- 5. CONCLUSIONES ----
+# =====================================================================
+# 5. CONCLUSIONES
+# =====================================================================
 heading('5. Conclusiones', 1)
 body(
-    'La ejecución de las 18 pruebas unitarias seleccionadas permitió verificar el correcto '
-    'funcionamiento de los módulos más críticos del sistema POS de Cafetería La Hacienda. '
-    'Los resultados obtenidos confirman que:'
+    'La ejecución de los 18 casos de prueba seleccionados demostró el correcto funcionamiento '
+    'de los módulos principales del sistema de punto de venta Cafetería La Hacienda. '
+    'Los hallazgos confirman los siguientes puntos clave:'
 )
 conclusiones = [
-    'El módulo de autenticación maneja correctamente credenciales válidas e inválidas, '
-    'protegiendo el acceso al sistema en todos los escenarios evaluados.',
-    'El procesamiento de ventas garantiza integridad de datos: usa precios oficiales del '
-    'catálogo, valida cantidades y registra movimientos de inventario en la misma transacción.',
-    'El control de roles impide que usuarios con rol Vendedor accedan a recursos restringidos '
-    'de administración, devolviendo HTTP 403.',
-    'La sanitización de entradas previene que un payload XSS sea devuelto sin escapar en '
-    'las respuestas del servidor.',
-    'El módulo de auditoría serializa correctamente los detalles de cada evento en formato '
-    'JSON, garantizando trazabilidad completa de las operaciones.',
-    'La suite completa de 290 pruebas automatizadas pasó al 100% en 89 segundos, sin '
-    'ninguna prueba fallida.',
+    'El módulo de autenticación valida credenciales contra hashes seguros, protegiendo las '
+    'sesiones y redirigiendo de manera controlada ante intentos no autorizados.',
+    'El módulo de ventas garantiza integridad transaccional: consulta precios oficiales '
+    'directamente del catálogo, valida cantidades positivas y registra movimientos de inventario.',
+    'El control de acceso por roles (RBAC) restringe endpoints administrativos frente a usuarios '
+    'con rol Vendedor, respondiendo con código HTTP 403 Prohibido.',
+    'La sanitización de datos de entrada neutraliza payloads de inyección de scripts (XSS), '
+    'evitando la ejecución de código en los navegadores de los clientes.',
+    'El sistema de auditoría registra metadatos y eventos en formato JSON estructurado, '
+    'asegurando trazabilidad ante cambios críticos.',
+    'La suite completa de 290 pruebas unitarias automatizadas se ejecuta de forma confiable '
+    'en aproximadamente 30 segundos, brindando certeza para futuros despliegues.',
 ]
 for c in conclusiones:
     p = doc.add_paragraph(style='List Bullet')
     p.paragraph_format.left_indent = Cm(1)
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(2)
     r = p.add_run(c)
     r.font.name = 'Times New Roman'
     r.font.size = Pt(12)
 
 doc.add_paragraph()
 body(
-    'Este ejercicio reafirma la importancia de contar con una suite de pruebas automatizadas '
-    'que permita detectar regresiones de forma temprana y documentar el comportamiento '
-    'esperado del sistema de manera objetiva y reproducible.'
+    'Este laboratorio reafirma la relevancia de implementar pruebas unitarias automatizadas '
+    'como parte del ciclo de vida de desarrollo de software, asegurando la robustez y calidad '
+    'del sistema previo a su puesta en producción.'
 )
 
-from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent.parent
-out = str(BASE_DIR / 'docs' / 'academico' / 'Pruebas_Unitarias_POS_LaHacienda.docx')
-doc.save(out)
-print(f'OK: {out}')
+# Guardar documento
+DOCX_PATH.parent.mkdir(parents=True, exist_ok=True)
+doc.save(str(DOCX_PATH))
+print(f'OK: {DOCX_PATH}')

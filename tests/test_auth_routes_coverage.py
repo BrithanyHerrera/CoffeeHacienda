@@ -35,7 +35,7 @@ def test_recovery_state_rejects_incomplete_or_invalid_values(app, state):
 
 
 @pytest.mark.parametrize('case', ['empty', 'missing', 'inactive', 'wrong-password'])
-def test_login_rejects_invalid_credentials(client, monkeypatch, case):
+def test_login_rechaza_credenciales_invalidas(client, monkeypatch, case):
     user = {
         'Id': 1,
         'activo': True,
@@ -63,7 +63,7 @@ def test_login_rejects_invalid_credentials(client, monkeypatch, case):
     assert response.status_code == 200
 
 
-def test_logout_clears_session(client, authenticated_session):
+def test_cierre_sesion_limpia_sesion(client, authenticated_session):
     authenticated_session(client)
     response = client.get('/salir')
     assert response.status_code == 302

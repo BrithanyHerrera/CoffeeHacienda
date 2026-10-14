@@ -57,7 +57,7 @@ class FakeConnection:
         pass
 
 
-def test_sale_uses_official_price_and_records_stock_movement(monkeypatch):
+def test_venta_aplica_precio_oficial_y_registra_movimiento_stock(monkeypatch):
     captured = {}
 
     def handler(sql, params, cursor):
@@ -120,7 +120,7 @@ def test_sale_uses_official_price_and_records_stock_movement(monkeypatch):
 
 
 @pytest.mark.parametrize('quantity', [0, -1, 1.5, True, '2.5'])
-def test_sale_rejects_invalid_quantities(monkeypatch, quantity):
+def test_venta_rechaza_cantidades_invalidas(monkeypatch, quantity):
     def handler(sql, params, cursor):
         if sql.startswith('INSERT INTO tauditoria'):
             return None
@@ -140,7 +140,7 @@ def test_sale_rejects_invalid_quantities(monkeypatch, quantity):
     assert connection.committed is False
 
 
-def test_cancel_restores_stock_once_and_records_audit(monkeypatch):
+def test_cancelar_orden_restaura_stock_y_registra_auditoria(monkeypatch):
     captured = {'movements': 0}
 
     def handler(sql, params, cursor):

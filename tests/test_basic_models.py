@@ -13,7 +13,7 @@ def test_login_lookup_returns_user_and_closes_connection(monkeypatch):
     assert connection.closed is True
 
 
-def test_history_applies_filters_and_pagination(monkeypatch):
+def test_historial_ventas_aplica_filtros_y_paginacion(monkeypatch):
     sales = [{'id': 3}, {'id': 2}]
     connection = connection_with_results({'total': 32}, sales)
     monkeypatch.setattr(modelsHistorial, 'Conexion_BD', lambda: connection)
@@ -65,7 +65,7 @@ def test_payment_methods_return_rows_and_handle_errors(monkeypatch):
     assert failed.closed is True
 
 
-def test_menu_products_group_variants(monkeypatch):
+def test_productos_menu_agrupan_variantes(monkeypatch):
     products = [{'id': 10}, {'id': 20}]
     variants = [
         {'variante_id': 1, 'producto_id': 10, 'tamano': 'Chico', 'precio': 20},

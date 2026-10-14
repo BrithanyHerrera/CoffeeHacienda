@@ -18,7 +18,7 @@ pytestmark = [
 ]
 
 
-def test_concurrent_sales_never_leave_negative_stock():
+def test_ventas_concurrentes_no_dejan_stock_negativo():
     marker = f'concurrente_{secrets.token_hex(6)}'
     connection = Conexion_BD()
     try:

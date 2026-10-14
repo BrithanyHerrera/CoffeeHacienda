@@ -14,7 +14,7 @@ def _failing_connection():
     return FakeConnection(fail)
 
 
-def test_cash_totals_empty_all_payment_codes_and_error(monkeypatch):
+def test_corte_caja_agrupa_pagos_por_metodo(monkeypatch):
     assert modelsCorteCaja.filtrar_ventas(None, None) == {
         'efectivo': Decimal('0.00'),
         'tarjeta': Decimal('0.00'),
