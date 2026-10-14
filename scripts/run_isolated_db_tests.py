@@ -55,18 +55,9 @@ def main():
 
         test_connection = pymysql.connect(database=database_name, **connection_args)
         try:
-            _execute_script(test_connection, PROJECT_ROOT / 'bd.sql')
             _execute_script(
                 test_connection,
-                PROJECT_ROOT / 'migrations' / '002_ventas_variantes_cancelacion.sql',
-            )
-            _execute_script(
-                test_connection,
-                PROJECT_ROOT / 'migrations' / '003_estabilidad_auditoria.sql',
-            )
-            _execute_script(
-                test_connection,
-                PROJECT_ROOT / 'migrations' / '004_auditoria_operaciones.sql',
+                PROJECT_ROOT / 'database' / 'db.sql',
             )
         finally:
             test_connection.close()

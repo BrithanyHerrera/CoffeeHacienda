@@ -39,8 +39,13 @@ python -m pip install -r requirements-dev.txt
 Crear `bd.env` a partir de `bd.env.example`. El repositorio no contiene
 credenciales ni usuarios reales.
 
-Para una base nueva, importar primero `bd.sql`. Para una base existente o
-recién importada, revisar y aplicar las migraciones pendientes:
+Para una base nueva, importar únicamente `database/db.sql`. Este
+archivo ya contiene el esquema completo y registra como incorporadas las
+versiones 002, 003 y 004; una instalación nueva no necesita ejecutar
+migraciones.
+
+Para una base existente con datos, no volver a importar el esquema completo.
+Revisar y aplicar únicamente las migraciones pendientes:
 
 ```powershell
 python scripts/apply_migrations.py --dry-run

@@ -10,7 +10,7 @@ código no ejecuta migraciones automáticamente al iniciar la aplicación.
   esquema, sin privilegios administrativos del servicio.
 - Configurar `RATELIMIT_STORAGE_URI` con Redis compartido si existen varias
   instancias web.
-- Rotar cualquier contraseña o secreto que haya aparecido en `bd.sql` o en el
+- Rotar cualquier contraseña o secreto que haya aparecido en `database/db.sql` o en el
   historial del repositorio. Eliminarlo del archivo actual no invalida el dato
   que ya fue expuesto.
 

@@ -1,0 +1,81 @@
+=====================================================================
+  CHECKLIST DE PRUEBAS UNITARIAS - Sistema POS Cafeteria La Hacienda
+  Materia  : 2026 B2 Laboratorio Abierto, Pruebas
+  Actividad: Pruebas Unitarias
+  Equipo   : Jonathan Ismael Corona Mendez
+             Ana Karen Gonzalez Crisanto
+             Brithany Juliette Herrera Galindo
+=====================================================================
+  ESTADO: [ ] = Pendiente  |  [X] = Hecha  |  [-] = Omitida
+=====================================================================
+
+--- MODULO: Autenticacion (autenticacion_bp) ---
+[X] AU-01  Login con credenciales validas
+[X] AU-02  Login con contrasena incorrecta (error esperado)
+[X] AU-03  Login con usuario inexistente (error esperado)
+[X] AU-04  Cierre de sesion (logout) exitoso
+[ ] AU-05  Acceso a ruta protegida sin sesion activa -> redirige a login
+[ ] AU-06  Bloqueo tras multiples intentos fallidos de login
+
+--- MODULO: Usuarios (usuarios_bp) ---
+[X] US-01  Crear usuario con datos completos y validos
+[X] US-02  Crear usuario con correo duplicado (error esperado)
+[ ] US-03  Editar datos de usuario existente
+[ ] US-04  Cambiar contrasena de usuario
+[ ] US-05  Eliminar usuario del sistema
+[ ] US-06  Listar usuarios del sistema correctamente
+
+--- MODULO: Ventas (ventas_bp) ---
+[X] VE-01  Registrar venta con productos en stock
+[X] VE-02  Registrar venta con stock insuficiente (error esperado)
+[X] VE-03  Calcular total de venta correctamente
+[-] VE-04  Venta simultanea con stock critico (concurrencia - lock transaccional)
+[X] VE-05  Anular una venta registrada
+[ ] VE-06  Generar ticket/folio de venta
+
+--- MODULO: Inventario (inventario_bp) ---
+[X] IN-01  Registrar entrada de producto al inventario
+[ ] IN-02  Registrar salida de producto del inventario
+[ ] IN-03  Alerta de stock minimo activada correctamente
+[ ] IN-04  Actualizar precio de producto en catalogo
+[ ] IN-05  Agregar producto nuevo al catalogo
+[ ] IN-06  Eliminar producto del catalogo
+
+--- MODULO: Finanzas / Corte de Caja (finanzas_bp) ---
+[X] FI-01  Realizar corte de caja diario
+[X] FI-02  Calcular total de ingresos del dia correctamente
+[ ] FI-03  Registrar egreso de dinero
+[ ] FI-04  Detectar discrepancia en corte de caja
+[ ] FI-05  Generar reporte financiero exportable
+
+--- MODULO: Recuperacion de Contrasena (modelsRecuperacion) ---
+[ ] RC-01  Solicitud de recuperacion con correo registrado
+[ ] RC-02  Solicitud con correo no registrado (error controlado)
+[ ] RC-03  Token de recuperacion valido dentro del tiempo
+[ ] RC-04  Token de recuperacion expirado (error esperado)
+
+--- MODULO: Seguridad (app_security) ---
+[X] SE-01  Sanitizacion de entrada contra inyeccion XSS
+[X] SE-02  Contrasena almacenada en hash (no en texto plano)
+[X] SE-03  Credenciales no expuestas en codigo (uso de .env)
+[ ] SE-04  Vendedor no puede acceder a rutas de Administrador (control de roles)
+
+--- MODULO: Auditoria (auditoria) ---
+[X] AUD-01  Registro de evento en bitacora al realizar una venta
+[ ] AUD-02  Registro de evento al modificar precio de producto
+[ ] AUD-03  Registro de evento al crear un usuario
+[ ] AUD-04  Nivel de severidad asignado correctamente (INFO, WARNING, ERROR)
+
+--- MODULO: Base de Datos / Modelos (models) ---
+[ ] BD-01  Conexion a base de datos exitosa
+[ ] BD-02  Modelo de Venta crea registro correctamente en BD
+[ ] BD-03  Modelo de Producto valida campos obligatorios
+[ ] BD-04  Relacion Venta -> DetalleVenta es correcta
+[ ] BD-05  Rollback ejecutado correctamente ante error en transaccion
+
+=====================================================================
+  TOTAL PRUEBAS: 44
+  HECHAS:        17
+  PENDIENTES:    27
+  OMITIDAS:       1
+=====================================================================

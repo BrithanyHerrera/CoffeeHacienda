@@ -574,6 +574,26 @@ CREATE TABLE `tauditoria` (
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `tusuarios` (`Id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Schema version included in this complete baseline.
+-- Fresh installations do not need to run migrations 002, 003 or 004.
+--
+
+DROP TABLE IF EXISTS `tschema_migrations`;
+CREATE TABLE `tschema_migrations` (
+  `version` int NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `aplicado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+LOCK TABLES `tschema_migrations` WRITE;
+INSERT INTO `tschema_migrations` (`version`, `nombre`) VALUES
+  (2, 'ventas_variantes_cancelacion'),
+  (3, 'estabilidad_auditoria'),
+  (4, 'auditoria_operaciones');
+UNLOCK TABLES;
+
 
 DROP TABLE IF EXISTS `tvalidacion_usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

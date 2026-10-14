@@ -60,7 +60,7 @@ def split_sql(script):
 
 
 def discover_migrations():
-    migrations_dir = PROJECT_ROOT / 'migrations'
+    migrations_dir = PROJECT_ROOT / 'database' / 'migraciones'
     migrations = []
     for path in migrations_dir.glob('*.sql'):
         match = MIGRATION_PATTERN.match(path.name)

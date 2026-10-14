@@ -24,6 +24,9 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Archivos temporales de Office
+~$*
+
 # Gemini
 .gemini/
 

@@ -21,8 +21,21 @@ def test_migrations_are_numbered_and_unique():
 
 
 def test_current_schema_dump_has_no_operational_users_or_emails():
-    schema = (PROJECT_ROOT / 'bd.sql').read_text(encoding='utf-8-sig').lower()
+    schema = (
+        PROJECT_ROOT / 'database' / 'db.sql'
+    ).read_text(encoding='utf-8-sig').lower()
 
     assert 'insert into `tusuarios`' not in schema
     assert '@gmail.com' not in schema
     assert 'datos operativos de tusuarios omitidos intencionalmente' in schema
+
+
+def test_current_schema_dump_is_a_complete_versioned_baseline():
+    schema = (
+        PROJECT_ROOT / 'database' / 'db.sql'
+    ).read_text(encoding='utf-8-sig').lower()
+
+    assert 'create table `tschema_migrations`' in schema
+    assert "(2, 'ventas_variantes_cancelacion')" in schema
+    assert "(3, 'estabilidad_auditoria')" in schema
+    assert "(4, 'auditoria_operaciones')" in schema

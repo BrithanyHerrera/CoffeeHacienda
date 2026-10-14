@@ -57,7 +57,7 @@ correspondientes.
 
 ### 0.2 Retirar credenciales y datos personales del repositorio
 
-- [x] Sustituir los datos reales de `bd.sql` por datos ficticios o eliminar completamente los `INSERT` sensibles.
+- [x] Sustituir los datos reales de `database/db.sql` por datos ficticios o eliminar completamente los `INSERT` sensibles.
 - [x] Crear el administrador local mediante un script que genera el hash sin guardar la contraseña.
 - [~] Las contraseñas de las 5 cuentas activas conservadas en Aiven no se
   rotarán por decisión del propietario; las 4 cuentas inactivas permanecen
@@ -168,7 +168,7 @@ No se debe usar Aiven para experimentar con cambios de esquema.
 ### 2.2 Migraciones
 
 - [x] Incorporar migraciones SQL numeradas.
-- [x] Mantener `bd.sql` como esquema inicial reproducible y saneado, sin datos operativos personales.
+- [x] Mantener `database/db.sql` como esquema inicial reproducible y saneado, sin datos operativos personales.
 - [~] La migración actual es repetible; falta una reversión formal cuando sea posible.
 - [x] Registrar en `tschema_migrations` qué versión de esquema está aplicada.
 
