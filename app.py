@@ -2,7 +2,7 @@ import os
 import sys
 
 # Auto-relanzar dentro de .venv si se ejecuta directamente con el Python global de Windows
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     _venv_py = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.venv', 'Scripts', 'python.exe')
     if os.path.exists(_venv_py) and os.path.abspath(sys.executable).lower() != os.path.abspath(_venv_py).lower():
         import subprocess
