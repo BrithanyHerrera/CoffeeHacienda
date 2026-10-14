@@ -2,18 +2,15 @@
 Generador de la Actividad de Investigación:
 Pruebas No Funcionales, Registro y Seguimiento de Defectos, y Pruebas de Regresión
 Universidad de Guadalajara - Centro Universitario de la Costa
-Materia: 2026 B2 Laboratorio Abierto, Pruebas
+Formato limpio y tradicional: Fuente Arial, color negro, redacción natural.
 """
-import os
-import sys
 from pathlib import Path
-import docx
 from docx import Document
-from docx.shared import Inches, Pt, RGBColor, Cm
+from docx.shared import Pt, RGBColor, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.oxml import OxmlElement, parse_xml
-from docx.oxml.ns import qn, nsdecls
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DOCX_PATH = BASE_DIR / 'docs' / 'academico' / 'Actividad_Investigacion_Pruebas_No_Funcionales.docx'
@@ -29,22 +26,11 @@ for sec in doc.sections:
     sec.left_margin = Cm(2.5)
     sec.right_margin = Cm(2.5)
 
-# Paleta de colores institucionales UDG
-COLOR_PRIMARY = RGBColor(15, 34, 64)       # Azul Marino UDG
-COLOR_SECONDARY = RGBColor(70, 90, 120)    # Azul secundario
-COLOR_TEXT = RGBColor(35, 35, 35)          # Texto estándar
-HEX_PRIMARY_BG = "0F2240"
-HEX_LIGHT_BG = "F7F9FC"
-HEX_BORDER = "C0C8D0"
+FONT_NAME = 'Arial'
+COLOR_BLACK = RGBColor(0, 0, 0)
 
-def set_cell_background(cell, fill_hex):
-    """Aplica color de fondo a una celda de tabla."""
-    tcPr = cell._tc.get_or_add_tcPr()
-    shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
-    tcPr.append(shd)
-
-def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
-    """Establece márgenes internos en la celda (dxa)."""
+def set_cell_margins(cell, top=80, bottom=80, left=100, right=100):
+    """Establece márgenes internos en la celda."""
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = parse_xml(
         f'<w:tcMar {nsdecls("w")}>'
@@ -56,39 +42,32 @@ def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
     )
     tcPr.append(tcMar)
 
-def set_cell_border(cell, color="CCCCCC", sz="4"):
+def set_cell_background(cell, fill_hex):
+    """Aplica sombreado sutil."""
     tcPr = cell._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        f'<w:top w:val="single" w:sz="{sz}" w:space="0" w:color="{color}"/>'
-        f'<w:bottom w:val="single" w:sz="{sz}" w:space="0" w:color="{color}"/>'
-        f'<w:left w:val="single" w:sz="{sz}" w:space="0" w:color="{color}"/>'
-        f'<w:right w:val="single" w:sz="{sz}" w:space="0" w:color="{color}"/>'
-        f'</w:tcBorders>'
-    )
-    tcPr.append(borders)
+    shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
+    tcPr.append(shd)
 
 def heading(text, level=1):
     p = doc.add_paragraph()
     p.paragraph_format.keep_with_next = True
     r = p.add_run(text)
     r.bold = True
-    r.font.name = 'Times New Roman'
+    r.font.name = FONT_NAME
+    r.font.color.rgb = COLOR_BLACK
+    
     if level == 1:
-        p.paragraph_format.space_before = Pt(13)
+        p.paragraph_format.space_before = Pt(14)
         p.paragraph_format.space_after = Pt(4)
-        r.font.size = Pt(13.5)
-        r.font.color.rgb = COLOR_PRIMARY
+        r.font.size = Pt(13)
     elif level == 2:
         p.paragraph_format.space_before = Pt(10)
         p.paragraph_format.space_after = Pt(3)
         r.font.size = Pt(12)
-        r.font.color.rgb = COLOR_PRIMARY
     else:
-        p.paragraph_format.space_before = Pt(7)
+        p.paragraph_format.space_before = Pt(8)
         p.paragraph_format.space_after = Pt(2)
-        r.font.size = Pt(11.5)
-        r.font.color.rgb = COLOR_SECONDARY
+        r.font.size = Pt(11)
     return p
 
 def body(text, justify=True, bold_prefix=None):
@@ -102,14 +81,14 @@ def body(text, justify=True, bold_prefix=None):
     if bold_prefix:
         r_pre = p.add_run(bold_prefix)
         r_pre.bold = True
-        r_pre.font.name = 'Times New Roman'
-        r_pre.font.size = Pt(12)
-        r_pre.font.color.rgb = COLOR_TEXT
+        r_pre.font.name = FONT_NAME
+        r_pre.font.size = Pt(11)
+        r_pre.font.color.rgb = COLOR_BLACK
 
     r = p.add_run(text)
-    r.font.name = 'Times New Roman'
-    r.font.size = Pt(12)
-    r.font.color.rgb = COLOR_TEXT
+    r.font.name = FONT_NAME
+    r.font.size = Pt(11)
+    r.font.color.rgb = COLOR_BLACK
     return p
 
 def bullet_item(bold_label, text):
@@ -120,153 +99,88 @@ def bullet_item(bold_label, text):
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     
     clean_label = bold_label.strip()
-    # Evitar doble viñeta si el label traía "•"
     if clean_label.startswith('•'):
         clean_label = clean_label.lstrip('•').strip()
     
     r_bold = p.add_run(clean_label)
     r_bold.bold = True
-    r_bold.font.name = 'Times New Roman'
-    r_bold.font.size = Pt(12)
-    r_bold.font.color.rgb = COLOR_TEXT
+    r_bold.font.name = FONT_NAME
+    r_bold.font.size = Pt(11)
+    r_bold.font.color.rgb = COLOR_BLACK
     
     r_text = p.add_run(f' {text}')
-    r_text.font.name = 'Times New Roman'
-    r_text.font.size = Pt(12)
-    r_text.font.color.rgb = COLOR_TEXT
+    r_text.font.name = FONT_NAME
+    r_text.font.size = Pt(11)
+    r_text.font.color.rgb = COLOR_BLACK
     return p
 
-def cell_text(cell, text, bold=False, size=10, center=False, color=None):
+def cell_text(cell, text, bold=False, size=9.5, center=False):
     cell.text = ''
     p = cell.paragraphs[0]
-    p.paragraph_format.space_before = Pt(3)
-    p.paragraph_format.space_after = Pt(3)
-    p.paragraph_format.line_spacing = 1.05
+    p.paragraph_format.space_before = Pt(2)
+    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.line_spacing = 1.1
     if center:
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     else:
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     r = p.add_run(str(text))
     r.bold = bold
-    r.font.name = 'Times New Roman'
+    r.font.name = FONT_NAME
     r.font.size = Pt(size)
-    if color:
-        r.font.color.rgb = color
-    else:
-        r.font.color.rgb = COLOR_TEXT
-
-def callout_box(title, paragraphs_data):
-    """
-    Crea una caja destacada elegante tipo ficha técnica.
-    paragraphs_data: lista de tuplas (subtitulo_o_bullet, texto_cuerpo) o strings.
-    """
-    tbl = doc.add_table(rows=1, cols=1)
-    tbl.style = 'Table Grid'
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    cell = tbl.rows[0].cells[0]
-    cell.width = Cm(16.0)
-    set_cell_background(cell, HEX_LIGHT_BG)
-    set_cell_margins(cell, top=140, bottom=140, left=200, right=200)
-    set_cell_border(cell, color=HEX_BORDER, sz="6")
-    
-    # Título de la caja
-    p_tit = cell.paragraphs[0]
-    p_tit.paragraph_format.space_before = Pt(2)
-    p_tit.paragraph_format.space_after = Pt(5)
-    r_icon = p_tit.add_run("■ ")
-    r_icon.bold = True
-    r_icon.font.name = 'Times New Roman'
-    r_icon.font.size = Pt(11)
-    r_icon.font.color.rgb = COLOR_PRIMARY
-    
-    r_t = p_tit.add_run(title)
-    r_t.bold = True
-    r_t.font.name = 'Times New Roman'
-    r_t.font.size = Pt(11)
-    r_t.font.color.rgb = COLOR_PRIMARY
-    
-    # Contenido estructurado en párrafos limpios
-    for item in paragraphs_data:
-        p = cell.add_paragraph()
-        p.paragraph_format.space_before = Pt(1)
-        p.paragraph_format.space_after = Pt(3)
-        p.paragraph_format.line_spacing = 1.15
-        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        
-        if isinstance(item, tuple):
-            prefix, body_str = item
-            r_pre = p.add_run(prefix)
-            r_pre.bold = True
-            r_pre.font.name = 'Times New Roman'
-            r_pre.font.size = Pt(10.5)
-            r_pre.font.color.rgb = COLOR_TEXT
-            
-            r_bod = p.add_run(f" {body_str}")
-            r_bod.font.name = 'Times New Roman'
-            r_bod.font.size = Pt(10.5)
-            r_bod.font.color.rgb = COLOR_TEXT
-        else:
-            r_bod = p.add_run(str(item))
-            r_bod.font.name = 'Times New Roman'
-            r_bod.font.size = Pt(10.5)
-            r_bod.font.color.rgb = COLOR_TEXT
-
-    p_end = doc.add_paragraph()
-    p_end.paragraph_format.space_before = Pt(0)
-    p_end.paragraph_format.space_after = Pt(4)
+    r.font.color.rgb = COLOR_BLACK
 
 # =====================================================================
-# PORTADA INSTITUCIONAL UDG CUCosta
+# PORTADA
 # =====================================================================
 doc.add_paragraph()
 p_univ = doc.add_paragraph()
 p_univ.alignment = WD_ALIGN_PARAGRAPH.CENTER
 r = p_univ.add_run('UNIVERSIDAD DE GUADALAJARA')
 r.bold = True
-r.font.name = 'Times New Roman'
-r.font.size = Pt(16)
-r.font.color.rgb = COLOR_PRIMARY
+r.font.name = FONT_NAME
+r.font.size = Pt(15)
+r.font.color.rgb = COLOR_BLACK
 
 p_cu = doc.add_paragraph()
 p_cu.alignment = WD_ALIGN_PARAGRAPH.CENTER
 r = p_cu.add_run('CENTRO UNIVERSITARIO DE LA COSTA')
 r.bold = True
-r.font.name = 'Times New Roman'
+r.font.name = FONT_NAME
 r.font.size = Pt(13)
-r.font.color.rgb = COLOR_PRIMARY
+r.font.color.rgb = COLOR_BLACK
 
 doc.add_paragraph()
 
 if LOGO_PATH.exists():
     p_logo = doc.add_paragraph()
     p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_logo.add_run().add_picture(str(LOGO_PATH), width=Cm(3.2))
+    p_logo.add_run().add_picture(str(LOGO_PATH), width=Cm(3.0))
 
 doc.add_paragraph()
 
 p_tit = doc.add_paragraph()
 p_tit.alignment = WD_ALIGN_PARAGRAPH.CENTER
-p_tit.paragraph_format.space_after = Pt(4)
-r = p_tit.add_run('ACTIVIDAD DE INVESTIGACIÓN')
+p_tit.paragraph_format.space_after = Pt(3)
+r = p_tit.add_run('Actividad de Investigación')
 r.bold = True
-r.font.name = 'Times New Roman'
-r.font.size = Pt(17)
-r.font.color.rgb = COLOR_PRIMARY
+r.font.name = FONT_NAME
+r.font.size = Pt(16)
+r.font.color.rgb = COLOR_BLACK
 
 p_sub = doc.add_paragraph()
 p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
 r = p_sub.add_run('Pruebas No Funcionales, Registro y Seguimiento de Defectos,\ny Pruebas de Regresión')
-r.bold = True
-r.font.name = 'Times New Roman'
-r.font.size = Pt(13.5)
-r.font.color.rgb = COLOR_TEXT
+r.font.name = FONT_NAME
+r.font.size = Pt(13)
+r.font.color.rgb = COLOR_BLACK
 
 doc.add_paragraph()
 
 datos_materia = [
     ('Materia', '2026 B2 Laboratorio Abierto, Pruebas'),
     ('Profesor', 'José Francisco Reinaga Camacho'),
-    ('Fecha de entrega', '14 de octubre de 2026'),
+    ('Fecha', '14 de octubre de 2026'),
 ]
 for label, val in datos_materia:
     p = doc.add_paragraph()
@@ -275,21 +189,24 @@ for label, val in datos_materia:
     p.paragraph_format.space_after = Pt(1)
     r1 = p.add_run(f'{label}: ')
     r1.bold = True
-    r1.font.name = 'Times New Roman'
-    r1.font.size = Pt(11.5)
+    r1.font.name = FONT_NAME
+    r1.font.size = Pt(11)
+    r1.font.color.rgb = COLOR_BLACK
     r2 = p.add_run(val)
-    r2.font.name = 'Times New Roman'
-    r2.font.size = Pt(11.5)
+    r2.font.name = FONT_NAME
+    r2.font.size = Pt(11)
+    r2.font.color.rgb = COLOR_BLACK
 
 doc.add_paragraph()
 
 p_al_tit = doc.add_paragraph()
 p_al_tit.alignment = WD_ALIGN_PARAGRAPH.CENTER
 p_al_tit.paragraph_format.space_after = Pt(2)
-r = p_al_tit.add_run('Integrantes del Equipo:')
+r = p_al_tit.add_run('Integrantes:')
 r.bold = True
-r.font.name = 'Times New Roman'
-r.font.size = Pt(12)
+r.font.name = FONT_NAME
+r.font.size = Pt(11.5)
+r.font.color.rgb = COLOR_BLACK
 
 alumnos = [
     '222967908 — Corona Méndez Jonathan Ismael',
@@ -302,462 +219,395 @@ for al in alumnos:
     p.paragraph_format.space_before = Pt(1)
     p.paragraph_format.space_after = Pt(1)
     r = p.add_run(al)
-    r.font.name = 'Times New Roman'
-    r.font.size = Pt(11.5)
+    r.font.name = FONT_NAME
+    r.font.size = Pt(11)
+    r.font.color.rgb = COLOR_BLACK
 
 doc.add_paragraph()
 p_pie = doc.add_paragraph()
 p_pie.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = p_pie.add_run('Puerto Vallarta, Jalisco — Octubre de 2026')
-r.font.name = 'Times New Roman'
-r.font.size = Pt(11)
+r = p_pie.add_run('Puerto Vallarta, Jalisco — 2026')
+r.font.name = FONT_NAME
+r.font.size = Pt(10.5)
+r.font.color.rgb = COLOR_BLACK
 
 doc.add_page_break()
 
 # =====================================================================
-# OBJETIVO Y CONTEXTO ACADÉMICO
+# OBJETIVO
 # =====================================================================
-heading('Objetivo de la Actividad', 1)
+heading('Objetivo', 1)
 body(
-    'Comprender a profundidad la importancia crítica de las pruebas no funcionales, '
-    'los mecanismos formales de registro y seguimiento de defectos, y las estrategias '
-    'de ejecución de pruebas de regresión dentro del proceso de aseguramiento de la '
-    'calidad del software (Software Quality Assurance - SQA). A través de esta '
-    'investigación se analiza cómo estos tres pilares se complementan para garantizar '
-    'sistemas informáticos robustos, seguros, escalables y con alta mantenibilidad en '
-    'entornos de producción reales [1], [2].'
+    'Comprender la importancia que tienen las pruebas no funcionales, la forma correcta '
+    'de registrar y dar seguimiento a los defectos o errores encontrados en el software, y '
+    'cómo se aplican las pruebas de regresión para asegurar que el sistema se mantenga '
+    'estable a lo largo del tiempo.'
 )
 
 # =====================================================================
-# SECCIÓN 1: INVESTIGACIÓN TEÓRICA
+# 1. INVESTIGACIÓN TEÓRICA
 # =====================================================================
 heading('1. Investigación Teórica', 1)
 
-# --- 1.1 PRUEBAS NO FUNCIONALES ---
 heading('1.1. Pruebas No Funcionales', 2)
 
 body(
-    'Concepto y propósito: Las pruebas no funcionales corresponden a aquellas actividades '
-    'de verificación y validación orientadas a evaluar los atributos de calidad, comportamiento '
-    'y restricciones operativas de un sistema de software, en contraposición con las funciones '
-    'o cálculos específicos que este realiza [3]. Mientras que las pruebas funcionales responden '
-    'a la interrogante "¿Qué hace el sistema?", las pruebas no funcionales responden a "¿Cómo lo '
-    'hace?" (es decir, con qué rapidez, bajo qué nivel de seguridad, ante cuánta carga simultánea '
-    'y con qué grado de facilidad de uso) [4].'
+    'Concepto y propósito: Las pruebas no funcionales son aquellas que se encargan de revisar '
+    'cómo se comporta el sistema en lugar de qué operaciones hace. Mientras que las pruebas '
+    'funcionales revisan que un botón guarde los datos o que una suma dé el resultado correcto, '
+    'las no funcionales evalúan aspectos como la velocidad de respuesta, si la página soporta '
+    'a muchos usuarios al mismo tiempo, si la información de las personas está bien protegida '
+    'y si la interfaz es cómoda y fácil de entender.'
 )
 body(
-    'El propósito primordial de las pruebas no funcionales radica en garantizar que la aplicación '
-    'sea viable, confiable y satisfactoria para los usuarios finales dentro de un entorno de '
-    'producción real. Un producto de software puede ejecutar con precisión matemática cada '
-    'regla de negocio, pero si tarda minutos en responder, presenta vulnerabilidades que comprometen '
-    'datos confidenciales o colapsa al recibir múltiples conexiones concurrentes, dicho producto '
-    'resulta completamente inútil y perjudicial para la organización [3], [5].'
+    'Su propósito es asegurar que el programa realmente sea útil en la vida real. De nada sirve '
+    'que un sistema haga los cálculos a la perfección si tarda dos minutos en cargar una pantalla, '
+    'si se traba cuando entran diez personas a la vez o si cualquier persona puede ver las '
+    'contraseñas de los demás. Por eso, estas pruebas buscan que la experiencia de uso sea '
+    'buena, segura y confiable.'
 )
 
-heading('Tipos Principales de Pruebas No Funcionales', 3)
+heading('Tipos de Pruebas No Funcionales', 3)
 body(
-    'De acuerdo con modelos internacionales de calidad como el estándar ISO/IEC 25010 '
-    '(Systems and software Quality Requirements and Evaluation - SQuaRE) [3], las pruebas '
-    'no funcionales se clasifican en diversas categorías esenciales:'
+    'Existen diferentes tipos de pruebas no funcionales según lo que se necesite evaluar:'
 )
 
 bullet_item(
-    'a) Pruebas de Rendimiento (Performance Testing):',
-    'Evalúan el tiempo de respuesta, la latencia, el rendimiento transaccional (throughput) '
-    'y el consumo de recursos (CPU, memoria RAM, I/O en disco, ancho de banda de red) bajo condiciones '
-    'definidas de trabajo. Se subdividen a su vez en: (1) Pruebas de Carga (Load Testing), para medir '
-    'el comportamiento con la concurrencia normal esperada; (2) Pruebas de Estrés (Stress Testing), '
-    'que someten al sistema a demandas extremas más allá de su capacidad nominal para identificar '
-    'su punto de quiebre y su capacidad de recuperación; (3) Pruebas de Resistencia o Fatiga (Endurance/Soak Testing), '
-    'que monitorean la estabilidad durante periodos prolongados para detectar fugas de memoria (memory leaks); '
-    'y (4) Pruebas de Picos (Spike Testing), que analizan la respuesta frente a incrementos repentinos de tráfico.'
+    'Rendimiento (Performance):',
+    'Revisan qué tan rápido responde la aplicación y cuánta memoria o procesador consume. '
+    'Aquí entran las pruebas de carga (para ver cómo funciona con el número normal de usuarios), '
+    'las de estrés (para ver qué pasa si se le exige más de lo normal hasta que falle), '
+    'las de resistencia (para ver si después de muchas horas encendido no se vuelve lento) '
+    'y las de picos (para ver cómo reacciona a subidas repentinas de tráfico).'
 )
 bullet_item(
-    'b) Pruebas de Seguridad (Security Testing):',
-    'Verifican que la aplicación y sus canales de comunicación protejan adecuadamente la confidencialidad, '
-    'integridad, disponibilidad, autenticidad y no repudio de la información. Incluyen análisis de vulnerabilidades '
-    '(basados en estándares como OWASP Top 10), pruebas de penetración (pentesting), auditorías de autenticación '
-    'multifactor, control de acceso basado en roles (RBAC), mitigación de inyecciones SQL/NoSQL, blindaje '
-    'contra Cross-Site Scripting (XSS), falsificación de peticiones en sitios cruzados (CSRF) y cifrado '
-    'de datos tanto en reposo como en tránsito mediante TLS/HTTPS [1].'
+    'Seguridad:',
+    'Verifican que el sistema esté protegido contra accesos no autorizados o ataques comunes. '
+    'Revisan que las contraseñas no se guarden en texto plano, que los roles de usuario se '
+    'respeten (por ejemplo, que un cajero no pueda entrar a las funciones del administrador) '
+    'y que no se puedan inyectar comandos dañinos en los formularios.'
 )
 bullet_item(
-    'c) Pruebas de Usabilidad (Usability Testing):',
-    'Miden el grado de facilidad de aprendizaje (learnability), eficiencia operativa, memorabilidad, '
-    'tolerancia a fallos por parte del usuario y satisfacción subjetiva al interactuar con la interfaz humana. '
-    'Se fundamentan en principios ergonómicos, heurísticas de usabilidad de Nielsen y estándares de '
-    'accesibilidad web (como WCAG 2.1) para asegurar que usuarios con diversas capacidades puedan operar el sistema sin fricción.'
+    'Usabilidad:',
+    'Miden qué tan sencillo e intuitivo resulta usar el programa para una persona común. '
+    'Revisan si los textos son claros, si los botones están en lugares lógicos, si los errores '
+    'explican bien qué pasó y si personas con dificultades visuales pueden navegar bien.'
 )
 bullet_item(
-    'd) Pruebas de Compatibilidad e Interoperabilidad:',
-    'Aseguran que el software opere de manera consistente y uniforme a través de diferentes plataformas, '
-    'sistemas operativos (Windows, Linux, macOS, Android, iOS), navegadores web (Chrome, Firefox, Safari, Edge), '
-    'resoluciones de pantalla y entornos de hardware. Asimismo, validan el intercambio seguro y transparente '
-    'de datos con servicios externos, APIs y bases de datos heterogéneas.'
+    'Compatibilidad:',
+    'Comprueban que el sistema se vea y funcione bien en diferentes navegadores (Chrome, Firefox, '
+    'Edge, Safari), en distintos tamaños de pantalla (computadoras, laptops, celulares) y en '
+    'distintos sistemas operativos (Windows, Linux, macOS).'
 )
 bullet_item(
-    'e) Pruebas de Confiabilidad y Recuperabilidad (Reliability & Disaster Recovery):',
-    'Comprueban la capacidad del sistema para mantener un nivel especificado de servicio y disponibilidad '
-    'ante condiciones anómalas o caídas de infraestructura. Evalúan métricas como el tiempo medio entre fallos (MTBF) '
-    'y el tiempo medio de recuperación (MTTR), así como la efectividad de los respaldos automatizados y los mecanismos '
-    'de conmutación por error (failover).'
+    'Confiabilidad y Recuperabilidad:',
+    'Evalúan si el sistema es estable ante fallas imprevistas (como si se va el internet o se '
+    'apaga el servidor) y qué tan rápido se puede recuperar sin perder información importante.'
 )
 
-heading('Diferencias entre Pruebas Funcionales y No Funcionales', 3)
+heading('Diferencias con las Pruebas Funcionales', 3)
 body(
-    'Aunque ambas modalidades son indispensables para certificar la calidad integral de una solución tecnológica, '
-    'poseen enfoques, objetivos, orígenes de requisitos y métodos de evaluación sustancialmente distintos [4], [5]. '
-    'A continuación, se presenta una tabla comparativa que sintetiza sus contrastes fundamentales:'
+    'La diferencia básica es que las funcionales revisan los requisitos del cliente sobre lo que '
+    'debe hacer el sistema (entradas y salidas), mientras que las no funcionales revisan la '
+    'calidad general de la aplicación en condiciones reales de uso. A continuación se presenta '
+    'una tabla para comparar ambos tipos:'
 )
 
 # TABLA COMPARATIVA
-filas_comparativas = [
-    ('Criterio de Evaluación', 'Pruebas Funcionales', 'Pruebas No Funcionales'),
+filas_tabla = [
+    ('Aspecto', 'Pruebas Funcionales', 'Pruebas No Funcionales'),
     (
-        'Pregunta Fundamental',
-        '¿Qué hace el sistema?\n(Verifica el cumplimiento de requerimientos funcionales y reglas de negocio).',
-        '¿Cómo lo hace el sistema?\n(Evalúa atributos de calidad como velocidad, seguridad y usabilidad).'
+        'Pregunta clave',
+        '¿Qué hace el sistema?\n(Revisa las funciones y reglas del negocio).',
+        '¿Cómo lo hace?\n(Revisa velocidad, seguridad y facilidad de uso).'
     ),
     (
-        'Objetivo Primordial',
-        'Validar entradas y salidas del sistema frente a las especificaciones esperadas.',
-        'Asegurar la estabilidad, experiencia de usuario y resiliencia en condiciones reales.'
+        'Objetivo',
+        'Comprobar que a partir de ciertos datos de entrada se obtenga el resultado esperado.',
+        'Comprobar que el sistema sea estable, rápido y seguro bajo cualquier situación.'
     ),
     (
-        'Base de Especificación',
-        'Casos de uso, historias de usuario, requerimientos funcionales del cliente.',
-        'Atributos de calidad (ISO/IEC 25010), SLAs (Acuerdos de Nivel de Servicio) y normativas de seguridad.'
+        'En qué se basan',
+        'Historias de usuario, casos de uso y requerimientos del cliente.',
+        'Tiempos de respuesta esperados, estándares de seguridad y experiencia de usuario.'
     ),
     (
-        'Técnicas Comunes',
-        'Partición de equivalencia, análisis de valores límite, tablas de decisión, pruebas unitarias.',
-        'Pruebas de carga con usuarios virtuales, escaneo de vulnerabilidades, pruebas de estrés térmico/memoria.'
+        'Ejemplos',
+        'Iniciar sesión, guardar un producto, registrar una venta, calcular el IVA.',
+        'Medir cuánto tarda en cargar la página con 500 usuarios, probar si resiste ataques XSS.'
     ),
     (
-        'Métricas Típicas',
-        'Tasa de casos aprobados/reprobados, porcentaje de cobertura de código, defectos funcionales.',
-        'Tiempo de respuesta (ms), transacciones por segundo (TPS), tasa de errores HTTP, uso de CPU y RAM.'
-    ),
-    (
-        'Ejecución Manual',
-        'Frecuente y viable tanto de forma manual como automatizada mediante scripts.',
-        'Compleja de simular manualmente; requiere herramientas especializadas (ej. JMeter, k6, ZAP).'
-    ),
-    (
-        'Momento Típico de Inicio',
-        'Desde las etapas tempranas de codificación (pruebas unitarias y de módulo).',
-        'Frecuentemente tras contar con módulos integrados, aunque la seguridad y rendimiento se perfilan desde la arquitectura.'
+        'Forma de ejecución',
+        'Se pueden hacer muy fácil de forma manual o con pruebas unitarias automáticas.',
+        'Casi siempre necesitan herramientas de simulación (como JMeter para crear usuarios virtuales).'
     ),
 ]
 
-tbl_comp = doc.add_table(rows=len(filas_comparativas), cols=3)
-tbl_comp.style = 'Table Grid'
-tbl_comp.alignment = WD_TABLE_ALIGNMENT.CENTER
-for i, fila in enumerate(filas_comparativas):
-    row = tbl_comp.rows[i]
+tbl = doc.add_table(rows=len(filas_tabla), cols=3)
+tbl.style = 'Table Grid'
+tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+for i, fila in enumerate(filas_tabla):
+    row = tbl.rows[i]
     es_encabezado = (i == 0)
     for j, val in enumerate(fila):
         cell = row.cells[j]
-        set_cell_margins(cell, top=70, bottom=70, left=90, right=90)
+        set_cell_margins(cell, top=60, bottom=60, left=80, right=80)
         if es_encabezado:
-            set_cell_background(cell, HEX_PRIMARY_BG)
-            cell_text(cell, val, bold=True, size=10, center=True, color=RGBColor(255, 255, 255))
+            set_cell_background(cell, "EAEAEA")
+            cell_text(cell, val, bold=True, size=9.5, center=True)
         else:
-            if i % 2 == 1:
-                set_cell_background(cell, HEX_LIGHT_BG)
-            cell_text(cell, val, bold=(j == 0), size=9.5, center=(j == 0))
+            cell_text(cell, val, bold=(j == 0), size=9)
 
 doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
 # --- 1.2 REGISTRO Y SEGUIMIENTO DE DEFECTOS ---
-heading('1.2. Registro y Seguimiento de Defectos (Defect Tracking)', 2)
+heading('1.2. Registro y Seguimiento de Defectos', 2)
 
 body(
-    '¿Qué es un defecto en software? De acuerdo con la terminología estandarizada del glosario '
-    'IEEE Std 829 y el estándar ISO/IEC 24765 [1], [6], es crucial distinguir tres conceptos '
-    'íntimamente relacionados pero conceptualmente distintos:'
+    '¿Qué es un defecto en software? En palabras sencillas, un defecto (comúnmente llamado bug) '
+    'es una imperfección o falla en el código, en la base de datos o en el diseño del software que '
+    'hace que el programa no funcione como debería. En la ingeniería de software se suelen '
+    'distinguir tres términos:'
 )
 
 bullet_item(
-    'Error (Error / Mistake):',
-    'Es una acción humana equivocada cometida por un analista, diseñador o programador (por ejemplo, '
-    'una mala interpretación de una regla de cálculo fiscal o un error tipográfico en la lógica condicional).'
+    'Error humano:',
+    'Es la equivocación que comete la persona (el programador o el diseñador), por ejemplo '
+    'escribir mal una fórmula matemática o no validar que un campo no venga vacío.'
 )
 bullet_item(
-    'Defecto o Bug (Fault / Defect):',
-    'Es la manifestación estática del error en el artefacto de software (código fuente, scripts de '
-    'base de datos o documentación de diseño). Constituye una imperfección interna que tiene el potencial '
-    'de provocar una falla cuando se ejecuta la ruta afectada.'
+    'Defecto o Bug:',
+    'Es el problema que queda guardado en el código fuente a causa del error humano.'
 )
 bullet_item(
-    'Fallo o Falla (Failure):',
-    'Es la discrepancia dinámica visible entre el comportamiento observado del sistema durante su ejecución '
-    'y el comportamiento especificado en los requerimientos. Ocurre cuando el flujo de control del programa '
-    'alcanza y activa el defecto en tiempo de ejecución.'
+    'Falla:',
+    'Es cuando el usuario o el tester ejecuta el programa, pasa por esa parte del código '
+    'y el sistema hace algo incorrecto o se detiene.'
 )
 
 body(
-    'Etapas del ciclo de vida de un defecto (Bug Life Cycle): El ciclo de vida de un defecto describe '
-    'la secuencia formal de estados y transiciones por los que transita una anomalía desde que es detectada '
-    'por primera vez hasta que se verifica su solución y se archiva de manera concluyente [5], [6]. '
-    'Los estados típicos en los flujos de ingeniería de software son:'
+    'Etapas del ciclo de vida de un defecto: Cuando se encuentra un bug, este pasa por varias etapas '
+    'desde que se descubre hasta que se soluciona definitivamente:'
 )
 
-estados_defecto = [
-    ('1. Nuevo (New):', 'El tester o usuario descubre una discrepancia, reúne las evidencias (capturas, logs, pasos de reproducción) y la registra en la herramienta.'),
-    ('2. Asignado (Assigned):', 'El líder de QA o el gestor de proyecto revisa el reporte, valida su legitimidad, asigna severidad/prioridad y lo turna al desarrollador correspondiente.'),
-    ('3. Abierto / En Progreso (Open / In Progress):', 'El desarrollador asignado investiga el defecto, reproduce el comportamiento en su entorno local y analiza la causa raíz del problema.'),
-    ('4. Resuelto / Corregido (Fixed / Resolved):', 'El programador implementa la corrección en el código, añade o actualiza pruebas unitarias para prevenir regresiones y despliega el cambio al entorno de pruebas.'),
-    ('5. En Espera de Retest (Pending Retest):', 'La corrección se encuentra lista y disponible en el ambiente de aseguramiento de calidad para que el equipo de pruebas verifique el parche.'),
-    ('6. Re-evaluación (Retest / Testing):', 'El tester ejecuta nuevamente los pasos de reproducción sobre la versión corregida para comprobar si la anomalía desapareció.'),
-    ('7. Cerrado (Closed):', 'Al comprobar que la falla ha sido completamente subsanada y no introduce efectos adversos, el estado del defecto pasa a cerrado y documentado.'),
-    ('8. Reabierto (Reopened):', 'Si durante la re-evaluación el defecto persiste o la solución fue parcial, el ticket regresa al estado de abierto con nuevas anotaciones técnicas.'),
-    ('Estados Alternos:', 'Rechazado (Rejected / Not a Bug, cuando el sistema funciona según lo diseñado), Duplicado (Duplicate, si ya existía un reporte previo) o Diferido (Deferred, cuando se pospone su resolución a un sprint futuro por baja prioridad).'),
+pasos_bug = [
+    ('1. Nuevo (New):', 'El tester o usuario nota el fallo, toma capturas de pantalla, anota los pasos exactos para provocarlo y crea el reporte.'),
+    ('2. Asignado (Assigned):', 'El encargado del proyecto revisa el reporte y se lo pasa al programador que conoce esa parte del sistema.'),
+    ('3. Abierto / En progreso (Open / In Progress):', 'El programador revisa el problema en su computadora, busca en qué línea de código está la causa y empieza a corregirlo.'),
+    ('4. Corregido (Fixed):', 'El desarrollador termina de hacer el cambio en el código y sube la nueva versión al entorno de pruebas.'),
+    ('5. En revisión (Pending Retest):', 'Se le avisa al equipo de pruebas que el cambio está listo para ser probado.'),
+    ('6. Re-prueba (Retest):', 'El tester vuelve a hacer exactamente los mismos pasos de antes para comprobar si el error ya desapareció.'),
+    ('7. Cerrado (Closed):', 'Si la prueba sale bien y ya no ocurre el fallo, el reporte se marca como resuelto y cerrado.'),
+    ('8. Reabierto (Reopened):', 'Si el problema sigue ocurriendo o si la corrección provocó otro error, se regresa el reporte al programador para que lo revise de nuevo.'),
 ]
-for est, desc in estados_defecto:
-    bullet_item(est, desc)
+for p_num, p_desc in pasos_bug:
+    bullet_item(p_num, p_desc)
 
 body(
-    'Herramientas comunes para gestionar defectos: La gestión moderna de incidencias requiere plataformas '
-    'que centralicen la trazabilidad, asignación de responsabilidades, categorización por severidad y comunicación '
-    'interdisciplinaria entre desarrollo, operaciones y control de calidad [5]. Entre las más representativas destacan:'
+    'Herramientas comunes para gestionar defectos: Para no perder el control de los errores y saber '
+    'quién está arreglando qué cosa, los equipos usan programas especiales:'
 )
 
 bullet_item(
-    'Jira (Atlassian):',
-    'El estándar de facto en entornos corporativos ágiles (Scrum y Kanban). Permite la configuración detallada '
-    'de flujos de trabajo personalizados, campos obligatorios para reproducción, niveles de severidad/prioridad, '
-    'estimación de esfuerzos e integración directa con repositorios Git (GitHub, GitLab, Bitbucket) y pipelines de CI/CD.'
+    'Jira:',
+    'Es la más utilizada en empresas de software. Permite organizar las tareas en tableros, '
+    'asignar responsables, marcar la urgencia de cada bug y conectarse con GitHub o GitLab.'
 )
 bullet_item(
-    'Bugzilla (Mozilla):',
-    'Una de las herramientas de código abierto más veteranas, robustas y confiables para el seguimiento riguroso '
-    'de errores. Destaca por su potente motor de búsqueda avanzada, auditoría completa de cambios mediante '
-    'correo electrónico y soporte estricto para jerarquías de dependencias entre bugs.'
+    'Bugzilla:',
+    'Es una herramienta gratuita y de código abierto bastante conocida. Es muy directa y se enfoca '
+    'en registrar detalladamente cada error con su historial de comentarios.'
 )
 bullet_item(
     'TestLink:',
-    'Sistema web de gestión de pruebas (Test Management System) enfocado primordialmente en la administración '
-    'de planes de prueba, suites y casos de prueba. Aunque su núcleo es el diseño de pruebas, se integra '
-    'de forma bidireccional con rastreadores de incidencias como Jira, Bugzilla y Redmine para trazar casos de prueba con defectos.'
+    'Se enfoca principalmente en diseñar y organizar casos de prueba, pero se puede conectar con '
+    'sistemas como Jira o Bugzilla para ligar las pruebas con los bugs encontrados.'
 )
 bullet_item(
     'GitHub Issues / GitLab Issues:',
-    'Soluciones nativas de gestión integradas en los propios repositorios de código. Facilitan vincular un defecto '
-    'directamente con ramas de trabajo, Pull Requests y commits específicos (ej. "fixes #142"), posibilitando '
-    'el cierre automático del ticket una vez que el código corregido es integrado a la rama principal.'
+    'Vienen integrados directamente en la plataforma donde se guarda el código. Son muy cómodos '
+    'porque se puede cerrar un reporte automáticamente escribiendo "fixes #12" en el commit.'
 )
 
 # --- 1.3 PRUEBAS DE REGRESIÓN ---
-heading('1.3. Pruebas de Regresión (Regression Testing)', 2)
+heading('1.3. Pruebas de Regresión', 2)
 
 body(
-    'Objetivo y cuándo se aplican: El propósito primordial de las pruebas de regresión consiste en '
-    'verificar que las modificaciones recientes introducidas en el software —tales como la adición de nuevas '
-    'características, la optimización de código, parches de seguridad, refactorizaciones o la corrección de un bug— '
-    'no hayan provocado efectos colaterales indeseados ni hayan corrompido funcionalidades existentes que previamente '
-    'operaban de manera correcta [1], [4].'
+    'Objetivo y cuándo se aplican: El objetivo principal de las pruebas de regresión es asegurarse '
+    'de que, al agregar una nueva función o arreglar un error, no se haya descompuesto algo que antes '
+    'ya funcionaba bien. En el desarrollo de software es muy común que al tocar un archivo para '
+    'mejorar una pantalla, sin querer se altere otra parte del sistema que compartía esa misma función.'
 )
 body(
-    'Las pruebas de regresión se deben aplicar de manera disciplinada en situaciones clave del ciclo de vida del software:'
+    'Se aplican principalmente en las siguientes situaciones:'
 )
-bullet_item('a) Tras la corrección de un defecto:', 'Para asegurar que la modificación aplicada no quebrantó otra rutina vinculada directa o indirectamente.')
-bullet_item('b) Al incorporar nuevas funcionalidades:', 'Para garantizar que los nuevos módulos o endpoints no alteren los flujos comerciales o de autenticación ya consolidados.')
-bullet_item('c) Tras refactorizaciones arquitectónicas:', 'Al reestructurar clases, funciones o modelos de datos para mejorar su limpieza y eficiencia interna.')
-bullet_item('d) Al actualizar dependencias o infraestructura:', 'Cuando se migra a una versión superior de lenguaje (ej. Python 3.12 a 3.13), motor de base de datos o librerías del framework.')
-bullet_item('e) En cada integración y entrega continua (CI/CD):', 'Ejecutadas automáticamente ante cada solicitud de fusión (Pull Request) para autorizar despliegues a producción.')
+bullet_item('a) Después de corregir un error:', 'Para validar que la solución no haya roto otra cosa.')
+bullet_item('b) Al agregar funciones nuevas:', 'Para confirmar que lo nuevo conviva bien con lo viejo.')
+bullet_item('c) Al actualizar librerías o versiones:', 'Por ejemplo al cambiar de versión de Python o de base de datos.')
+bullet_item('d) Antes de publicar una nueva versión:', 'Como revisión final para tener seguridad de que todo el sistema sigue estable.')
 
-heading('Estrategias y Herramientas Utilizadas en Pruebas de Regresión', 3)
+heading('Estrategias y Herramientas Utilizadas', 3)
 body(
-    'A medida que una base de código evoluciona, el volumen total de casos de prueba puede tornarse masivo, '
-    'haciendo inviable la ejecución manual periódica. Por ello, la ingeniería de software emplea tres '
-    'estrategias formales de regresión [4], [5]:'
+    'Cuando el proyecto se vuelve grande, repetir todas las pruebas a mano toma demasiado tiempo. '
+    'Por eso se aplican estas estrategias:'
 )
 bullet_item(
-    '1. Regresión Total (Retest-All):',
-    'Consiste en reejecutar la totalidad del catálogo de pruebas existente. Es la estrategia más exhaustiva y segura, '
-    'pero demanda un alto consumo de cómputo y tiempo. Resulta factible principalmente cuando se cuenta con una '
-    'suite de pruebas unitarias ligeras altamente automatizadas.'
+    'Regresión total:',
+    'Consiste en volver a correr todas las pruebas del sistema. Es la opción más segura, pero '
+    'requiere que las pruebas estén automatizadas para que la computadora las ejecute rápido.'
 )
 bullet_item(
-    '2. Selección de Pruebas de Regresión (Regression Test Selection - RTS):',
-    'Analiza las diferencias en el código fuente (commits/diffs) y determina qué módulos fueron potencialmente '
-    'impactados. Se seleccionan únicamente los casos de prueba cuyas rutas de ejecución tocan los componentes modificados.'
+    'Selección de casos:',
+    'En lugar de correr todo, se eligen únicamente las pruebas de las partes que pudieron haber '
+    'sido afectadas por los cambios recientes.'
 )
 bullet_item(
-    '3. Priorización de Casos de Prueba (Test Case Prioritization - TCP):',
-    'Clasifica los casos de prueba asignándoles un orden de ejecución basado en criterios estratégicos: criticidad '
-    'de negocio, probabilidad histórica de falla, cobertura de código alcanzada y tiempo de ejecución. Permite '
-    'descubrir defectos en los primeros minutos de ejecución del pipeline.'
+    'Priorización de casos:',
+    'Se ordenan las pruebas para que primero se corran las más críticas del negocio (como cobrar '
+    'o iniciar sesión) y después las secundarias.'
 )
 body(
-    'Herramientas representativas: Frameworks de automatización como Pytest, JUnit, NUnit o TestNG (en capas unitarias '
-    'y de integración); herramientas de navegación como Selenium WebDriver, Playwright y Cypress (para regresión de interfaces '
-    'de usuario); y motores de integración continua como GitHub Actions, GitLab CI y Jenkins, encargados de '
-    'orquestar y bloquear fusiones si algún test de regresión fracasa.'
+    'Herramientas comunes: Se usan librerías de pruebas automatizadas como Pytest en Python o JUnit '
+    'en Java, herramientas de navegador como Selenium o Playwright, y sistemas de integración continua '
+    'como GitHub Actions para que las pruebas corran solas cada vez que alguien sube código.'
 )
 
-heading('Beneficios y Desafíos de las Pruebas de Regresión', 3)
+heading('Beneficios y Desafíos', 3)
 bullet_item(
-    'Beneficios Principales:',
-    'Brindan alta confianza y estabilidad para realizar entregas continuas; reducen drásticamente los costos de reparación '
-    'al detectar regresiones en etapas tempranas; preservan la integridad histórica del sistema; y posibilitan el refactor '
-    'audaz del código con una red de seguridad infalible.'
+    'Beneficios:',
+    'Dan mucha tranquilidad al equipo porque detectan fallos de inmediato antes de que lleguen a los '
+    'usuarios finales, ahorran tiempo y dinero al evitar errores en producción, y permiten mejorar el código '
+    'con confianza.'
 )
 bullet_item(
-    'Desafíos Críticos:',
-    'Crecimiento exponencial del tiempo de ejecución conforme el sistema se expande; presencia de pruebas intermitentes '
-    'o inestables ("Flaky Tests") que fallan por factores ajenos al código (red, latencia de base de datos); y el costo '
-    'de mantenimiento continuo requerido para sincronizar los scripts de prueba cuando los flujos de negocio son actualizados.'
+    'Desafíos:',
+    'Lleva tiempo escribir y mantener las pruebas actualizadas cuando las pantallas cambian, y '
+    'a veces pueden existir pruebas inestables que fallen por problemas momentáneos de red o conexión.'
 )
 
 doc.add_page_break()
 
 # =====================================================================
-# SECCIÓN 2: EJEMPLO PRÁCTICO
+# 2. EJEMPLOS PRÁCTICOS
 # =====================================================================
-heading('2. Ejemplos Prácticos Aplicados', 1)
+heading('2. Ejemplos Prácticos', 1)
 body(
-    'Para consolidar los conceptos abordados en la investigación teórica, a continuación se describen '
-    'tres escenarios técnicos detallados que ilustran la aplicación concreta de cada tipo de prueba en '
-    'proyectos reales y representativos del sector industrial y de desarrollo [2], [4].'
+    'A continuación se presentan tres casos sencillos y claros donde se aplica cada uno de los temas revisados:'
 )
 
 # EJEMPLO 1
-callout_box(
-    'CASO PRÁCTICO 1: Sistema Bancario Sometido a Pruebas de Rendimiento y Estrés',
-    [
-        ('Contexto del Sistema:', 'Una institución bancaria opera una plataforma digital de transferencias interbancarias (tipo SPEI) y banca móvil que atiende a cientos de miles de cuentahabientes.'),
-        ('Planteamiento de la Prueba:', 'Ante la proximidad del evento comercial del "Buen Fin" y el pago de quincenas, el equipo de aseguramiento de calidad (QA) diseña una prueba de rendimiento y estrés empleando la herramienta Apache JMeter.'),
-        ('Criterios de Prueba:', 'Simular un escenario de carga máxima escalonada con 15,000 usuarios virtuales concurrentes ejecutando consultas de saldo, generación de transferencias y pagos de servicios durante un periodo continuo de 2 horas.'),
-        ('Hallazgo Crítico:', 'A los 8,500 usuarios concurrentes, el tiempo de respuesta promedio de las transferencias se degradó de 250 milisegundos a 18.2 segundos. Al alcanzar los 11,000 usuarios, el servidor comenzó a arrojar errores HTTP 504 (Gateway Timeout) y se observó un bloqueo mutuo (deadlock) en la tabla transaccional de cuentas bancarias por contención en el pool de conexiones de la base de datos relacional.'),
-        ('Acción de Mitigación:', 'Se rediseñó la arquitectura de persistencia mediante réplicas de lectura para las consultas de saldo, se implementó una cola asíncrona de mensajes con RabbitMQ para orquestar las transferencias en lotes controlados y se optimizó el pool de conexiones de 50 a 300 conexiones reutilizables. La nueva prueba de estrés certificó la estabilidad del sistema soportando 20,000 conexiones concurrentes con tiempos de respuesta inferiores a 1.2 segundos.')
-    ]
+heading('Ejemplo 1: Sistema bancario sometido a pruebas de rendimiento', 2)
+body(
+    'Imaginemos una aplicación de banca móvil de un banco que se prepara para el día de quincena. '
+    'El equipo de sistemas necesita saber si los servidores van a aguantar a miles de personas '
+    'consultando su saldo y haciendo transferencias al mismo tiempo entre las 12:00 y las 2:00 de la tarde.'
 )
-
-doc.add_page_break()
+body(
+    'Para probarlo sin arriesgar a los clientes reales, usan una herramienta llamada Apache JMeter '
+    'que simula a 10,000 usuarios virtuales conectados al mismo tiempo. Al hacer la prueba, descubren '
+    'que cuando se llega a 7,000 usuarios, la consulta de saldo pasa de tardar medio segundo a tardar '
+    '15 segundos, y la base de datos se satura porque se le acaban las conexiones disponibles. '
+    'Gracias a esta prueba de rendimiento, el equipo optimiza las consultas y aumenta la capacidad '
+    'de los servidores antes de la quincena, evitando que la aplicación bancaria se caiga en un día real.'
+)
 
 # EJEMPLO 2
-callout_box(
-    'CASO PRÁCTICO 2: Detección, Registro y Ciclo de Vida de un Defecto Crítico en Jira',
-    [
-        ('Contexto del Sistema:', 'Sistema de Punto de Venta (POS) comercial para restaurantes y cafeterías.'),
-        ('Ficha Técnica de la Incidencia (Issue Key POS-184):', 'Discrepancia en el cálculo del corte de caja diario al anular ventas con tarjeta bancaria. Módulo: Finanzas (/cortes/cierre). Severidad: Alta | Prioridad: P1 - Urgente.'),
-        ('Pasos para Reproducir:', '1. Iniciar sesión como cajero en el POS. 2. Registrar venta de $450.00 MXN cobrada mediante Terminal Tarjeta. 3. Acceder al módulo de ventas y proceder a la anulación justificada. 4. Ir a Generar Corte de Caja y presionar "Calcular Totales Esperados".'),
-        ('Comportamiento Esperado vs Observado:', 'Esperado: El total acumulado de ventas con tarjeta debe descontar la venta anulada, reflejando $0.00. Observado: El saldo acumulado sigue sumando los $450.00 de la venta cancelada, arrojando una diferencia artificial de caja y descuadrando el arqueo final.'),
-        ('Evidencia Anexa:', 'Captura de pantalla del formulario de corte de caja y volcado del log con la consulta SQL subyacente.'),
-        ('Resolución y Trazabilidad:', '1. El tester registra el ticket en estado "Nuevo". El líder asigna el ticket a un desarrollador backend ("Asignado"). 2. El desarrollador reproduce la falla y descubre que la consulta SUM(total) en modelsCorteCaja.py omitía el filtro WHERE estado != "CANCELADA" ("En Progreso"). 3. El programador corrige la consulta SQL, escribe una prueba unitaria específica en tests/test_modelos_corte_caja.py para validar el filtro de anulación y envía el Pull Request ("Resuelto"). 4. El tester despliega la versión a staging, repite los 4 pasos, confirma que el arqueo calcula $0.00 exactos y que las 290 pruebas unitarias pasan limpiamente ("Verificado"). 5. El ticket se actualiza formalmente a estado "Cerrado" con referencia al commit en la rama principal.')
-    ]
+heading('Ejemplo 2: Un bug detectado y registrado en una herramienta de seguimiento (Jira)', 2)
+body(
+    'En un sistema de punto de venta para una cafetería, el tester está probando el cierre de caja. '
+    'Realiza una venta con tarjeta de $200 pesos, pero después el cliente pide cancelarla porque '
+    'quiere pagar en efectivo. El cajero cancela la orden en la pantalla y genera el corte de caja. '
+    'Sin embargo, en el resumen de caja el sistema sigue sumando los $200 pesos de la tarjeta como '
+    'si estuvieran cobrados, provocando una diferencia de dinero.'
+)
+body(
+    'El tester entra a Jira y crea un ticket con la siguiente información:'
+)
+bullet_item('Título:', 'El corte de caja sigue sumando ventas canceladas con tarjeta.')
+bullet_item('Prioridad:', 'Alta (porque afecta el dinero y la contabilidad del negocio).')
+bullet_item('Pasos para reproducir:', '1. Cobrar $200 con tarjeta. 2. Cancelar la venta desde el historial. 3. Ir a corte de caja y ver totales.')
+bullet_item('Resultado esperado:', 'El total en tarjeta debe ser $0.00 pesos.')
+bullet_item('Resultado obtenido:', 'Aparecen $200.00 pesos cobrados en el reporte.')
+body(
+    'El ticket se asigna al programador, quien encuentra que a la consulta de la base de datos le '
+    'faltaba filtrar las ventas canceladas. El programador hace el arreglo, sube la corrección, '
+    'el tester repite la prueba, confirma que ya sale $0.00 y cierra el ticket en Jira como resuelto.'
 )
 
-doc.add_page_break()
-
 # EJEMPLO 3
-callout_box(
-    'CASO PRÁCTICO 3: Pipeline CI/CD con Pruebas de Regresión Automatizadas ante Nueva Versión',
-    [
-        ('Contexto del Sistema:', 'Despliegue de la versión v2.4.0 de una plataforma de comercio web y punto de venta.'),
-        ('Escenario de Cambio:', 'El equipo de desarrollo incorpora una nueva funcionalidad para otorgar promociones de "Hora Feliz" (Happy Hour) con descuento automático porcentual sobre productos de cafetería.'),
-        ('Riesgo de Regresión:', 'La lógica de precios es transversal; una alteración incorrecta en la función compartida de cálculo de subtotal e impuestos podría quebrar la facturación regular de pedidos a domicilio o la generación de tickets de venta.'),
-        ('Ejecución del Pipeline en GitHub Actions:', 'Al enviar el Pull Request a la rama main, se dispara automáticamente el workflow de Calidad con la suite completa de 290 pruebas unitarias y de integración en el runner de GitHub.'),
-        ('Alarma de Regresión Detectada:', 'El test test_calculo_total_con_iva_y_descuento_general falló inesperadamente con código de error 1. La nueva función de "Hora Feliz" sobrescribía el valor del IVA general multiplicándolo por 0 en lugar de calcularlo sobre la base neta reducida.'),
-        ('Bloqueo Preventivo y Resolución:', 'El pipeline bloqueó automáticamente el merge a producción, impidiendo emitir ventas con IVA incorrecto y evitando sanciones fiscales. El desarrollador ajustó la jerarquía de aplicación de impuestos en el modelo matemático, hizo push del parche, el pipeline corrió nuevamente y las 290 pruebas aprobaron con 100% de cobertura, permitiendo un despliegue seguro.')
-    ]
+heading('Ejemplo 3: Una nueva versión de software donde se ejecutan pruebas de regresión', 2)
+body(
+    'El equipo del sistema de ventas decide lanzar la versión 2.0 para agregar una nueva función: '
+    'permitir cupones de descuento del 10% por cumpleaños. El desarrollador programa la nueva lógica '
+    'modificando la función general que calcula el total a pagar.'
+)
+body(
+    'Antes de mandar esa versión a las tiendas, el sistema corre automáticamente en GitHub Actions '
+    'una suite de pruebas de regresión que revisa todas las funciones viejas. Al correrlas, salta una '
+    'alerta roja: la prueba de ventas normales sin cupón falló porque la nueva función le sumaba '
+    'cero al total pero le quitaba el cálculo del IVA a las ventas regulares.'
+)
+body(
+    'Gracias a las pruebas de regresión, el equipo detectó el fallo en menos de un minuto y evitó '
+    'publicar una versión que hubiera cobrado mal los impuestos en todas las sucursales. El programador '
+    'ajustó el código, las pruebas volvieron a pasar todas en verde y se pudo liberar la actualización '
+    'con total tranquilidad.'
 )
 
 # =====================================================================
-# SECCIÓN 3: ANÁLISIS REFLEXIVO
+# 3. ANÁLISIS REFLEXIVO
 # =====================================================================
 heading('3. Análisis Reflexivo', 1)
 
 body(
     '¿Por qué las pruebas no funcionales son tan relevantes como las funcionales?',
-    bold_prefix='Relevancia equivalente entre atributos funcionales y no funcionales: '
+    bold_prefix='Importancia de las pruebas no funcionales frente a las funcionales: '
 )
 body(
-    'En el paradigma contemporáneo de la ingeniería de software, la división entre lo funcional y lo '
-    'no funcional no debe interpretarse como una jerarquía de prioridades, sino como dos caras inseparables '
-    'de la misma moneda. Un software que calcula una transacción con precisión funcional absoluta carece '
-    'por completo de utilidad práctica si presenta un tiempo de respuesta de sesenta segundos, si sufre caídas '
-    'ante el acceso concurrente de apenas veinte cajeros, o si posee brechas de seguridad que exponen las credenciales '
-    'y los datos patrimoniales de los usuarios a actores maliciosos [1], [3]. La experiencia del usuario, la continuidad '
-    'operativa del negocio, el cumplimiento de regulaciones de privacidad y la reputación de la organización '
-    'descansan primordialmente en atributos no funcionales como el rendimiento, la resiliencia y la seguridad [4]. '
-    'Por consiguiente, concebir un producto de software como "terminado" basándose exclusivamente en que sus '
-    'botones y cálculos funcionan representa un grave error técnico que suele culminar en costosos fracasos comerciales.'
+    'Ambos tipos de pruebas son igual de importantes porque se complementan. Un programa puede '
+    'tener todas sus funciones bien hechas (hacer sumas exactas, guardar en la base de datos o emitir '
+    'recibos), pero si tarda demasiado tiempo en responder, si se cae apenas entran varios usuarios '
+    'o si no cuida la privacidad de las contraseñas, en la práctica el software no sirve. De nada le '
+    'sirve a un negocio tener un sistema que calcula bien si los clientes se van molestos por la '
+    'lentitud o si sufren un robo de datos. Por eso la velocidad, la seguridad y la facilidad de uso '
+    'son tan indispensables como el funcionamiento de los botones.'
 )
 
 body(
     '¿Qué papel juega el seguimiento de defectos en la mejora continua del software?',
-    bold_prefix='El seguimiento de defectos como catalizador de la mejora continua: '
+    bold_prefix='El seguimiento de defectos en la mejora continua: '
 )
 body(
-    'El registro y seguimiento disciplinado de defectos trasciende por completo la simple noción de ser un "listado '
-    'de pendientes por reparar". En el marco de la mejora continua (filosofías Kaizen, Agile y DevOps), el repositorio '
-    'de incidencias constituye la principal fuente de inteligencia empírica del equipo de desarrollo [5], [6]. Analizar '
-    'el historial de fallas permite identificar patrones sistemáticos de debilidad en la arquitectura, detectar módulos '
-    'con alta densidad de defectos, evaluar la eficacia de los filtros de control de calidad y cuantificar métricas '
-    'clave como el tiempo promedio de resolución y la tasa de reaparición de fallas. Más aún, cada defecto debidamente '
-    'documentado impulsa el análisis de causa raíz (Root Cause Analysis - RCA), transformando el error humano en '
-    'aprendizaje organizacional: se actualizan las pautas de codificación, se diseñan nuevas pruebas de regresión '
-    'automatizadas para que el defecto nunca vuelva a manifestarse y se perfeccionan los procesos de diseño y estimación. '
-    'De este modo, el seguimiento de defectos convierte los tropiezos del pasado en la garantía de robustez del futuro.'
+    'Llevar un registro ordenado de los defectos no solo sirve para saber qué cosas faltan por '
+    'arreglar en la semana, sino que ayuda a que el equipo aprenda de sus propios errores. Al ver '
+    'el historial de fallas, el equipo puede darse cuenta de qué módulos del sistema suelen fallar '
+    'más seguido, por qué ocurren esas equivocaciones y qué partes necesitan rediseñarse con más cuidado. '
+    'Además, cada vez que se arregla un bug importante, se puede crear una prueba automática para '
+    'asegurar que ese mismo error nunca vuelva a aparecer. Así, el registro de defectos se convierte '
+    'en una herramienta clave para que el software sea cada vez más maduro, estable y confiable.'
 )
 
 # =====================================================================
-# SECCIÓN 4: REFERENCIAS BIBLIOGRÁFICAS EN FORMATO IEEE
+# 4. REFERENCIAS BIBLIOGRÁFICAS (FORMATO IEEE)
 # =====================================================================
-heading('4. Referencias Bibliográficas (Formato IEEE)', 1)
+heading('4. Referencias (Formato IEEE)', 1)
 
-referencias_ieee = [
-    (
-        '[1]',
-        'IEEE Standard for Software and System Test Documentation, IEEE Std 829-2008 (Revision of IEEE Std 829-1998), '
-        'IEEE Computer Society, Piscataway, NJ, USA, pp. 1–128, Jul. 2008. doi: 10.1109/IEEESTD.2008.4578383.'
-    ),
-    (
-        '[2]',
-        'ISO/IEC/IEEE Systems and software engineering — Software testing — Part 1: Concepts and definitions, '
-        'ISO/IEC/IEEE 29119-1:2022, International Organization for Standardization, Geneva, Switzerland, 2022.'
-    ),
-    (
-        '[3]',
-        'ISO/IEC Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) '
-        '— System and software quality models, ISO/IEC 25010:2011, International Organization for Standardization, '
-        'Geneva, Switzerland, 2011.'
-    ),
-    (
-        '[4]',
-        'I. Sommerville, Software Engineering, 10th ed. Boston, MA, USA: Pearson Education, 2016, pp. 225–256.'
-    ),
-    (
-        '[5]',
-        'R. S. Pressman and B. R. Maxim, Software Engineering: A Practitioner’s Approach, 9th ed. New York, NY, USA: '
-        'McGraw-Hill Education, 2020, pp. 480–522.'
-    ),
-    (
-        '[6]',
-        'G. J. Myers, C. Sandler, and T. Badgett, The Art of Software Testing, 3rd ed. Hoboken, NJ, USA: '
-        'John Wiley & Sons, Inc., 2012, pp. 115–148.'
-    ),
-]
-
-tbl_ref = doc.add_table(rows=len(referencias_ieee), cols=2)
-tbl_ref.style = 'Normal Table'
-tbl_ref.alignment = WD_TABLE_ALIGNMENT.CENTER
-for idx, (num, cita) in enumerate(referencias_ieee):
-    row = tbl_ref.rows[idx]
-    c_num = row.cells[0]
-    c_txt = row.cells[1]
-    
-    c_num.width = Cm(1.2)
-    c_txt.width = Cm(14.8)
-    
-    set_cell_margins(c_num, top=30, bottom=30, left=30, right=50)
-    set_cell_margins(c_txt, top=30, bottom=30, left=50, right=30)
-    
-    cell_text(c_num, num, bold=True, size=10, center=False, color=COLOR_PRIMARY)
-    cell_text(c_txt, cita, bold=False, size=10, center=False)
+body(
+    '[1] IEEE Standard for Software and System Test Documentation, IEEE Std 829-2008, '
+    'IEEE Computer Society, Piscataway, NJ, USA, 2008.'
+)
+body(
+    '[2] ISO/IEC Systems and software engineering — Systems and software Quality Requirements '
+    'and Evaluation (SQuaRE) — System and software quality models, ISO/IEC 25010:2011, '
+    'International Organization for Standardization, Ginebra, Suiza, 2011.'
+)
+body(
+    '[3] I. Sommerville, Software Engineering, 10.ª ed. Boston, MA, USA: Pearson Education, 2016.'
+)
+body(
+    '[4] R. S. Pressman y B. R. Maxim, Software Engineering: A Practitioner’s Approach, 9.ª ed. '
+    'Nueva York, NY, USA: McGraw-Hill Education, 2020.'
+)
 
 # Guardar documento DOCX
 DOCX_PATH.parent.mkdir(parents=True, exist_ok=True)
