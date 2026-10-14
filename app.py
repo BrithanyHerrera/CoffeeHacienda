@@ -1,4 +1,13 @@
 import os
+import sys
+
+# Auto-relanzar dentro de .venv si se ejecuta directamente con el Python global de Windows
+if __name__ == '__main__':
+    _venv_py = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.venv', 'Scripts', 'python.exe')
+    if os.path.exists(_venv_py) and os.path.abspath(sys.executable).lower() != os.path.abspath(_venv_py).lower():
+        import subprocess
+        sys.exit(subprocess.run([_venv_py] + sys.argv).returncode)
+
 from flask import Flask, jsonify, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
@@ -15,9 +24,10 @@ def create_app(env=None):
     # 1. Crear instancia base
     app = Flask(__name__, instance_relative_config=True)
     
-    # 2. Cargar variables de entorno
+    # 2. Cargar variables de entorno (soporta tanto bd.env como .env)
     PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
     load_dotenv(os.path.join(PROJECT_ROOT, 'bd.env'))
+    load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
     
     # 3. Configuración del entorno
     app_env = env or os.getenv('APP_ENV', 'LOCAL').upper()
