@@ -27,7 +27,7 @@ def _recovery_state(**overrides):
         {'usuario_id': 7, 'correo': None, 'expira_en': time.time() + 60},
     ],
 )
-def test_recovery_state_rejects_incomplete_or_invalid_values(app, state):
+def test_estado_recuperacion_rechaza_valores_incompletos_o_invalidos(app, state):
     with app.test_request_context('/'):
         session[autenticacion_bp._ESTADO_RECUPERACION] = state
         assert autenticacion_bp._obtener_estado_recuperacion() is None
@@ -72,7 +72,7 @@ def test_cierre_sesion_limpia_sesion(client, authenticated_session):
         assert 'usuario' not in current_session
 
 
-def test_recovery_get_and_empty_or_unknown_email(client, monkeypatch):
+def test_recuperacion_get_y_correo_vacio_o_desconocido(client, monkeypatch):
     assert client.get('/recuperar-contrasena').status_code == 200
     assert client.post('/recuperar-contrasena', data={'correo': ''}).status_code == 200
 
@@ -185,7 +185,7 @@ def _set_verified_recovery(client, **overrides):
         )
 
 
-def test_update_password_requires_verified_permission(client):
+def test_actualizar_contrasena_requiere_permiso_verificado(client):
     with client.session_transaction() as current_session:
         current_session[autenticacion_bp._ESTADO_RECUPERACION] = _recovery_state()
     response = client.get('/actualizar-contrasena')
@@ -194,7 +194,7 @@ def test_update_password_requires_verified_permission(client):
 
 
 @pytest.mark.parametrize('user', [None, {'Id': 8, 'contrasena': 'hash'}])
-def test_update_password_rejects_changed_user(client, monkeypatch, user):
+def test_actualizar_contrasena_rechaza_usuario_modificado(client, monkeypatch, user):
     _set_verified_recovery(client)
     monkeypatch.setattr(
         autenticacion_bp, 'obtener_usuario_por_correo', lambda email: user
@@ -213,7 +213,7 @@ def _valid_recovery_user():
     }
 
 
-def test_update_password_get_and_validation_errors(client, monkeypatch):
+def test_actualizar_contrasena_valida_errores_en_peticion(client, monkeypatch):
     _set_verified_recovery(client)
     monkeypatch.setattr(
         autenticacion_bp,
@@ -236,7 +236,7 @@ def test_update_password_get_and_validation_errors(client, monkeypatch):
         ('NuevaSegura123', 'Diferente123'),
     ],
 )
-def test_update_password_rejects_reuse_and_mismatch(
+def test_actualizar_contrasena_rechaza_reutilizacion_y_discordancia(
         client, monkeypatch, password, confirmation):
     _set_verified_recovery(client)
     user = _valid_recovery_user()
@@ -251,7 +251,7 @@ def test_update_password_rejects_reuse_and_mismatch(
 
 
 @pytest.mark.parametrize('updated', [True, False])
-def test_update_password_final_result(client, monkeypatch, updated):
+def test_actualizar_contrasena_resultado_final(client, monkeypatch, updated):
     _set_verified_recovery(client)
     monkeypatch.setattr(
         autenticacion_bp,

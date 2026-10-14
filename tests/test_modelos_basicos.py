@@ -4,7 +4,7 @@ from models import modelsHistorial, modelsInventario, modelsLogin, modelsProduct
 from tests.db_fakes import FakeConnection, connection_with_results
 
 
-def test_login_lookup_returns_user_and_closes_connection(monkeypatch):
+def test_busqueda_login_retorna_usuario_y_cierra_conexion(monkeypatch):
     user = {'Id': 1, 'rol': 'Administrador'}
     connection = connection_with_results(user)
     monkeypatch.setattr(modelsLogin, 'Conexion_BD', lambda: connection)
@@ -38,7 +38,7 @@ def test_historial_ventas_aplica_filtros_y_paginacion(monkeypatch):
     assert connection.closed is True
 
 
-def test_history_returns_safe_empty_result_on_database_error(monkeypatch):
+def test_historial_retorna_lista_vacia_segura_ante_error_bd(monkeypatch):
     def handler(sql, params, cursor):
         raise RuntimeError('database error')
 
@@ -84,7 +84,7 @@ def test_productos_menu_agrupan_variantes(monkeypatch):
     assert connection.closed is True
 
 
-def test_menu_products_handles_empty_connection_empty_rows_and_error(monkeypatch):
+def test_productos_menu_maneja_conexion_vacia_filas_vacias_y_error(monkeypatch):
     monkeypatch.setattr(modelsProductosMenu, 'Conexion_BD', lambda: None)
     assert modelsProductosMenu.obtener_productos_menu() == []
 
@@ -102,7 +102,7 @@ def test_menu_products_handles_empty_connection_empty_rows_and_error(monkeypatch
     assert failed.closed is True
 
 
-def test_inventory_read_operations(monkeypatch):
+def test_operaciones_lectura_inventario(monkeypatch):
     item = {'Id': 10, 'stock': 5}
     by_id = connection_with_results(item)
     monkeypatch.setattr(modelsInventario, 'Conexion_BD', lambda: by_id)

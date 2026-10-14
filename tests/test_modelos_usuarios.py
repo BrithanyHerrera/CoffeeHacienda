@@ -28,7 +28,7 @@ def test_actualizar_usuario_rechaza_correo_o_usuario_duplicado(monkeypatch):
 
 
 @pytest.mark.parametrize('password', ['hash-nuevo', None])
-def test_update_user_with_and_without_password(monkeypatch, password):
+def test_actualizar_usuario_con_y_sin_contrasena(monkeypatch, password):
     connection = connection_with_results({'count': 0}, {'count': 0}, None)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: connection)
 
@@ -39,7 +39,7 @@ def test_update_user_with_and_without_password(monkeypatch, password):
     assert ('sesion_version=sesion_version + 1' in update_sql) is bool(password)
 
 
-def test_update_user_handles_database_error(monkeypatch):
+def test_actualizar_usuario_maneja_error_bd(monkeypatch):
     connection = _failing_connection()
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: connection)
     assert modelsUsuarios.actualizar_usuario(
@@ -76,14 +76,14 @@ def test_obtener_usuario_por_id_retorna_datos(
         ('obtener_usuarios_inactivos', (), []),
     ],
 )
-def test_user_read_functions_handle_errors(
+def test_funciones_lectura_usuario_manejan_errores(
         monkeypatch, function_name, args, expected):
     connection = _failing_connection()
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: connection)
     assert getattr(modelsUsuarios, function_name)(*args) == expected
 
 
-def test_save_pending_user_rejects_existing_and_pending_email(monkeypatch):
+def test_guardar_usuario_pendiente_rechaza_correo_existente_y_pendiente(monkeypatch):
     existing = connection_with_results({'Id': 1})
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: existing)
     assert modelsUsuarios.guardar_usuario_pendiente(
@@ -97,7 +97,7 @@ def test_save_pending_user_rejects_existing_and_pending_email(monkeypatch):
     ) == (False, 'Ya existe una solicitud pendiente para este correo', None)
 
 
-def test_save_pending_user_success_and_error(monkeypatch):
+def test_guardar_usuario_pendiente_exito_y_error(monkeypatch):
     monkeypatch.setattr(modelsUsuarios, 'generar_codigo', lambda: '123456')
 
     def handler(sql, params, cursor):
@@ -135,7 +135,7 @@ def _validation(**overrides):
     return result
 
 
-def test_validate_user_code_missing_and_expired(monkeypatch):
+def test_validar_codigo_usuario_faltante_y_expirado(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: missing)
     assert modelsUsuarios.validar_codigo_usuario('correo@example.test', '000000') == (
@@ -164,7 +164,7 @@ def test_validate_user_code_missing_and_expired(monkeypatch):
         ),
     ],
 )
-def test_validate_user_code_creates_user_or_changes_email(
+def test_validar_codigo_usuario_crea_usuario_o_cambia_correo(
         monkeypatch, validation, expected_message, expected_sql):
     connection = connection_with_results(validation, None, None)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: connection)
@@ -176,7 +176,7 @@ def test_validate_user_code_creates_user_or_changes_email(
     assert connection.commits == 1
 
 
-def test_validate_user_code_handles_database_error(monkeypatch):
+def test_validar_codigo_usuario_maneja_error_bd(monkeypatch):
     connection = _failing_connection()
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: connection)
     assert modelsUsuarios.validar_codigo_usuario('correo@example.test', '123456') == (
@@ -185,7 +185,7 @@ def test_validate_user_code_handles_database_error(monkeypatch):
     )
 
 
-def test_resend_validation_code_missing_success_and_error(monkeypatch):
+def test_reenviar_codigo_validacion_faltante_exito_y_error(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: missing)
     assert modelsUsuarios.reenviar_codigo_validacion('correo@example.test') == (
@@ -212,7 +212,7 @@ def test_resend_validation_code_missing_success_and_error(monkeypatch):
     )
 
 
-def test_reactivate_user_success_and_error(monkeypatch):
+def test_reactivar_usuario_exito_y_error(monkeypatch):
     def reactivate_handler(sql, params, cursor):
         cursor.rowcount = 1
         return None
@@ -227,7 +227,7 @@ def test_reactivate_user_success_and_error(monkeypatch):
     assert failed.rollbacks == 1
 
 
-def test_deactivate_user_missing_success_and_error(monkeypatch):
+def test_desactivar_usuario_faltante_exito_y_error(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: missing)
     assert modelsUsuarios.desactivar_usuario(1) == (False, 'Usuario no encontrado')
@@ -253,7 +253,7 @@ def test_deactivate_user_missing_success_and_error(monkeypatch):
     )
 
 
-def test_email_exists_and_pending_validation_lookup(monkeypatch):
+def test_busqueda_existencia_correo_y_validacion_pendiente(monkeypatch):
     exists = connection_with_results({'Id': 1})
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: exists)
     assert modelsUsuarios.correo_existe_en_usuarios('correo@example.test') is True
@@ -268,7 +268,7 @@ def test_email_exists_and_pending_validation_lookup(monkeypatch):
     assert modelsUsuarios.obtener_validacion_pendiente(4) == pending
 
 
-def test_update_pending_email_conflict_success_no_change_and_error(monkeypatch):
+def test_actualizar_correo_pendiente_conflicto_exito_sin_cambio_y_error(monkeypatch):
     conflict = connection_with_results({'id': 2})
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: conflict)
     assert modelsUsuarios.actualizar_correo_validacion(
@@ -298,7 +298,7 @@ def test_update_pending_email_conflict_success_no_change_and_error(monkeypatch):
     ) is False
 
 
-def test_save_pending_email_change_rejects_conflicts_and_missing_user(monkeypatch):
+def test_guardar_cambio_correo_pendiente_rechaza_conflictos_y_usuario_faltante(monkeypatch):
     existing = connection_with_results({'Id': 2})
     monkeypatch.setattr(modelsUsuarios, 'Conexion_BD', lambda: existing)
     assert modelsUsuarios.guardar_cambio_correo_pendiente(
@@ -318,7 +318,7 @@ def test_save_pending_email_change_rejects_conflicts_and_missing_user(monkeypatc
     ) is None
 
 
-def test_save_pending_email_change_success_and_error(monkeypatch):
+def test_guardar_cambio_correo_pendiente_exito_y_error(monkeypatch):
     def handler(sql, params, cursor):
         if sql.startswith('SELECT Id FROM tusuarios'):
             return None

@@ -23,7 +23,7 @@ def _valid_session():
     )
 
 
-def test_request_type_and_invalid_session_responses(app):
+def test_tipo_solicitud_y_respuestas_sesion_invalida(app):
     with app.test_request_context('/api/test'):
         assert utils._es_solicitud_api() is True
         response, status = utils._sesion_invalida()
@@ -40,13 +40,13 @@ def test_request_type_and_invalid_session_responses(app):
         assert response.headers['Location'].endswith('/')
 
 
-def test_allowed_image_extensions():
+def test_extensiones_imagen_permitidas():
     assert utils.archivo_permitido('foto.PNG') is True
     assert utils.archivo_permitido('foto.exe') is False
     assert utils.archivo_permitido('sin-extension') is False
 
 
-def test_login_required_rejects_missing_malformed_and_expired_sessions(app):
+def test_login_required_rechaza_sesiones_faltantes_malformadas_y_expiradas(app):
     protected = utils.login_required(lambda: 'ok')
 
     with app.test_request_context('/page'):
@@ -69,7 +69,7 @@ def test_login_required_rejects_missing_malformed_and_expired_sessions(app):
         assert protected().status_code == 302
 
 
-def test_login_required_recent_and_database_validated_sessions(app, monkeypatch):
+def test_login_required_sesiones_recientes_y_validadas_en_bd(app, monkeypatch):
     protected = utils.login_required(lambda: 'ok')
 
     with app.test_request_context('/page'):
@@ -85,7 +85,7 @@ def test_login_required_recent_and_database_validated_sessions(app, monkeypatch)
         assert connection.closed is True
 
 
-def test_login_required_rejects_database_user_states_and_errors(app, monkeypatch):
+def test_login_required_rechaza_estados_usuario_bd_y_errores(app, monkeypatch):
     protected = utils.login_required(lambda: 'ok')
     for database_user in (
         None,
@@ -112,7 +112,7 @@ def test_login_required_rejects_database_user_states_and_errors(app, monkeypatch
         assert protected().status_code == 302
 
 
-def test_admin_required_api_html_and_allowed(app):
+def test_admin_required_api_html_y_permitido(app):
     protected = utils.admin_required(lambda: 'ok')
     with app.test_request_context('/api/admin'):
         session['rol'] = 'Vendedor'
@@ -129,7 +129,7 @@ def test_admin_required_api_html_and_allowed(app):
         assert protected() == 'ok'
 
 
-def test_password_strength_all_results():
+def test_fortaleza_contrasena_todos_los_resultados():
     assert utils.validar_fortaleza_contrasena('Short1') == (
         False, 'La contraseña debe tener al menos 8 caracteres'
     )
@@ -145,7 +145,7 @@ def test_password_strength_all_results():
     assert utils.validar_fortaleza_contrasena('Valid123') == (True, '')
 
 
-def test_send_email_success_and_error(app, monkeypatch):
+def test_enviar_correo_exito_y_error(app, monkeypatch):
     mail = app.extensions['mail']
     sent = []
     monkeypatch.setattr(mail, 'send', lambda message: sent.append(message))
@@ -162,7 +162,7 @@ def test_send_email_success_and_error(app, monkeypatch):
         assert utils.enviar_correo('to@example.test', 'Subject', 'Body') is False
 
 
-def test_factory_proxy_context_processor_and_production_headers(
+def test_fabrica_proxy_procesador_contexto_y_cabeceras_produccion(
         monkeypatch):
     monkeypatch.setenv('SECRET_KEY', 'secret')
     monkeypatch.setenv('TRUST_PROXY', 'true')
@@ -195,7 +195,7 @@ def test_factory_proxy_context_processor_and_production_headers(
     assert 'max-age=31536000' in response.headers['Strict-Transport-Security']
 
 
-def test_html_csrf_and_request_too_large_handlers(app):
+def test_manejadores_html_csrf_y_solicitud_demasiado_grande(app):
     endpoint = f'too_large_{id(app)}'
     app.add_url_rule(
         '/too-large-html',
@@ -215,7 +215,7 @@ def test_html_csrf_and_request_too_large_handlers(app):
     assert response.get_data(as_text=True) == 'El archivo excede el tamaño permitido.'
 
 
-def test_app_main_entrypoint_runs_cleanup_and_server(monkeypatch):
+def test_punto_entrada_principal_app_ejecuta_limpieza_y_servidor(monkeypatch):
     calls = []
     monkeypatch.setattr(
         modelsLimpieza,

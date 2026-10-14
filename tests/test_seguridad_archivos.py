@@ -19,7 +19,7 @@ def _product_form(image):
     }
 
 
-def test_pdf_over_specific_limit_is_rejected(client, authenticated_session):
+def test_pdf_sobre_limite_especifico_es_rechazado(client, authenticated_session):
     authenticated_session(client)
     payload = base64.b64encode(b'%PDF-' + b'x' * MAX_PDF_BYTES).decode('ascii')
 
@@ -33,7 +33,7 @@ def test_pdf_over_specific_limit_is_rejected(client, authenticated_session):
     assert response.get_json()['success'] is False
 
 
-def test_global_api_request_limit_returns_json(
+def test_limite_solicitud_api_global_retorna_json(
         app, client, authenticated_session):
     authenticated_session(client)
     original_limit = app.config['MAX_CONTENT_LENGTH']
@@ -52,7 +52,7 @@ def test_global_api_request_limit_returns_json(
     assert response.get_json()['success'] is False
 
 
-def test_pdf_filename_is_generated_inside_configured_folder(
+def test_nombre_archivo_pdf_se_genera_dentro_carpeta_configurada(
         app, client, authenticated_session, tmp_path):
     authenticated_session(client)
     app.config['PDF_TICKETS_FOLDER'] = str(tmp_path)
@@ -72,7 +72,7 @@ def test_pdf_filename_is_generated_inside_configured_folder(
     assert [path.name for path in tmp_path.iterdir()] == [stored_name]
 
 
-def test_image_over_specific_limit_is_rejected(client, authenticated_session):
+def test_imagen_sobre_limite_especifico_es_rechazada(client, authenticated_session):
     authenticated_session(client, role='Administrador')
     oversized_png = b'\x89PNG\r\n\x1a\n' + b'x' * productos_bp.MAX_IMAGE_BYTES
 
@@ -86,7 +86,7 @@ def test_image_over_specific_limit_is_rejected(client, authenticated_session):
     assert response.get_json()['success'] is False
 
 
-def test_global_image_request_limit_returns_json(
+def test_limite_solicitud_imagen_global_retorna_json(
         app, client, authenticated_session):
     authenticated_session(client, role='Administrador')
     original_limit = app.config['MAX_CONTENT_LENGTH']
@@ -105,7 +105,7 @@ def test_global_image_request_limit_returns_json(
     assert response.get_json()['success'] is False
 
 
-def test_fake_image_signature_is_rejected(client, authenticated_session):
+def test_firma_falsa_de_imagen_es_rechazada(client, authenticated_session):
     authenticated_session(client, role='Administrador')
 
     response = client.post(
@@ -118,7 +118,7 @@ def test_fake_image_signature_is_rejected(client, authenticated_session):
     assert response.get_json()['success'] is False
 
 
-def test_image_filename_is_generated_inside_configured_folder(
+def test_nombre_archivo_imagen_se_genera_dentro_carpeta_configurada(
         app, client, authenticated_session, monkeypatch, tmp_path):
     authenticated_session(client, role='Administrador')
     app.config['UPLOAD_FOLDER'] = str(tmp_path)

@@ -5,7 +5,7 @@ import pytest
 from werkzeug.security import generate_password_hash
 
 
-def test_factory_reads_secret_key_after_environment_is_loaded(monkeypatch):
+def test_fabrica_lee_clave_secreta_tras_cargar_entorno(monkeypatch):
     from app import create_app
 
     monkeypatch.setenv('SECRET_KEY', 'configured-after-module-import')
@@ -25,7 +25,7 @@ def test_fabrica_rechaza_falta_de_clave_secreta(monkeypatch):
         app_module.create_app('LOCAL')
 
 
-def test_password_reset_final_step_redirects_without_verified_state(client):
+def test_paso_final_recuperacion_redirige_sin_estado_verificado(client):
     response = client.get('/actualizar-contrasena')
 
     assert response.status_code == 302
@@ -108,7 +108,7 @@ def test_login_con_credenciales_validas_redirige_a_bienvenida(client, monkeypatc
     assert response.headers['Location'].endswith('/bienvenida')
 
 
-def test_employee_is_redirected_to_welcome_from_admin_page(
+def test_empleado_vendedor_es_redirigido_desde_panel_admin(
         client, authenticated_session):
     authenticated_session(client, role='Vendedor')
 
@@ -118,7 +118,7 @@ def test_employee_is_redirected_to_welcome_from_admin_page(
     assert response.headers['Location'].endswith('/bienvenida')
 
 
-def test_exit_confirmation_template_has_valid_cancel_link(
+def test_plantilla_confirmar_salir_tiene_enlace_cancelar_valido(
         client, authenticated_session):
     authenticated_session(client)
 
@@ -128,7 +128,7 @@ def test_exit_confirmation_template_has_valid_cancel_link(
     assert 'href="/bienvenida"' in response.get_data(as_text=True)
 
 
-def test_existing_cash_report_pdf_returns_download_url(
+def test_reporte_pdf_caja_existente_retorna_url_descarga(
         app, client, authenticated_session, tmp_path):
     authenticated_session(client, role='Administrador')
     pdf_name = 'corte_2026-08-01_2026-08-02.pdf'

@@ -1,7 +1,7 @@
 from models import modelsLimpieza
 
 
-def test_expired_validation_cleanup_tolerates_unavailable_database(monkeypatch):
+def test_limpieza_validaciones_expiradas_tolera_bd_no_disponible(monkeypatch):
     def unavailable_database():
         raise ConnectionError('database unavailable')
 
@@ -10,7 +10,7 @@ def test_expired_validation_cleanup_tolerates_unavailable_database(monkeypatch):
     assert modelsLimpieza.limpiar_validaciones_expiradas() == 0
 
 
-def test_expired_recovery_cleanup_tolerates_unavailable_database(monkeypatch):
+def test_limpieza_recuperaciones_expiradas_tolera_bd_no_disponible(monkeypatch):
     def unavailable_database():
         raise ConnectionError('database unavailable')
 

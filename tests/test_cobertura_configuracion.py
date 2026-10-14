@@ -16,7 +16,7 @@ def _clear_database_environment(monkeypatch):
         monkeypatch.delenv(name, raising=False)
 
 
-def test_config_environment_variants_and_unknown(monkeypatch):
+def test_variantes_configuracion_entorno_y_desconocido(monkeypatch):
     monkeypatch.setenv('SECRET_KEY', 'secret')
     monkeypatch.setenv('FLASK_DEBUG', 'true')
     assert config_for_environment('development')['DEBUG'] is True
@@ -29,7 +29,7 @@ def test_config_environment_variants_and_unknown(monkeypatch):
         config_for_environment(None)
 
 
-def test_pool_rejects_incomplete_configuration(monkeypatch):
+def test_pool_conexiones_rechaza_configuracion_incompleta(monkeypatch):
     _clear_database_environment(monkeypatch)
     monkeypatch.setenv('APP_ENV', 'LOCAL')
     monkeypatch.setattr(bd, '_pool', None)
@@ -37,7 +37,7 @@ def test_pool_rejects_incomplete_configuration(monkeypatch):
         bd._crear_pool()
 
 
-def test_pool_uses_legacy_local_variables(monkeypatch):
+def test_pool_conexiones_usa_variables_locales_legadas(monkeypatch):
     _clear_database_environment(monkeypatch)
     monkeypatch.setenv('APP_ENV', 'LOCAL')
     monkeypatch.setenv('DB_HOST_LOCAL', 'localhost')

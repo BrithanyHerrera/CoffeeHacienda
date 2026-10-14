@@ -66,7 +66,7 @@ def _recovery_state(**overrides):
     return state
 
 
-def test_expired_recovery_session_cannot_reach_password_update(client):
+def test_sesion_recuperacion_expirada_no_puede_alcanzar_actualizacion(client):
     with client.session_transaction() as session:
         session['estado_recuperacion_contrasena'] = _recovery_state(
             expira_en=int(time.time()) - 1,
@@ -82,7 +82,7 @@ def test_expired_recovery_session_cannot_reach_password_update(client):
         assert 'estado_recuperacion_contrasena' not in session
 
 
-def test_expired_database_code_cannot_be_consumed(monkeypatch):
+def test_codigo_bd_expirado_no_puede_ser_consumido(monkeypatch):
     state = {'codigo': '123456', 'vigente': False}
     connection = RecoveryConnection(state)
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: connection)
@@ -99,7 +99,7 @@ def test_expired_database_code_cannot_be_consumed(monkeypatch):
     assert connection.rolled_back is True
 
 
-def test_recovery_code_cannot_be_reused_after_consumption(monkeypatch):
+def test_codigo_recuperacion_no_puede_ser_reutilizado_tras_consumirse(monkeypatch):
     state = {'codigo': '123456', 'vigente': True}
     connections = []
 
@@ -132,7 +132,7 @@ def test_recovery_code_cannot_be_reused_after_consumption(monkeypatch):
     assert connections[1].rolled_back is True
 
 
-def test_fifth_invalid_code_clears_recovery_and_invalidates_database_code(
+def test_quinto_codigo_invalido_limpia_recuperacion_e_invalida_codigo_bd(
         client, monkeypatch):
     deleted_user_ids = []
     monkeypatch.setattr(

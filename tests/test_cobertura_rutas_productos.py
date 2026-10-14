@@ -21,7 +21,7 @@ def _product_form(**overrides):
 
 
 @pytest.mark.parametrize('with_products', [False, True])
-def test_product_management_page(
+def test_pagina_gestion_productos(
         client, authenticated_session, monkeypatch, with_products):
     authenticated_session(client, role='Administrador')
     products = [{'Id': 1, 'nombre': 'Café'}] if with_products else []
@@ -46,7 +46,7 @@ def test_product_management_page(
         ('/api/tamanos', 'obtener_tamanos', 'tamanos'),
     ],
 )
-def test_product_catalog_endpoints_success_and_error(
+def test_endpoints_catalogo_productos_exito_y_error(
         client, authenticated_session, monkeypatch, path, attribute, key):
     authenticated_session(client)
     monkeypatch.setattr(productos_bp, attribute, lambda: [{'Id': 1}])
@@ -71,7 +71,7 @@ def test_product_catalog_endpoints_success_and_error(
         _product_form(stockMinProducto='21', stockMaxProducto='20'),
     ],
 )
-def test_save_product_rejects_invalid_data(
+def test_guardar_producto_rechaza_datos_invalidos(
         client, authenticated_session, form):
     authenticated_session(client, role='Administrador')
     response = client.post('/api/productos/guardar', data=form)
@@ -79,7 +79,7 @@ def test_save_product_rejects_invalid_data(
     assert response.get_json()['success'] is False
 
 
-def test_save_product_rejects_disallowed_image_extension(
+def test_guardar_producto_rechaza_extension_imagen_no_permitida(
         client, authenticated_session):
     authenticated_session(client, role='Administrador')
     form = _product_form()
@@ -91,7 +91,7 @@ def test_save_product_rejects_disallowed_image_extension(
 
 
 @pytest.mark.parametrize('size_id', ['2', '4'])
-def test_update_product_keeps_image_and_updates_variants(
+def test_actualizar_producto_conserva_imagen_y_actualiza_variantes(
         client, authenticated_session, monkeypatch, size_id):
     authenticated_session(client, role='Administrador')
     calls = []
@@ -129,7 +129,7 @@ def test_update_product_keeps_image_and_updates_variants(
 
 
 @pytest.mark.parametrize('created', [False, True])
-def test_create_product_result_and_optional_variant(
+def test_crear_producto_resultado_y_variante_opcional(
         client, authenticated_session, monkeypatch, created):
     authenticated_session(client, role='Administrador')
     variants = []
@@ -149,7 +149,7 @@ def test_create_product_result_and_optional_variant(
     assert bool(variants) is created
 
 
-def test_save_product_handles_unexpected_error(
+def test_guardar_producto_maneja_error_inesperado(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -162,7 +162,7 @@ def test_save_product_handles_unexpected_error(
 
 
 @pytest.mark.parametrize('deleted', [False, True])
-def test_delete_product_results(
+def test_eliminar_producto_resultados(
         client, authenticated_session, monkeypatch, deleted):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(productos_bp, 'eliminar_producto', lambda product_id: deleted)
@@ -170,7 +170,7 @@ def test_delete_product_results(
     assert response.get_json()['success'] is deleted
 
 
-def test_delete_product_handles_error(
+def test_eliminar_producto_maneja_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -189,7 +189,7 @@ def test_delete_product_handles_error(
         ({'producto_id': 1, 'tamano_id': 2, 'precio': 10}, 200),
     ],
 )
-def test_save_product_variant_validation_and_success(
+def test_guardar_variante_producto_validacion_y_exito(
         client, authenticated_session, monkeypatch, payload, expected_status):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -199,7 +199,7 @@ def test_save_product_variant_validation_and_success(
     assert response.status_code == expected_status
 
 
-def test_save_product_variant_handles_error(
+def test_guardar_variante_producto_maneja_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -215,7 +215,7 @@ def test_save_product_variant_handles_error(
     assert response.status_code == 500
 
 
-def test_get_product_variants_success_and_error(
+def test_obtener_variantes_producto_exito_y_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client)
     monkeypatch.setattr(
@@ -230,7 +230,7 @@ def test_get_product_variants_success_and_error(
     assert client.get('/api/productos/variantes/1').status_code == 500
 
 
-def test_get_product_found_missing_and_error(
+def test_obtener_producto_encontrado_faltante_y_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client)
     monkeypatch.setattr(
@@ -252,7 +252,7 @@ def test_get_product_found_missing_and_error(
     assert client.get('/api/productos/1').status_code == 500
 
 
-def test_get_category_found_missing_and_error(
+def test_obtener_categoria_encontrada_faltante_y_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client)
     monkeypatch.setattr(

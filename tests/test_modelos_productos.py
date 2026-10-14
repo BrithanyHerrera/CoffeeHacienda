@@ -11,7 +11,7 @@ def _failing_connection():
     return FakeConnection(fail)
 
 
-def test_variant_batch_empty_and_grouped(monkeypatch):
+def test_lote_variantes_vacio_y_agrupado(monkeypatch):
     assert modelsProductos.obtener_variantes_batch([]) == {}
 
     variants = [
@@ -38,7 +38,7 @@ def test_variant_batch_empty_and_grouped(monkeypatch):
         ('obtener_variantes_por_producto', (10,), [{'Id': 2}]),
     ],
 )
-def test_product_read_functions_return_rows(
+def test_funciones_lectura_producto_retornan_filas(
         monkeypatch, function_name, args, result):
     connection = connection_with_results(result)
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: connection)
@@ -56,7 +56,7 @@ def test_product_read_functions_return_rows(
         ('obtener_variantes_por_producto', (10,), []),
     ],
 )
-def test_product_read_functions_handle_errors(
+def test_funciones_lectura_producto_manejan_errores(
         monkeypatch, function_name, args, expected):
     connection = _failing_connection()
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: connection)
@@ -65,7 +65,7 @@ def test_product_read_functions_handle_errors(
     assert connection.closed is True
 
 
-def test_add_update_and_delete_variant(monkeypatch):
+def test_agregar_actualizar_y_eliminar_variante(monkeypatch):
     added = connection_with_results(None)
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: added)
     assert modelsProductos.agregar_variante_producto(1, 2, 30) is True
@@ -91,20 +91,20 @@ def test_add_update_and_delete_variant(monkeypatch):
         ('eliminar_variantes_producto', (1,), False),
     ],
 )
-def test_variant_writes_handle_errors(monkeypatch, function_name, args, expected):
+def test_escrituras_variante_manejan_errores(monkeypatch, function_name, args, expected):
     connection = _failing_connection()
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: connection)
     assert getattr(modelsProductos, function_name)(*args) is expected
     assert connection.closed is True
 
 
-def test_update_variant_returns_false_when_no_row_changed(monkeypatch):
+def test_actualizar_variante_retorna_falso_cuando_no_cambia_fila(monkeypatch):
     connection = connection_with_results(None)
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: connection)
     assert modelsProductos.actualizar_variante_producto(2, 35) is False
 
 
-def test_add_product_returns_generated_id_and_handles_error(monkeypatch):
+def test_agregar_producto_retorna_id_generado_y_maneja_error(monkeypatch):
     def handler(sql, params, cursor):
         cursor.lastrowid = 44
 
@@ -123,7 +123,7 @@ def test_add_product_returns_generated_id_and_handles_error(monkeypatch):
 
 
 @pytest.mark.parametrize('image', ['/image.png', None])
-def test_update_product_with_and_without_image(monkeypatch, image):
+def test_actualizar_producto_con_y_sin_imagen(monkeypatch, image):
     def handler(sql, params, cursor):
         cursor.rowcount = 1
 
@@ -137,7 +137,7 @@ def test_update_product_with_and_without_image(monkeypatch, image):
     assert ('ruta_imagen=%s' in sql) is bool(image)
 
 
-def test_update_product_handles_no_change_and_error(monkeypatch):
+def test_actualizar_producto_maneja_sin_cambios_y_error(monkeypatch):
     unchanged = connection_with_results(None)
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: unchanged)
     assert modelsProductos.actualizar_producto(
@@ -153,7 +153,7 @@ def test_update_product_handles_no_change_and_error(monkeypatch):
     assert message.startswith('Error al actualizar producto:')
 
 
-def test_soft_delete_product_success_and_error(monkeypatch):
+def test_eliminacion_logica_producto_exito_y_error(monkeypatch):
     successful = connection_with_results(None)
     monkeypatch.setattr(modelsProductos, 'Conexion_BD', lambda: successful)
     assert modelsProductos.eliminar_producto(1) is True
@@ -165,7 +165,7 @@ def test_soft_delete_product_success_and_error(monkeypatch):
     assert failed.rollbacks == 1
 
 
-def test_get_product_by_id_with_variants_not_found_and_error(monkeypatch):
+def test_obtener_producto_por_id_con_variantes_no_encontrado_y_error(monkeypatch):
     product = {'Id': 1, 'nombre_producto': 'Café'}
     variants = [{'Id': 2}]
     found = connection_with_results(product, variants)

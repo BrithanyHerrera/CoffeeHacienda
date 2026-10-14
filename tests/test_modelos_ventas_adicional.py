@@ -13,14 +13,14 @@ def _failing_connection():
     return FakeConnection(fail)
 
 
-def test_sale_numeric_helpers_cover_strings_and_invalid_money():
+def test_auxiliares_numericos_venta_cubren_cadenas_y_montos_invalidos():
     assert modelsVentas._entero_positivo(' 2 ', 'Campo') == 2
     for value in (True, -1, 'NaN', 'Infinity'):
         with pytest.raises(ValueError):
             modelsVentas._monto_no_negativo(value, 'Monto')
 
 
-def test_pending_orders_success_and_error(monkeypatch):
+def test_ordenes_pendientes_exito_y_error(monkeypatch):
     rows = [{'id': 1}]
     successful = connection_with_results(rows)
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: successful)
@@ -31,7 +31,7 @@ def test_pending_orders_success_and_error(monkeypatch):
     assert modelsVentas.obtener_ordenes_pendientes() == []
 
 
-def test_update_order_state_branches(monkeypatch):
+def test_actualizar_estado_orden_ramas(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: missing)
     assert modelsVentas.actualizar_estado_orden(1, 2) is False
@@ -62,7 +62,7 @@ def test_update_order_state_branches(monkeypatch):
     assert modelsVentas.actualizar_estado_orden(1, 2) is False
 
 
-def test_order_details_new_old_schema_and_error(monkeypatch):
+def test_detalles_orden_esquema_nuevo_antiguo_y_error(monkeypatch):
     new_rows = [{'nombre_producto': 'Snapshot'}]
     migrated = connection_with_results({'total': 1}, new_rows)
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: migrated)
@@ -80,7 +80,7 @@ def test_order_details_new_old_schema_and_error(monkeypatch):
     assert modelsVentas.obtener_detalle_orden(1) == []
 
 
-def test_get_order_state_and_sellers(monkeypatch):
+def test_obtener_estado_orden_y_vendedores(monkeypatch):
     state = {'estado_id': 1}
     state_connection = connection_with_results(state)
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: state_connection)
@@ -93,16 +93,16 @@ def test_get_order_state_and_sellers(monkeypatch):
 
 
 @pytest.mark.parametrize('reason', ['', 'x', None, 'x' * 256])
-def test_cancel_order_rejects_invalid_reason(reason):
+def test_cancelar_orden_rechaza_motivo_invalido(reason):
     assert modelsVentas.cancelar_orden(1, 1, reason) is False
 
 
 @pytest.mark.parametrize('user_id', [None, 0, True, 'abc'])
-def test_cancel_order_rejects_invalid_user(user_id):
+def test_cancelar_orden_rechaza_usuario_invalido(user_id):
     assert modelsVentas.cancelar_orden(1, user_id, 'Motivo válido') is False
 
 
-def test_cancel_order_missing_already_cancelled_and_invalid_state(monkeypatch):
+def test_cancelar_orden_faltante_ya_cancelada_y_estado_invalido(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: missing)
     assert modelsVentas.cancelar_orden(1, 1, 'Motivo válido') is False
@@ -116,7 +116,7 @@ def test_cancel_order_missing_already_cancelled_and_invalid_state(monkeypatch):
     assert modelsVentas.cancelar_orden(1, 1, 'Motivo válido') is False
 
 
-def test_cancel_order_rolls_back_when_stock_or_sale_update_fails(monkeypatch):
+def test_cancelar_orden_hace_rollback_cuando_falla_actualizacion_stock_o_venta(monkeypatch):
     stock_failure = connection_with_results(
         {'estado_id': 1},
         [{'producto_id': 10, 'cantidad': 1}],
@@ -135,12 +135,12 @@ def test_cancel_order_rolls_back_when_stock_or_sale_update_fails(monkeypatch):
     assert modelsVentas.cancelar_orden(1, 1, 'Motivo válido') is False
 
 
-def test_delete_order_alias(monkeypatch):
+def test_alias_eliminar_orden(monkeypatch):
     monkeypatch.setattr(modelsVentas, 'cancelar_orden', lambda *args: 'resultado')
     assert modelsVentas.eliminar_orden(1, 2, 'Motivo') == 'resultado'
 
 
-def test_get_complete_sale_missing_new_old_and_error(monkeypatch):
+def test_obtener_venta_completa_faltante_nueva_antigua_y_error(monkeypatch):
     missing = connection_with_results(None)
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: missing)
     assert modelsVentas.obtener_venta_completa(1) == (None, None)
@@ -175,7 +175,7 @@ def _sale_connection(product_rows=None, variant_rows=None, method=None):
 
 
 @pytest.mark.parametrize('products', [None, {}, [], 'invalid'])
-def test_sale_rejects_invalid_product_collection(monkeypatch, products):
+def test_venta_rechaza_coleccion_productos_invalida(monkeypatch, products):
     connection = connection_with_results()
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: connection)
     result = modelsVentas.procesar_venta_completa(
@@ -184,7 +184,7 @@ def test_sale_rejects_invalid_product_collection(monkeypatch, products):
     assert result[0] is False
 
 
-def test_sale_rejects_too_many_items_invalid_method_and_unknown_method(monkeypatch):
+def test_venta_rechaza_demasiados_articulos_metodo_invalido_y_desconocido(monkeypatch):
     empty = connection_with_results()
     monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: empty)
     assert modelsVentas.procesar_venta_completa(
@@ -204,7 +204,7 @@ def test_sale_rejects_too_many_items_invalid_method_and_unknown_method(monkeypat
     ) == (False, 'Método de pago no válido', None)
 
 
-def test_sale_rejects_non_dict_missing_product_and_variant_mismatches(monkeypatch):
+def test_venta_rechaza_elementos_no_diccionario_producto_faltante_y_desajuste_variantes(monkeypatch):
     method = {'Id': 1, 'codigo': 'TARJETA', 'tipo_de_pago': 'Tarjeta'}
 
     non_dict = connection_with_results(method)
@@ -243,7 +243,7 @@ def test_sale_rejects_non_dict_missing_product_and_variant_mismatches(monkeypatc
     )[1]
 
 
-def test_sale_rejects_stock_cash_and_missing_seller_or_state(monkeypatch):
+def test_venta_rechaza_por_stock_efectivo_y_vendedor_o_estado_faltante(monkeypatch):
     product = [{
         'id': 1, 'nombre_producto': 'Café', 'precio': Decimal('10'),
         'stock': 0, 'requiere_inventario': 1,
@@ -284,7 +284,7 @@ def test_sale_rejects_stock_cash_and_missing_seller_or_state(monkeypatch):
     )[1] == 'No existe el estado inicial Pendiente'
 
 
-def test_sale_legacy_detail_and_stock_update_failure(monkeypatch):
+def test_venta_falla_en_detalle_legado_y_actualizacion_stock(monkeypatch):
     method = {'Id': 2, 'codigo': 'TARJETA', 'tipo_de_pago': 'Tarjeta'}
     product = [{
         'id': 1, 'nombre_producto': 'Café', 'precio': Decimal('10'),
@@ -325,7 +325,7 @@ def test_sale_legacy_detail_and_stock_update_failure(monkeypatch):
     assert connection.rollbacks == 1
 
 
-def test_sale_with_valid_variant_uses_variant_snapshot(monkeypatch):
+def test_venta_con_variante_valida_usa_captura_de_variante(monkeypatch):
     captured = {}
 
     def handler(sql, params, cursor):

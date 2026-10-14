@@ -10,7 +10,7 @@ from blueprints import finanzas_bp, generales_bp, inventario_bp
 from tests.db_fakes import connection_with_results
 
 
-def test_core_pages_and_health_states(
+def test_paginas_core_y_estados_de_salud(
         client, authenticated_session, monkeypatch):
     authenticated_session(client)
     monkeypatch.setattr(
@@ -51,7 +51,7 @@ def test_core_pages_and_health_states(
         ({'pdf': 'not-base64!', 'nombre': 'x.pdf', 'tipo': 'ticket'}, 400),
     ],
 )
-def test_save_pdf_rejects_invalid_payloads(
+def test_guardar_pdf_rechaza_solicitudes_invalidas(
         client, authenticated_session, payload, expected_status):
     authenticated_session(client)
     response = client.post('/api/guardar-pdf', json=payload)
@@ -59,7 +59,7 @@ def test_save_pdf_rejects_invalid_payloads(
     assert response.get_json()['success'] is False
 
 
-def test_save_pdf_handles_storage_error(
+def test_guardar_pdf_maneja_error_de_almacenamiento(
         app, client, authenticated_session, monkeypatch, tmp_path):
     authenticated_session(client)
     app.config['PDF_TICKETS_FOLDER'] = str(tmp_path)
@@ -260,7 +260,7 @@ def test_finance_filter_cut_and_report_pages(
     assert client.get('/reporteFinanciero').status_code == 200
 
 
-def test_get_cash_cut_route_all_results(
+def test_ruta_obtener_corte_caja_todos_los_resultados(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(finanzas_bp, 'obtener_corte_por_id', lambda cut_id: {'id': cut_id})
@@ -287,7 +287,7 @@ def _cut_payload(**overrides):
     return payload
 
 
-def test_save_cash_cut_route_branches(
+def test_ruta_guardar_corte_caja_ramas(
         app, client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     totals = {
@@ -333,7 +333,7 @@ def test_save_cash_cut_route_branches(
     assert client.post('/guardarCorteCaja', json=_cut_payload()).status_code == 500
 
 
-def test_search_cash_pdf_missing_not_found_and_error(
+def test_buscar_pdf_caja_faltante_no_encontrado_y_error(
         app, client, authenticated_session, monkeypatch, tmp_path):
     authenticated_session(client, role='Administrador')
     missing = tmp_path / 'missing'

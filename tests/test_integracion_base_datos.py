@@ -14,7 +14,7 @@ pytestmark = [
 ]
 
 
-def test_required_schema_versions_are_applied():
+def test_versiones_esquema_requeridas_estan_aplicadas():
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:
@@ -25,7 +25,7 @@ def test_required_schema_versions_are_applied():
         connection.close()
 
 
-def test_required_schema_columns_exist():
+def test_columnas_esquema_requeridas_existen():
     connection = Conexion_BD()
     try:
         with connection.cursor() as cursor:

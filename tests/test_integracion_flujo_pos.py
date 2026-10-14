@@ -102,7 +102,7 @@ def _stock_and_movements(product_id, sale_id):
         connection.close()
 
 
-def test_catalog_sale_inventory_cancellation_and_cash_cut_flow(pos_catalog):
+def test_flujo_venta_catalogo_inventario_cancelacion_y_corte_caja(pos_catalog):
     started_at = datetime.now() - timedelta(minutes=1)
     success, _, sale = procesar_venta_completa(
         'Cliente integración',
@@ -167,7 +167,7 @@ def test_catalog_sale_inventory_cancellation_and_cash_cut_flow(pos_catalog):
     assert cut_id is not None
 
 
-def test_historical_sale_keeps_snapshots_after_catalog_changes(pos_catalog):
+def test_venta_historica_mantiene_captura_tras_cambios_en_catalogo(pos_catalog):
     success, _, sale = procesar_venta_completa(
         'Cliente snapshot',
         '8',

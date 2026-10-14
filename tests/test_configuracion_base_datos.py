@@ -1,7 +1,7 @@
 import bd
 
 
-def test_testing_environment_uses_unified_database_variables(monkeypatch):
+def test_entorno_pruebas_usa_variables_unificadas_base_datos(monkeypatch):
     captured = {}
     sentinel_pool = object()
 

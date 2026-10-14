@@ -14,7 +14,7 @@ def _user_payload(**overrides):
     return payload
 
 
-def test_user_management_page(client, authenticated_session, monkeypatch):
+def test_pagina_gestion_usuarios(client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(usuarios_bp, 'obtener_usuarios_activos', lambda: [])
     monkeypatch.setattr(usuarios_bp, 'obtener_usuarios_inactivos', lambda: [])
@@ -22,13 +22,13 @@ def test_user_management_page(client, authenticated_session, monkeypatch):
     assert client.get('/gestionUsuarios').status_code == 200
 
 
-def test_save_user_rejects_missing_fields(client, authenticated_session):
+def test_guardar_usuario_rechaza_campos_faltantes(client, authenticated_session):
     authenticated_session(client, role='Administrador')
     response = client.post('/api/usuarios/guardar', json={})
     assert response.get_json()['success'] is False
 
 
-def test_update_user_missing_and_weak_password(
+def test_actualizar_usuario_faltante_y_contrasena_debil(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(usuarios_bp, 'obtener_usuario_por_id', lambda user_id: None)
@@ -57,7 +57,7 @@ def test_update_user_missing_and_weak_password(
         (True, 44, True),
     ],
 )
-def test_update_user_with_changed_email(
+def test_actualizar_usuario_con_correo_modificado(
         client, authenticated_session, monkeypatch,
         updated, validation_id, requires_validation):
     authenticated_session(client, role='Administrador')
@@ -98,7 +98,7 @@ def test_update_user_with_changed_email(
             assert current_session[usuarios_bp.VALIDACION_CORREO_SESION] == 'nuevo@example.test'
 
 
-def test_update_user_without_email_change(
+def test_actualizar_usuario_sin_cambio_de_correo(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -127,7 +127,7 @@ def test_update_user_without_email_change(
         ('Segura123', True, True),
     ],
 )
-def test_create_user_results(
+def test_crear_usuario_resultados(
         client, authenticated_session, monkeypatch,
         password, saved, expected_success):
     authenticated_session(client, role='Administrador')
@@ -150,7 +150,7 @@ def test_create_user_results(
         assert response.get_json()['require_validation'] is True
 
 
-def test_save_user_handles_error(client, authenticated_session, monkeypatch):
+def test_guardar_usuario_maneja_error(client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
         usuarios_bp,
@@ -161,7 +161,7 @@ def test_save_user_handles_error(client, authenticated_session, monkeypatch):
     assert response.status_code == 500
 
 
-def test_get_user_found_missing_and_error(
+def test_obtener_usuario_encontrado_faltante_y_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -198,7 +198,7 @@ def test_get_user_found_missing_and_error(
         ('/gestionUsuarios/activar/3', 'reactivar_usuario', False),
     ],
 )
-def test_user_activation_routes(
+def test_rutas_activacion_usuario(
         client, authenticated_session, monkeypatch, path, attribute, result):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(usuarios_bp, attribute, lambda user_id: result)
@@ -212,7 +212,7 @@ def test_user_activation_routes(
         ('/gestionUsuarios/activar/3', 'reactivar_usuario'),
     ],
 )
-def test_user_activation_routes_handle_errors(
+def test_rutas_activacion_usuario_manejan_errores(
         client, authenticated_session, monkeypatch, path, attribute):
     authenticated_session(client, role='Administrador')
     monkeypatch.setattr(
@@ -223,12 +223,12 @@ def test_user_activation_routes_handle_errors(
     assert client.post(path).status_code == 500
 
 
-def test_user_validation_page(client):
+def test_pagina_validacion_usuario(client):
     response = client.get('/validar-usuario?email=persona@example.test')
     assert response.status_code == 200
 
 
-def test_validate_user_code_missing_success_and_error(client, monkeypatch):
+def test_validar_codigo_usuario_faltante_exito_y_error(client, monkeypatch):
     assert client.post('/api/usuarios/validar', json={}).get_json()['success'] is False
     with client.session_transaction() as current_session:
         current_session[usuarios_bp.VALIDACION_ID_SESION] = 7
@@ -245,7 +245,7 @@ def test_validate_user_code_missing_success_and_error(client, monkeypatch):
         assert usuarios_bp.VALIDACION_ID_SESION not in current_session
 
 
-def test_validate_user_code_handles_error(client, monkeypatch):
+def test_validar_codigo_usuario_maneja_error(client, monkeypatch):
     monkeypatch.setattr(
         usuarios_bp,
         'validar_codigo_usuario',
@@ -266,7 +266,7 @@ def test_validate_user_code_handles_error(client, monkeypatch):
         ((True, 'ok', '123456'), True, True),
     ],
 )
-def test_resend_validation_code_results(
+def test_reenviar_codigo_validacion_resultados(
         client, monkeypatch, model_result, email_sent, expected_success):
     monkeypatch.setattr(
         usuarios_bp, 'reenviar_codigo_validacion', lambda email: model_result
@@ -280,7 +280,7 @@ def test_resend_validation_code_results(
     assert response.get_json()['success'] is expected_success
 
 
-def test_resend_validation_code_missing_and_error(client, monkeypatch):
+def test_reenviar_codigo_validacion_faltante_y_error(client, monkeypatch):
     assert client.post('/api/usuarios/reenviar-codigo', json={}).status_code == 200
     monkeypatch.setattr(
         usuarios_bp,
@@ -299,7 +299,7 @@ def _bind_email_validation(client, email='anterior@example.test'):
         current_session[usuarios_bp.VALIDACION_CORREO_SESION] = email
 
 
-def test_update_validation_email_requires_data_and_session(
+def test_actualizar_correo_validacion_requiere_datos_y_sesion(
         client, authenticated_session):
     authenticated_session(client, role='Administrador')
     assert client.post('/api/usuarios/actualizar-correo', json={}).status_code == 200
@@ -310,7 +310,7 @@ def test_update_validation_email_requires_data_and_session(
     assert response.status_code == 403
 
 
-def test_update_validation_email_rejects_stale_request(
+def test_actualizar_correo_validacion_rechaza_solicitud_obsoleta(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     _bind_email_validation(client)
@@ -323,7 +323,7 @@ def test_update_validation_email_rejects_stale_request(
 
 
 @pytest.mark.parametrize('duplicate', [False, True])
-def test_update_validation_email_rejects_same_or_duplicate(
+def test_actualizar_correo_validacion_rechaza_mismo_o_duplicado(
         client, authenticated_session, monkeypatch, duplicate):
     authenticated_session(client, role='Administrador')
     _bind_email_validation(client)
@@ -351,7 +351,7 @@ def test_update_validation_email_rejects_same_or_duplicate(
         (True, True, 200, True),
     ],
 )
-def test_update_validation_email_results(
+def test_actualizar_correo_validacion_resultados(
         client, authenticated_session, monkeypatch,
         updated, email_sent, expected_status, expected_success):
     authenticated_session(client, role='Administrador')
@@ -381,7 +381,7 @@ def test_update_validation_email_results(
     assert response.get_json()['success'] is expected_success
 
 
-def test_update_validation_email_handles_error(
+def test_actualizar_correo_validacion_maneja_error(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
     _bind_email_validation(client)

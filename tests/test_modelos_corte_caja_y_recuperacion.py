@@ -47,7 +47,7 @@ def test_corte_caja_agrupa_pagos_por_metodo(monkeypatch):
     }
 
 
-def test_cash_cut_read_functions(monkeypatch):
+def test_funciones_lectura_corte_caja(monkeypatch):
     cuts = [{'Id': 1}]
     all_cuts = connection_with_results(cuts)
     monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: all_cuts)
@@ -58,7 +58,7 @@ def test_cash_cut_read_functions(monkeypatch):
     assert modelsCorteCaja.obtener_cortes_con_ganancia() == cuts
 
 
-def test_save_cash_cut_rejects_overlap_succeeds_and_handles_error(monkeypatch):
+def test_guardar_corte_caja_rechaza_traslape_y_maneja_error(monkeypatch):
     overlap = connection_with_results({'Id': 1})
     monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: overlap)
     assert modelsCorteCaja.guardar_corte_caja(
@@ -106,7 +106,7 @@ def test_recovery_code_is_numeric(monkeypatch):
     assert modelsRecuperacion.generar_codigo(4) == '9999'
 
 
-def test_save_recovery_code_success_and_error(monkeypatch):
+def test_guardar_codigo_recuperacion_exito_y_error(monkeypatch):
     successful = connection_with_results(None, None)
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: successful)
     assert modelsRecuperacion.guardar_codigo_recuperacion(
@@ -178,7 +178,7 @@ def test_consume_recovery_code_update_failure_success_and_exception(monkeypatch)
     assert modelsRecuperacion.verificar_codigo_recuperacion(1, '123456') is False
 
 
-def test_delete_recovery_codes_success_and_error(monkeypatch):
+def test_eliminar_codigos_recuperacion_exito_y_error(monkeypatch):
     successful = connection_with_results(None)
     monkeypatch.setattr(modelsRecuperacion, 'Conexion_BD', lambda: successful)
     assert modelsRecuperacion.eliminar_codigos_recuperacion(1) is True

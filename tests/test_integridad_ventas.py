@@ -175,7 +175,7 @@ def test_cancelar_orden_restaura_stock_y_registra_auditoria(monkeypatch):
     assert connection.committed is True
 
 
-def test_cash_register_groups_payments_by_stable_code(monkeypatch):
+def test_corte_caja_agrupa_pagos_por_codigo_estable(monkeypatch):
     def handler(sql, params, cursor):
         assert 'JOIN tmetodospago' in sql
         assert 'GROUP BY mp.codigo' in sql
