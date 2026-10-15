@@ -1,131 +1,46 @@
-# Coffee Hacienda ☕
+Coffee Hacienda - Sistema de Punto de Venta (POS)
+==================================================
 
-Sistema de punto de venta y gestión para cafetería.
+Sistema de punto de venta y administracion para cafeteria desarrollado con Flask y MySQL.
 
-## Tecnologías
+Tecnologias utilizadas:
+- Python 3.12 / Flask (estructura con Blueprints)
+- MySQL 8.0 (soporte local y nube Aiven con SSL)
+- DBUtils (pool de conexiones)
+- HTML, CSS y JavaScript
+- Pytest y Ruff (pruebas y revision de codigo)
 
-- **Backend:** Python + Flask (Blueprints)
-- **Base de datos:** MySQL 8 (local y Aiven)
-- **Pool de conexiones:** DBUtils
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Reportes:** jsPDF
+Estructura del proyecto:
+- app.py: punto de entrada y configuracion de la aplicacion
+- bd.py: conexion y pool a la base de datos MySQL
+- utils.py: decoradores de sesion, roles y validaciones
+- extensions.py: extensiones de seguridad, rate limit y correo
+- blueprints/: controladores y rutas del sistema (ventas, usuarios, productos, inventario, finanzas)
+- models/: modelos y consultas SQL a la base de datos
+- templates/: plantillas HTML de las pantallas
+- static/: estilos CSS, scripts JS e imagenes
+- docs/: documentacion del proyecto y actividades academicas
+- tests/: pruebas unitarias del sistema (290 pruebas)
 
-## Estructura
+Instalacion y puesta en marcha:
+1. Clonar el repositorio en la computadora.
+2. Ejecutar instalar_dependencias.bat (crea automaticamente el entorno .venv e instala las librerias).
+3. Copiar el archivo bd.env.example, renombrarlo como bd.env y poner las credenciales de tu base de datos y correo.
+4. Para arrancar el sistema, hacer doble clic en iniciar_sistema.bat o correr:
+   python app.py
+5. Entrar desde el navegador a: http://localhost:5000
 
-```
-app.py              → Punto de entrada
-bd.py               → Pool de conexiones MySQL
-utils.py            → Decoradores y validaciones
-extensions.py       → Rate limiter y CSRF
-blueprints/         → Controladores (rutas HTTP)
-models/             → Acceso a base de datos
-templates/          → Vistas (Jinja2)
-static/css/         → Estilos
-static/js/          → Scripts del frontend
-static/images/      → Imágenes de productos
-```
+Base de datos:
+Para crear la base de datos desde cero, importar el archivo database/db.sql en MySQL. Este archivo ya trae la estructura completa de tablas y datos iniciales.
 
-## Instalación
+Si necesitas crear un usuario administrador desde consola:
+.venv\Scripts\python.exe scripts/create_admin.py --username admin --email admin@example.com
 
-Requiere Python 3.12 y MySQL 5.7 o posterior. El entorno local actual se
-validó con MAMP/MySQL 5.7.24; para instalaciones nuevas se recomienda MySQL 8.
+Pruebas y calidad de codigo:
+Para correr las pruebas unitarias localmente:
+.venv\Scripts\python.exe -m pytest -m "not integration" --cov
 
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements-dev.txt
-```
+Para revisar la sintaxis y estilo con el linter:
+.venv\Scripts\python.exe -m ruff check .
 
-Crear `bd.env` a partir de `bd.env.example`. El repositorio no contiene
-credenciales ni usuarios reales.
-
-Para una base nueva, importar únicamente `database/db.sql`. Este
-archivo ya contiene el esquema completo y registra como incorporadas las
-versiones 002, 003 y 004; una instalación nueva no necesita ejecutar
-migraciones.
-
-Para una base existente con datos, no volver a importar el esquema completo.
-Revisar y aplicar únicamente las migraciones pendientes:
-
-```powershell
-python scripts/apply_migrations.py --dry-run
-python scripts/apply_migrations.py
-```
-
-Crear el primer administrador solicitando la contraseña de forma interactiva:
-
-```powershell
-python scripts/create_admin.py --username admin --email admin@example.com
-```
-
-Arranque local:
-
-```powershell
-python app.py
-```
-
-Arranca en `http://localhost:5000`.
-
-En producción, usar un servidor WSGI y un proxy HTTPS. Ejemplo con Waitress:
-
-```powershell
-waitress-serve --call --listen=127.0.0.1:8000 app:create_app
-```
-
-## Variables de entorno (`bd.env`)
-
-```
-APP_ENV=LOCAL
-
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=coffee_hacienda
-DB_PASSWORD=reemplazar
-DB_NAME=coffee_hacienda
-
-SECRET_KEY=tu_clave_secreta
-RATELIMIT_STORAGE_URI=memory://
-MAIL_SERVER=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=correo@gmail.com
-MAIL_PASSWORD=contraseña_de_app
-```
-
-Para Aiven, usar `APP_ENV=NUBE`, los valores `DB_*` del servicio y la ruta
-local de su certificado en `DB_SSL_CA`. Antes de migrar Aiven:
-
-1. Detener temporalmente escrituras en la aplicación.
-2. Crear y verificar un respaldo.
-3. Ejecutar `--dry-run` y aplicar las migraciones.
-4. Desplegar la misma revisión del código.
-5. Comprobar `/health`, login, una venta de prueba y los logs.
-
-No se debe aplicar la migración 002 por separado mientras una versión antigua
-de la aplicación siga atendiendo ventas.
-
-## Pruebas
-
-Suite local sin escritura en MySQL:
-
-```powershell
-python -m pytest -m "not integration" --cov --cov-report=term-missing --cov-fail-under=100
-```
-
-Esta suite mide únicamente el código de producción y exige 100% de cobertura.
-
-Flujos integrales de venta sobre una base temporal aislada:
-
-```powershell
-python scripts/run_isolated_db_tests.py
-```
-
-El segundo comando crea una base con un nombre aleatorio terminado en `_test`,
-ejecuta el esquema, las migraciones, los flujos integrales y la prueba de ventas
-concurrentes, y elimina esa base al terminar. Requiere que MAMP esté activo y
-que la cuenta local pueda crear bases.
-
-El flujo de GitHub Actions ejecuta Ruff y exige la suite al 100% de cobertura
-en cada push a `main` y en cada pull request.
-
----
-Coffee Hacienda 🤎
+Nota: En GitHub Actions se ejecutan estas mismas pruebas de forma automatica en cada push a la rama main.
