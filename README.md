@@ -11,7 +11,7 @@ Tecnologias utilizadas:
 - Pytest y Ruff (pruebas y revision de codigo)
 
 Estructura del proyecto:
-- app.py: punto de entrada y configuracion de la aplicacion
+- app.py: punto de entrada, carga de variables (.env/bd.env) y auto-relanzamiento en .venv
 - bd.py: conexion y pool a la base de datos MySQL
 - utils.py: decoradores de sesion, roles y validaciones
 - extensions.py: extensiones de seguridad, rate limit y correo
@@ -22,19 +22,49 @@ Estructura del proyecto:
 - docs/: documentacion del proyecto y actividades academicas
 - tests/: pruebas unitarias del sistema (290 pruebas)
 
-Instalacion y puesta en marcha:
-1. Clonar el repositorio en la computadora.
-2. Ejecutar instalar_dependencias.bat (crea automaticamente el entorno .venv e instala las librerias).
-3. Copiar el archivo bd.env.example, renombrarlo como bd.env y poner las credenciales de tu base de datos y correo.
-4. Para arrancar el sistema, hacer doble clic en iniciar_sistema.bat o correr:
-   python app.py
-5. Entrar desde el navegador a: http://localhost:5000
+Instalacion de dependencias:
+Para instalar todo lo que el sistema necesita, hay dos opciones:
 
-Base de datos:
-Para crear la base de datos desde cero, importar el archivo database/db.sql en MySQL. Este archivo ya trae la estructura completa de tablas y datos iniciales.
+Opcion 1 (Automatica y recomendada):
+Dar doble clic al archivo instalar_dependencias.bat
+Este script hace todo solo:
+1. Revisa que Python este instalado en el equipo.
+2. Crea la carpeta del entorno virtual (.venv) si todavia no existe.
+3. Actualiza pip a la version mas reciente.
+4. Instala todas las dependencias del proyecto (requirements.txt y requirements-dev.txt).
 
-Si necesitas crear un usuario administrador desde consola:
-.venv\Scripts\python.exe scripts/create_admin.py --username admin --email admin@example.com
+Opcion 2 (Manual por consola):
+Abrir la terminal en la carpeta del proyecto y ejecutar:
+py -3.12 -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements-dev.txt
+
+Configuracion inicial:
+1. Copiar el archivo bd.env.example y renombrarlo como bd.env.
+2. Abrir bd.env con un editor de texto y poner los datos de conexion de tu base de datos (DB_USER, DB_PASSWORD, DB_HOST, DB_NAME) y tu SECRET_KEY.
+3. Para la base de datos, importar el archivo database/db.sql en MySQL (por ejemplo usando phpMyAdmin, MySQL Workbench o MAMP). Este archivo ya trae todas las tablas y datos requeridos.
+4. Si necesitas crear un usuario administrador desde la terminal:
+   .venv\Scripts\python.exe scripts/create_admin.py --username admin --email admin@example.com
+
+Pasos para ejecutar el sistema:
+El archivo app.py ya esta programado para detectar y usar el entorno virtual automaticamente. Esto significa que si lo ejecutas con el Python normal de Windows, app.py detecta si existe la carpeta .venv y se relanza solo dentro de ella, ademas de cargar las variables de bd.env y .env.
+
+Tienes tres opciones para iniciarlo:
+
+Opcion A (La mas comoda):
+Dar doble clic al archivo iniciar_sistema.bat
+(Abre la consola y levanta el servidor directamente con el entorno virtual).
+
+Opcion B (Comando directo):
+python app.py
+(El propio app.py detecta .venv y lo ejecuta de forma transparente).
+
+Opcion C (Activando el entorno manualmente):
+.\.venv\Scripts\activate
+python app.py
+
+Una vez iniciado el servidor, abrir el navegador web e ingresar a:
+http://localhost:5000
 
 Pruebas y calidad de codigo:
 Para correr las pruebas unitarias localmente:
