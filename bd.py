@@ -1,5 +1,6 @@
 # Pool de conexiones MySQL (local y nube)
 import os
+import threading
 import logging
 import pymysql
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(PROJECT_ROOT, 'bd.env'))
 
 _pool = None
+_pool_lock = threading.Lock()
 
 def _crear_pool():
     """Crea el pool con la interfaz DB_* y compatibilidad con nombres heredados."""
@@ -79,5 +81,7 @@ def Conexion_BD():
     """Devuelve una conexión del pool. Al hacer conn.close() regresa al pool."""
     global _pool
     if _pool is None:
-        _crear_pool()
+        with _pool_lock:
+            if _pool is None:
+                _crear_pool()
     return _pool.connection()

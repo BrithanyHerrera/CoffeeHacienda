@@ -1,4 +1,4 @@
-﻿// ==========================================
+// ==========================================
 // BÚSQUEDA Y FILTROS
 // ==========================================
 
@@ -108,7 +108,7 @@ function actualizarCarrito() {
         total += item.precio * item.cantidad;
     });
 
-    document.getElementById('total').textContent = `$${total}`;
+    document.getElementById('total').textContent = `$${total.toFixed(2)}`;
 
     // Eventos para botones de eliminar
     document.querySelectorAll('.eliminarItemCarrito').forEach(button => {

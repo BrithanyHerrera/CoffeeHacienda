@@ -215,6 +215,57 @@ def test_manejadores_html_csrf_y_solicitud_demasiado_grande(app):
     assert response.get_data(as_text=True) == 'El archivo excede el tamaño permitido.'
 
 
+def test_manejadores_error_404_500_429():
+    from werkzeug.exceptions import InternalServerError, TooManyRequests
+
+    test_app = app_module.create_app('TESTING')
+    test_app.add_url_rule(
+        '/trigger-500-html',
+        'trigger_500_html',
+        lambda: (_ for _ in ()).throw(InternalServerError()),
+    )
+    test_app.add_url_rule(
+        '/api/trigger-500',
+        'trigger_500_api',
+        lambda: (_ for _ in ()).throw(InternalServerError()),
+    )
+    test_app.add_url_rule(
+        '/trigger-429-html',
+        'trigger_429_html',
+        lambda: (_ for _ in ()).throw(TooManyRequests()),
+    )
+    test_app.add_url_rule(
+        '/api/trigger-429',
+        'trigger_429_api',
+        lambda: (_ for _ in ()).throw(TooManyRequests()),
+    )
+
+    client = test_app.test_client()
+
+    res_404_html = client.get('/ruta-no-existe-para-test')
+    assert res_404_html.status_code == 302
+    assert res_404_html.headers['Location'] == '/'
+
+    res_404_api = client.get('/api/ruta-no-existe-para-test')
+    assert res_404_api.status_code == 404
+    assert res_404_api.get_json()['success'] is False
+
+    res_500_api = client.get('/api/trigger-500')
+    assert res_500_api.status_code == 500
+    assert res_500_api.get_json()['success'] is False
+
+    res_500_html = client.get('/trigger-500-html')
+    assert res_500_html.status_code == 500
+
+    res_429_api = client.get('/api/trigger-429')
+    assert res_429_api.status_code == 429
+    assert res_429_api.get_json()['success'] is False
+
+    res_429_html = client.get('/trigger-429-html')
+    assert res_429_html.status_code == 302
+    assert res_429_html.headers['Location'] == '/'
+
+
 def test_punto_entrada_principal_app_ejecuta_limpieza_y_servidor(monkeypatch):
     calls = []
     monkeypatch.setattr(

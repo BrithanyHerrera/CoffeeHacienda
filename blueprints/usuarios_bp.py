@@ -183,7 +183,7 @@ def activar_usuario_route(id):
 
 @usuarios_bp.route('/validar-usuario')
 def validar_usuario_view():
-    correo = request.args.get('email', '')
+    correo = str(request.args.get('email', '') or '').strip()[:120]
     return render_template('validar_usuario.html', correo=correo)
 
 @usuarios_bp.route('/api/usuarios/validar', methods=['POST'])

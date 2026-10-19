@@ -8,7 +8,7 @@ if __name__ == '__main__':  # pragma: no cover
         import subprocess
         sys.exit(subprocess.run([_venv_py] + sys.argv).returncode)
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from flask_wtf.csrf import CSRFError
@@ -123,7 +123,32 @@ def create_app(env=None):
                 'message': 'El archivo o la solicitud excede el tamaño permitido.',
             }), 413
         return 'El archivo excede el tamaño permitido.', 413
-        
+
+    @app.errorhandler(404)
+    def manejar_no_encontrado(error):
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({'success': False, 'message': 'Recurso no encontrado'}), 404
+        return redirect(url_for('auth.login'))
+
+    @app.errorhandler(500)
+    def manejar_error_interno(error):
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({'success': False, 'message': 'Error interno del servidor'}), 500
+        from flask import flash, render_template
+        flash('Ha ocurrido un error interno. Intenta de nuevo más tarde.', 'danger')
+        return render_template('login.html'), 500
+
+    @app.errorhandler(429)
+    def manejar_rate_limit(error):
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({
+                'success': False,
+                'message': 'Demasiadas solicitudes. Intenta de nuevo en unos momentos.',
+            }), 429
+        from flask import flash
+        flash('Demasiadas solicitudes. Espera un momento antes de intentar de nuevo.', 'danger')
+        return redirect(url_for('auth.login'))
+
     return app
 
 if __name__ == '__main__':

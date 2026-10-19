@@ -349,6 +349,10 @@ def test_buscar_pdf_caja_faltante_no_encontrado_y_error(
     response = client.get('/buscar_pdf_corte/2026-01-01/2026-01-02')
     assert response.get_json()['success'] is True
 
+    bad_date = client.get('/buscar_pdf_corte/invalid-date/2026-01-02')
+    assert bad_date.status_code == 400
+    assert bad_date.get_json()['success'] is False
+
     monkeypatch.setattr(
         finanzas_bp.os,
         'listdir',

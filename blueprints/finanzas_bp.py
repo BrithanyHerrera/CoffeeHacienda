@@ -1,5 +1,6 @@
 # Rutas: corte de caja y reportes
 import os
+import re
 import logging
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -44,7 +45,8 @@ def filtrar_ventas_route():
         data = request.get_json(silent=True) or {}
         fecha_desde, fecha_hasta = _rango_fechas(data)
         totales = filtrar_ventas(fecha_desde, fecha_hasta)
-        return jsonify(totales)
+        totales_serializables = {k: float(v) if isinstance(v, Decimal) else v for k, v in totales.items()}
+        return jsonify(totales_serializables)
     except ValueError as error:
         return jsonify({'success': False, 'message': str(error)}), 400
 
@@ -79,7 +81,7 @@ def guardar_corte():
         fecha_inicio, fecha_cierre = _rango_fechas(data)
         vendedor_id = session.get('usuario_id')
         if not vendedor_id:
-            return jsonify({'success': False, 'error': 'La sesión no tiene un usuario válido'}), 401
+            return jsonify({'success': False, 'message': 'La sesión no tiene un usuario válido', 'error': 'La sesión no tiene un usuario válido'}), 401
 
         totales = filtrar_ventas(fecha_inicio, fecha_cierre)
         total_ventas = sum(totales.values(), Decimal('0.00'))
@@ -90,12 +92,14 @@ def guardar_corte():
         if abs(total_contado - total_ventas) > Decimal('0.01'):
             return jsonify({
                 'success': False,
+                'message': 'El total contado no coincide con las ventas calculadas por el servidor',
                 'error': 'El total contado no coincide con las ventas calculadas por el servidor',
             }), 409
 
         if pagos_realizados > total_ventas + fondo:
             return jsonify({
                 'success': False,
+                'message': 'Los pagos realizados superan el total disponible',
                 'error': 'Los pagos realizados superan el total disponible',
             }), 400
 
@@ -115,13 +119,13 @@ def guardar_corte():
         if exito:
             return jsonify({'success': True, 'corte_id': corte_id})
         else:
-            return jsonify({'success': False, 'error': mensaje}), 409
+            return jsonify({'success': False, 'message': mensaje, 'error': mensaje}), 409
 
     except ValueError as error:
-        return jsonify({'success': False, 'error': str(error)}), 400
+        return jsonify({'success': False, 'message': str(error), 'error': str(error)}), 400
     except Exception:
         logger.exception('Error al guardar corte de caja')
-        return jsonify({'success': False, 'error': 'No se pudo guardar el corte'}), 500
+        return jsonify({'success': False, 'message': 'No se pudo guardar el corte', 'error': 'No se pudo guardar el corte'}), 500
 
 @finanzas_bp.route('/reporteFinanciero')
 @login_required
@@ -141,6 +145,8 @@ def buscar_pdf_corte(fecha_inicio, fecha_fin):
     # Esto es vital si tus archivos se guardan como "2026-05-11_08-00-00"
     f_inicio_limpia = fecha_inicio[:10]
     f_fin_limpia = fecha_fin[:10]
+    if not (re.match(r'^\d{4}-\d{2}-\d{2}$', f_inicio_limpia) and re.match(r'^\d{4}-\d{2}-\d{2}$', f_fin_limpia)):
+        return jsonify({'success': False, 'message': 'Formato de fecha inválido'}), 400
 
     try:
         if not os.path.exists(directorio_pdfs):

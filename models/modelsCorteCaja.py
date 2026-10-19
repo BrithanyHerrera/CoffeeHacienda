@@ -111,6 +111,9 @@ def guardar_corte_caja(vendedor_id, fecha_inicio, fecha_cierre, total_ventas,
                                            'ganancia': str(ganancia)})
             conn.commit()
             return True, 'Corte registrado correctamente', corte_id
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()
     except Exception as e:
