@@ -1,4 +1,6 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+let datosAjustePendiente = null;
+
+document.addEventListener("DOMContentLoaded", function () {
     const formProducto = document.getElementById("formProducto");
 
     // Agregar estilos CSS para alertas de inventario
@@ -63,41 +65,128 @@
                 cerrarEditarInventario();
                 return;
             }
-        
-            // Enviar datos al servidor
-            fetch('/api/inventario/actualizar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: idProducto,
-                    stock: nuevoStock,
-                    stock_min: nuevoStockMin,
-                    stock_max: nuevoStockMax
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoStockMax);
-                    mostrarAlerta(data.message); // Mostrar mensaje de éxito
-                    cerrarEditarInventario();
-                } else {
-                    mostrarAlerta("Error al actualizar inventario: " + data.message, 'ErrorG'); // Mostrar mensaje de error
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarAlerta("Error al comunicarse con el servidor", 'ErrorG'); // Mostrar mensaje de error
-            });
+
+            const nombreElement = document.getElementById("verNombreProducto");
+            const nombreProducto = nombreElement ? nombreElement.textContent.trim() : "este producto";
+
+            datosAjustePendiente = {
+                id: idProducto,
+                stock: nuevoStock,
+                stock_min: nuevoStockMin,
+                stock_max: nuevoStockMax,
+                nombre: nombreProducto
+            };
+
+            abrirConfirmacionAjuste(nombreProducto);
         });
     }
 });
 
+// Función para abrir modal de confirmación con motivo obligatorio
+function abrirConfirmacionAjuste(nombreProducto) {
+    const modal = document.getElementById("confirmacionModal");
+    const mensaje = document.getElementById("mensajeConfirmacion");
+    const motivo = document.getElementById("motivoAjuste");
+
+    if (mensaje) {
+        mensaje.textContent = `¿Estás seguro de modificar las existencias/límites de ${nombreProducto}?`;
+    }
+    if (motivo) {
+        motivo.value = "";
+    }
+    if (modal) {
+        modal.style.display = "flex";
+        if (motivo) {
+            setTimeout(function () {
+                motivo.focus();
+            }, 50);
+        }
+    }
+}
+
+// Función para confirmar y enviar el ajuste con motivo
+function confirmarAjusteInventario() {
+    if (!datosAjustePendiente) {
+        cerrarConfirmacionModal();
+        return;
+    }
+
+    const motivoInput = document.getElementById("motivoAjuste");
+    const motivo = motivoInput ? motivoInput.value.trim() : "";
+
+    if (!motivo) {
+        mostrarAlerta("El motivo del ajuste es obligatorio.", "ErrorG");
+        if (motivoInput) {
+            motivoInput.focus();
+        }
+        return;
+    }
+
+    const btnConfirmar = document.getElementById("btnConfirmar");
+    if (btnConfirmar) {
+        btnConfirmar.disabled = true;
+    }
+
+    const payload = {
+        id: datosAjustePendiente.id,
+        stock: datosAjustePendiente.stock,
+        stock_min: datosAjustePendiente.stock_min,
+        stock_max: datosAjustePendiente.stock_max,
+        motivo: motivo
+    };
+
+    fetch('/api/inventario/actualizar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, status: response.status, data })))
+    .then(({ ok, data }) => {
+        if (data && data.success) {
+            actualizarFilaInventario(
+                datosAjustePendiente.id,
+                datosAjustePendiente.stock,
+                datosAjustePendiente.stock_min,
+                datosAjustePendiente.stock_max
+            );
+            mostrarAlerta(data.message);
+            cerrarConfirmacionModal();
+            cerrarEditarInventario();
+            datosAjustePendiente = null;
+        } else {
+            const mensajeError = (data && data.message) ? data.message : "Error desconocido";
+            mostrarAlerta("Error al actualizar inventario: " + mensajeError, 'ErrorG');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarAlerta("Error al comunicarse con el servidor", 'ErrorG');
+    })
+    .finally(() => {
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+        }
+    });
+}
+
+// Función para cerrar el modal de confirmación
+function cerrarConfirmacionModal() {
+    const modal = document.getElementById("confirmacionModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+    const motivo = document.getElementById("motivoAjuste");
+    if (motivo) {
+        motivo.value = "";
+    }
+}
+
 // Función para actualizar la fila de inventario con las clases de alerta correctas
 function actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoStockMax) {
     const fila = document.querySelector(`tr[data-id="${idProducto}"]`);
+    if (!fila) return;
     
     // Actualizar atributos de la fila
     fila.setAttribute("data-stock", nuevoStock);
@@ -106,43 +195,44 @@ function actualizarFilaInventario(idProducto, nuevoStock, nuevoStockMin, nuevoSt
 
     // Actualizar celdas de la tabla
     const stockCell = fila.querySelector(".stockProducto");
-    stockCell.textContent = nuevoStock;
-    fila.querySelector(".stockMinProducto").textContent = nuevoStockMin;
-    fila.querySelector(".stockMaxProducto").textContent = nuevoStockMax;
+    if (stockCell) stockCell.textContent = nuevoStock;
+    const minCell = fila.querySelector(".stockMinProducto");
+    if (minCell) minCell.textContent = nuevoStockMin;
+    const maxCell = fila.querySelector(".stockMaxProducto");
+    if (maxCell) maxCell.textContent = nuevoStockMax;
     
     // Obtener la celda de estado
     const estadoCell = fila.querySelector(".estado-inventario");
-    estadoCell.classList.remove("estado-critico", "estado-alerta", "estado-aceptable");
-    
-    // Aplicar las clases de alerta según los nuevos valores
-    if (nuevoStock <= nuevoStockMin) {
-        // Si el stock es igual o menor al mínimo, es crítico
-        estadoCell.classList.add("estado-critico");
-        estadoCell.textContent = "CRÍTICO";
-    } else if (nuevoStock <= nuevoStockMin + 5) {
-        // Si el stock está entre mínimo+1 y mínimo+5, es crítico
-        estadoCell.classList.add("estado-critico");
-        estadoCell.textContent = "CRÍTICO";
-    } else if (nuevoStock <= nuevoStockMin + 10) {
-        // Si el stock está entre mínimo+6 y mínimo+10, es alerta
-        estadoCell.classList.add("estado-alerta");
-        estadoCell.textContent = "ALERTA";
-    } else {
-        // Si el stock es mayor que mínimo+10, es aceptable
-        estadoCell.classList.add("estado-aceptable");
-        estadoCell.textContent = "ACEPTABLE";
+    if (estadoCell) {
+        estadoCell.classList.remove("estado-critico", "estado-alerta", "estado-aceptable");
+        
+        // Aplicar las clases de alerta según los nuevos valores
+        if (nuevoStock <= nuevoStockMin) {
+            estadoCell.classList.add("estado-critico");
+            estadoCell.textContent = "CRÍTICO";
+        } else if (nuevoStock <= nuevoStockMin + 5) {
+            estadoCell.classList.add("estado-critico");
+            estadoCell.textContent = "CRÍTICO";
+        } else if (nuevoStock <= nuevoStockMin + 10) {
+            estadoCell.classList.add("estado-alerta");
+            estadoCell.textContent = "ALERTA";
+        } else {
+            estadoCell.classList.add("estado-aceptable");
+            estadoCell.textContent = "ACEPTABLE";
+        }
     }
 }
 
 // Función para abrir el modal con los datos del producto seleccionado
 function editarInventario(boton) {
     const fila = boton.closest("tr");
+    if (!fila) return;
 
     const idProducto = fila.getAttribute("data-id");
     const nombreProducto = fila.getAttribute("data-nombre");
-    const stockActual = parseInt(fila.getAttribute("data-stock"));
-    const stockMin = parseInt(fila.getAttribute("data-stock-min"));
-    const stockMax = parseInt(fila.getAttribute("data-stock-max"));
+    const stockActual = parseInt(fila.getAttribute("data-stock")) || 0;
+    const stockMin = parseInt(fila.getAttribute("data-stock-min")) || 0;
+    const stockMax = parseInt(fila.getAttribute("data-stock-max")) || 0;
 
     document.getElementById("idProducto").value = idProducto;
     document.getElementById("verNombreProducto").textContent = nombreProducto;
@@ -179,7 +269,12 @@ function editarInventario(boton) {
 
 // Función para cerrar el modal de edición
 function cerrarEditarInventario() {
-    document.getElementById("editarInventarioModal").style.display = "none";
+    const modal = document.getElementById("editarInventarioModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+    cerrarConfirmacionModal();
+    datosAjustePendiente = null;
 }
 
 // Función para filtrar productos por nombre
@@ -188,8 +283,10 @@ function filtrarInventario() {
     const filas = document.querySelectorAll("#inventarioLista tr");
 
     filas.forEach((fila) => {
-        const nombreProducto = fila.getAttribute("data-nombre").toLowerCase();
-        fila.style.display = nombreProducto.includes(buscarNombre) ? "" : "none";
+        const nombreAttr = fila.getAttribute("data-nombre");
+        if (nombreAttr) {
+            fila.style.display = nombreAttr.toLowerCase().includes(buscarNombre) ? "" : "none";
+        }
     });
 }
 
@@ -198,10 +295,3 @@ function reestablecerFiltrosInventario() {
     document.getElementById("buscarNombre").value = "";
     filtrarInventario();
 }
-
-
-
-
-
-
-

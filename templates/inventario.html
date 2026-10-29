@@ -14,8 +14,13 @@
             <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
             <h3>Confirmación</h3>
             <p id="mensajeConfirmacion"></p>
-            <button id="btnConfirmar" onclick="confirmarCambioEstado()">Sí</button>
-            <button onclick="cerrarConfirmacionModal()">No</button>
+            <div id="contenedorMotivoAjuste" style="margin: 12px 0; text-align: left;">
+                <label for="motivoAjuste" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem;">Motivo del ajuste <span style="color: var(--color-danger, #dc3545);">*</span></label>
+                <textarea id="motivoAjuste" maxlength="255" rows="3" style="width: 100%; box-sizing: border-box; resize: vertical; padding: 10px; border-radius: var(--radius-sm, 6px); border: 1px solid var(--color-border, #ccc); font-family: inherit; font-size: 0.95rem;"
+                          placeholder="Ej: Merma por caducidad, Reabastecimiento con proveedor, Ajuste de inventario físico"></textarea>
+            </div>
+            <button id="btnConfirmar" onclick="confirmarAjusteInventario()">Confirmar</button>
+            <button type="button" onclick="cerrarConfirmacionModal()">Cancelar</button>
         </section>
     </section>
 

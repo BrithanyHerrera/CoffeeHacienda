@@ -141,21 +141,28 @@ def test_inventory_page_and_update_validation(
 
     invalid_payloads = [
         {},
-        {'id': 1, 'stock': -1, 'stock_min': 1, 'stock_max': 2},
-        {'id': 1, 'stock': 1, 'stock_min': 0, 'stock_max': 2},
-        {'id': 1, 'stock': 1, 'stock_min': 1, 'stock_max': 0},
-        {'id': 1, 'stock': 1, 'stock_min': 2, 'stock_max': 2},
-        {'id': 1, 'stock': 1, 'stock_min': 3, 'stock_max': 2},
+        {'id': 1, 'stock': -1, 'stock_min': 1, 'stock_max': 2, 'motivo': 'Ajuste'},
+        {'id': 1, 'stock': 1, 'stock_min': 0, 'stock_max': 2, 'motivo': 'Ajuste'},
+        {'id': 1, 'stock': 1, 'stock_min': 1, 'stock_max': 0, 'motivo': 'Ajuste'},
+        {'id': 1, 'stock': 1, 'stock_min': 2, 'stock_max': 2, 'motivo': 'Ajuste'},
+        {'id': 1, 'stock': 1, 'stock_min': 3, 'stock_max': 2, 'motivo': 'Ajuste'},
+        {'id': 1, 'stock': 1, 'stock_min': 1, 'stock_max': 2},
+        {'id': 1, 'stock': 1, 'stock_min': 1, 'stock_max': 2, 'motivo': ''},
+        {'id': 1, 'stock': 1, 'stock_min': 1, 'stock_max': 2, 'motivo': '   '},
     ]
     for payload in invalid_payloads:
         response = client.post('/api/inventario/actualizar', json=payload)
         assert response.status_code == 400
 
+    resp_sin_motivo = client.post('/api/inventario/actualizar', json={'id': 1, 'stock': 1, 'stock_min': 1, 'stock_max': 2, 'motivo': '  '})
+    assert resp_sin_motivo.status_code == 400
+    assert resp_sin_motivo.get_json()['message'] == 'El motivo del ajuste es obligatorio'
+
 
 def test_actualizacion_inventario_faltante_exito_fallo_y_excepcion(
         client, authenticated_session, monkeypatch):
     authenticated_session(client, role='Administrador')
-    payload = {'id': 1, 'stock': 5, 'stock_min': 1, 'stock_max': 10}
+    payload = {'id': 1, 'stock': 5, 'stock_min': 1, 'stock_max': 10, 'motivo': 'Ajuste de inventario'}
 
     monkeypatch.setattr(
         inventario_bp, 'obtener_producto_inventario_por_id', lambda product_id: None

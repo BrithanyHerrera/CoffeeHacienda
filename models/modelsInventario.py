@@ -73,7 +73,7 @@ def contar_alertas_inventario():
     finally:
         conn.close()
 
-def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max):
+def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max, motivo=None):
     """Actualiza stock y límites; registra el movimiento en tmovimientosinventario."""
     conn = Conexion_BD()
     try:
@@ -100,13 +100,18 @@ def actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_s
                 cursor.execute("""
                     INSERT INTO tmovimientosinventario (producto_id, cantidad, tipo_movimiento_id, motivo)
                     VALUES (%s, %s, %s, %s)
-                """, (id_producto, cantidad, tipo_movimiento, "Actualización desde panel de inventario"))
+                """, (id_producto, cantidad, tipo_movimiento, motivo or "Actualización desde panel de inventario"))
 
             if cantidad > 0:
+                detalles = {
+                    'stock_anterior': stock_anterior,
+                    'stock_nuevo': nuevo_stock,
+                    'cantidad': cantidad,
+                }
+                if motivo:
+                    detalles['motivo'] = motivo
                 registrar_evento(cursor, 'AJUSTAR_STOCK', 'producto', id_producto,
-                                 detalles={'stock_anterior': stock_anterior,
-                                           'stock_nuevo': nuevo_stock,
-                                           'cantidad': cantidad})
+                                 detalles=detalles)
 
         conn.commit()
         return True

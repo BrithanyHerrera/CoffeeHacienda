@@ -42,6 +42,11 @@ def actualizar_inventario():
         if nuevo_stock_min > nuevo_stock_max:
             return jsonify({'success': False, 'message': 'El stock mínimo no puede ser mayor que el stock máximo'}), 400
         
+        motivo = data.get('motivo')
+        if not isinstance(motivo, str) or not motivo.strip():
+            return jsonify({'success': False, 'message': 'El motivo del ajuste es obligatorio'}), 400
+        motivo = motivo.strip()[:255]
+
         producto_actual = obtener_producto_inventario_por_id(id_producto)
 
         if not producto_actual:
@@ -53,7 +58,7 @@ def actualizar_inventario():
             producto_actual['stock_maximo'] == nuevo_stock_max):
             return jsonify({'success': True, 'message': 'No se realizaron cambios en el inventario'})
         
-        resultado = actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max)
+        resultado = actualizar_stock_producto(id_producto, nuevo_stock, nuevo_stock_min, nuevo_stock_max, motivo)
         
         mensaje = 'Inventario actualizado correctamente'
         if resultado:

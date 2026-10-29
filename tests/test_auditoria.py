@@ -53,3 +53,36 @@ def test_registrar_evento_propaga_errores_distintos():
         pass
     else:
         raise AssertionError('El error de base de datos debe propagarse')
+
+
+def test_auditoria_ajustar_stock_registra_motivo(monkeypatch):
+    from models import modelsInventario
+
+    def handler(sql, params, cursor):
+        cursor.rowcount = 1
+        if sql.startswith('SELECT stock'):
+            return {'stock': 10}
+        return None
+
+    connection = FakeConnection(handler)
+    monkeypatch.setattr(modelsInventario, 'Conexion_BD', lambda: connection)
+
+    modelsInventario.actualizar_stock_producto(
+        5, 15, 2, 20, motivo='Reabastecimiento con proveedor'
+    )
+
+    auditoria_calls = [
+        (sql, params) for sql, params in connection.cursor_instance.calls
+        if sql.startswith('INSERT INTO tauditoria')
+    ]
+    assert len(auditoria_calls) == 1
+    sql, params = auditoria_calls[0]
+    assert params[1] == 'AJUSTAR_STOCK'
+    assert params[2] == 'producto'
+    assert params[3] == 5
+    detalles = json.loads(params[4])
+    assert detalles['motivo'] == 'Reabastecimiento con proveedor'
+    assert detalles['stock_anterior'] == 10
+    assert detalles['stock_nuevo'] == 15
+    assert detalles['cantidad'] == 5
+
