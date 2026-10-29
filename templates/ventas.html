@@ -1,0 +1,70 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Ventas - Coffee Hacienda{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <section class="contenedorGestionVentas">    
+        <h1>Punto de Venta / Ventas</h1>
+    </section>
+
+    <!-- Formulario / modal de orden/mesa con selector normalizado -->
+    <section class="formularioVenta" id="seccionFormularioVenta">
+        <h2>Registro de Orden</h2>
+        <div class="campoVenta">
+            <label for="nombreCliente">Nombre del Cliente:</label>
+            <input type="text" id="nombreCliente" name="nombreCliente" placeholder="Nombre del cliente" maxlength="255">
+        </div>
+
+        <div class="numeroMesa" id="mesaContainer">
+            <label for="numeroMesa">Mesa / Servicio:</label>
+            <select class="inputMesa selectMesa" id="numeroMesa" name="numeroMesa">
+                <option value="Para llevar" selected>Para llevar</option>
+                <option value="Mesa 1">Mesa 1</option>
+                <option value="Mesa 2">Mesa 2</option>
+                <option value="Mesa 3">Mesa 3</option>
+                <option value="Mesa 4">Mesa 4</option>
+                <option value="Mesa 5">Mesa 5</option>
+                <option value="Barra">Barra</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Tabla de ventas -->
+    <section class="listaVentas">
+        <h2>Listado de Ventas</h2>
+        <table class="tablaVentas">
+            <thead>
+                <tr>
+                    <th>Vendedor</th>
+                    <th>Cliente</th>
+                    <th>Fecha de Venta</th>
+                    <th>Total</th>
+                    <th>Mesa</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaHistorialVentas">
+                {% if ventas %}
+                    {% for venta in ventas %}
+                    <tr>
+                        <td>{{ venta.vendedor }}</td>
+                        <td>{{ venta.cliente }}</td>
+                        <td>{{ venta.fecha_hora }}</td>
+                        <td>${{ "%.2f"|format(venta.total|float) }}</td>
+                        <td>{{ venta.numero_mesa if venta.numero_mesa and venta.numero_mesa != "Sin mesa" else "Para llevar" }}</td>
+                        <td>
+                            <button type="button" class="btnVerVenta">👁️</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron ventas</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </section>
+</main>
+{% endblock %}

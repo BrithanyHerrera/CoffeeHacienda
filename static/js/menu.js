@@ -238,10 +238,24 @@ document.querySelectorAll('.añadirCarrito').forEach(button => {
 // REALIZAR PEDIDO
 // ==========================================
 
+function normalizarMesa(m) {
+    if (!m) return 'Para llevar';
+    const s = String(m).trim();
+    if (!s || s.toLowerCase() === 'sin mesa' || s.toLowerCase() === 'none' || s.toLowerCase() === 'null') {
+        return 'Para llevar';
+    }
+    return s;
+}
+
 function realizarPedido() {
     const nombreCliente = document.getElementById('nombreCliente').value.trim();
-    const paraLlevar = document.getElementById('paraLlevar').checked;
-    const numeroMesa = paraLlevar ? '' : document.getElementById('numeroMesa').value.trim();
+    const selectorMesa = document.getElementById('numeroMesa');
+    const paraLlevarCheckbox = document.getElementById('paraLlevar');
+    let numeroMesa = normalizarMesa(selectorMesa ? selectorMesa.value : '');
+    if (paraLlevarCheckbox && paraLlevarCheckbox.checked) {
+        numeroMesa = 'Para llevar';
+    }
+    const paraLlevar = numeroMesa === 'Para llevar';
     const selectorPago = document.querySelector('select[name="metodoPago"]');
     const metodoPagoId = parseInt(selectorPago.value, 10);
     const metodoPagoCodigo = selectorPago.selectedOptions[0]?.dataset.codigo || '';
@@ -251,11 +265,6 @@ function realizarPedido() {
     // Validaciones
     if (nombreCliente === '') {
         mostrarAlerta('Por favor, ingrese el nombre del cliente.', 'ErrorG');
-        return;
-    }
-
-    if (!paraLlevar && numeroMesa === '') {
-        mostrarAlerta('Ingrese el número de mesa o marque "Para llevar".', 'ErrorG');
         return;
     }
 
@@ -307,11 +316,15 @@ function realizarPedido() {
             actualizarCarrito();
             // Limpiar formulario
             document.getElementById('nombreCliente').value = '';
-            document.getElementById('numeroMesa').value = '';
+            if (selectorMesa) {
+                selectorMesa.value = 'Para llevar';
+            }
             document.getElementById('inputDineroRecibido').value = '';
             document.getElementById('inputCambio').value = '0';
             document.getElementById('metodoPago').selectedIndex = 0;
-            document.getElementById('paraLlevar').checked = false;
+            if (paraLlevarCheckbox) {
+                paraLlevarCheckbox.checked = false;
+            }
             toggleMesaField();
         } else {
             if (data.productos_sin_stock) {
@@ -352,13 +365,16 @@ function calcularCambio() {
 }
 
 function toggleMesaField() {
-    const paraLlevar = document.getElementById('paraLlevar').checked;
+    const selectorMesa = document.getElementById('numeroMesa');
+    const paraLlevarCheckbox = document.getElementById('paraLlevar');
     const mesaContainer = document.getElementById('mesaContainer');
     
-    if (paraLlevar) {
-        mesaContainer.style.display = 'none';
-        document.getElementById('numeroMesa').value = '';
-    } else {
+    if (paraLlevarCheckbox && selectorMesa) {
+        if (paraLlevarCheckbox.checked) {
+            selectorMesa.value = 'Para llevar';
+        }
+    }
+    if (mesaContainer) {
         mesaContainer.style.display = 'block';
     }
 }
@@ -413,8 +429,13 @@ function generarPDF(datosVenta = {}) {
         ?? "0.00";
     const metodoPagoSelect = document.getElementById('metodoPago');
     const metodoPago = metodoPagoSelect.selectedOptions[0]?.textContent || "No especificado";
-    const paraLlevar = document.getElementById('paraLlevar').checked;
-    const numeroMesa = document.getElementById('numeroMesa').value.trim();
+    const selectorMesa = document.getElementById('numeroMesa');
+    let mesaVal = selectorMesa ? selectorMesa.value : '';
+    if (!mesaVal && datosVenta) {
+        mesaVal = datosVenta.mesa || datosVenta.numero_mesa || '';
+    }
+    const mesaNormalizada = normalizarMesa(mesaVal);
+    const paraLlevar = mesaNormalizada === 'Para llevar';
 
     // Configurar fuente
     doc.setFont("times", "normal");
@@ -438,6 +459,8 @@ function generarPDF(datosVenta = {}) {
     doc.text(`Dirección: ${direccionSucursal}`, margenIzquierdo, posicionY);
     posicionY += 6;
     doc.text(`Cliente: ${nombreCliente}`, margenIzquierdo, posicionY);
+    posicionY += 6;
+    doc.text(`Mesa / Servicio: ${mesaNormalizada}`, margenIzquierdo, posicionY);
     posicionY += 10;
     doc.text(`Método de Pago: ${metodoPago}`, margenIzquierdo, posicionY);
     posicionY += 10;
@@ -507,7 +530,8 @@ function generarPDF(datosVenta = {}) {
     if (paraLlevar) {
         nombreArchivo = `Llevar_${clienteLimpio}_${vendedorLimpio}_${fechaCorta}.pdf`;
     } else {
-        nombreArchivo = `Mesa${numeroMesa || '0'}_${vendedorLimpio}_${fechaCorta}.pdf`;
+        const mesaLimpia = mesaNormalizada.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]/g, '').replace(/\s+/g, '_');
+        nombreArchivo = `${mesaLimpia}_${vendedorLimpio}_${fechaCorta}.pdf`;
     }
 
     // Descargar localmente

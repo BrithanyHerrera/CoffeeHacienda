@@ -60,7 +60,12 @@ def obtener_ordenes_pendientes():
         with conn.cursor() as cursor:
             cursor.execute("""
                 SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente,
-                       v.numero_mesa, e.estado, m.tipo_de_pago AS metodo_pago,
+                       CASE 
+                           WHEN v.numero_mesa IS NULL OR TRIM(v.numero_mesa) = '' OR LOWER(TRIM(v.numero_mesa)) = 'sin mesa' 
+                           THEN 'Para llevar' 
+                           ELSE v.numero_mesa 
+                       END AS numero_mesa, 
+                       e.estado, m.tipo_de_pago AS metodo_pago,
                        COALESCE(v.dinero_recibido, 0) AS dinero_recibido,
                        COALESCE(v.cambio, 0) AS cambio
                 FROM tventas v
@@ -71,7 +76,12 @@ def obtener_ordenes_pendientes():
                 WHERE v.estado_id IN (1, 2)
                 ORDER BY v.fecha_hora DESC
             """)
-            return cursor.fetchall()
+            ordenes = cursor.fetchall()
+            for orden in ordenes:
+                mesa = (orden.get('numero_mesa') or '').strip()
+                if not mesa or mesa.lower() in ('sin mesa', 'none', 'null'):
+                    orden['numero_mesa'] = 'Para llevar'
+            return ordenes
     except Exception as e:
         logger.error(f"Error al obtener órdenes pendientes: {e}")
         return []
@@ -277,7 +287,12 @@ def obtener_venta_completa(venta_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT v.Id, v.total, v.fecha_hora, v.numero_mesa,
+                SELECT v.Id, v.total, v.fecha_hora,
+                       CASE 
+                           WHEN v.numero_mesa IS NULL OR TRIM(v.numero_mesa) = '' OR LOWER(TRIM(v.numero_mesa)) = 'sin mesa' 
+                           THEN 'Para llevar' 
+                           ELSE v.numero_mesa 
+                       END AS numero_mesa,
                        c.nombre AS cliente, u.usuario AS vendedor,
                        mp.tipo_de_pago AS metodo_pago,
                        COALESCE(v.dinero_recibido, 0) AS dinero_recibido,
@@ -292,6 +307,10 @@ def obtener_venta_completa(venta_id):
 
             if not venta:
                 return None, None
+
+            mesa = (venta.get('numero_mesa') or '').strip()
+            if not mesa or mesa.lower() in ('sin mesa', 'none', 'null'):
+                venta['numero_mesa'] = 'Para llevar' 
 
             if _detalle_tiene_variante_id(cursor):
                 cursor.execute("""
@@ -484,7 +503,9 @@ def procesar_venta_completa(nombre_cliente, numero_mesa, productos, total,
                 nombre_cliente = 'Cliente General'
             nombre_cliente = nombre_cliente[:255]
 
-            numero_mesa = (numero_mesa or '').strip() if isinstance(numero_mesa, str) else ''
+            numero_mesa = (numero_mesa or '').strip() if isinstance(numero_mesa, str) else (str(numero_mesa).strip() if numero_mesa is not None else '')
+            if not numero_mesa or numero_mesa.lower() in ('sin mesa', 'none', 'null'):
+                numero_mesa = 'Para llevar'
             numero_mesa = numero_mesa[:50]
 
             # Obtener o crear cliente

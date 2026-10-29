@@ -145,7 +145,12 @@ def api_historial_ventas():
     fecha_inicio = request.args.get('fechaInicio', '')
     fecha_fin = request.args.get('fechaFin', '')
     pagina = request.args.get('pagina', 1, type=int)
-    por_pagina = request.args.get('por_pagina', 15, type=int)
+    if pagina is None or pagina < 1:
+        pagina = 1
+    por_pagina_val = request.args.get('por_pagina', 15, type=int)
+    if por_pagina_val is None:
+        por_pagina_val = 15
+    por_pagina = min(max(por_pagina_val, 1), 100)
 
     try:
         ventas, total_paginas, total = obtener_historial_ventas(
@@ -182,7 +187,11 @@ def procesar_venta():
             return jsonify({'success': False, 'message': 'Solicitud JSON no válida'}), 400
         
         nombre_cliente = data.get('cliente', 'Cliente General')
-        numero_mesa = data.get('mesa', '')
+        numero_mesa = data.get('mesa')
+        if not numero_mesa or not str(numero_mesa).strip() or str(numero_mesa).strip().lower() in ('sin mesa', 'none', 'null'):
+            numero_mesa = 'Para llevar'
+        else:
+            numero_mesa = str(numero_mesa).strip()
         productos = data.get('productos', [])
         metodo_pago_id = data.get('metodo_pago')
         dinero_recibido = data.get('dinero_recibido', 0)

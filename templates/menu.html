@@ -87,20 +87,18 @@
                        oninput="this.value = this.value.replace(/[0-9]/g, '')" required>
             </div>
 
-            <!-- Opción para llevar con mejor estilo -->
-            <div class="opcionLlevar">
-                <label for="paraLlevar">Para llevar</label>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="paraLlevar" onchange="toggleMesaField()">
-                </div>
-            </div>
-            
-            <!-- Agregar campo para número de mesa -->
+            <!-- Selector normalizado de mesa / tipo de servicio -->
             <div class="numeroMesa" id="mesaContainer">
-                <label for="numeroMesa">Número de Mesa:</label>
-                <input class="inputMesa" type="number" id="numeroMesa" placeholder="Nº mesa" min="1" max="99"
-                       onkeydown="if(['e','E','+','-','.'].includes(event.key)) event.preventDefault()"
-                       oninput="if(this.value.length > 2) this.value = this.value.slice(0,2)">
+                <label for="numeroMesa">Mesa / Servicio:</label>
+                <select class="inputMesa selectMesa" id="numeroMesa" name="numeroMesa">
+                    <option value="Para llevar" selected>Para llevar</option>
+                    <option value="Mesa 1">Mesa 1</option>
+                    <option value="Mesa 2">Mesa 2</option>
+                    <option value="Mesa 3">Mesa 3</option>
+                    <option value="Mesa 4">Mesa 4</option>
+                    <option value="Mesa 5">Mesa 5</option>
+                    <option value="Barra">Barra</option>
+                </select>
             </div>
             <!-- Total en el carrito -->
             <div class="totalCarrito">

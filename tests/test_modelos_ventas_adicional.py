@@ -374,3 +374,86 @@ def test_venta_con_variante_valida_usa_captura_de_variante(monkeypatch):
     assert success is True
     assert sale['productos'][0]['tamano'] == 'Grande'
     assert captured['detail'][2:5] == (2, 'Café', 'Grande')
+
+
+
+@pytest.mark.parametrize('mesa_input,expected_mesa', [
+    (None, 'Para llevar'),
+    ('', 'Para llevar'),
+    ('   ', 'Para llevar'),
+    ('Sin mesa', 'Para llevar'),
+    ('sin mesa', 'Para llevar'),
+    ('Mesa 3', 'Mesa 3'),
+    ('Barra', 'Barra'),
+])
+def test_procesar_venta_normaliza_mesa_para_llevar(monkeypatch, mesa_input, expected_mesa):
+    captured = {}
+
+    def handler(sql, params, cursor):
+        if 'FROM tmetodospago' in sql:
+            return {'Id': 2, 'codigo': 'TARJETA', 'tipo_de_pago': 'Tarjeta'}
+        if 'FROM tproductos p JOIN tcategorias' in sql:
+            return [{
+                'id': 1,
+                'nombre_producto': 'Café Americano',
+                'precio': Decimal('30.00'),
+                'stock': 10,
+                'requiere_inventario': 0,
+            }]
+        if 'FROM tproductos_variantes pv' in sql:
+            return []
+        if 'SELECT Id FROM tclientes' in sql:
+            return {'Id': 10}
+        if 'SELECT Id FROM tusuarios' in sql:
+            return {'Id': 20}
+        if 'SELECT Id FROM testadosventa' in sql:
+            return {'Id': 1}
+        if sql.startswith('INSERT INTO tventas'):
+            captured['sale_params'] = params
+            cursor.lastrowid = 100
+        if 'FROM information_schema.COLUMNS' in sql:
+            return {'total': 1}
+        if sql.startswith('INSERT INTO tdetalleventas'):
+            return None
+        return None
+
+    connection = FakeConnection(handler)
+    monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: connection)
+
+    success, _, _ = modelsVentas.procesar_venta_completa(
+        'Cliente Test',
+        mesa_input,
+        [{'id': 1, 'cantidad': 1}],
+        total=1,
+        metodo_pago_id=2,
+        usuario_actual='vendedor',
+    )
+
+    assert success is True
+    # In INSERT INTO tventas (cliente_id, vendedor_id, total, metodo_pago_id, numero_mesa, ...)
+    assert captured['sale_params'][4] == expected_mesa
+
+
+def test_obtener_ordenes_pendientes_normaliza_mesa_nula_o_vacia(monkeypatch):
+    rows = [
+        {'id': 1, 'numero_mesa': None},
+        {'id': 2, 'numero_mesa': ''},
+        {'id': 3, 'numero_mesa': 'Sin mesa'},
+        {'id': 4, 'numero_mesa': 'Mesa 2'},
+    ]
+    conn = connection_with_results(rows)
+    monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: conn)
+    ordenes = modelsVentas.obtener_ordenes_pendientes()
+    assert ordenes[0]['numero_mesa'] == 'Para llevar'
+    assert ordenes[1]['numero_mesa'] == 'Para llevar'
+    assert ordenes[2]['numero_mesa'] == 'Para llevar'
+    assert ordenes[3]['numero_mesa'] == 'Mesa 2'
+
+
+def test_obtener_venta_completa_normaliza_mesa_nula_o_vacia(monkeypatch):
+    sale = {'Id': 1, 'numero_mesa': 'Sin mesa'}
+    details = [{'nombre_producto': 'Café'}]
+    conn = connection_with_results(sale, {'total': 1}, details)
+    monkeypatch.setattr(modelsVentas, 'Conexion_BD', lambda: conn)
+    venta, _ = modelsVentas.obtener_venta_completa(1)
+    assert venta['numero_mesa'] == 'Para llevar'

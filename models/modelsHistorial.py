@@ -48,7 +48,12 @@ def obtener_historial_ventas(filtro_cliente=None, filtro_vendedor=None, fecha_in
             # Query principal con LIMIT/OFFSET
             query = f"""
                 SELECT v.id, v.fecha_hora, v.total, u.usuario AS vendedor, c.nombre AS cliente,
-                       v.numero_mesa, e.estado, m.tipo_de_pago AS metodo_pago
+                       CASE 
+                           WHEN v.numero_mesa IS NULL OR TRIM(v.numero_mesa) = '' OR LOWER(TRIM(v.numero_mesa)) = 'sin mesa' 
+                           THEN 'Para llevar' 
+                           ELSE v.numero_mesa 
+                       END AS numero_mesa, 
+                       e.estado, m.tipo_de_pago AS metodo_pago
                 FROM tventas v
                 JOIN tusuarios u ON v.vendedor_id = u.id
                 JOIN tclientes c ON v.cliente_id = c.id
@@ -60,6 +65,10 @@ def obtener_historial_ventas(filtro_cliente=None, filtro_vendedor=None, fecha_in
             """
             cursor.execute(query, params + [por_pagina, offset])
             ventas = cursor.fetchall()
+            for venta in ventas:
+                mesa = (venta.get('numero_mesa') or '').strip()
+                if not mesa or mesa.lower() in ('sin mesa', 'none', 'null'):
+                    venta['numero_mesa'] = 'Para llevar'
             
             return ventas, total_paginas, total
     except Exception as e:

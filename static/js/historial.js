@@ -1,5 +1,14 @@
 ﻿
 
+function normalizarMesa(m) {
+    if (!m) return 'Para llevar';
+    const s = String(m).trim();
+    if (!s || s.toLowerCase() === 'sin mesa' || s.toLowerCase() === 'none' || s.toLowerCase() === 'null') {
+        return 'Para llevar';
+    }
+    return s;
+}
+
 // Estado de paginación
 let paginaActual = 1;
 
@@ -45,7 +54,7 @@ function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = 
                     const fila = document.createElement('tr');
                     [venta.vendedor, venta.cliente, fechaFormateada,
                         `$${Number(venta.total || 0).toFixed(2)}`,
-                        venta.numero_mesa ? `Mesa: ${venta.numero_mesa}` : 'Sin mesa']
+                        normalizarMesa(venta.numero_mesa)]
                         .forEach(valor => { const celda = document.createElement('td'); celda.textContent = valor || ''; fila.append(celda); });
                     const acciones = document.createElement('td');
                     const boton = document.createElement('button');
@@ -175,10 +184,10 @@ function verDetallesVenta(id) {
 
                 const info = elemento('div', 'venta-info-container');
                 [['Vendedor:', venta.vendedor || 'No disponible'], ['Cliente:', venta.cliente || 'No disponible'],
+                    ['Mesa / Servicio:', normalizarMesa(venta.numero_mesa)],
                     ['Método de pago:', venta.metodo_pago || 'No especificado'],
                     ['Dinero recibido:', `$${parseFloat(venta.dinero_recibido || 0).toFixed(2)}`],
                     ['Cambio:', `$${parseFloat(venta.cambio || 0).toFixed(2)}`]]
-                    .concat(venta.numero_mesa ? [['Mesa:', venta.numero_mesa]] : [])
                     .forEach(([etiqueta, valor]) => { const grupo = elemento('div', 'venta-info-grupo'); grupo.append(elemento('span', 'info-label', etiqueta), elemento('span', 'info-value', valor)); info.append(grupo); });
                 contenido.append(info);
 

@@ -261,3 +261,54 @@ def test_crear_venta_maneja_error(
         lambda *args: (_ for _ in ()).throw(RuntimeError('database error')),
     )
     assert client.post('/api/ventas/crear', json=_sale_payload()).status_code == 500
+
+
+@pytest.mark.parametrize('param_val,expected_clamped', [
+    (0, 1),
+    (-10, 1),
+    (150, 100),
+    (50, 50),
+    ('invalid', 15),
+])
+def test_api_historial_ventas_acota_por_pagina(
+        client, authenticated_session, monkeypatch, param_val, expected_clamped):
+    authenticated_session(client)
+    captured = []
+    monkeypatch.setattr(
+        ventas_bp,
+        'obtener_historial_ventas',
+        lambda *args: captured.append(args) or ([{'Id': 1}], 1, 1),
+    )
+    response = client.get(f'/api/historial-ventas?por_pagina={param_val}')
+    assert response.status_code == 200
+    assert captured[0][5] == expected_clamped
+
+
+@pytest.mark.parametrize('input_mesa,expected_mesa', [
+    (None, 'Para llevar'),
+    ('', 'Para llevar'),
+    ('   ', 'Para llevar'),
+    ('Sin mesa', 'Para llevar'),
+    ('sin mesa', 'Para llevar'),
+    ('Mesa 2', 'Mesa 2'),
+    ('Barra', 'Barra'),
+])
+def test_crear_venta_normaliza_mesa_para_llevar(
+        client, authenticated_session, monkeypatch, input_mesa, expected_mesa):
+    authenticated_session(client)
+    captured = []
+    monkeypatch.setattr(
+        ventas_bp,
+        'procesar_venta_completa',
+        lambda *args: captured.append(args) or (True, 'Venta registrada', {'venta_id': 1}),
+    )
+    payload = {
+        'cliente': 'Test Cliente',
+        'mesa': input_mesa,
+        'productos': [{'id': 1, 'cantidad': 1}],
+        'metodo_pago': 1,
+        'dinero_recibido': 50,
+    }
+    response = client.post('/api/ventas/crear', json=payload)
+    assert response.status_code == 200
+    assert captured[0][1] == expected_mesa

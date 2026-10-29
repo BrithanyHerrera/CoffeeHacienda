@@ -1,5 +1,14 @@
 ﻿
 
+function normalizarMesa(m) {
+    if (!m) return 'Para llevar';
+    const s = String(m).trim();
+    if (!s || s.toLowerCase() === 'sin mesa' || s.toLowerCase() === 'none' || s.toLowerCase() === 'null') {
+        return 'Para llevar';
+    }
+    return s;
+}
+
 // Cargar órdenes al cargar la página
 document.addEventListener('DOMContentLoaded', function () {
     cargarOrdenes();
@@ -29,7 +38,7 @@ function cargarOrdenes() {
                     }
                     const vendedor = orden.vendedor || 'No disponible';
                     const cliente = orden.cliente || 'No disponible';
-                    const mesa = orden.numero_mesa || '';
+                    const mesa = normalizarMesa(orden.numero_mesa);
                     const metodoPago = orden.metodo_pago || 'No especificado';
                     const estado = orden.estado || '';
                     // Convertir la fecha correctamente a la zona horaria local
@@ -86,7 +95,7 @@ function verDetallesOrden(id) {
                 const fecha = fila.getAttribute('data-fecha');
                 const vendedor = fila.getAttribute('data-vendedor') || 'No disponible';
                 const total = fila.getAttribute('data-total');
-                const mesa = fila.getAttribute('data-mesa');
+                const mesa = normalizarMesa(fila.getAttribute('data-mesa'));
                 const metodoPago = fila.getAttribute('data-metodo') || 'No especificado';
                 const dineroRecibido = parseFloat(fila.getAttribute('data-dinero') || 0);
                 const cambioOrden = parseFloat(fila.getAttribute('data-cambio') || 0);
@@ -94,7 +103,7 @@ function verDetallesOrden(id) {
                 const e = (tag, clase, texto) => { const n = document.createElement(tag); if (clase) n.className = clase; if (texto !== undefined) n.textContent = texto; return n; };
                 const contenido = document.getElementById('detallesOrden'); contenido.replaceChildren();
                 const infoOrden = e('div', 'infoOrden'); const cab = e('div', 'orden-header'); const oid = e('div', 'orden-id'); oid.append(e('span', 'orden-label', 'Orden #'), e('span', 'orden-value', id)); const est = e('div', 'orden-estado'); est.append(e('span', 'estado-badge', 'Activa')); cab.append(oid, est); infoOrden.append(cab);
-                const clienteInfo = e('div', 'orden-cliente-info'); [['Cliente:', cliente], ['Vendedor:', vendedor], ['Fecha:', fecha], ['Método de pago:', metodoPago], ['Dinero recibido:', `$${dineroRecibido.toFixed(2)}`], ['Cambio:', `$${cambioOrden.toFixed(2)}`]].concat(mesa ? [['Mesa:', mesa]] : []).forEach(([label, value]) => { const grupo = e('div', 'info-grupo'); grupo.append(e('span', 'info-label', label), e('span', 'info-value', value)); clienteInfo.append(grupo); }); infoOrden.append(clienteInfo); contenido.append(infoOrden);
+                const clienteInfo = e('div', 'orden-cliente-info'); [['Cliente:', cliente], ['Vendedor:', vendedor], ['Fecha:', fecha], ['Mesa / Servicio:', mesa], ['Método de pago:', metodoPago], ['Dinero recibido:', `$${dineroRecibido.toFixed(2)}`], ['Cambio:', `$${cambioOrden.toFixed(2)}`]].forEach(([label, value]) => { const grupo = e('div', 'info-grupo'); grupo.append(e('span', 'info-label', label), e('span', 'info-value', value)); clienteInfo.append(grupo); }); infoOrden.append(clienteInfo); contenido.append(infoOrden);
                 const productos = e('div', 'productosOrden'); productos.append(e('h4', 'productos-titulo', 'Detalle de Productos')); const responsive = e('div', 'tabla-responsive'); const tabla = e('table', 'tabla-productos'); const head = e('tr'); ['Producto', 'Tamaño', 'Precio Unit.', 'Cant.', 'Subtotal'].forEach(t => head.append(e('th', null, t))); const thead = e('thead'); thead.append(head); tabla.append(thead); const tbody = e('tbody');
                 data.detalles.forEach(detalle => { let precio = parseFloat(detalle.precio); if (isNaN(precio) && detalle.subtotal && detalle.cantidad) precio = parseFloat(detalle.subtotal) / parseInt(detalle.cantidad); const row = e('tr'); [detalle.nombre_producto, detalle.tamano || 'No aplica', `$${isNaN(precio) ? '0.00' : precio.toFixed(2)}`, detalle.cantidad, `$${parseFloat(detalle.subtotal || 0).toFixed(2)}`].forEach(v => row.append(e('td', null, v))); tbody.append(row); }); tabla.append(tbody); const foot = e('tfoot'); const totalRow = e('tr', 'total-row'); const totalLabel = e('td', 'total-label', 'Total'); totalLabel.colSpan = 4; totalRow.append(totalLabel, e('td', 'total-value', `$${parseFloat(total).toFixed(2)}`)); foot.append(totalRow); tabla.append(foot); responsive.append(tabla); productos.append(responsive); contenido.append(productos);
                 document.getElementById('ordenModal').style.display = 'flex';
