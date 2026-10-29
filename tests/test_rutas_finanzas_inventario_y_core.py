@@ -296,6 +296,7 @@ def test_ruta_guardar_corte_caja_ramas(
         'transferencias': Decimal('30.00'),
     }
     monkeypatch.setattr(finanzas_bp, 'filtrar_ventas', lambda *args: totals)
+    monkeypatch.setattr(finanzas_bp, 'obtener_ultimo_corte', lambda: None)
 
     original_view = finanzas_bp.guardar_corte.__wrapped__.__wrapped__
     with app.test_request_context('/guardarCorteCaja', method='POST', json=_cut_payload()):
@@ -331,6 +332,53 @@ def test_ruta_guardar_corte_caja_ramas(
         lambda *args: (_ for _ in ()).throw(RuntimeError('database error')),
     )
     assert client.post('/guardarCorteCaja', json=_cut_payload()).status_code == 500
+
+
+def test_guardar_corte_caja_rechaza_discontinuidad(
+        client, authenticated_session, monkeypatch):
+    from datetime import datetime
+    authenticated_session(client, role='Administrador')
+    monkeypatch.setattr(
+        finanzas_bp,
+        'obtener_ultimo_corte',
+        lambda: {'fecha_hora_cierre': datetime(2026, 1, 1, 12, 0)},
+    )
+    # Fecha de inicio no coincide con el cierre del último corte
+    response = client.post(
+        '/guardarCorteCaja',
+        json=_cut_payload(fecha_hora_inicio='2026-01-01T15:00:00'),
+    )
+    assert response.status_code == 400
+    assert 'El corte debe iniciar exactamente al cierre del último corte registrado' in response.get_json()['message']
+
+
+def test_api_ultimo_corte_exito_y_error(client, authenticated_session, monkeypatch):
+    from datetime import datetime
+    authenticated_session(client, role='Administrador')
+    monkeypatch.setattr(
+        finanzas_bp,
+        'obtener_fecha_sugerida_inicio',
+        lambda: (datetime(2026, 10, 27, 18, 0), True),
+    )
+    monkeypatch.setattr(
+        finanzas_bp,
+        'obtener_ultimo_corte',
+        lambda: {'Id': 1, 'fecha_hora_cierre': '2026-10-27T18:00:00'},
+    )
+    response = client.get('/api/corteCaja/ultimo')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['success'] is True
+    assert data['tiene_corte_previo'] is True
+    assert data['fecha_inicio_sugerida'] == '2026-10-27T18:00'
+
+    monkeypatch.setattr(
+        finanzas_bp,
+        'obtener_fecha_sugerida_inicio',
+        lambda: (_ for _ in ()).throw(RuntimeError('db error')),
+    )
+    response = client.get('/api/corteCaja/ultimo')
+    assert response.status_code == 500
 
 
 def test_buscar_pdf_caja_faltante_no_encontrado_y_error(

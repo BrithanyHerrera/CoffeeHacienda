@@ -5,6 +5,29 @@ var span = document.getElementById("cerrarModal");
 
 btn.onclick = function() {
     modal.style.display = "flex";
+
+    // Establecer fecha y hora local actual en fechaHasta
+    const ahora = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const ahoraStr = `${ahora.getFullYear()}-${pad(ahora.getMonth() + 1)}-${pad(ahora.getDate())}T${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`;
+
+    const inputDesde = document.getElementById("fechaDesde");
+    const inputHasta = document.getElementById("fechaHasta");
+
+    if (inputHasta) {
+        inputHasta.value = ahoraStr;
+        if (inputDesde && inputDesde.value) {
+            inputHasta.min = inputDesde.value;
+        }
+    }
+
+    // Auto-filtrar ventas para conveniencia del cajero
+    if (inputDesde && inputDesde.value && inputHasta && inputHasta.value) {
+        const btnFiltrar = document.getElementById('btnFiltrarFechas');
+        if (btnFiltrar) {
+            btnFiltrar.click();
+        }
+    }
 }
 
 span.onclick = function() {

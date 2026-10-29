@@ -41,22 +41,23 @@ function realizarCorte() {
             fondo: fondo
         })
     })
-    .then(response => {
-
+    .then(async response => {
+        const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            return Promise.reject('No se pudo guardar el corte de caja');
+            const errorMsg = data.message || 'No se pudo guardar el corte de caja';
+            mostrarAlerta(errorMsg, 'ErrorG');
+            return Promise.reject(errorMsg);
         }
-        return response.json();
+        return data;
     })
     .then(data => {
-
-        if (data.success) {
+        if (data && data.success) {
+            mostrarAlerta('Corte registrado correctamente', 'ExitoG');
             // Generar y guardar PDF del corte
             generarPDFCorte(fechaDesde, fechaHasta, totalVentas, totalContado, 
                            totalEfectivo, totalTransferencias, totalTarjeta,
                            pagosRealizados, fondo);
-            setTimeout(() => location.reload(), 1000);
-        } else {
+            setTimeout(() => location.reload(), 1500);
         }
     })
     .catch(error => {

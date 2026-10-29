@@ -57,6 +57,31 @@ def test_funciones_lectura_corte_caja(monkeypatch):
     monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: reports)
     assert modelsCorteCaja.obtener_cortes_con_ganancia() == cuts
 
+    # Ultimo corte y fecha sugerida
+    last_cut = {'Id': 2, 'fecha_hora_cierre': datetime(2026, 10, 27, 18, 0)}
+    last_cut_conn = connection_with_results(last_cut)
+    monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: last_cut_conn)
+    assert modelsCorteCaja.obtener_ultimo_corte() == last_cut
+
+    monkeypatch.setattr(modelsCorteCaja, 'obtener_ultimo_corte', lambda: last_cut)
+    fecha, tiene_previo = modelsCorteCaja.obtener_fecha_sugerida_inicio()
+    assert tiene_previo is True
+    assert fecha == last_cut['fecha_hora_cierre']
+
+    # Sin corte previo, busca primera venta
+    monkeypatch.setattr(modelsCorteCaja, 'obtener_ultimo_corte', lambda: None)
+    venta_row = {'primera_fecha': datetime(2026, 10, 1, 8, 0)}
+    venta_conn = connection_with_results(venta_row)
+    monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: venta_conn)
+    fecha, tiene_previo = modelsCorteCaja.obtener_fecha_sugerida_inicio()
+    assert tiene_previo is False
+    assert fecha == venta_row['primera_fecha']
+
+    # Manejo de error al obtener ultimo corte
+    failed = _failing_connection()
+    monkeypatch.setattr(modelsCorteCaja, 'Conexion_BD', lambda: failed)
+    assert modelsCorteCaja.obtener_ultimo_corte() is None
+
 
 def test_guardar_corte_caja_rechaza_traslape_y_maneja_error(monkeypatch):
     overlap = connection_with_results({'Id': 1})

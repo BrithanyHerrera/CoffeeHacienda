@@ -60,6 +60,44 @@ def obtener_todos_cortes():
         conn.close()
 
 
+def obtener_ultimo_corte():
+    """Obtiene el registro del corte de caja más reciente."""
+    conn = Conexion_BD()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT Id, fecha_hora_inicio, fecha_hora_cierre, fondo, total_contado, total_ventas, pagos_realizados
+                FROM tcortescaja ORDER BY fecha_hora_cierre DESC LIMIT 1
+            """)
+            return cursor.fetchone()
+    except Exception as e:
+        logger.error(f"Error al obtener último corte: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def obtener_fecha_sugerida_inicio():
+    """Retorna la fecha_hora_cierre del último corte o la primera venta si no hay cortes."""
+    ultimo = obtener_ultimo_corte()
+    if ultimo and ultimo.get('fecha_hora_cierre'):
+        return ultimo['fecha_hora_cierre'], True
+
+    conn = Conexion_BD()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT MIN(fecha_hora) AS primera_fecha FROM tventas WHERE estado_id = 4")
+            row = cursor.fetchone()
+            if row and row.get('primera_fecha'):
+                return row['primera_fecha'], False
+    except Exception as e:
+        logger.error(f"Error al obtener fecha de primera venta: {e}")
+    finally:
+        conn.close()
+
+    return None, False
+
+
 def obtener_cortes_con_ganancia():
     """Lista todos los cortes incluyendo ganancia/pérdida (para reportes)."""
     conn = Conexion_BD()

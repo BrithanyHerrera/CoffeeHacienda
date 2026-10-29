@@ -6,8 +6,15 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from flask import Blueprint, render_template, request, jsonify, session, current_app, url_for
 from utils import login_required, admin_required
-from models.modelsCorteCaja import (filtrar_ventas, guardar_corte_caja, obtener_corte_por_id,
-                                     obtener_todos_cortes, obtener_cortes_con_ganancia)
+from models.modelsCorteCaja import (
+    filtrar_ventas,
+    guardar_corte_caja,
+    obtener_corte_por_id,
+    obtener_todos_cortes,
+    obtener_cortes_con_ganancia,
+    obtener_ultimo_corte,
+    obtener_fecha_sugerida_inicio,
+)
 
 finanzas_bp = Blueprint('finanzas', __name__)
 logger = logging.getLogger(__name__)
@@ -37,6 +44,7 @@ def _rango_fechas(data):
         raise ValueError('La fecha de inicio debe ser anterior a la fecha de cierre')
     return inicio, cierre
 
+
 @finanzas_bp.route('/filtrarVentas', methods=['POST'])
 @login_required
 @admin_required
@@ -50,13 +58,60 @@ def filtrar_ventas_route():
     except ValueError as error:
         return jsonify({'success': False, 'message': str(error)}), 400
 
+
 @finanzas_bp.route('/corteCaja')
 @login_required 
 @admin_required 
 def corte():
     nombre_usuario = session['usuario']
     cortes = obtener_todos_cortes()
-    return render_template('corteCaja.html', cortes=cortes, nombre_usuario=nombre_usuario)
+    fecha_sugerida_dt, tiene_corte_previo = obtener_fecha_sugerida_inicio()
+
+    fecha_inicio_sugerida = ''
+    if fecha_sugerida_dt:
+        if isinstance(fecha_sugerida_dt, str):
+            try:
+                fecha_sugerida_dt = datetime.fromisoformat(fecha_sugerida_dt)
+            except Exception:
+                fecha_sugerida_dt = None
+        if fecha_sugerida_dt:
+            fecha_inicio_sugerida = fecha_sugerida_dt.strftime('%Y-%m-%dT%H:%M')
+
+    return render_template(
+        'corteCaja.html',
+        cortes=cortes,
+        nombre_usuario=nombre_usuario,
+        fecha_inicio_sugerida=fecha_inicio_sugerida,
+        tiene_corte_previo=tiene_corte_previo,
+    )
+
+
+@finanzas_bp.route('/api/corteCaja/ultimo', methods=['GET'])
+@login_required
+@admin_required
+def get_ultimo_corte():
+    try:
+        ultimo = obtener_ultimo_corte()
+        fecha_sugerida_dt, tiene_corte_previo = obtener_fecha_sugerida_inicio()
+        fecha_iso = ''
+        if fecha_sugerida_dt:
+            if isinstance(fecha_sugerida_dt, str):
+                try:
+                    fecha_sugerida_dt = datetime.fromisoformat(fecha_sugerida_dt)
+                except Exception:
+                    fecha_sugerida_dt = None
+            if fecha_sugerida_dt:
+                fecha_iso = fecha_sugerida_dt.strftime('%Y-%m-%dT%H:%M')
+        return jsonify({
+            'success': True,
+            'ultimo_corte': ultimo,
+            'fecha_inicio_sugerida': fecha_iso,
+            'tiene_corte_previo': tiene_corte_previo,
+        })
+    except Exception:
+        logger.exception('Error al obtener fecha de último corte')
+        return jsonify({'success': False, 'message': 'No se pudo obtener el último corte'}), 500
+
 
 @finanzas_bp.route('/api/corteCaja/<int:id>', methods=['GET'])
 @login_required
@@ -72,6 +127,7 @@ def get_corte_caja(id):
         logger.exception('Error al obtener corte de caja')
         return jsonify({'success': False, 'message': 'No se pudo obtener el corte de caja'}), 500
 
+
 @finanzas_bp.route('/guardarCorteCaja', methods=['POST'])
 @login_required
 @admin_required
@@ -82,6 +138,29 @@ def guardar_corte():
         vendedor_id = session.get('usuario_id')
         if not vendedor_id:
             return jsonify({'success': False, 'message': 'La sesión no tiene un usuario válido', 'error': 'La sesión no tiene un usuario válido'}), 401
+
+        # Validar continuidad con el último corte registrado si existe
+        ultimo_corte = obtener_ultimo_corte()
+        if ultimo_corte and ultimo_corte.get('fecha_hora_cierre'):
+            ultimo_cierre = ultimo_corte['fecha_hora_cierre']
+            if isinstance(ultimo_cierre, str):
+                try:
+                    ultimo_cierre = datetime.fromisoformat(ultimo_cierre)
+                except Exception:
+                    ultimo_cierre = None
+            if ultimo_cierre:
+                # Tolerancia de 60 segundos por diferencias de formato en inputs datetime-local
+                diferencia_segundos = abs((fecha_inicio - ultimo_cierre).total_seconds())
+                if diferencia_segundos > 60:
+                    mensaje_discontinuidad = (
+                        f'El corte debe iniciar exactamente al cierre del último corte registrado '
+                        f'({ultimo_cierre.strftime("%Y-%m-%d %H:%M")})'
+                    )
+                    return jsonify({
+                        'success': False,
+                        'message': mensaje_discontinuidad,
+                        'error': mensaje_discontinuidad,
+                    }), 400
 
         totales = filtrar_ventas(fecha_inicio, fecha_cierre)
         total_ventas = sum(totales.values(), Decimal('0.00'))
@@ -127,12 +206,14 @@ def guardar_corte():
         logger.exception('Error al guardar corte de caja')
         return jsonify({'success': False, 'message': 'No se pudo guardar el corte', 'error': 'No se pudo guardar el corte'}), 500
 
+
 @finanzas_bp.route('/reporteFinanciero')
 @login_required
 @admin_required
 def reporte():
     cortes = obtener_cortes_con_ganancia()
     return render_template('reportesFinancieros.html', cortes=cortes)
+
 
 @finanzas_bp.route('/buscar_pdf_corte/<fecha_inicio>/<fecha_fin>')
 @login_required

@@ -61,12 +61,15 @@
                 <!-- Fechas en línea compacta -->
                 <div class="fecha-selector" style="margin-bottom: 0; padding: 10px 12px;">
                     <div class="fecha-item">
-                        <label for="fechaDesde">Desde</label>
-                        <input type="datetime-local" id="fechaDesde">
+                        <label for="fechaDesde">
+                            Desde {% if tiene_corte_previo %}<span style="font-size: 11px; color: #27ae60; font-weight: normal;">(Último corte 🔒)</span>{% endif %}
+                        </label>
+                        <input type="datetime-local" id="fechaDesde" value="{{ fecha_inicio_sugerida }}"
+                               {% if tiene_corte_previo %}readonly style="background-color: #f1f2f6; cursor: not-allowed; border: 1px solid #ced6e0;" title="Fecha de inicio fija basada en el corte inmediato anterior"{% endif %}>
                     </div>
                     <div class="fecha-item">
                         <label for="fechaHasta">Hasta</label>
-                        <input type="datetime-local" id="fechaHasta">
+                        <input type="datetime-local" id="fechaHasta" {% if fecha_inicio_sugerida %}min="{{ fecha_inicio_sugerida }}"{% endif %}>
                     </div>
                     <button type="button" id="btnFiltrarFechas" class="btnFiltrar" style="margin-top: 0; height: 36px; width: 120px; font-size: 12px;">Filtrar</button>
                 </div>
