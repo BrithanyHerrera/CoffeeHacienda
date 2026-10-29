@@ -1,4 +1,4 @@
-﻿// Función para abrir el modal de Edición y Agregar Producto
+// Función para abrir el modal de Edición y Agregar Producto
 function abrirEAModal(id = null, nombre = '', descripcion = '', precio = '', stock = '', 
                      stockMin = '', stockMax = '', categoriaId = null, imagen = '', variantes = []) {
     document.getElementById('idProducto').value = id || '';
@@ -12,11 +12,14 @@ function abrirEAModal(id = null, nombre = '', descripcion = '', precio = '', sto
     document.getElementById('tituloModal').innerText = id ? 'Editar Producto' : 'Agregar Producto';
     
     // Si estamos editando, mostrar la imagen actual
-    if (id) {
-        document.getElementById('imagenActual').src = imagen;
-        document.getElementById('imagenActual').style.display = 'block';
+    if (id && imagen) {
+        actualizarPreviewImagen(imagen, imagen.split('/').pop(), false);
+        const inputImg = document.getElementById('imagenProducto');
+        if (inputImg) inputImg.removeAttribute('required');
     } else {
-        document.getElementById('imagenActual').style.display = 'none';
+        actualizarPreviewImagen('', '', false);
+        const inputImg = document.getElementById('imagenProducto');
+        if (inputImg) inputImg.setAttribute('required', 'required');
     }
 
     document.getElementById('productoModal').style.display = 'flex';
@@ -32,7 +35,118 @@ function abrirEAModal(id = null, nombre = '', descripcion = '', precio = '', sto
 function cerrarEAModal() {
     document.getElementById('productoModal').style.display = 'none';
     document.getElementById('formProducto').reset();
-    document.getElementById('imagenActual').style.display = 'none';
+    actualizarPreviewImagen('', '', false);
+    const inputImg = document.getElementById('imagenProducto');
+    if (inputImg) inputImg.value = '';
+}
+
+// Actualiza la previsualización interactiva de la imagen del producto
+function actualizarPreviewImagen(src, nombre = '', esNueva = false) {
+    const imgActual = document.getElementById('imagenActual');
+    const previewCont = document.getElementById('contenedorPreviewImagen');
+    const badgeEstado = document.getElementById('badgeEstadoImagen');
+    const previewNombre = document.getElementById('previewNombreArchivo');
+    const textoBoton = document.getElementById('textoBotonImagen');
+    const subtexto = document.getElementById('subtextoDropzone');
+
+    if (src) {
+        if (imgActual) {
+            imgActual.src = src;
+            imgActual.style.display = 'block';
+        }
+        if (previewCont) {
+            previewCont.style.display = 'flex';
+        }
+        if (badgeEstado) {
+            badgeEstado.textContent = esNueva ? 'Nueva imagen' : 'Imagen actual';
+            badgeEstado.className = 'badge-imagen ' + (esNueva ? 'badge-nueva' : 'badge-actual');
+        }
+        if (previewNombre) {
+            previewNombre.textContent = nombre || src.split('/').pop() || 'imagen';
+        }
+        if (textoBoton) {
+            textoBoton.textContent = 'Cambiar foto';
+        }
+        if (subtexto) {
+            subtexto.textContent = esNueva ? `Archivo listo: ${nombre}` : 'Selecciona una nueva imagen para reemplazar';
+        }
+    } else {
+        if (imgActual) {
+            imgActual.src = '';
+            imgActual.style.display = 'none';
+        }
+        if (previewCont) {
+            previewCont.style.display = 'none';
+        }
+        if (textoBoton) {
+            textoBoton.textContent = 'Subir imagen';
+        }
+        if (subtexto) {
+            subtexto.textContent = 'Haz clic o arrastra un archivo PNG, JPG o WEBP';
+        }
+        if (previewNombre) {
+            previewNombre.textContent = '';
+        }
+    }
+}
+
+// Inicializa listeners interactivos de subida de imagen (change y drag & drop)
+function inicializarSubidaImagen() {
+    const inputImg = document.getElementById('imagenProducto');
+    const dropzone = document.getElementById('dropzoneImagen');
+
+    if (inputImg) {
+        inputImg.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    if (typeof mostrarAlerta === 'function') {
+                        mostrarAlerta('Selecciona un archivo de imagen válido (PNG, JPG, WEBP)', 'ErrorG');
+                    }
+                    this.value = '';
+                    actualizarPreviewImagen('', '', false);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const tamanoKb = (file.size / 1024).toFixed(0);
+                    actualizarPreviewImagen(e.target.result, `${file.name} (${tamanoKb} KB)`, true);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (dropzone && inputImg) {
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropzone.addEventListener(evt, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(evt => {
+            dropzone.addEventListener(evt, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('dragover');
+            });
+        });
+
+        dropzone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dragover');
+            const dt = e.dataTransfer;
+            const files = dt && dt.files;
+            if (files && files.length > 0) {
+                inputImg.files = files;
+                inputImg.dispatchEvent(new Event('change'));
+            }
+        });
+    }
 }
 
 function abrirVerProducto(id) {
@@ -209,6 +323,7 @@ function cargarTamanos() {
 document.addEventListener('DOMContentLoaded', function() {
     cargarCategorias();
     cargarTamanos();
+    inicializarSubidaImagen();
     
     // Agregar evento al formulario
     const formProducto = document.getElementById('formProducto');
@@ -514,13 +629,18 @@ function abrirEAModal(id = null) {
                     
                     // Mostrar la imagen actual si existe
                     if (producto.ruta_imagen) {
-                        document.getElementById('imagenActual').src = producto.ruta_imagen;
-                        document.getElementById('imagenActual').style.display = 'block';
-                        
-                        // Quitar el required del input de imagen cuando ya existe una
-                        document.getElementById('imagenProducto').removeAttribute('required');
+                        actualizarPreviewImagen(producto.ruta_imagen, producto.ruta_imagen.split('/').pop(), false);
+                        const inputImg = document.getElementById('imagenProducto');
+                        if (inputImg) {
+                            inputImg.removeAttribute('required');
+                            inputImg.value = '';
+                        }
                     } else {
-                        document.getElementById('imagenActual').style.display = 'none';
+                        actualizarPreviewImagen('', '', false);
+                        const inputImg = document.getElementById('imagenProducto');
+                        if (inputImg) {
+                            inputImg.value = '';
+                        }
                     }
                     
                     document.getElementById('tituloModal').innerText = 'Editar Producto';
@@ -543,11 +663,15 @@ function abrirEAModal(id = null) {
         document.getElementById('stockMaxProducto').value = '';
         document.getElementById('categoriaProducto').value = '';
         document.getElementById('tamanoProducto').value = '';
-        document.getElementById('imagenActual').style.display = 'none';
+        actualizarPreviewImagen('', '', false);
         document.getElementById('tituloModal').innerText = 'Agregar Producto';
         
         // Para nuevo producto, la imagen es requerida
-        document.getElementById('imagenProducto').setAttribute('required', 'required');
+        const inputImg = document.getElementById('imagenProducto');
+        if (inputImg) {
+            inputImg.value = '';
+            inputImg.setAttribute('required', 'required');
+        }
         
         // Por defecto, ocultar los campos de stock
         mostrarOcultarCamposStock(false);

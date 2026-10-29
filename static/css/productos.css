@@ -1,0 +1,400 @@
+/* =============================================
+   PRODUCTOS — Coffee Hacienda POS
+   Estilos específicos del catálogo de productos:
+   - Simetría de barra de filtros
+   - Botón interactivo y moderno para subida de imagen
+   ============================================= */
+
+/* ---------------------------------------------
+   1. BARRA DE FILTROS DEL CATÁLOGO
+   --------------------------------------------- */
+.buscador.buscador-catalogo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1400px;
+    padding: 12px 20px;
+    background: var(--color-surface, #ffffff);
+    border-radius: var(--radius-lg, 14px);
+    margin: 10px auto 0 auto;
+    box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+    box-sizing: border-box;
+}
+
+.form-buscador-catalogo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+}
+
+/* Items individuales dentro de la barra de filtros */
+.form-buscador-catalogo .filtro-item {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Buscador por nombre (adaptable) */
+.form-buscador-catalogo .filtro-busqueda {
+    flex: 1.5 1 240px;
+    min-width: 200px;
+}
+
+.form-buscador-catalogo .filtro-busqueda input[type="text"] {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border: 1px solid var(--color-border, #ddd) !important;
+    border-radius: var(--radius-sm, 8px) !important;
+    background-color: var(--color-surface-alt, #f0f0f0) !important;
+    font-size: var(--font-size-sm, 14px) !important;
+    font-family: var(--font-family, 'Inter', sans-serif) !important;
+    color: var(--color-text, #2d2418) !important;
+    line-height: 40px !important;
+    transition: border-color var(--transition-fast, 0.2s ease),
+                background-color var(--transition-fast, 0.2s ease),
+                box-shadow var(--transition-fast, 0.2s ease) !important;
+}
+
+.form-buscador-catalogo .filtro-busqueda input[type="text"]::placeholder {
+    color: var(--color-text-muted, #999);
+}
+
+.form-buscador-catalogo .filtro-busqueda input[type="text"]:focus {
+    border-color: var(--color-primary, #FF7F50) !important;
+    background-color: #ffffff !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px var(--color-primary-glow, rgba(255, 127, 80, 0.15)) !important;
+}
+
+/* Selectores de filtro simétricos: Tamaño y Categoría */
+.form-buscador-catalogo .filtro-tamano,
+.form-buscador-catalogo .filtro-categoria {
+    flex: 1 1 210px;
+    min-width: 175px;
+    position: relative;
+}
+
+.form-buscador-catalogo .filtro-tamano select,
+.form-buscador-catalogo .filtro-categoria select {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 34px 0 14px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border: 1px solid var(--color-border, #ddd) !important;
+    border-radius: var(--radius-sm, 8px) !important;
+    background-color: var(--color-surface-alt, #f0f0f0) !important;
+    font-size: var(--font-size-sm, 14px) !important;
+    font-family: var(--font-family, 'Inter', sans-serif) !important;
+    color: var(--color-text, #2d2418) !important;
+    cursor: pointer !important;
+    line-height: 40px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b5e52' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 15px !important;
+    transition: border-color var(--transition-fast, 0.2s ease),
+                background-color var(--transition-fast, 0.2s ease),
+                box-shadow var(--transition-fast, 0.2s ease) !important;
+}
+
+.form-buscador-catalogo .filtro-tamano select:hover,
+.form-buscador-catalogo .filtro-categoria select:hover {
+    border-color: #c4b8ac !important;
+    background-color: #ebebeb !important;
+}
+
+.form-buscador-catalogo .filtro-tamano select:focus,
+.form-buscador-catalogo .filtro-categoria select:focus {
+    border-color: var(--color-primary, #FF7F50) !important;
+    background-color: #ffffff !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px var(--color-primary-glow, rgba(255, 127, 80, 0.15)) !important;
+}
+
+/* Botón de restablecer filtros */
+.form-buscador-catalogo .filtro-accion {
+    flex: 0 0 auto;
+}
+
+.form-buscador-catalogo .btnReestablecer {
+    height: 42px !important;
+    padding: 0 20px !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    background: var(--color-warning, #f39c12) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: var(--radius-sm, 8px) !important;
+    font-size: var(--font-size-sm, 14px) !important;
+    font-weight: 600 !important;
+    font-family: var(--font-family, 'Inter', sans-serif) !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    transition: transform var(--transition-fast, 0.2s ease),
+                background-color var(--transition-fast, 0.2s ease),
+                box-shadow var(--transition-fast, 0.2s ease) !important;
+}
+
+.form-buscador-catalogo .btnReestablecer:hover {
+    transform: translateY(-1px) !important;
+    background-color: #d68910 !important;
+    box-shadow: 0 3px 10px rgba(243, 156, 18, 0.25) !important;
+}
+
+.form-buscador-catalogo .btnReestablecer:active {
+    transform: translateY(0) !important;
+}
+
+/* Responsividad en barra de filtros */
+@media (max-width: 992px) {
+    .form-buscador-catalogo {
+        gap: 12px;
+    }
+    .form-buscador-catalogo .filtro-busqueda {
+        flex: 1 1 100%;
+    }
+    .form-buscador-catalogo .filtro-tamano,
+    .form-buscador-catalogo .filtro-categoria {
+        flex: 1 1 calc(50% - 12px);
+    }
+    .form-buscador-catalogo .filtro-accion {
+        flex: 1 1 100%;
+    }
+    .form-buscador-catalogo .btnReestablecer {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .form-buscador-catalogo {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .form-buscador-catalogo .filtro-item {
+        width: 100%;
+        flex: 1 1 100% !important;
+    }
+}
+
+/* ---------------------------------------------
+   2. BOTÓN DE SUBIDA DE IMAGEN Y PREVIEW
+   --------------------------------------------- */
+.campo-subida-imagen {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.campo-subida-imagen .etiqueta-subida {
+    font-size: var(--font-size-sm, 14px);
+    font-weight: 600;
+    color: var(--color-text, #2d2418);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+/* Ocultar input nativo preservando accesibilidad y validaciones HTML5 */
+.input-imagen-oculto {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Zona de drop y botón estilizado acorde a la paleta */
+.dropzone-imagen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 14px;
+    border: 2px dashed var(--color-border, #e8e0d8);
+    border-radius: var(--radius-md, 10px);
+    background-color: var(--color-surface-alt, #fafafa);
+    cursor: pointer;
+    text-align: center;
+    gap: 6px;
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast, 0.2s ease),
+                background-color var(--transition-fast, 0.2s ease),
+                transform var(--transition-fast, 0.2s ease),
+                box-shadow var(--transition-fast, 0.2s ease);
+}
+
+.dropzone-imagen:hover {
+    border-color: var(--color-primary, #FF7F50);
+    background-color: var(--color-primary-light, #FFF5EE);
+    transform: translateY(-1px);
+}
+
+.dropzone-imagen.dragover {
+    border-color: var(--color-primary, #FF7F50);
+    background-color: var(--color-primary-light, #FFF5EE);
+    box-shadow: 0 0 0 4px var(--color-primary-glow, rgba(255, 127, 80, 0.2));
+}
+
+.dropzone-imagen .icono-subida {
+    font-size: 32px;
+    color: var(--color-primary, #FF7F50);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropzone-imagen .texto-subida-titulo {
+    font-size: var(--font-size-sm, 14px);
+    font-weight: 700;
+    color: var(--color-primary, #FF7F50);
+    letter-spacing: 0.2px;
+}
+
+.dropzone-imagen .texto-subida-subtitulo {
+    font-size: var(--font-size-xs, 12px);
+    color: var(--color-text-secondary, #6b5e52);
+    max-width: 260px;
+}
+
+/* Tarjeta de previsualización interactiva */
+.tarjeta-preview-imagen {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background-color: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #e8e0d8);
+    border-radius: var(--radius-md, 10px);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(45, 36, 24, 0.06));
+    box-sizing: border-box;
+    animation: fadeInPreview 0.22s ease-out;
+}
+
+@keyframes fadeInPreview {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tarjeta-preview-imagen .miniatura-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    border-radius: var(--radius-sm, 8px);
+    overflow: hidden;
+    border: 2px solid var(--color-border, #e8e0d8);
+    background-color: var(--color-surface-alt, #f5f5f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tarjeta-preview-imagen .miniatura-wrapper img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+.tarjeta-preview-imagen .info-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.tarjeta-preview-imagen .badge-imagen {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.tarjeta-preview-imagen .badge-imagen.badge-nueva {
+    color: var(--color-primary, #FF7F50);
+    background-color: var(--color-primary-light, #FFF5EE);
+    border: 1px solid rgba(255, 127, 80, 0.25);
+}
+
+.tarjeta-preview-imagen .badge-imagen.badge-actual {
+    color: var(--color-info, #3498DB);
+    background-color: var(--color-info-bg, rgba(52, 152, 219, 0.1));
+    border: 1px solid rgba(52, 152, 219, 0.25);
+}
+
+.tarjeta-preview-imagen .nombre-archivo-preview {
+    font-size: var(--font-size-xs, 12px);
+    font-weight: 500;
+    color: var(--color-text, #2d2418);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.tarjeta-preview-imagen .btn-cambiar-foto {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid var(--color-primary, #FF7F50);
+    background-color: transparent;
+    color: var(--color-primary, #FF7F50);
+    border-radius: var(--radius-sm, 6px);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-family, 'Inter', sans-serif);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition-fast, 0.2s ease);
+}
+
+.tarjeta-preview-imagen .btn-cambiar-foto:hover {
+    background-color: var(--color-primary, #FF7F50);
+    color: #ffffff;
+}

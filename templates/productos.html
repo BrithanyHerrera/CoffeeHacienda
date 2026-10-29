@@ -1,0 +1,263 @@
+{% extends "sidebar.html" %}
+
+{% block title %}Gestión Productos{% endblock %}
+
+{% block content %}
+<main class="contenidoGeneral">
+    <div class="contenedorTitulo">
+        <h1>Gestión de Productos</h1>
+        <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
+    </div>
+    
+    <section class="buscador buscador-catalogo">
+        <section id="formBuscador" class="form-buscador-catalogo">
+            <!-- Campo de búsqueda por nombre -->
+            <div class="filtro-item filtro-busqueda">
+                <input type="text" id="buscarNombre" placeholder="Buscar por nombre..." name="nombre" maxlength="50" oninput="filtrarProductos()">
+            </div>
+            
+            <!-- Filtro por tamaño -->
+            <div class="filtroSelect filtro-item filtro-tamano">
+                <select id="buscarTamano" name="tamano" onchange="filtrarProductos()">
+                    <option value="">Todos los tamaños</option>
+                    {% for tamano in tamanos %}
+                    <option value="{{ tamano.tamano }}">{{ tamano.tamano }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filtroSelect filtro-item filtro-categoria">
+                <!-- Filtro por categoría -->
+                <select id="buscarCategoria" name="categoria" onchange="filtrarProductos()">
+                    <option value="">Todas las categorías</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.categoria }}">{{ categoria.categoria }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Botón para restablecer los filtros -->
+            <div class="filtro-item filtro-accion">
+                <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+            </div>
+        </section>
+    </section>
+    
+
+
+    <div class="contenedorGestionProductos">
+        <section class="listaProductos">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tamaño</th>
+                        <th>Categoria</th>
+                        <th>Precio</th>
+                        <th>Imagen</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productosLista">
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre_producto }}</td>
+
+                        <td class="tamanoProducto" data-producto-id="{{ producto.Id }}">
+                            {% if producto.variantes and producto.variantes|length > 0 %}
+                                {% for variante in producto.variantes %}
+                                    {{ variante.tamano }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                No Aplica
+                            {% endif %}
+                        </td>
+
+                        <td class="categoriaProducto">
+                            {% if producto.categoria %}
+                                {{ producto.categoria }}
+                            {% else %}
+                                Sin categoría
+                            {% endif %}
+                        </td>
+
+                        <td>${{ producto.precio }}</td>
+
+                        <td>
+                            {% if producto.ruta_imagen %}
+                            <img src="{{ producto.ruta_imagen }}" alt="{{ producto.nombre_producto }}" class="imagenProducto">
+                            {% else %}
+                            <img src="/static/images/default-product.jpg" alt="Sin imagen" class="imagenProducto">
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <button class="btnVerProducto" onclick="abrirVerProducto('{{ producto.Id }}')">👁️</button>
+                            <button class="btnEditarProducto" onclick="abrirEAModal('{{ producto.Id }}')">✏️</button>
+                            <button class="btnEliminarProducto" onclick="eliminarProducto('{{ producto.Id }}')">🗑️</button>                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Modal de Agregar/Editar Producto -->
+        <section class="modal" id="productoModal">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarEAModal()">&times;</span>
+                <h3 class="tituloModal" id="tituloModal">Agregar Producto</h3>
+
+                <form id="formProducto" enctype="multipart/form-data">
+                    <input type="hidden" id="idProducto" name="id">
+                    
+                    <section class="contenedorIzquierdo">
+                        <label for="nombreProducto">Nombre:</label>
+                        <input type="text" id="nombreProducto" name="nombreProducto" required maxlength="50">
+
+                        <label for="descripcionProducto">Descripción:</label>
+                        <textarea id="descripcionProducto" name="descripcionProducto" rows="3" maxlength="100"></textarea>
+
+                        <label for="tamanoProducto">Tamaño:</label>
+                        <select id="tamanoProducto" name="tamanoProducto" required>
+                            <option value="">Seleccione un tamaño</option>
+                            {% for tamano in tamanos %}
+                            <option value="{{ tamano.Id }}">{{ tamano.tamano }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="precioProducto">Precio:</label>
+                        <input type="number" id="precioProducto" name="precioProducto" step="1" min="0" max="999" required placeholder="Ingrese el precio"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+    
+                        <label for="stockProducto">Stock:</label>
+                        <input type="number" id="stockProducto" name="stockProducto" min="0" max="999" required placeholder="Ingrese el stock"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+                    </section>
+
+
+                    <section class="contenedorDerecho">
+                        <label for="stockMinProducto">Stock Mínimo:</label>
+                        <input type="number" id="stockMinProducto" name="stockMinProducto" min="0" max="999" required placeholder="Ingrese el stock mínimo"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+
+                        <label for="stockMaxProducto">Stock Máximo:</label>
+                        <input type="number" id="stockMaxProducto" name="stockMaxProducto" min="0" max="999" required placeholder="Ingrese el stock máximo"
+                               onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()"
+                               oninput="if (this.value.length > 3) this.value = this.value.slice(0, 3);">
+
+                        <label for="categoriaProducto">Categoría:</label>
+                        <select id="categoriaProducto" name="categoriaProducto" required>
+                            <option value="">Seleccione una categoría</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.Id }}">{{ categoria.categoria }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Campo moderno de subida de imagen -->
+                        <div class="campo-subida-imagen">
+                            <label class="etiqueta-subida" for="imagenProducto">
+                                <span>Imagen del Producto:</span>
+                            </label>
+
+                            <!-- Input nativo oculto pero funcional para preservar validación y FormData -->
+                            <input type="file" id="imagenProducto" name="imagenProducto" accept="image/png, image/jpeg, image/jpg, image/webp" class="input-imagen-oculto" required>
+
+                            <!-- Zona interactiva / botón estilizado acorde a la paleta -->
+                            <label for="imagenProducto" class="dropzone-imagen" id="dropzoneImagen">
+                                <div class="icono-subida">
+                                    <i class='bx bx-cloud-upload'></i>
+                                </div>
+                                <span class="texto-subida-titulo" id="textoBotonImagen">Subir imagen</span>
+                                <span class="texto-subida-subtitulo" id="subtextoDropzone">Haz clic para examinar o arrastra una foto aquí (PNG, JPG, WEBP)</span>
+                            </label>
+
+                            <!-- Previsualización interactiva del archivo seleccionado -->
+                            <div class="tarjeta-preview-imagen" id="contenedorPreviewImagen" style="display: none;">
+                                <div class="miniatura-wrapper">
+                                    <img id="imagenActual" class="imagenProducto imagen-preview" src="" alt="Vista previa de imagen" style="display: none;">
+                                </div>
+                                <div class="info-preview">
+                                    <span class="badge-imagen badge-nueva" id="badgeEstadoImagen">Nueva imagen</span>
+                                    <span class="nombre-archivo-preview" id="previewNombreArchivo"></span>
+                                </div>
+                                <button type="button" class="btn-cambiar-foto" id="btnCambiarFoto" onclick="document.getElementById('imagenProducto').click()">
+                                    <i class='bx bx-image-add'></i> Cambiar foto
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="guardarBtn" type="submit">Guardar</button>
+                    </section>
+                </form>
+            </section>
+        </section>
+        
+        <!-- Modal de Ver Producto -->
+        <section class="modal" id="verModalProducto">
+            <section class="contenedorModal">
+                <span class="cerrar" onclick="cerrarVerProducto()">&times;</span>
+                <h3 class="tituloModal" id="verTituloModal">Ver Producto</h3>
+                
+                <section id="verDetallesProducto" class="ver-producto-detalle">
+                    <div class="ver-producto-imagen">
+                        <img id="verImagenProducto" alt="Imagen del Producto">
+                        <div class="ver-producto-header">
+                            <span class="ver-producto-nombre" id="verNombreProducto"></span>
+                            <span class="ver-producto-categoria" id="verCategoriaProducto"></span>
+                        </div>
+                    </div>
+                    <div class="ver-producto-info">
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">ID</span>
+                            <span class="ver-info-value" id="verIDProducto"></span>
+                        </div>
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">Precio</span>
+                            <span class="ver-info-value ver-precio">$<span id="verPrecioProducto"></span></span>
+                        </div>
+                        <div class="ver-info-row ver-info-full">
+                            <span class="ver-info-label">Descripción</span>
+                            <span class="ver-info-value" id="verDescripcionProducto"></span>
+                        </div>
+                        <div class="ver-info-row">
+                            <span class="ver-info-label">Tamaño</span>
+                            <span class="ver-info-value" id="verTamanoProducto"></span>
+                        </div>
+                        <div class="ver-info-row" id="verStockLabel">
+                            <span class="ver-info-label">Stock</span>
+                            <span class="ver-info-value" id="verStockProducto"></span>
+                        </div>
+                        <div class="ver-info-row" id="verStockMinLabel">
+                            <span class="ver-info-label">Stock Mínimo</span>
+                            <span class="ver-info-value" id="verStockMinProducto"></span>
+                        </div>
+                        <div class="ver-info-row" id="verStockMaxLabel">
+                            <span class="ver-info-label">Stock Máximo</span>
+                            <span class="ver-info-value" id="verStockMaxProducto"></span>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </section>
+    </div>
+    
+    <!-- Modal de Confirmación -->
+    <section class="modalConf" id="confirmacionModal" style="display: none;">
+        <section class="contenedorModalConf">
+            <span class="cerrar" onclick="cerrarConfirmacionModal()">&times;</span>
+            <h3>Confirmación</h3>
+            <p id="mensajeConfirmacion"></p>
+            <button id="btnConfirmar" onclick="confirmarEliminacion()">Sí</button>
+            <button onclick="cerrarConfirmacionModal()">No</button>
+        </section>
+    </section>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/productos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
+    <script src="{{ url_for('static', filename='js/gestionProductos.js') }}"></script>
+</main>
+{% endblock %}

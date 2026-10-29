@@ -9,13 +9,15 @@
         <button class="btnAgregarProducto" onclick="abrirEAModal()">➕ Agregar Producto</button>
     </div>
     
-    <section class="buscador">
-        <section id="formBuscador">
+    <section class="buscador buscador-catalogo">
+        <section id="formBuscador" class="form-buscador-catalogo">
             <!-- Campo de búsqueda por nombre -->
-            <input type="text" id="buscarNombre" placeholder="Buscar por nombre" name="nombre" maxlength="50" oninput="filtrarProductos()">
+            <div class="filtro-item filtro-busqueda">
+                <input type="text" id="buscarNombre" placeholder="Buscar por nombre..." name="nombre" maxlength="50" oninput="filtrarProductos()">
+            </div>
             
             <!-- Filtro por tamaño -->
-            <div class="filtroSelect">
+            <div class="filtroSelect filtro-item filtro-tamano">
                 <select id="buscarTamano" name="tamano" onchange="filtrarProductos()">
                     <option value="">Todos los tamaños</option>
                     {% for tamano in tamanos %}
@@ -24,7 +26,7 @@
                 </select>
             </div>
 
-            <div class="filtroSelect">
+            <div class="filtroSelect filtro-item filtro-categoria">
                 <!-- Filtro por categoría -->
                 <select id="buscarCategoria" name="categoria" onchange="filtrarProductos()">
                     <option value="">Todas las categorías</option>
@@ -35,7 +37,9 @@
             </div>
 
             <!-- Botón para restablecer los filtros -->
-            <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+            <div class="filtro-item filtro-accion">
+                <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+            </div>
         </section>
     </section>
     
@@ -153,9 +157,38 @@
                             {% endfor %}
                         </select>
 
-                        <label for="imagenProducto">Imagen:</label>
-                        <input type="file" id="imagenProducto" name="imagenProducto" accept="image/*" required>
-                        <img id="imagenActual" class="imagenProducto imagen-preview" src="" alt="Imagen Actual" style="display: none;">
+                        <!-- Campo moderno de subida de imagen -->
+                        <div class="campo-subida-imagen">
+                            <label class="etiqueta-subida" for="imagenProducto">
+                                <span>Imagen del Producto:</span>
+                            </label>
+
+                            <!-- Input nativo oculto pero funcional para preservar validación y FormData -->
+                            <input type="file" id="imagenProducto" name="imagenProducto" accept="image/png, image/jpeg, image/jpg, image/webp" class="input-imagen-oculto" required>
+
+                            <!-- Zona interactiva / botón estilizado acorde a la paleta -->
+                            <label for="imagenProducto" class="dropzone-imagen" id="dropzoneImagen">
+                                <div class="icono-subida">
+                                    <i class='bx bx-cloud-upload'></i>
+                                </div>
+                                <span class="texto-subida-titulo" id="textoBotonImagen">Subir imagen</span>
+                                <span class="texto-subida-subtitulo" id="subtextoDropzone">Haz clic para examinar o arrastra una foto aquí (PNG, JPG, WEBP)</span>
+                            </label>
+
+                            <!-- Previsualización interactiva del archivo seleccionado -->
+                            <div class="tarjeta-preview-imagen" id="contenedorPreviewImagen" style="display: none;">
+                                <div class="miniatura-wrapper">
+                                    <img id="imagenActual" class="imagenProducto imagen-preview" src="" alt="Vista previa de imagen" style="display: none;">
+                                </div>
+                                <div class="info-preview">
+                                    <span class="badge-imagen badge-nueva" id="badgeEstadoImagen">Nueva imagen</span>
+                                    <span class="nombre-archivo-preview" id="previewNombreArchivo"></span>
+                                </div>
+                                <button type="button" class="btn-cambiar-foto" id="btnCambiarFoto" onclick="document.getElementById('imagenProducto').click()">
+                                    <i class='bx bx-image-add'></i> Cambiar foto
+                                </button>
+                            </div>
+                        </div>
 
                         <button class="guardarBtn" type="submit">Guardar</button>
                     </section>
@@ -223,6 +256,7 @@
         </section>
     </section>
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/productos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/alertas.css') }}">
     <script src="{{ url_for('static', filename='js/gestionProductos.js') }}"></script>
 </main>
