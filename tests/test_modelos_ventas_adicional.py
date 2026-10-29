@@ -384,7 +384,7 @@ def test_venta_con_variante_valida_usa_captura_de_variante(monkeypatch):
     ('Sin mesa', 'Para llevar'),
     ('sin mesa', 'Para llevar'),
     ('Mesa 3', 'Mesa 3'),
-    ('Barra', 'Barra'),
+    ('Mesa 5', 'Mesa 5'),
 ])
 def test_procesar_venta_normaliza_mesa_para_llevar(monkeypatch, mesa_input, expected_mesa):
     captured = {}

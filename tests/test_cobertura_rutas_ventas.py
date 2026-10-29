@@ -291,7 +291,7 @@ def test_api_historial_ventas_acota_por_pagina(
     ('Sin mesa', 'Para llevar'),
     ('sin mesa', 'Para llevar'),
     ('Mesa 2', 'Mesa 2'),
-    ('Barra', 'Barra'),
+    ('Mesa 5', 'Mesa 5'),
 ])
 def test_crear_venta_normaliza_mesa_para_llevar(
         client, authenticated_session, monkeypatch, input_mesa, expected_mesa):

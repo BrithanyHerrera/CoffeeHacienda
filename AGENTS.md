@@ -27,7 +27,7 @@ Este documento establece las directrices de desarrollo, reglas de negocio no neg
 4. **Confirmación con Motivo en Acciones Críticas:**
    * Ninguna cancelación de pedido o ajuste manual de existencias debe realizarse con un solo clic. La interfaz debe exigir un modal de confirmación con campo obligatorio para capturar el motivo.
 5. **Normalización de Servicio y Mesas:**
-   * El servicio por defecto siempre es `"Para llevar"`. Las opciones de comedor deben estar delimitadas a las mesas físicas disponibles (ej. `"Mesa 1"` a `"Mesa 5"` o `"Barra"`), eliminando entradas ambiguas como `"Sin mesa"`.
+   * El servicio por defecto siempre es `"Para llevar"`. Las opciones de comedor están delimitadas a las mesas físicas disponibles (`"Mesa 1"` a `"Mesa 5"`), sin entradas ambiguas como `"Sin mesa"` o `"Barra"`.
 
 ---
 
