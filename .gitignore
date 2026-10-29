@@ -1,6 +1,8 @@
 # Secretos (Lo más importante)
 bd.env
+database/bd.sql
 .env
+database/bd.sql
 
 # Basura de Python
 __pycache__/
