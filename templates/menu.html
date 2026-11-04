@@ -17,19 +17,19 @@
         </div>
     </div>
 
-    <!-- Categorías en todo el ancho horizontal -->
-    <div class="categoriasBebidas">
-        <button onclick="filtrarProductos('bebidas calientes')">Bebidas Calientes</button>
-        <button onclick="filtrarProductos('bebidas frías')">Bebidas Frías</button>
-        <button onclick="filtrarProductos('snacks')">Snacks</button>
-        <button onclick="filtrarProductos('postres')">Postres</button>
-        <button onclick="filtrarProductos('todos')">Todos</button>
-        <button onclick="filtrarProductos('otras bebidas')">Otras Bebidas</button>
-    </div>
-
     <div class="menuBody">
         <!-- Zona de productos -->
         <div class="contenedorMenu">
+            <!-- Pestañas de Categorías en el Menú de Ventas -->
+            <nav class="categoriasBebidas categorias-tabs" aria-label="Categorías de productos">
+                <button type="button" class="tab-categoria active" data-categoria="todas" onclick="filtrarProductos('todas')">Todas</button>
+                {% for cat in productos|map(attribute='categoria')|select|unique|sort %}
+                    {% if cat and cat|lower != 'todos' and cat|lower != 'todas' %}
+                    <button type="button" class="tab-categoria" data-categoria="{{ cat }}" onclick="filtrarProductos('{{ cat|replace("'", "\\'") }}')">{{ cat }}</button>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+
             <section class="menu">
                 <div class="menuProductos">
                     {% for producto in productos %}

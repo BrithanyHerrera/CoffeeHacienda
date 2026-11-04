@@ -1,36 +1,100 @@
 // ==========================================
-// BÚSQUEDA Y FILTROS
+// BÚSQUEDA Y FILTROS INTERACTIVOS COMBINADOS
 // ==========================================
 
+let categoriaSeleccionada = 'todas';
 
-
-document.getElementById('searchInput').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
+function aplicarFiltros() {
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = (searchInput ? searchInput.value : '').trim().toLowerCase();
     const productos = document.querySelectorAll('.producto');
+
+    const catFiltro = (categoriaSeleccionada || 'todas').toLowerCase().trim();
+    const esTodas = catFiltro === 'todas' || catFiltro === 'todos';
 
     productos.forEach(producto => {
-        const nombreProducto = producto.querySelector('h3').textContent.toLowerCase();
-        producto.style.display = nombreProducto.includes(searchTerm) ? '' : 'none';
+        const nombreProducto = producto.querySelector('h3') ? producto.querySelector('h3').textContent.toLowerCase() : '';
+        const descProducto = producto.querySelector('p') ? producto.querySelector('p').textContent.toLowerCase() : '';
+        const productoCategoria = (producto.getAttribute('categoriasDatos') || '').toLowerCase().trim();
+
+        const coincideCategoria = esTodas || (productoCategoria === catFiltro);
+        const coincideBusqueda = !searchTerm 
+            || nombreProducto.includes(searchTerm) 
+            || descProducto.includes(searchTerm);
+
+        if (coincideCategoria && coincideBusqueda) {
+            producto.style.display = '';
+        } else {
+            producto.style.display = 'none';
+        }
     });
-});
+}
+
+function buscarProducto() {
+    aplicarFiltros();
+}
 
 function filtrarProductos(categoria) {
-    const productos = document.querySelectorAll('.producto');
-    const botones = document.querySelectorAll('.categoriasBebidas button');
+    categoriaSeleccionada = (categoria || 'todas').toLowerCase().trim();
+    const botones = document.querySelectorAll('.categoriasBebidas button, .categorias-tabs .tab-categoria');
 
-    // Marcar el botón activo
     botones.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.toLowerCase().includes(categoria) || 
-            (categoria === 'todos' && btn.textContent === 'Todos')) {
+        const btnCat = (btn.getAttribute('data-categoria') || btn.textContent).toLowerCase().trim();
+        const esTodasBtn = btnCat === 'todas' || btnCat === 'todos';
+        const esTodasFiltro = categoriaSeleccionada === 'todas' || categoriaSeleccionada === 'todos';
+
+        if (esTodasFiltro && esTodasBtn) {
             btn.classList.add('active');
+        } else if (!esTodasFiltro && !esTodasBtn && btnCat === categoriaSeleccionada) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
         }
     });
 
-    productos.forEach(producto => {
-        const productoCategoria = producto.getAttribute('categoriasDatos').toLowerCase();
-        producto.style.display = (productoCategoria === categoria || categoria === 'todos') ? '' : 'none';
+    aplicarFiltros();
+}
+
+function inicializarCategoriasDinamicas() {
+    const contenedorTabs = document.querySelector('.categoriasBebidas, .categorias-tabs');
+    if (!contenedorTabs) return;
+
+    // Detectar categorías de los productos en el DOM
+    const productos = document.querySelectorAll('.producto');
+    const categoriasPresentes = new Set();
+    
+    productos.forEach(p => {
+        const cat = (p.getAttribute('categoriasDatos') || '').trim();
+        if (cat && cat.toLowerCase() !== 'todos' && cat.toLowerCase() !== 'todas') {
+            categoriasPresentes.add(cat);
+        }
     });
+
+    // Detectar botones ya presentes
+    const botonesExistentes = contenedorTabs.querySelectorAll('button');
+    const categoriasConBoton = new Set();
+    botonesExistentes.forEach(btn => {
+        const cat = (btn.getAttribute('data-categoria') || btn.textContent).trim().toLowerCase();
+        categoriasConBoton.add(cat);
+    });
+
+    // Añadir dinámicamente cualquier categoría de los productos que aún no tenga botón
+    categoriasPresentes.forEach(cat => {
+        if (!categoriasConBoton.has(cat.toLowerCase())) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tab-categoria';
+            btn.dataset.categoria = cat;
+            btn.textContent = cat;
+            btn.onclick = () => filtrarProductos(cat);
+            contenedorTabs.appendChild(btn);
+        }
+    });
+}
+
+const inputBusquedaEl = document.getElementById('searchInput');
+if (inputBusquedaEl) {
+    inputBusquedaEl.addEventListener('input', aplicarFiltros);
 }
 
 
@@ -229,6 +293,79 @@ document.querySelectorAll('.añadirCarrito').forEach(button => {
 // ALERTAS / NOTIFICACIONES
 // ==========================================
 
+function mostrarAlertaVentaExitosa(infoTicket) {
+    const contenedor = (typeof crearContenedorAlertas === 'function')
+        ? crearContenedorAlertas()
+        : (document.getElementById('contenedor-alertas') || (() => {
+            const c = document.createElement('div');
+            c.id = 'contenedor-alertas';
+            c.style.position = 'fixed';
+            c.style.top = '20px';
+            c.style.right = '20px';
+            c.style.zIndex = '9999';
+            document.body.appendChild(c);
+            return c;
+        })());
+
+    const alerta = document.createElement('div');
+    alerta.className = 'alerta alerta-exito alerta-venta-ticket';
+
+    const contenidoIzquierdo = document.createElement('div');
+    contenidoIzquierdo.style.display = 'flex';
+    contenidoIzquierdo.style.alignItems = 'center';
+    contenidoIzquierdo.style.gap = '10px';
+    contenidoIzquierdo.style.flexWrap = 'wrap';
+
+    const texto = document.createElement('span');
+    texto.style.fontWeight = '500';
+    texto.textContent = 'Venta registrada exitosamente.';
+    contenidoIzquierdo.appendChild(texto);
+
+    const ticketUrl = infoTicket && infoTicket.blobUrl ? infoTicket.blobUrl : null;
+    if (ticketUrl) {
+        const btnTicket = document.createElement('a');
+        btnTicket.href = ticketUrl;
+        btnTicket.target = '_blank';
+        btnTicket.rel = 'noopener noreferrer';
+        btnTicket.className = 'btn-ver-ticket';
+        btnTicket.textContent = '📄 Ver/Imprimir Ticket';
+        btnTicket.setAttribute('title', 'Abrir ticket para visualizar o imprimir en nueva pestaña');
+        contenidoIzquierdo.appendChild(btnTicket);
+
+        if (infoTicket.promesaGuardar) {
+            infoTicket.promesaGuardar.then(res => {
+                if (res && res.url) {
+                    btnTicket.href = res.url;
+                }
+            });
+        }
+    }
+
+    alerta.appendChild(contenidoIzquierdo);
+
+    const botonCerrar = document.createElement('button');
+    botonCerrar.type = 'button';
+    botonCerrar.textContent = '×';
+    botonCerrar.style.background = 'none';
+    botonCerrar.style.border = 'none';
+    botonCerrar.style.color = '#fff';
+    botonCerrar.style.fontSize = '22px';
+    botonCerrar.style.lineHeight = '1';
+    botonCerrar.style.cursor = 'pointer';
+    botonCerrar.style.padding = '0';
+    botonCerrar.style.marginLeft = '12px';
+    botonCerrar.onclick = () => alerta.remove();
+
+    alerta.appendChild(botonCerrar);
+    contenedor.appendChild(alerta);
+
+    setTimeout(() => {
+        if (alerta.parentElement) {
+            alerta.remove();
+        }
+    }, 8000);
+}
+
 
 
 
@@ -310,8 +447,8 @@ function realizarPedido() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            mostrarAlerta('Venta registrada exitosamente.', 'ExitoG');
-            generarPDF(data);
+            const infoTicket = generarPDF(data);
+            mostrarAlertaVentaExitosa(infoTicket);
             carrito = [];
             actualizarCarrito();
             // Limpiar formulario
@@ -534,12 +671,16 @@ function generarPDF(datosVenta = {}) {
         nombreArchivo = `${mesaLimpia}_${vendedorLimpio}_${fechaCorta}.pdf`;
     }
 
-    // Descargar localmente
-    doc.save(nombreArchivo);
+    // Guardado silencioso de Tickets: se desactiva la descarga automática para no saturar descargas
+    // doc.save(nombreArchivo);
 
-    // Guardar en el servidor
+    // Generar URL Blob para permitir visualización o impresión bajo demanda
+    const pdfBlob = doc.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+
+    // Guardar en el servidor (instance/pdfs/tickets_ventas/)
     const pdfBase64 = doc.output('datauristring').split(',')[1];
-    fetch('/api/guardar-pdf', {
+    const promesaGuardar = fetch('/api/guardar-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -547,7 +688,17 @@ function generarPDF(datosVenta = {}) {
             nombre: nombreArchivo,
             tipo: 'ticket'
         })
-    }).catch(err => console.error('Error al guardar PDF en servidor:', err));
+    }).then(res => res.json())
+      .catch(err => {
+          console.error('Error al guardar PDF en servidor:', err);
+          return null;
+      });
+
+    return {
+        blobUrl: blobUrl,
+        nombreArchivo: nombreArchivo,
+        promesaGuardar: promesaGuardar
+    };
 }
 
 
@@ -556,6 +707,15 @@ function generarPDF(datosVenta = {}) {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Configurar listener para buscador interactivo
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', aplicarFiltros);
+    }
+
+    // Inicializar categorías dinámicas desde los productos en el DOM
+    inicializarCategoriasDinamicas();
+
     // Estado inicial del campo mesa
     toggleMesaField();
     
