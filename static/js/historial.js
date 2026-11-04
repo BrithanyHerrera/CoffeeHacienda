@@ -1,5 +1,3 @@
-﻿
-
 function normalizarMesa(m) {
     if (!m) return 'Para llevar';
     const s = String(m).trim();
@@ -15,15 +13,34 @@ let paginaActual = 1;
 document.addEventListener("DOMContentLoaded", function() {
     cargarHistorialVentas();
 
-    document.getElementById("buscarCliente").addEventListener("input", () => { paginaActual = 1; buscarVentas(); });
-    document.getElementById("fechaInicio").addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
-    document.getElementById("fechaFin").addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
+    const buscarCliente = document.getElementById("buscarCliente");
+    if (buscarCliente) {
+        buscarCliente.addEventListener("input", () => { paginaActual = 1; buscarVentas(); });
+    }
+
+    const filtroVendedor = document.getElementById("filtroVendedor");
+    if (filtroVendedor) {
+        filtroVendedor.addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
+    }
+
+    const fechaInicio = document.getElementById("fechaInicio");
+    if (fechaInicio) {
+        fechaInicio.addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
+    }
+
+    const fechaFin = document.getElementById("fechaFin");
+    if (fechaFin) {
+        fechaFin.addEventListener("change", () => { paginaActual = 1; buscarVentas(); });
+    }
+
+    const btnExportar = document.getElementById("btnExportarExcel");
+    if (btnExportar) {
+        btnExportar.addEventListener("click", exportarHistorialExcel);
+    }
 });
 
-
-
-function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "") {
-    let url = `/api/historial-ventas?cliente=${encodeURIComponent(filtroCliente)}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&pagina=${paginaActual}&por_pagina=15`;
+function cargarHistorialVentas(filtroCliente = "", fechaInicio = "", fechaFin = "", filtroVendedor = "") {
+    let url = `/api/historial-ventas?cliente=${encodeURIComponent(filtroCliente)}&vendedor=${encodeURIComponent(filtroVendedor)}&fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}&pagina=${paginaActual}&por_pagina=15`;
 
     fetch(url)
         .then(response => response.json())
@@ -144,19 +161,38 @@ function irAPagina(pagina) {
 }
 
 function buscarVentas() {
-    let cliente = document.getElementById("buscarCliente").value;
-    let fechaInicio = document.getElementById("fechaInicio").value;
-    let fechaFin = document.getElementById("fechaFin").value;
+    let cliente = (document.getElementById("buscarCliente")?.value || "").trim();
+    let vendedor = (document.getElementById("filtroVendedor")?.value || "").trim();
+    let fechaInicio = (document.getElementById("fechaInicio")?.value || "").trim();
+    let fechaFin = (document.getElementById("fechaFin")?.value || "").trim();
 
-    cargarHistorialVentas(cliente, fechaInicio, fechaFin);
+    cargarHistorialVentas(cliente, fechaInicio, fechaFin, vendedor);
 }
 
 function reestablecerFiltros() {
-    document.getElementById("buscarCliente").value = "";
-    document.getElementById("fechaInicio").value = "";
-    document.getElementById("fechaFin").value = "";
+    if (document.getElementById("buscarCliente")) document.getElementById("buscarCliente").value = "";
+    if (document.getElementById("filtroVendedor")) document.getElementById("filtroVendedor").value = "";
+    if (document.getElementById("fechaInicio")) document.getElementById("fechaInicio").value = "";
+    if (document.getElementById("fechaFin")) document.getElementById("fechaFin").value = "";
     paginaActual = 1;
     cargarHistorialVentas();
+}
+
+function exportarHistorialExcel() {
+    const cliente = (document.getElementById("buscarCliente")?.value || "").trim();
+    const vendedor = (document.getElementById("filtroVendedor")?.value || "").trim();
+    const fechaInicio = (document.getElementById("fechaInicio")?.value || "").trim();
+    const fechaFin = (document.getElementById("fechaFin")?.value || "").trim();
+
+    const params = new URLSearchParams();
+    if (cliente) params.append("cliente", cliente);
+    if (vendedor) params.append("vendedor", vendedor);
+    if (fechaInicio) params.append("fechaInicio", fechaInicio);
+    if (fechaFin) params.append("fechaFin", fechaFin);
+
+    const query = params.toString();
+    const url = `/api/historial-ventas/exportar${query ? `?${query}` : ""}`;
+    window.location.href = url;
 }
 
 function verDetallesVenta(id) {

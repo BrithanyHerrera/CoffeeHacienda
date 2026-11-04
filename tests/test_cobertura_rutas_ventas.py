@@ -1,3 +1,9 @@
+import codecs
+import csv
+from datetime import datetime
+import io
+import re
+
 import pytest
 
 from blueprints import ventas_bp
@@ -183,6 +189,142 @@ def test_api_historial_ventas_maneja_error(
         lambda *args: (_ for _ in ()).throw(RuntimeError('database error')),
     )
     assert client.get('/api/historial-ventas').status_code == 500
+
+
+def test_exportar_historial_ventas_requiere_autenticacion(client):
+    response = client.get('/api/historial-ventas/exportar')
+    assert response.status_code == 401
+    assert response.get_json()['success'] is False
+
+
+def test_exportar_historial_ventas_csv_exito(
+        client, authenticated_session, monkeypatch):
+    authenticated_session(client)
+    ventas_mock = [
+        {
+            'id': 101,
+            'fecha_hora': datetime(2026, 11, 4, 15, 30, 0),
+            'cliente': 'María Pérez',
+            'vendedor': 'Carlos',
+            'numero_mesa': 'Mesa 2',
+            'metodo_pago': 'Efectivo',
+            'estado': 'Completada',
+            'total': 145.50
+        },
+        {
+            'id': 102,
+            'fecha_hora': '2026-11-04 16:00:00',
+            'cliente': 'José Gómez',
+            'vendedor': 'Ana',
+            'numero_mesa': 'sin mesa',  # Debe normalizarse a 'Para llevar'
+            'metodo_pago': 'Tarjeta',
+            'estado': 'Cancelada',
+            'total': 80.00
+        }
+    ]
+    captured_calls = []
+
+    def mock_obtener(*args):
+        captured_calls.append(args)
+        return ventas_mock, 1, 2
+
+    monkeypatch.setattr(ventas_bp, 'obtener_historial_ventas', mock_obtener)
+
+    response = client.get(
+        '/api/historial-ventas/exportar?cliente=Mar%C3%ADa&vendedor=Carlos'
+        '&fechaInicio=2026-11-01&fechaFin=2026-11-04'
+    )
+
+    assert response.status_code == 200
+    assert response.mimetype == 'text/csv'
+    disposition = response.headers.get('Content-Disposition', '')
+    assert 'attachment;' in disposition
+    assert re.search(r'Historial_Ventas_\d{8}\.csv', disposition) is not None
+
+    # Verifica codificación utf-8-sig (BOM presente al inicio de los bytes)
+    assert response.data.startswith(codecs.BOM_UTF8)
+
+    # Leer el contenido CSV decodificado con utf-8-sig
+    contenido = response.data.decode('utf-8-sig')
+    reader = list(csv.reader(io.StringIO(contenido)))
+
+    assert len(reader) == 3  # Encabezado + 2 filas
+    assert reader[0] == [
+        'Folio / ID Venta',
+        'Fecha y Hora',
+        'Cliente',
+        'Vendedor',
+        'Mesa / Servicio',
+        'Método de Pago',
+        'Estado',
+        'Total'
+    ]
+    assert reader[1] == [
+        '101',
+        '2026-11-04 15:30:00',
+        'María Pérez',
+        'Carlos',
+        'Mesa 2',
+        'Efectivo',
+        'Completada',
+        '$145.50'
+    ]
+    assert reader[2] == [
+        '102',
+        '2026-11-04 16:00:00',
+        'José Gómez',
+        'Ana',
+        'Para llevar',
+        'Tarjeta',
+        'Cancelada',
+        '$80.00'
+    ]
+
+    # Verificar que los argumentos recibidos correspondan a los filtros
+    assert captured_calls == [('María', 'Carlos', '2026-11-01', '2026-11-04', 1, 5000)]
+
+
+def test_exportar_historial_ventas_filtros_y_valores_por_defecto(
+        client, authenticated_session, monkeypatch):
+    authenticated_session(client)
+    ventas_mock = [
+        {
+            'id': 200,
+            'fecha_hora': None,
+            'cliente': None,
+            'vendedor': None,
+            'numero_mesa': None,
+            'metodo_pago': None,
+            'estado': None,
+            'total': None
+        }
+    ]
+    monkeypatch.setattr(
+        ventas_bp,
+        'obtener_historial_ventas',
+        lambda *args: (ventas_mock, 1, 1),
+    )
+
+    response = client.get('/api/historial-ventas/exportar')
+    assert response.status_code == 200
+
+    contenido = response.data.decode('utf-8-sig')
+    reader = list(csv.reader(io.StringIO(contenido)))
+    assert len(reader) == 2
+    assert reader[1] == ['200', '', '', '', 'Para llevar', '', '', '$0.00']
+
+
+def test_exportar_historial_ventas_maneja_error(
+        client, authenticated_session, monkeypatch):
+    authenticated_session(client)
+    monkeypatch.setattr(
+        ventas_bp,
+        'obtener_historial_ventas',
+        lambda *args: (_ for _ in ()).throw(RuntimeError('export database error')),
+    )
+    response = client.get('/api/historial-ventas/exportar')
+    assert response.status_code == 500
+    assert response.get_json()['success'] is False
 
 
 def test_detalle_venta_encontrado_faltante_y_error(

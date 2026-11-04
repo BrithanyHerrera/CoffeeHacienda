@@ -1,6 +1,9 @@
 # Rutas: menú, órdenes, historial y ventas
+import csv
+from datetime import datetime
+import io
 import logging
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, send_file
 from utils import login_required
 from models.modelsProductosMenu import obtener_metodos_pago, obtener_productos_menu
 from models.modelsVentas import (obtener_ordenes_pendientes, actualizar_estado_orden,
@@ -165,6 +168,91 @@ def api_historial_ventas():
     except Exception as e:
         logger.error("Error al consultar historial de ventas: %s", e)
         return jsonify({'success': False, 'message': 'No se pudo cargar el historial'}), 500
+
+@ventas_bp.route('/api/historial-ventas/exportar', methods=['GET'])
+@login_required
+def exportar_historial_ventas():
+    filtro_cliente = request.args.get('cliente', '').strip()
+    filtro_vendedor = request.args.get('vendedor', '').strip()
+    fecha_inicio = request.args.get('fechaInicio', '').strip()
+    fecha_fin = request.args.get('fechaFin', '').strip()
+
+    try:
+        ventas, _, _ = obtener_historial_ventas(
+            filtro_cliente,
+            filtro_vendedor,
+            fecha_inicio,
+            fecha_fin,
+            1,
+            5000
+        )
+
+        output = io.StringIO()
+        writer = csv.writer(output, dialect='excel')
+        writer.writerow([
+            'Folio / ID Venta',
+            'Fecha y Hora',
+            'Cliente',
+            'Vendedor',
+            'Mesa / Servicio',
+            'Método de Pago',
+            'Estado',
+            'Total'
+        ])
+
+        for v in ventas:
+            folio = v.get('id') if v.get('id') is not None else v.get('Id', '')
+            fecha_hora = v.get('fecha_hora') or v.get('FechaHora', '')
+            if hasattr(fecha_hora, 'strftime'):
+                fecha_hora_str = fecha_hora.strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                fecha_hora_str = str(fecha_hora) if fecha_hora else ''
+
+            cliente = v.get('cliente') or v.get('Cliente', '')
+            vendedor = v.get('vendedor') or v.get('Vendedor', '')
+
+            mesa = v.get('numero_mesa') or v.get('Mesa', '')
+            mesa_str = str(mesa).strip() if mesa else ''
+            if not mesa_str or mesa_str.lower() in ('sin mesa', 'none', 'null'):
+                mesa_str = 'Para llevar'
+
+            metodo_pago = v.get('metodo_pago') or v.get('MetodoPago', '')
+            estado = v.get('estado') or v.get('Estado', '')
+
+            total_val = v.get('total') if v.get('total') is not None else v.get('Total', 0)
+            if isinstance(total_val, str) and total_val.startswith('$'):
+                total_str = total_val
+            else:
+                try:
+                    total_str = f"${float(total_val):.2f}"
+                except (ValueError, TypeError):
+                    total_str = f"${total_val}" if total_val else "$0.00"
+
+            writer.writerow([
+                folio,
+                fecha_hora_str,
+                cliente,
+                vendedor,
+                mesa_str,
+                metodo_pago,
+                estado,
+                total_str
+            ])
+
+        csv_bytes = output.getvalue().encode('utf-8-sig')
+        mem = io.BytesIO(csv_bytes)
+        mem.seek(0)
+
+        filename = f"Historial_Ventas_{datetime.now().strftime('%Y%m%d')}.csv"
+        return send_file(
+            mem,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        logger.error("Error al exportar historial de ventas: %s", e, exc_info=True)
+        return jsonify({'success': False, 'message': 'No fue posible exportar el historial'}), 500
 
 @ventas_bp.route('/api/historial-ventas/<int:id>', methods=['GET'])
 @login_required

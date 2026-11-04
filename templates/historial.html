@@ -4,6 +4,40 @@
 
 
 {% block content %}
+<style>
+.btnExportar {
+    padding: 9px 18px;
+    border: none;
+    cursor: pointer;
+    background: #27ae60;
+    color: white;
+    border-radius: 8px;
+    font-size: var(--font-size-sm, 14px);
+    font-weight: 600;
+    font-family: var(--font-family, inherit);
+    margin-left: 8px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btnExportar:hover {
+    transform: translateY(-1px);
+    background-color: #219653;
+}
+.btnExportar:active {
+    transform: translateY(0);
+}
+@media (max-width: 600px) {
+    .btnExportar {
+        margin-left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+    }
+}
+</style>
 <main class="contenidoGeneral">
     <section class="contenedorGestionVentas">    
         <h1>Historial de Ventas</h1>
@@ -11,13 +45,20 @@
 
     <section class="buscador">
         <section id="formBuscador">
-            <form method="get" action="{{ url_for('ventas.historial') }}">
+            <form method="get" action="{{ url_for('ventas.historial') }}" onsubmit="return false;">
                 <input type="text" id="buscarCliente" name="cliente" placeholder="Nombre del cliente" maxlength="30" value="{{ request.args.get('cliente', '') }}">
+                <select id="filtroVendedor" name="vendedor">
+                    <option value="">Todos los vendedores</option>
+                    {% for v in vendedores %}
+                    <option value="{{ v.usuario }}" {% if request.args.get('vendedor') == v.usuario %}selected{% endif %}>{{ v.usuario }}</option>
+                    {% endfor %}
+                </select>
                 <label for="fechaInicio">Desde:</label>
                 <input type="date" id="fechaInicio" name="fechaInicio" value="{{ request.args.get('fechaInicio', '') }}">
                 <label for="fechaFin">Hasta:</label>
                 <input type="date" id="fechaFin" name="fechaFin" value="{{ request.args.get('fechaFin', '') }}">
                 <button type="button" class="btnReestablecer" onclick="reestablecerFiltros()">🔄 Reestablecer</button>
+                <button type="button" id="btnExportarExcel" class="btnExportar" onclick="exportarHistorialExcel()">📥 Exportar a Excel</button>
             </form>
         </section>
     </section>
