@@ -262,6 +262,7 @@ def test_finanzas_paginas_filtro_corte_y_reporte(
     assert client.post('/filtrarVentas', json={}).status_code == 400
 
     monkeypatch.setattr(finanzas_bp, 'obtener_todos_cortes', lambda: [])
+    monkeypatch.setattr(finanzas_bp, 'obtener_fecha_sugerida_inicio', lambda: (None, False))
     assert client.get('/corteCaja').status_code == 200
     monkeypatch.setattr(finanzas_bp, 'obtener_cortes_con_ganancia', lambda: [])
     assert client.get('/reporteFinanciero').status_code == 200
@@ -415,3 +416,135 @@ def test_buscar_pdf_caja_faltante_no_encontrado_y_error(
     )
     response = client.get('/buscar_pdf_corte/2026-01-01/2026-01-02')
     assert response.status_code == 500
+
+
+def test_formato_helpers_csv():
+    from decimal import Decimal
+    from datetime import datetime
+
+    assert finanzas_bp._formato_fecha_csv(None) == ''
+    assert finanzas_bp._formato_fecha_csv('2026-01-01') == '2026-01-01'
+    assert finanzas_bp._formato_fecha_csv(datetime(2026, 1, 1, 12, 0)) == '2026-01-01 12:00:00'
+    assert finanzas_bp._formato_moneda_csv(None) == '0.00'
+    assert finanzas_bp._formato_moneda_csv('invalido') == '0.00'
+    assert finanzas_bp._formato_moneda_csv(Decimal('12.3')) == '12.30'
+    assert finanzas_bp._formato_moneda_csv(0) == '0.00'
+    assert finanzas_bp._formato_moneda_csv(-45.5) == '-45.50'
+
+
+def test_exportar_cortes_excel_permisos(client, authenticated_session):
+    # Sin autenticación
+    response_unauth = client.get('/api/cortes/exportar-excel')
+    assert response_unauth.status_code in (401, 302)
+
+    # Rol Cajero (no administrador)
+    authenticated_session(client, role='Cajero')
+    response_cajero = client.get('/api/cortes/exportar-excel')
+    assert response_cajero.status_code in (403, 302)
+
+    response_alias_cajero = client.get('/exportarReporteFinancieroExcel')
+    assert response_alias_cajero.status_code in (403, 302)
+
+
+def test_exportar_cortes_excel_exito_y_contenido_csv(client, authenticated_session, monkeypatch):
+    from datetime import datetime
+    import csv
+    import io
+
+    authenticated_session(client, role='Administrador')
+
+    cortes_mock = [
+        {
+            'Id': 10,
+            'fecha_hora_inicio': datetime(2026, 5, 1, 8, 30, 0),
+            'fecha_hora_cierre': datetime(2026, 5, 1, 16, 45, 0),
+            'vendedor': 'José López',
+            'total_ventas': Decimal('1500.50'),
+            'total_efectivo': Decimal('1000.00'),
+            'total_transferencias': Decimal('300.50'),
+            'total_tarjeta': Decimal('200.00'),
+            'total_contado': Decimal('1500.50'),
+            'pagos_realizados': Decimal('250.00'),
+            'fondo': Decimal('500.00'),
+            'ganancia_o_perdida': Decimal('1250.50'),
+        }
+    ]
+    monkeypatch.setattr(finanzas_bp, 'obtener_cortes_exportacion', lambda *args: cortes_mock)
+
+    response = client.get('/api/cortes/exportar-excel')
+    assert response.status_code == 200
+    assert response.mimetype == 'text/csv'
+
+    disp = response.headers.get('Content-Disposition', '')
+    assert 'attachment' in disp
+    hoy_str = datetime.now().strftime('%Y%m%d')
+    assert f'filename=Reporte_Cortes_Caja_{hoy_str}.csv' in disp
+
+    # Verificar codificación utf-8-sig (BOM presente al inicio de los bytes)
+    assert response.data.startswith(b'\xef\xbb\xbf')
+
+    # Decodificar y verificar estructura CSV
+    decoded_text = response.data.decode('utf-8-sig')
+    reader = list(csv.reader(io.StringIO(decoded_text)))
+
+    encabezados_esperados = [
+        'ID', 'Fecha Inicio', 'Fecha Cierre', 'Vendedor',
+        'Total Ventas', 'Efectivo', 'Transferencias', 'Tarjeta',
+        'Total Contado', 'Pagos Realizados', 'Fondo', 'Ganancia/Pérdida'
+    ]
+    assert reader[0] == encabezados_esperados
+    assert len(reader) == 2
+
+    fila1 = reader[1]
+    assert fila1[0] == '10'
+    assert fila1[1] == '2026-05-01 08:30:00'
+    assert fila1[2] == '2026-05-01 16:45:00'
+    assert fila1[3] == 'José López'
+    assert fila1[4] == '1500.50'
+    assert fila1[5] == '1000.00'
+    assert fila1[6] == '300.50'
+    assert fila1[7] == '200.00'
+    assert fila1[8] == '1500.50'
+    assert fila1[9] == '250.00'
+    assert fila1[10] == '500.00'
+    assert fila1[11] == '1250.50'
+
+    # Verificar también que la ruta alternativa funcione idénticamente
+    alias_response = client.get('/exportarReporteFinancieroExcel')
+    assert alias_response.status_code == 200
+    assert alias_response.mimetype == 'text/csv'
+    assert alias_response.data.startswith(b'\xef\xbb\xbf')
+
+
+def test_exportar_cortes_excel_vacio_y_error(client, authenticated_session, monkeypatch):
+    import csv
+    import io
+
+    authenticated_session(client, role='Administrador')
+
+    # Caso lista vacía
+    monkeypatch.setattr(finanzas_bp, 'obtener_cortes_exportacion', lambda *args: [])
+    response = client.get('/api/cortes/exportar-excel')
+    assert response.status_code == 200
+    reader = list(csv.reader(io.StringIO(response.data.decode('utf-8-sig'))))
+    assert len(reader) == 1  # Solo la cabecera
+    assert 'Ganancia/Pérdida' in reader[0]
+
+    # Caso con filtro de fechas válido
+    response_fechas = client.get('/api/cortes/exportar-excel?fecha_desde=2026-01-01T00:00:00&fecha_hasta=2026-01-02T00:00:00')
+    assert response_fechas.status_code == 200
+
+    # Caso con fechas inválidas (debe degradar limpiamente y no explotar)
+    response_fechas_invalidas = client.get('/api/cortes/exportar-excel?fecha_desde=invalid&fecha_hasta=bad')
+    assert response_fechas_invalidas.status_code == 200
+
+    # Caso error interno
+    monkeypatch.setattr(
+        finanzas_bp,
+        'obtener_cortes_exportacion',
+        lambda *args: (_ for _ in ()).throw(RuntimeError('error de BD')),
+    )
+    resp_error = client.get('/api/cortes/exportar-excel')
+    assert resp_error.status_code == 500
+    assert resp_error.get_json()['success'] is False
+

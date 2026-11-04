@@ -6,6 +6,13 @@
 <main class="contenidoGeneral">
     <div class="contenedorTitulo">
         <h1>Reportes de Ventas</h1>
+        <a href="{{ url_for('finanzas.exportar_cortes_excel') }}" class="btnDescargarExcel" id="btnDescargarExcelReportes"
+           style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #27ae60; color: #ffffff; border: none; border-radius: var(--radius-sm, 6px); padding: 0 16px; height: 42px; font-weight: 600; font-size: var(--font-size-base, 14px); cursor: pointer; transition: background-color 0.2s, transform 0.1s; box-shadow: 0 2px 8px rgba(39, 174, 96, 0.25);"
+           onmouseover="this.style.backgroundColor='#219150'; this.style.transform='translateY(-1px)';"
+           onmouseout="this.style.backgroundColor='#27ae60'; this.style.transform='translateY(0)';"
+           title="Exportar todos los cortes de caja a Excel / CSV">
+            <span>📥</span> Descargar Excel / CSV
+        </a>
     </div>
         
         <!-- Tabla de Reportes Financieros -->

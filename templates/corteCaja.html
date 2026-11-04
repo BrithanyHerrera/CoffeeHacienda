@@ -8,7 +8,16 @@
 <form id="formCorteCaja" style="flex-direction: column;">
     <div class="contenedorTitulo">
         <h1>Corte de Caja</h1>
-        <button type="button" id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="{{ url_for('finanzas.exportar_cortes_excel') }}" class="btnDescargarExcel" id="btnDescargarExcel"
+               style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #27ae60; color: #ffffff; border: none; border-radius: var(--radius-sm, 6px); padding: 0 16px; height: 42px; font-weight: 600; font-size: var(--font-size-base, 14px); cursor: pointer; transition: background-color 0.2s, transform 0.1s; box-shadow: 0 2px 8px rgba(39, 174, 96, 0.25);"
+               onmouseover="this.style.backgroundColor='#219150'; this.style.transform='translateY(-1px)';"
+               onmouseout="this.style.backgroundColor='#27ae60'; this.style.transform='translateY(0)';"
+               title="Exportar todos los cortes de caja a Excel / CSV">
+                <span>📥</span> Descargar Excel / CSV
+            </a>
+            <button type="button" id="btnAgregarCorte" class="btnAgregarCorte">Realizar Corte</button>
+        </div>
     </div>
 
     <!-- Tabla Principal -->

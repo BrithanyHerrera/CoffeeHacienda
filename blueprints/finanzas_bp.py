@@ -1,10 +1,12 @@
 # Rutas: corte de caja y reportes
+import csv
+import io
 import os
 import re
 import logging
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-from flask import Blueprint, render_template, request, jsonify, session, current_app, url_for
+from flask import Blueprint, render_template, request, jsonify, session, current_app, url_for, send_file
 from utils import login_required, admin_required
 from models.modelsCorteCaja import (
     filtrar_ventas,
@@ -248,3 +250,119 @@ def buscar_pdf_corte(fecha_inicio, fecha_fin):
     except Exception:
         logger.exception('Error al buscar PDF de corte')
         return jsonify({'success': False, 'message': 'No se pudo buscar el PDF'}), 500
+
+
+def _formato_fecha_csv(val):
+    """Convierte un valor de fecha/datetime a string para CSV."""
+    if not val:
+        return ''
+    if hasattr(val, 'strftime'):
+        return val.strftime('%Y-%m-%d %H:%M:%S')
+    return str(val)
+
+
+def _formato_moneda_csv(val):
+    """Convierte un valor monetario a string formateado con 2 decimales."""
+    if val is None:
+        return '0.00'
+    try:
+        return f"{Decimal(str(val)):.2f}"
+    except (InvalidOperation, TypeError, ValueError):
+        return '0.00'
+
+
+def obtener_cortes_exportacion(fecha_desde=None, fecha_hasta=None):
+    """Consulta todos los cortes con el nombre del vendedor para exportación."""
+    from bd import Conexion_BD
+    conn = Conexion_BD()
+    try:
+        with conn.cursor() as cursor:
+            query = """
+                SELECT c.Id, c.fecha_hora_inicio, c.fecha_hora_cierre,
+                       COALESCE(u.usuario, 'N/A') AS vendedor,
+                       c.total_ventas, c.total_efectivo, c.total_transferencias, c.total_tarjeta,
+                       c.total_contado, c.pagos_realizados, c.fondo, c.ganancia_o_perdida
+                FROM tcortescaja c
+                LEFT JOIN tusuarios u ON c.vendedor_id = u.Id
+            """
+            params = []
+            if fecha_desde and fecha_hasta:
+                query += " WHERE c.fecha_hora_cierre >= %s AND c.fecha_hora_cierre <= %s"
+                params.extend([fecha_desde, fecha_hasta])
+            query += " ORDER BY c.fecha_hora_cierre DESC"
+            cursor.execute(query, tuple(params))
+            return cursor.fetchall()
+    finally:
+        conn.close()
+
+
+@finanzas_bp.route('/api/cortes/exportar-excel', methods=['GET'])
+@finanzas_bp.route('/exportarReporteFinancieroExcel', methods=['GET'])
+@login_required
+@admin_required
+def exportar_cortes_excel():
+    """Genera y descarga el reporte de cortes de caja en CSV/Excel compatible."""
+    try:
+        fecha_desde = request.args.get('fecha_desde') or request.args.get('fechaDesde')
+        fecha_hasta = request.args.get('fecha_hasta') or request.args.get('fechaHasta')
+        if fecha_desde and fecha_hasta:
+            try:
+                datetime.fromisoformat(fecha_desde)
+                datetime.fromisoformat(fecha_hasta)
+            except (ValueError, TypeError):
+                fecha_desde = None
+                fecha_hasta = None
+        else:
+            fecha_desde = None
+            fecha_hasta = None
+
+        cortes = obtener_cortes_exportacion(fecha_desde, fecha_hasta)
+
+        si = io.StringIO()
+        writer = csv.writer(si, lineterminator='\r\n')
+        writer.writerow([
+            'ID',
+            'Fecha Inicio',
+            'Fecha Cierre',
+            'Vendedor',
+            'Total Ventas',
+            'Efectivo',
+            'Transferencias',
+            'Tarjeta',
+            'Total Contado',
+            'Pagos Realizados',
+            'Fondo',
+            'Ganancia/Pérdida',
+        ])
+
+        for c in cortes:
+            writer.writerow([
+                c.get('Id') if c.get('Id') is not None else c.get('id', ''),
+                _formato_fecha_csv(c.get('fecha_hora_inicio')),
+                _formato_fecha_csv(c.get('fecha_hora_cierre')),
+                c.get('vendedor') or c.get('nombre_vendedor') or 'N/A',
+                _formato_moneda_csv(c.get('total_ventas')),
+                _formato_moneda_csv(c.get('total_efectivo')),
+                _formato_moneda_csv(c.get('total_transferencias')),
+                _formato_moneda_csv(c.get('total_tarjeta')),
+                _formato_moneda_csv(c.get('total_contado')),
+                _formato_moneda_csv(c.get('pagos_realizados')),
+                _formato_moneda_csv(c.get('fondo')),
+                _formato_moneda_csv(c.get('ganancia_o_perdida')),
+            ])
+
+        csv_bytes = io.BytesIO(si.getvalue().encode('utf-8-sig'))
+        csv_bytes.seek(0)
+        hoy = datetime.now().strftime('%Y%m%d')
+        filename = f'Reporte_Cortes_Caja_{hoy}.csv'
+
+        return send_file(
+            csv_bytes,
+            mimetype='text/csv; charset=utf-8',
+            as_attachment=True,
+            download_name=filename,
+        )
+    except Exception:
+        logger.exception('Error al exportar reporte de cortes de caja')
+        return jsonify({'success': False, 'message': 'No se pudo generar la exportación'}), 500
+
