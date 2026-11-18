@@ -24,9 +24,9 @@ if sys.stdout.encoding.lower() != 'utf-8':
         pass
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DOCX_PATH = BASE_DIR / 'docs' / 'MANUAL_USUARIO.docx'
-PDF_PATH = BASE_DIR / 'docs' / 'MANUAL_USUARIO.pdf'
-MD_PATH = BASE_DIR / 'docs' / 'MANUAL_USUARIO.md'
+DOCX_PATH = BASE_DIR / 'docs' / 'manuales' / 'MANUAL_USUARIO.docx'
+PDF_PATH = BASE_DIR / 'docs' / 'manuales' / 'MANUAL_USUARIO.pdf'
+MD_PATH = BASE_DIR / 'docs' / 'manuales' / 'MANUAL_USUARIO.md'
 LOGO_COFFEE = BASE_DIR / 'static' / 'images' / 'logo' / 'Logo Coffee Hacienda.png'
 LOGO_UDG = BASE_DIR / 'docs' / 'academico' / 'logo_udg.png'
 

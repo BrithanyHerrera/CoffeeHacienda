@@ -24,7 +24,7 @@ from docx.oxml.ns import nsdecls, qn
 # CONFIGURACIÓN DE RUTAS Y CONSTANTES DE DISEÑO
 # ==============================================================================
 BASE_DIR = Path(__file__).resolve().parent.parent
-DOCS_DIR = BASE_DIR / 'docs'
+DOCS_DIR = BASE_DIR / 'docs' / 'manuales'
 DOCX_PATH = DOCS_DIR / 'MANUAL_TECNICO.docx'
 PDF_PATH = DOCS_DIR / 'MANUAL_TECNICO.pdf'
 LOGO_UDG_PATH = BASE_DIR / 'docs' / 'academico' / 'logo_udg.png'
