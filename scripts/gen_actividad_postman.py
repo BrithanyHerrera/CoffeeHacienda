@@ -15,9 +15,10 @@ from docx.oxml import parse_xml, OxmlElement
 from docx.oxml.ns import nsdecls, qn
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DOCX_PATH = BASE_DIR / 'docs' / 'academico' / 'Actividad_Postman_Pruebas_API.docx'
-PDF_PATH = BASE_DIR / 'docs' / 'academico' / 'Actividad_Postman_Pruebas_API.pdf'
-COLLECTION_PATH = BASE_DIR / 'docs' / 'academico' / 'Pruebas_JSONPlaceholder.postman_collection.json'
+ACTIVIDAD_DIR = BASE_DIR / 'docs' / 'academico' / 'Actividad Postman'
+DOCX_PATH = ACTIVIDAD_DIR / 'Actividad_Postman_Pruebas_API.docx'
+PDF_PATH = ACTIVIDAD_DIR / 'Actividad_Postman_Pruebas_API.pdf'
+COLLECTION_PATH = ACTIVIDAD_DIR / 'Pruebas_JSONPlaceholder.postman_collection.json'
 LOGO_PATH = BASE_DIR / 'docs' / 'academico' / 'logo_udg.png'
 
 doc = Document()
